@@ -46,7 +46,7 @@ const EventPlanningPage = ({ mode }) => {
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [showCustomPackageModal, setShowCustomPackageModal] = useState(false);
   const [packageAppliedForFunction, setPackageAppliedForFunction] = useState(
-    {}
+    {},
   );
 
   const [selectedByFunction, setSelectedByFunction] = useState({});
@@ -77,13 +77,15 @@ const EventPlanningPage = ({ mode }) => {
     nameHindi: "सभी",
     nameGujarati: "બધા",
   });
+  const ALL_FUNCTIONS = -1;
+
   const hasSelectedItems = useMemo(() => {
     const bucket = selectedByFunction[selectedFunction];
     if (!bucket || !bucket.categories) return false;
 
     const totalItems = Object.values(bucket.categories).reduce(
       (sum, items) => sum + items.length,
-      0
+      0,
     );
     return totalItems > 0;
   }, [selectedByFunction, selectedFunction]);
@@ -163,7 +165,7 @@ const EventPlanningPage = ({ mode }) => {
     if (!eventData || !selectedFunction) return;
 
     const func = eventData.eventFunctions.find(
-      (f) => f.id === selectedFunction
+      (f) => f.id === selectedFunction,
     );
     if (func) {
       setPersonCount(func.pax || "");
@@ -183,7 +185,7 @@ const EventPlanningPage = ({ mode }) => {
         0,
         1,
         200,
-        userIdLocal
+        userIdLocal,
       );
 
       const data = resp?.data?.data;
@@ -217,7 +219,7 @@ const EventPlanningPage = ({ mode }) => {
 
         const mappedItems = cat.selectedMenuPreparationItems.map((it) => {
           const flat = flatItems.find(
-            (f) => Number(f.menuItemId) === Number(it.menuItemId)
+            (f) => Number(f.menuItemId) === Number(it.menuItemId),
           );
 
           return {
@@ -331,7 +333,7 @@ const EventPlanningPage = ({ mode }) => {
 
       return new Set([...ids, ...ids.map(String)]);
     },
-    [selectedByFunction]
+    [selectedByFunction],
   );
 
   const onToggleSelectItem = useCallback(
@@ -379,7 +381,7 @@ const EventPlanningPage = ({ mode }) => {
           categoryName;
 
         categoryIdToUse = Number(
-          menuItem.menuCategory?.id || menuItem.menuCategoryId || 0
+          menuItem.menuCategory?.id || menuItem.menuCategoryId || 0,
         );
       }
       const itemId = Number(menuItem.id ?? menuItem.menuItemId);
@@ -405,7 +407,7 @@ const EventPlanningPage = ({ mode }) => {
             ...prev,
             [functionId]: {
               categoriesOrder: bucket.categoriesOrder.filter(
-                (c) => categories[c]
+                (c) => categories[c],
               ),
               categories,
               categoryNotes: bucket.categoryNotes || {}, // ✅ Preserve category notes
@@ -471,7 +473,7 @@ const EventPlanningPage = ({ mode }) => {
       selectedCategoryId,
       selectedCategory,
       selectedCategoryInfo,
-    ]
+    ],
   );
 
   const onRemoveSelectedItem = useCallback(
@@ -483,7 +485,7 @@ const EventPlanningPage = ({ mode }) => {
 
         const categories = { ...bucket.categories };
         const updated = (categories[categoryName] || []).filter(
-          (i) => Number(i.id) !== Number(itemId)
+          (i) => Number(i.id) !== Number(itemId),
         );
 
         if (updated.length === 0) delete categories[categoryName];
@@ -493,7 +495,7 @@ const EventPlanningPage = ({ mode }) => {
           ...prev,
           [functionId]: {
             categoriesOrder: bucket.categoriesOrder.filter(
-              (c) => categories[c]
+              (c) => categories[c],
             ),
             categories,
             categoryNotes: bucket.categoryNotes || {}, // ✅ Preserve category notes
@@ -502,7 +504,7 @@ const EventPlanningPage = ({ mode }) => {
         };
       });
     },
-    []
+    [],
   );
 
   const onDragEndSelected = useCallback((functionId, newState) => {
@@ -525,7 +527,9 @@ const EventPlanningPage = ({ mode }) => {
         const items = categories[categoryName] || [];
 
         const updatedItems = items.map((item) =>
-          Number(item.id) === Number(itemId) ? { ...item, rate: newRate } : item
+          Number(item.id) === Number(itemId)
+            ? { ...item, rate: newRate }
+            : item,
         );
 
         return {
@@ -540,7 +544,7 @@ const EventPlanningPage = ({ mode }) => {
         };
       });
     },
-    []
+    [],
   );
 
   const handlePackageSelect = async (packageId) => {
@@ -706,7 +710,7 @@ const EventPlanningPage = ({ mode }) => {
             menuItemNameGujarati: item.nameGujarati || item.nameEnglish || "",
           })),
         };
-      }
+      },
     );
 
     const isPackageApplied =
@@ -810,7 +814,7 @@ const EventPlanningPage = ({ mode }) => {
         const updatedItems = items.map((item) =>
           Number(item.id) === Number(itemId)
             ? { ...item, itemNotes: newInstructions }
-            : item
+            : item,
         );
 
         return {
@@ -825,7 +829,7 @@ const EventPlanningPage = ({ mode }) => {
         };
       });
     },
-    []
+    [],
   );
 
   const handleCategoryChange = (categoryName, categoryId, categoryInfo) => {
@@ -887,7 +891,7 @@ const EventPlanningPage = ({ mode }) => {
         updatedCategories[cat] = bucket.categories[cat].map((item) =>
           Number(item.id) === Number(currentItemForNotes)
             ? { ...item, itemSlogan: updatedSlogan }
-            : item
+            : item,
         );
       });
 
@@ -1442,7 +1446,7 @@ const EventPlanningPage = ({ mode }) => {
       />
       <SelectMenureport
         isSelectMenureport={isSelectMenuReport}
-        setEventFunctionId={selectedFunction}
+        setEventFunctionId={ALL_FUNCTIONS}
         setIsSelectMenuReport={setIsSelectMenuReport}
         onConfirm={() => {
           setIsMenuReport(true);

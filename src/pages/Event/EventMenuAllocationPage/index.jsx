@@ -207,7 +207,7 @@ const OrderSummary = ({
     return getLocalizedValue(
       category,
       "menuCategoryName",
-      category.menuCategoryName
+      category.menuCategoryName,
     );
   };
 
@@ -254,7 +254,7 @@ const OrderSummary = ({
                   const matchingRow = rows.find(
                     (r) =>
                       r.menuItemId === item.menuItemId &&
-                      r.eventFunctionId === functionGroup.eventFunctionId
+                      r.eventFunctionId === functionGroup.eventFunctionId,
                   );
 
                   const itemPrice = calculateItemPrice(item, matchingRow);
@@ -262,10 +262,10 @@ const OrderSummary = ({
                 }, 0);
               return ftotal + categoryTotal;
             },
-            0
+            0,
           );
           return total + functionTotal;
-        }, 0)
+        }, 0),
       );
     } else {
       // For single function view
@@ -275,7 +275,7 @@ const OrderSummary = ({
             return sum + (item.totalPrice || 0);
           }, 0);
           return total + groupTotal;
-        }, 0)
+        }, 0),
       );
     }
   }, [groups, groupedByFunction, rows]);
@@ -330,20 +330,20 @@ const OrderSummary = ({
                             (r) =>
                               r.menuItemId === item.menuItemId &&
                               r.eventFunctionId ===
-                                functionGroup.eventFunctionId
+                                functionGroup.eventFunctionId,
                           );
 
                           const itemPrice = calculateItemPrice(
                             item,
-                            matchingRow
+                            matchingRow,
                           );
                           return sum + itemPrice;
                         },
-                        0
+                        0,
                       );
                     return total + categoryTotal;
                   },
-                  0
+                  0,
                 );
 
                 const functionDishCosting =
@@ -396,12 +396,12 @@ const OrderSummary = ({
                                 (r) =>
                                   r.menuItemId === item.menuItemId &&
                                   r.eventFunctionId ===
-                                    functionGroup.eventFunctionId
+                                    functionGroup.eventFunctionId,
                               );
 
                               const displayPrice = calculateItemPrice(
                                 item,
-                                matchingRow
+                                matchingRow,
                               );
 
                               return (
@@ -422,7 +422,7 @@ const OrderSummary = ({
                                   </div>
                                 </Fragment>
                               );
-                            }
+                            },
                           )}
                         </div>
                       </div>
@@ -883,7 +883,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       functionStartDateTime: "",
       allFunctionIds: eventData?.eventFunctions?.map((f) => f.id) || [],
     }),
-    [eventData?.eventFunctions]
+    [eventData?.eventFunctions],
   );
 
   const getEventFunctionId = (functionItem) => {
@@ -918,7 +918,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     return groupedByFunction.map((group) => {
       const functionDetail = eventData.eventFunctions.find(
-        (f) => f.id === group.eventFunctionId
+        (f) => f.id === group.eventFunctionId,
       );
       return {
         ...group,
@@ -967,7 +967,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       const matchingRow = rows.find(
         (r) =>
-          r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId
+          r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId,
       );
 
       if (matchingRow?.outside) {
@@ -997,7 +997,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
-        menuItemId
+        menuItemId,
       );
 
       if (res?.data?.success) {
@@ -1063,7 +1063,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       }
 
       const mergedMenuAllocation = allMenuDataResponse.flatMap(
-        (d) => d.menuAllocation || []
+        (d) => d.menuAllocation || [],
       );
 
       // ============= UPDATED: Store all language variants =============
@@ -1146,7 +1146,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         console.log(allMenuDataResponse, "all");
 
         const allSelectedItems = allMenuDataResponse.flatMap(
-          (detail) => detail?.selectedItemDetails || []
+          (detail) => detail?.selectedItemDetails || [],
         );
 
         const totalChefPrice = allMenuDataResponse[0].totalChefPrice;
@@ -1183,7 +1183,7 @@ const EventMenuAllocationPage = ({ mode }) => {
             items:
               Array.from(category.itemsMap.values())?.map((summaryItem) => {
                 const matchingRows = transformedRows.filter(
-                  (r) => r.menuItemId === summaryItem.menuItemId
+                  (r) => r.menuItemId === summaryItem.menuItemId,
                 );
 
                 const basePrice = Number(summaryItem.totalPrice) || 0;
@@ -1232,7 +1232,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         try {
           const res = await SelectedItemNameMenuAllocation(
             row.eventFunctionId,
-            row.menuItemId
+            row.menuItemId,
           );
 
           if (res?.data?.success) {
@@ -1250,7 +1250,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         } catch (error) {
           console.error(
             `Error fetching raw materials for item ${row.menuItemId}:`,
-            error
+            error,
           );
         }
         return row;
@@ -1343,7 +1343,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const updateRow = (updated) => {
     setRows((prevRows) => {
       const updatedRows = prevRows.map((x) =>
-        x.key === updated.key ? updated : x
+        x.key === updated.key ? updated : x,
       );
 
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
@@ -1450,10 +1450,10 @@ const EventMenuAllocationPage = ({ mode }) => {
             ...r,
             eventFunctionMenuAllocations: [
               ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isChefLabour === true
+                (a) => a.isChefLabour === true,
               ),
               ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isOutside === true
+                (a) => a.isOutside === true,
               ),
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
@@ -1479,7 +1479,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const updateOrderSummaryPrices = (
     menuItemId,
     currentRows = rows,
-    specificFunctionId = null
+    specificFunctionId = null,
   ) => {
     setOrderSummaryGroups((prevGroups) =>
       prevGroups.map((group) => ({
@@ -1492,7 +1492,7 @@ const EventMenuAllocationPage = ({ mode }) => {
               row.menuItemId === menuItemId &&
               (specificFunctionId
                 ? row.eventFunctionId === specificFunctionId
-                : true)
+                : true),
           );
 
           if (matchingRows.length === 0) return item;
@@ -1510,7 +1510,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   ?.filter((a) => a.isOutside)
                   .reduce(
                     (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
+                    0,
                   ) || 0;
               return total + additionalCost;
             }
@@ -1521,7 +1521,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   ?.filter((a) => a.isChefLabour)
                   .reduce(
                     (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
+                    0,
                   ) || 0;
               return total + (basePrice + chefLabourCost);
             }
@@ -1531,7 +1531,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
           return { ...item, totalPrice };
         }),
-      }))
+      })),
     );
   };
 
@@ -1543,7 +1543,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         ...group,
         items: group.items.map((item) => {
           const matchingRows = rows.filter(
-            (row) => row.menuItemId === item.menuItemId
+            (row) => row.menuItemId === item.menuItemId,
           );
 
           if (matchingRows.length === 0) return item;
@@ -1561,7 +1561,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   ?.filter((a) => a.isOutside)
                   .reduce(
                     (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
+                    0,
                   ) || 0;
               return total + additionalCost;
             }
@@ -1572,7 +1572,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   ?.filter((a) => a.isChefLabour)
                   .reduce(
                     (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0
+                    0,
                   ) || 0;
               return total + (basePrice + chefLabourCost);
             }
@@ -1582,7 +1582,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
           return { ...item, totalPrice };
         }),
-      }))
+      })),
     );
   };
 
@@ -1608,10 +1608,10 @@ const EventMenuAllocationPage = ({ mode }) => {
             ...r,
             eventFunctionMenuAllocations: [
               ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isChefLabour === true
+                (a) => a.isChefLabour === true,
               ),
               ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isInside === true
+                (a) => a.isInside === true,
               ),
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
@@ -1650,10 +1650,10 @@ const EventMenuAllocationPage = ({ mode }) => {
             ...r,
             eventFunctionMenuAllocations: [
               ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isOutside === true
+                (a) => a.isOutside === true,
               ),
               ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isInside === true
+                (a) => a.isInside === true,
               ),
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
@@ -1997,7 +1997,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                 onClick={() =>
                   handleNavigateWithWarning(
-                    `/raw-material-allocation/${eventId}`
+                    `/raw-material-allocation/${eventId}`,
                   )
                 }
               >
@@ -2009,7 +2009,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
                 onClick={() =>
                   handleNavigateWithWarning(
-                    `/labour-and-other-management/${eventId}`
+                    `/labour-and-other-management/${eventId}`,
                   )
                 }
               >
@@ -2283,7 +2283,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                 enrichedGroupedByFunction.map((functionGroup, idx) => {
                   const functionRows = filtered.filter(
                     (row) =>
-                      row.eventFunctionId === functionGroup.eventFunctionId
+                      row.eventFunctionId === functionGroup.eventFunctionId,
                   );
 
                   return (
@@ -2315,7 +2315,8 @@ const EventMenuAllocationPage = ({ mode }) => {
                 (() => {
                   const currentFunctionRows = filtered.filter(
                     (row) =>
-                      row.eventFunctionId === getEventFunctionId(activeFunction)
+                      row.eventFunctionId ===
+                      getEventFunctionId(activeFunction),
                   );
 
                   return currentFunctionRows.length === 0 ? (

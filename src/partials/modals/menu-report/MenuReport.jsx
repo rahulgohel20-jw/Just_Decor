@@ -34,6 +34,10 @@ const MenuReport = ({
   const [pdfUrl, setPdfUrl] = useState(null);
   const [options, setOptions] = useState({});
   const [showNamePlateUI, setShowNamePlateUI] = useState(false);
+  const SIZE_LABELS = {
+    size1: "A4",
+    size2: "A6",
+  };
 
   /* ---------------- FETCH CONFIG ---------------- */
   useEffect(() => {
@@ -58,6 +62,8 @@ const MenuReport = ({
           itemImage: config.isItemImage === 1,
           partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
+          size1: config.size1 || null, // string from API
+          size2: config.size2 || null, // string from API
         });
 
         setVisibleOptions(
@@ -72,9 +78,12 @@ const MenuReport = ({
             itemImage: config.isItemImage,
             partyDetails: config.isPartyDetails,
             isWithQty: config.isWithQty,
+            size1: config.size1 ? 1 : 0,
+            size2: config.size2 ? 1 : 0,
           })
-            .filter(([_, value]) => value === 1)
-            .map(([key]) => key)
+            .filter(([_, value]) => value)
+
+            .map(([key]) => key),
         );
       } catch (err) {
         console.error("Config fetch error", err);
@@ -129,6 +138,8 @@ const MenuReport = ({
       isCompanyLogo: options.companyLogo,
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
+      size1: options.size1,
+      size2: options.size2,
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
@@ -138,7 +149,10 @@ const MenuReport = ({
 
     const formData = new FormData();
     Object.entries(payload).forEach(([key, value]) =>
-      formData.append(key, value === true ? "1" : value === false ? "0" : value)
+      formData.append(
+        key,
+        value === true ? "1" : value === false ? "0" : value,
+      ),
     );
 
     setLoading(true);
@@ -171,7 +185,7 @@ const MenuReport = ({
     const message = `Hi ${name},\nPlease find the attached PDF.\n\n${pdfUrl}`;
     window.open(
       `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`,
-      "_blank"
+      "_blank",
     );
   };
 
@@ -265,12 +279,18 @@ const MenuReport = ({
             {visibleOptions.map((key) => (
               <div key={key} className="flex justify-between items-center">
                 <span className="capitalize">
-                  {key.replace(/([A-Z])/g, " $1")}
+                  {key === "size1" || key === "size2"
+                    ? `Size ${options[key]}` // ✅ show string from API
+                    : key.replace(/([A-Z])/g, " $1")}
                 </span>
-                <Toggle
-                  checked={options[key]}
-                  onChange={() => toggleOne(key)}
-                />
+
+                {/* Show toggle only for non-size keys */}
+                {key !== "size1" && key !== "size2" && (
+                  <Toggle
+                    checked={options[key]}
+                    onChange={() => toggleOne(key)}
+                  />
+                )}
               </div>
             ))}
           </div>
