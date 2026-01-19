@@ -72,6 +72,17 @@ export const columns = (setSelectedRow, setIsModalOpen, onDelete) => [
     cell: ({ row }) => <span>{row.original.labourType || "-"}</span>,
   },
   {
+    accessorKey: "size1",
+    header: "Size1 (A4)",
+    cell: ({ row }) => <YesNoIcon value={row.original.size1} />,
+  },
+  {
+    accessorKey: "size2",
+    header: "Size2 (A6)",
+    cell: ({ row }) => <YesNoIcon value={row.original.size2} />,
+  },
+
+  {
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => (

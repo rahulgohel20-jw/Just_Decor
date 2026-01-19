@@ -19,6 +19,8 @@ const defaultOptions = {
   itemSlogan: false,
   PartyDetails: false,
   WithQuantity: false,
+  size1: "A4",
+  size2: "",
 };
 
 const optionLabels = {
@@ -32,6 +34,8 @@ const optionLabels = {
   itemSlogan: "Item Slogan",
   PartyDetails: "Party Details",
   WithQuantity: "With Quantity",
+  size1: "Size1(A4)",
+  size2: "Size2(A6)",
 };
 
 const AddReportConfig = ({
@@ -73,7 +77,7 @@ const AddReportConfig = ({
             res.data.data.map((t) => ({
               id: t.id,
               name: t.nameEnglish || t.templateName || t.title,
-            }))
+            })),
           );
         }
       } catch {
@@ -97,7 +101,7 @@ const AddReportConfig = ({
             res.data.data.map((m) => ({
               id: m.id,
               name: m.nameEnglish || m.name || m.moduleName,
-            }))
+            })),
           );
         } else {
           setModuleOptions([]);
@@ -140,6 +144,8 @@ const AddReportConfig = ({
             itemSlogan: !!data.isItemSlogan,
             PartyDetails: !!data.isPartyDetails,
             WithQuantity: !!data.isWithQty,
+            size1: data.size1 || "",
+            size2: data.size2 || "",
           });
         }
       } catch (error) {
@@ -157,8 +163,33 @@ const AddReportConfig = ({
     optionKeys.forEach((key) => (updated[key] = checked));
     setOptions(updated);
   };
-  const toggleOne = (key) =>
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleOne = (key) => {
+    setOptions((prev) => {
+      // If toggling size1 or size2, turn off the other
+      if (key === "size1") {
+        const newSize1Value = prev.size1 === "A4" ? "" : "A4";
+        return {
+          ...prev,
+          size1: newSize1Value,
+          size2: newSize1Value === "A4" ? "" : prev.size2, // Turn off size2 when turning on size1
+        };
+      }
+      if (key === "size2") {
+        const newSize2Value = prev.size2 === "A6" ? "" : "A6";
+        return {
+          ...prev,
+          size2: newSize2Value,
+          size1: newSize2Value === "A6" ? "" : prev.size1, // Turn off size1 when turning on size2
+        };
+      }
+      // For other options, just toggle normally
+      return {
+        ...prev,
+        [key]: !prev[key],
+      };
+    });
+  };
+
   const Toggle = ({ checked, onChange }) => (
     <button
       type="button"
@@ -190,6 +221,7 @@ const AddReportConfig = ({
       type: labourType,
       templateModuleId: Number(templateId),
       templateMappingId: templateModuleId ? Number(templateModuleId) : 0,
+
       isCategoryImage: booleanToNumber(options.categoryImage),
       isCategoryInstruction: booleanToNumber(options.categoryInstruction),
       isCategorySlogan: booleanToNumber(options.categorySlogan),
@@ -200,6 +232,9 @@ const AddReportConfig = ({
       isItemSlogan: booleanToNumber(options.itemSlogan),
       isPartyDetails: booleanToNumber(options.PartyDetails),
       isWithQty: booleanToNumber(options.WithQuantity),
+
+      size1: options.size1,
+      size2: options.size2,
     };
 
     try {
@@ -213,7 +248,7 @@ const AddReportConfig = ({
         Swal.fire(
           "Success",
           editId ? "Updated successfully" : "Saved successfully",
-          "success"
+          "success",
         );
 
         if (onSave && typeof onSave === "function") onSave(); // refresh table
@@ -332,7 +367,14 @@ const AddReportConfig = ({
             <span className="text-sm font-medium text-gray-700">
               {optionLabels[key]}
             </span>
-            <Toggle checked={options[key]} onChange={() => toggleOne(key)} />
+            <Toggle
+              checked={
+                options[key] === "A4" ||
+                options[key] === "A6" ||
+                options[key] === true
+              }
+              onChange={() => toggleOne(key)}
+            />
           </div>
         ))}
       </div>
