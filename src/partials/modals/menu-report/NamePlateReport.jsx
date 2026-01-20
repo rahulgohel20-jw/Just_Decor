@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { CheckSquare, Square, FileText } from "lucide-react";
+import { CheckSquare, Square } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { GripVertical, Printer, Save } from "lucide-react";
+import { Printer } from "lucide-react";
 
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
