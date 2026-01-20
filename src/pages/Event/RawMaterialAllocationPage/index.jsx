@@ -237,7 +237,6 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
-  // ✅ UPDATED: Store units object and prioritize it for unit display
   const fetchRawMaterialItems = async (categoryId) => {
     setLoading(true);
     setTableLoading(true);
@@ -248,7 +247,6 @@ const RawMaterialAllocation = ({ mode }) => {
       );
       const items =
         response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
-        
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => {
@@ -258,15 +256,28 @@ const RawMaterialAllocation = ({ mode }) => {
               ? item.eventRawMaterialFunctions[0].functiondatetime
               : null;
 
+          // ✅ Calculate and store the original price per unit
+          const originalQty = item.qty || 0;
+          const originalTotal = item.totalprice || 0;
+          const originalPricePerUnit =
+            originalQty > 0 ? originalTotal / originalQty : 0;
+
+          const originalFinalQty = item.finalQty || item.qty || 0;
+
+          const basePricePerUnit =
+            originalFinalQty > 0 ? originalTotal / originalFinalQty : 0;
+
           return {
             id: index + 1,
             rawMaterialId: item.rawMaterialId || item.id || 0,
             material: item.rawMaterialNameEng || "N/A",
             qty: item.qty || 0,
-            finalQty: item.finalQty || item.qty || 0,
+            finalQty: originalFinalQty,
+            total: originalTotal,
+            basePricePerUnit,
             unitHierarchyDto: item.unitHierarchyDto,
-            units: item.units, // ✅ Store the units object
-            // ✅ Prioritize units object for display
+            units: item.units,
+
             unit:
               item.units?.nameEnglish ||
               item.unitHierarchyDto?.nameEnglish ||
@@ -284,14 +295,15 @@ const RawMaterialAllocation = ({ mode }) => {
               functionDate && dayjs(functionDate).isValid()
                 ? dayjs(functionDate)
                 : null,
-            total: item.totalprice || 0,
+
+            originalPricePerUnit: originalPricePerUnit, // ✅ Store this
             eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
           };
         });
 
         setData(formatted);
         setOriginalData(formatted);
-        setHasUnsavedChanges(false); // Reset unsaved changes flag
+        setHasUnsavedChanges(false);
       } else {
         setData([]);
       }
@@ -304,55 +316,98 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
-  // ✅ UPDATED: When unit changes, update both unitId and the units object
-  const handleChange = (index, field, value) => {
-    const updated = [...data];
+  const getEquivalentValue = (fromUnitId, toUnitId, unitHierarchyDto) => {
+    if (!unitHierarchyDto) return 1;
 
-    if (field === "finalQty") {
-      const oldFinalQty = parseFloat(updated[index].finalQty) || 0;
-      const newFinalQty = parseFloat(value) || 0;
-      const oldQty = parseFloat(updated[index].qty) || 0;
-      const difference = newFinalQty - oldFinalQty;
+    // Same unit
+    if (fromUnitId === toUnitId) return 1;
 
-      if (difference > 0) {
-        updated[index].extraQty = difference;
-        updated[index].needsExtraRow = true;
-      } else {
-        updated[index].extraQty = 0;
-        updated[index].needsExtraRow = false;
-      }
+    // Parent → Child (KILO → GRAM)
+    const child = unitHierarchyDto.children?.find((c) => c.unitId === toUnitId);
+    if (child) return child.equivalentValue;
+
+    // Child → Parent (GRAM → KILO)
+    const isChild = unitHierarchyDto.children?.some(
+      (c) => c.unitId === fromUnitId,
+    );
+    if (isChild && unitHierarchyDto.unitId === toUnitId) {
+      const childUnit = unitHierarchyDto.children.find(
+        (c) => c.unitId === fromUnitId,
+      );
+      return 1 / childUnit.equivalentValue;
     }
 
-    // ✅ Handle unit change - update units object
+    return 1;
+  };
+
+  const handleChange = (index, field, value) => {
+    const updated = [...data];
+    const row = updated[index];
+
+    const basePrice = Number(row.basePricePerUnit) || 0;
+
+    // ===============================
+    // FINAL QTY CHANGE
+    // ===============================
+    if (field === "finalQty") {
+      const newFinalQty = Number(value) || 0;
+
+      row.finalQty = newFinalQty;
+      row.total = newFinalQty > 0 ? basePrice * newFinalQty : 0;
+
+      setData(updated);
+      setHasUnsavedChanges(true);
+      return;
+    }
+
+    // ===============================
+    // UNIT CHANGE
+    // ===============================
     if (field === "unitId") {
       const newUnitId = Number(value);
-      updated[index].unitId = newUnitId;
+      const oldUnitId = row.unitId;
 
-      // Find the unit name from available options
+      const factor = getEquivalentValue(
+        oldUnitId,
+        newUnitId,
+        row.unitHierarchyDto,
+      );
+
+      // Convert quantity
+      const newFinalQty = (Number(row.finalQty) || 0) * factor;
+
+      // Convert price inversely
+      const newPricePerUnit = factor !== 0 ? basePrice / factor : basePrice;
+
+      row.unitId = newUnitId;
+      row.finalQty = newFinalQty;
+      row.basePricePerUnit = newPricePerUnit;
+      row.total = newFinalQty > 0 ? newFinalQty * newPricePerUnit : 0;
+
+      // Update unit label
       const unitOptions = buildUnitOptions(
-        updated[index].units,
-        updated[index].unitHierarchyDto,
-        updated[index].unitId,
-        updated[index].unit,
+        row.units,
+        row.unitHierarchyDto,
+        newUnitId,
+        row.unit,
       );
 
       const selectedUnit = unitOptions.find((u) => u.value === newUnitId);
-
       if (selectedUnit) {
-        // Update the units object with new selection
-        updated[index].units = {
-          ...updated[index].units,
+        row.unit = selectedUnit.label;
+        row.units = {
+          ...row.units,
           id: newUnitId,
           nameEnglish: selectedUnit.label,
         };
-        updated[index].unit = selectedUnit.label;
       }
-    } else if (field === "date" && value) {
-      updated[index][field] = dayjs(value);
-    } else {
-      updated[index][field] = value;
+
+      setData(updated);
+      setHasUnsavedChanges(true);
+      return;
     }
 
+    row[field] = value;
     setData(updated);
     setHasUnsavedChanges(true);
   };
@@ -379,7 +434,7 @@ const RawMaterialAllocation = ({ mode }) => {
       const payload = {
         eventId: parseInt(eventId),
         rawMaterialCategoryId: parseInt(activeTab || 0),
-        
+
         eventRawMaterial: data.map((item) => {
           const supplierId =
             agencies.find(
@@ -387,8 +442,6 @@ const RawMaterialAllocation = ({ mode }) => {
             )?.id ||
             item.supplierId ||
             0;
-
-            
 
           const eventRawMatFunctions = (
             item.eventRawMaterialFunctions || []
@@ -403,7 +456,7 @@ const RawMaterialAllocation = ({ mode }) => {
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
                 : "",
             isExtraField: fn.isExtraField === true,
-            rawMaterialRate:fn.rawMaterialPrice,
+            rawMaterialRate: fn.rawMaterialPrice,
             itemName: fn.itemName || item.material || "",
             place: fn.place || item.place || "",
             price: parseFloat(fn.price) || 0,
@@ -411,8 +464,6 @@ const RawMaterialAllocation = ({ mode }) => {
             supplierId: fn.supplierId || supplierId,
             unitId: fn.unitId || item.unitId || 0,
           }));
-
-          
 
           return {
             eventRawMatFunctions: eventRawMatFunctions,
@@ -1038,7 +1089,7 @@ const RawMaterialAllocation = ({ mode }) => {
 
                       <td className="px-4 py-3">
                         <input
-                          type="text"
+                          type="tel"
                           value={item.finalQty}
                           onChange={(e) =>
                             handleChange(index, "finalQty", e.target.value)
