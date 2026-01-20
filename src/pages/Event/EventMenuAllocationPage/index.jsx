@@ -1880,7 +1880,6 @@ const EventMenuAllocationPage = ({ mode }) => {
       });
     }
   };
-
   function openSelectMenureport() {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
@@ -2427,7 +2426,7 @@ const EventMenuAllocationPage = ({ mode }) => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
-          setEventFunctionId={getEventFunctionId(activeFunction)}
+          setEventFunctionId={-1}
           mode={mode}
         />
         <SummaryItemModalchefoutside

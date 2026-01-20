@@ -211,6 +211,7 @@ import GodownMaster from "../pages/master/Godown-master";
 import PageMaster from "../pages/super-admin/master/pages-master";
 import ExtraPaymentMaster from "../pages/super-admin/master/ExtraPayment-master";
 import CouponMaster from "../pages/super-admin/master/Coupon-master";
+import { CrockeryConfiguration } from "../pages/Configuration/CrockeryConfiguration/CrockeryConfiguration";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -476,6 +477,11 @@ const AppRoutingSetup = () => {
             path="/configuration/allocationsupplier"
             element={<Allocatesupplier />}
           />
+          <Route
+            path="/configuration/CrockeryConfiguration"
+            element={<CrockeryConfiguration />}
+          />
+
           {/* Support routes */}
           <Route path="/support/events" element={<EventsPage />} />
           <Route path="/support/tutorials" element={<TutorialsPage />} />

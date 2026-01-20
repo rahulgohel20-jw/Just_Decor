@@ -97,7 +97,6 @@ const ItemTable = ({ rows, onInputChange, onAddRow, onDeleteRow }) => {
         <Input
           type="number"
           value={record.person}
-          disabled={!record.isCustom && !record.isNewRow} // ✅ Enable for custom rows OR new rows
           onChange={(e) => onInputChange(index, "person", e.target.value)}
           className="text-center border-none shadow-none"
         />
