@@ -108,11 +108,7 @@ export default function NamePlateReport({
       }),
     );
   };
-  const [items, setItems] = useState([
-    { id: 1, name: "STRAWBERRY BLACK GREAPS", checked: true },
-    { id: 2, name: "MINERAL WATER BOTTLE 200ML", checked: true },
-    { id: 3, name: "LEMON MINT SODA", checked: false },
-  ]);
+  const [items, setItems] = useState([]);
 
   const [headerNotes, setHeaderNotes] = useState({
     english: "",
