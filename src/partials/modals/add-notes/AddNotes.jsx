@@ -34,6 +34,8 @@ useEffect(() => {
       const res = await Translateapi(notes.notesEnglish);
 
       const data = res?.data?.data || res?.data || {};
+      console.log(data);
+      
 
       setNotes((prev) => ({
         ...prev,

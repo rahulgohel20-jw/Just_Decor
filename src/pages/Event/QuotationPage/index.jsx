@@ -55,7 +55,7 @@ const QuotationPage = () => {
         name: "",
         date: null,
         persons: "",
-        extra: "",
+        // extra: 0,
         rate: "",
         totalPrice: "",
       },
@@ -98,7 +98,7 @@ const QuotationPage = () => {
           normalize(fn.name).includes(normalize(searchTerm)) ||
           (fn.date &&
             normalize(fn.date.format("DD/MM/YYYY hh:mm A")).includes(
-              normalize(searchTerm)
+              normalize(searchTerm),
             ))
         );
       });
@@ -151,7 +151,7 @@ const QuotationPage = () => {
             mobileNumber: quotationInfo.event?.mobileno || "-",
             estimateDate: quotationInfo.event?.eventStartDateTime
               ? new Date(
-                  quotationInfo.event.eventStartDateTime
+                  quotationInfo.event.eventStartDateTime,
                 ).toLocaleDateString("en-GB", {
                   day: "2-digit",
                   month: "long",
@@ -168,7 +168,7 @@ const QuotationPage = () => {
                       ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
                       : null,
                   persons: item.pax?.toString() || "",
-                  extra: item.extraPax?.toString() || "0",
+                  extra: 0,
                   rate: item.ratePerPlate?.toString() || "",
                   totalPrice: formatAmount(item.amount),
                   isFromQuotationItems: item.isEventFunction,
@@ -182,18 +182,18 @@ const QuotationPage = () => {
                       date: eventFunc.functionStartDateTime
                         ? dayjs(
                             eventFunc.functionStartDateTime,
-                            "DD/MM/YYYY hh:mm A"
+                            "DD/MM/YYYY hh:mm A",
                           )
                         : null,
                       persons: eventFunc.pax?.toString() || "",
-                      extra: eventFunc.extra || "0",
+                      extra: 0,
                       rate: eventFunc.rate?.toString() || "",
                       totalPrice:
                         eventFunc.pax && eventFunc.rate
                           ? eventFunc.pax * eventFunc.rate
                           : "0",
                       isFromQuotationItems: true,
-                    })
+                    }),
                   )
                 : [
                     {
@@ -249,7 +249,7 @@ const QuotationPage = () => {
                       p.advancePaymentDate &&
                       dayjs(
                         p.advancePaymentDate,
-                        "DD/MM/YYYY hh:mm A"
+                        "DD/MM/YYYY hh:mm A",
                       ).isValid()
                         ? dayjs(p.advancePaymentDate, "DD/MM/YYYY hh:mm A")
                         : null,
@@ -262,11 +262,11 @@ const QuotationPage = () => {
                         quotationInfo.advancePaymentDate &&
                         dayjs(
                           quotationInfo.advancePaymentDate,
-                          "DD/MM/YYYY hh:mm A"
+                          "DD/MM/YYYY hh:mm A",
                         ).isValid()
                           ? dayjs(
                               quotationInfo.advancePaymentDate,
-                              "DD/MM/YYYY hh:mm A"
+                              "DD/MM/YYYY hh:mm A",
                             )
                           : null,
                       description: quotationInfo.advancePaymentNotes || "",
@@ -294,20 +294,20 @@ const QuotationPage = () => {
 
     const discountAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
-        ?.amount || 0
+        ?.amount || 0,
     );
     const roundOffAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Round Off")
-        ?.amount || 0
+        ?.amount || 0,
     );
     const cgstAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount || 0
+      quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount || 0,
     );
     const sgstAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount || 0
+      quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount || 0,
     );
     const igstAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "IGST")?.amount || 0
+      quotationData.taxDetails.find((tax) => tax.label === "IGST")?.amount || 0,
     );
 
     const totalTaxAmount = cgstAmount + sgstAmount + igstAmount;
@@ -383,7 +383,7 @@ const QuotationPage = () => {
 
     if (field === "persons" || field === "rate" || field === "extra") {
       const persons = parseFloat(newFunctions[index].persons) || 0;
-      const extra = parseFloat(newFunctions[index].extra) || 0;
+      // const extra = parseFloat(newFunctions[index].extra) || 0;
       const rate = parseFloat(newFunctions[index].rate) || 0;
 
       const total = (persons + extra) * rate;
@@ -419,20 +419,20 @@ const QuotationPage = () => {
 
     const discount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
-        ?.amount || 0
+        ?.amount || 0,
     );
     const roundOff = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Round Off")
-        ?.amount || 0
+        ?.amount || 0,
     );
     const cgstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "CGST"
+      (tax) => tax.label === "CGST",
     );
     const sgstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "SGST"
+      (tax) => tax.label === "SGST",
     );
     const igstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "IGST"
+      (tax) => tax.label === "IGST",
     );
 
     const cgstPercentage = parseFloat(cgstDetail?.percentage || 0);
@@ -466,7 +466,7 @@ const QuotationPage = () => {
       eventId: parseInt(eventId),
       functionQuotationItems: quotationData.functions.map((fn) => ({
         amount: parseFloat(fn.totalPrice) || 0,
-        extraPax: fn.extra,
+        extraPax: 0,
         functionDate: fn.date ? fn.date.format("DD/MM/YYYY hh:mm A") : null,
         functionName: fn.name,
         id: fn.id && fn.id !== 0 ? fn.id : 0,
@@ -985,12 +985,7 @@ const QuotationPage = () => {
                         defaultMessage="Person"
                       />
                     </div>
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-                      <FormattedMessage
-                        id="COMMON.EXTRA"
-                        defaultMessage="Extra"
-                      />
-                    </div>
+
                     <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
                       <FormattedMessage
                         id="COMMON.RATE"
@@ -1058,7 +1053,7 @@ const QuotationPage = () => {
                             handleFunctionChange(
                               index,
                               "persons",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           placeholder={intl.formatMessage({
@@ -1071,9 +1066,9 @@ const QuotationPage = () => {
                         />
                       </div>
 
-                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
+                      {/* /* <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
                         {fn.isNewFunction ? (
-                          // Show just a dash or "N/A" for new functions
+                          Show just a dash or "N/A" for new functions
                           <div className="input w-full bg-gray-100 flex items-center justify-center cursor-not-allowed">
                             -
                           </div>
@@ -1085,7 +1080,7 @@ const QuotationPage = () => {
                               handleFunctionChange(
                                 index,
                                 "extra",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             placeholder={intl.formatMessage({
@@ -1097,7 +1092,7 @@ const QuotationPage = () => {
                             readOnly={fn.isNewFunction}
                           />
                         )}
-                      </div>
+                      </div> */}
                       <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
                         <input
                           className="input w-full"
@@ -1122,7 +1117,7 @@ const QuotationPage = () => {
                             handleFunctionChange(
                               index,
                               "totalPrice",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           placeholder={intl.formatMessage({
@@ -1236,7 +1231,7 @@ const QuotationPage = () => {
                                 handleTaxChange(
                                   idx,
                                   "percentage",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1353,7 +1348,7 @@ const QuotationPage = () => {
                                 handleAdvancePaymentChange(
                                   i,
                                   "amount",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               placeholder="0"
@@ -1398,7 +1393,7 @@ const QuotationPage = () => {
                                   handleAdvancePaymentChange(
                                     i,
                                     "description",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 placeholder={intl.formatMessage({

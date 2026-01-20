@@ -20,6 +20,7 @@ import {
   Getmenuprep,
   AddMenuprep,
   GetCustomPackageapibyID,
+  Translateapi,
 } from "@/services/apiServices";
 import AddMenuItem from "@/partials/modals/add-menu-item/AddMenuItem";
 import AddMenuCategory from "@/partials/modals/add-menu-category/AddMenuCategory";
@@ -90,6 +91,23 @@ const EventPlanningPage = ({ mode }) => {
     return totalItems > 0;
   }, [selectedByFunction, selectedFunction]);
 
+  const normalizeItemNotes = (notes) => {
+    if (!notes) {
+      return { english: "", hindi: "", gujarati: "" };
+    }
+  
+    if (typeof notes === "string") {
+      return { english: notes, hindi: "", gujarati: "" };
+    }
+  
+    return {
+      english: notes.english || "",
+      hindi: notes.hindi || "",
+      gujarati: notes.gujarati || "",
+    };
+  };
+  
+
   const handleFunctionChange = async (newFunctionId) => {
     if (isDirty) {
       const result = await Swal.fire({
@@ -138,6 +156,34 @@ const EventPlanningPage = ({ mode }) => {
       }
     }, 0);
   };
+
+  const translateItemNotes = async (englishText) => {
+    if (!englishText) {
+      return {
+        english: "",
+        hindi: "",
+        gujarati: "",
+      };
+    }
+  
+    try {
+      const resp = await Translateapi(englishText);
+  
+      return {
+        english: englishText,
+        hindi: resp?.data?.hindi || "",
+        gujarati: resp?.data?.gujarati || "",
+      };
+    } catch (err) {
+      console.error("Translation failed", err);
+      return {
+        english: englishText,
+        hindi: "",
+        gujarati: "",
+      };
+    }
+  };
+  
 
   const fetchEventData = async () => {
     try {
@@ -234,7 +280,7 @@ const EventPlanningPage = ({ mode }) => {
             menuCategoryNameGujarati: catNameGujarati,
             catId: Number(cat.menuCategoryId || 0),
             itemSlogan: it.itemSlogan || "",
-            itemNotes: it.itemNotes || "",
+            itemNotes: normalizeItemNotes(it.itemNotes),
 
             // Package metadata
             isPackageItem: data?.menuPreparation?.isPackage || false,
@@ -441,7 +487,8 @@ const EventPlanningPage = ({ mode }) => {
           menuCategoryNameGujarati: categoryNameGujarati,
           catId: categoryIdToUse,
           itemSlogan: menuItem.itemSlogan || "", // ✅ Preserve itemSlogan from fetched data
-          itemNotes: menuItem.itemNotes || "", // ✅ Preserve itemNotes from fetched data
+          itemNotes: normalizeItemNotes(menuItem.itemNotes),
+          // ✅ Preserve itemNotes from fetched data
         });
 
         categories[categoryName] = list;
@@ -686,7 +733,12 @@ const EventPlanningPage = ({ mode }) => {
         const catNameHindi = firstItem.menuCategoryNameHindi || catName;
         const catNameGujarati = firstItem.menuCategoryNameGujarati || catName;
 
-        const categoryNotes = bucket.categoryNotes?.[catName] || "";
+        const categoryNoteObj = bucket.categoryNotes?.[catName] || {};
+
+        const categoryNotesEnglish = categoryNoteObj.english || "";
+        const categoryNotesHindi = categoryNoteObj.hindi || "";
+        const categoryNotesGujarati = categoryNoteObj.gujarati || "";
+        
         const categorySlogan = bucket.categorySlogans?.[catName] || "";
 
         return {
@@ -694,13 +746,18 @@ const EventPlanningPage = ({ mode }) => {
           menuCategoryName: catNameEnglish,
           menuCategoryNameHindi: catNameHindi,
           menuCategoryNameGujarati: catNameGujarati,
-          menuNotes: categoryNotes,
+          menuNotes: categoryNotesEnglish,
+          menuNotesHindi: categoryNotesHindi,
+          menuNotesGujarati: categoryNotesGujarati,
           menuSlogan: categorySlogan,
           menuSortOrder: catIndex,
           startTime: "",
           selectedMenuPreparationItems: items.map((item, itemIndex) => ({
             id: 0,
-            itemNotes: item.itemNotes || "",
+                    
+            itemNotes: item.itemNotes?.english || "",
+            itemNotesHindi: item.itemNotes?.hindi || "",
+            itemNotesGujarati: item.itemNotes?.gujarati || "",
             itemSlogan: item.itemSlogan || "", // ✅ This will now include fetched slogan if not modified
             itemSortOrder: itemIndex,
             itemPrice: Number(item.rate),
@@ -801,36 +858,33 @@ const EventPlanningPage = ({ mode }) => {
   };
 
   const onInstructionsChange = useCallback(
-    (functionId, categoryName, itemId, newInstructions) => {
+    async (functionId, categoryName, itemId, englishNote) => {
       setIsDirty(true);
-
+  
+      const translated = await translateItemNotes(englishNote);
+  
       setSelectedByFunction((prev) => {
         const bucket = prev[functionId];
         if (!bucket) return prev;
-
+  
         const categories = { ...bucket.categories };
-        const items = categories[categoryName] || [];
-
-        const updatedItems = items.map((item) =>
+  
+        categories[categoryName] = categories[categoryName].map((item) =>
           Number(item.id) === Number(itemId)
-            ? { ...item, itemNotes: newInstructions }
-            : item,
+            ? { ...item, itemNotes: translated }
+            : item
         );
-
+  
         return {
           ...prev,
-          [functionId]: {
-            ...bucket,
-            categories: {
-              ...categories,
-              [categoryName]: updatedItems,
-            },
-          },
+          [functionId]: { ...bucket, categories },
         };
       });
     },
     [],
   );
+  
+  
 
   const handleCategoryChange = (categoryName, categoryId, categoryInfo) => {
     setSelectedCategory(categoryName);
@@ -871,9 +925,15 @@ const EventPlanningPage = ({ mode }) => {
 
     setCurrentCategoryForNotes(categoryName);
     setCategoryNotes({
-      notes: bucket?.categoryNotes?.[categoryName] || "",
+      notesEnglish:
+        bucket?.categoryNotes?.[categoryName]?.english || "",
+      notesHindi:
+        bucket?.categoryNotes?.[categoryName]?.hindi || "",
+      notesGujarati:
+        bucket?.categoryNotes?.[categoryName]?.gujarati || "",
       slogan: bucket?.categorySlogans?.[categoryName] || "",
     });
+    
     setShowCategoryNoteModal(true);
   };
 
@@ -908,36 +968,42 @@ const EventPlanningPage = ({ mode }) => {
     setCurrentItemForNotes(null);
   };
 
-  const handleCategoryNoteSave = ({ notes, slogan }) => {
+  const handleCategoryNoteSave = ({   
+    notesEnglish,
+    notesHindi,
+    notesGujarati, slogan }) => {
+    
     if (!selectedFunction || !currentCategoryForNotes) return;
     setIsDirty(true);
-
     setSelectedByFunction((prev) => {
       const bucket = prev[selectedFunction] || {};
-
+    
       return {
         ...prev,
         [selectedFunction]: {
           ...bucket,
           categoryNotes: {
             ...(bucket.categoryNotes || {}),
-            [currentCategoryForNotes]: notes,
+            [currentCategoryForNotes]: {
+              english: notesEnglish || "",
+              hindi: notesHindi || "",
+              gujarati: notesGujarati || "",
+            },
           },
           categorySlogans: {
             ...(bucket.categorySlogans || {}),
-            [currentCategoryForNotes]: slogan,
+            [currentCategoryForNotes]: slogan || "",
           },
         },
       };
     });
+    
 
     setShowCategoryNoteModal(false);
     setCurrentCategoryForNotes(null);
   };
 
-  const initializeData = useCallback(async () => {
-    await loadSavedMenuPrep();
-  }, [loadSavedMenuPrep]);
+ 
 
   const currentPackageCategories =
     packageCategoriesByFunction[selectedFunction] || [];

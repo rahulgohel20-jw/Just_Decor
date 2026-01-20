@@ -33,7 +33,17 @@ const SelectedItems = ({
   const previousItemIdsRef = useRef(new Set());
   const isInitialMountRef = useRef(true);
   const hasLoadedInitialDataRef = useRef(false);
-
+  const getNotesByLang = (itemNotes) => {
+    const lang = localStorage.getItem("lang") || "en";
+  
+    if (!itemNotes) return "";
+  
+    if (lang === "hi") return itemNotes.hindi || itemNotes.english || "";
+    if (lang === "gu") return itemNotes.gujarati || itemNotes.english || "";
+  
+    return itemNotes.english || "";
+  };
+  
   useEffect(() => {
     setManuallyOpenItems({});
     setAutoOpenItemId(null);
@@ -484,7 +494,7 @@ const SelectedItems = ({
                                             <textarea
                                               rows={2}
                                               placeholder="Add instructions..."
-                                              value={item.itemNotes || ""}
+                                              value={getNotesByLang(item.itemNotes)}
                                               onChange={(e) =>
                                                 onInstructionsChange(
                                                   functionId,
@@ -493,6 +503,7 @@ const SelectedItems = ({
                                                   e.target.value
                                                 )
                                               }
+
                                               onClick={(e) =>
                                                 e.stopPropagation()
                                               }

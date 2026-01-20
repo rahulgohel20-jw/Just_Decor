@@ -44,15 +44,33 @@ const RawMaterialAllocation = ({ mode }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [originalData, setOriginalData] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
+
+  const toggleRowSelection = (rawMaterialId) => {
+    setSelectedRows((prev) =>
+      prev.includes(rawMaterialId)
+        ? prev.filter((id) => id !== rawMaterialId)
+        : [...prev, rawMaterialId],
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedRows.length === data.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(data.map((item) => item.rawMaterialId));
+    }
+  };
 
   useEffect(() => {
     if (eventId) {
       fetchEventData();
     }
   }, [eventId]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       const query = searchTerm.trim().toLowerCase();
@@ -356,10 +374,10 @@ const RawMaterialAllocation = ({ mode }) => {
       row.total = prevTotal;
 
       const unitOptions = buildUnitOptions(
-        row.units,
-        row.unitHierarchyDto,
-        newUnitId,
-        row.unit,
+        updated[index].units,
+        updated[index].unitHierarchyDto,
+        updated[index].unitId,
+        updated[index].unit,
       );
 
       const selectedUnit = unitOptions.find((u) => u.value === newUnitId);
@@ -535,40 +553,68 @@ const RawMaterialAllocation = ({ mode }) => {
   };
 
   const handleAllocateAgency = (agency) => {
-    const updated = data.map((item) => ({
-      ...item,
-      agency: agency,
-    }));
+    if (selectedRows.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Selection",
+        text: "Please select at least one raw material.",
+      });
+      return;
+    }
+
+    const updated = data.map((item) =>
+      selectedRows.includes(item.rawMaterialId) ? { ...item, agency } : item,
+    );
+
     setData(updated);
-    setHasUnsavedChanges(true); // 🔥 Mark as changed
+    setHasUnsavedChanges(true);
   };
 
   const handleAllocatePlace = (placeName, placeId) => {
-    if (!placeName) return;
+    if (selectedRows.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Selection",
+        text: "Please select at least one raw material.",
+      });
+      return;
+    }
 
-    const updated = data.map((item) => ({
-      ...item,
-      place: placeName, // only string
-      placeId: Number(placeId) || 0, // for backend
-    }));
+    const updated = data.map((item) =>
+      selectedRows.includes(item.rawMaterialId)
+        ? {
+            ...item,
+            place: placeName,
+            placeId: Number(placeId) || 0,
+          }
+        : item,
+    );
 
     setData(updated);
-    setOriginalData(updated); // important for search/filter
     setHasUnsavedChanges(true);
   };
 
   const handleAllocateDate = (date) => {
     if (!date) return;
 
+    if (selectedRows.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Selection",
+        text: "Please select at least one raw material.",
+      });
+      return;
+    }
+
     const allocatedDate = dayjs(date);
 
-    const updatedData = data.map((item) => ({
-      ...item,
-      date: allocatedDate,
-    }));
+    const updated = data.map((item) =>
+      selectedRows.includes(item.rawMaterialId)
+        ? { ...item, date: allocatedDate }
+        : item,
+    );
 
-    setData(updatedData);
-    setOriginalData(updatedData);
+    setData(updated);
     setHasUnsavedChanges(true);
   };
 
@@ -589,40 +635,40 @@ const RawMaterialAllocation = ({ mode }) => {
           <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
             <table className="w-full divide-y divide-gray-200 h-[100px] overflow-x-scroll">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <tr className="">
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
-                    <FormattedMessage
-                      id="SIDEBAR_MODAL.RAW_MATERIAL"
-                      defaultMessage="SRNO"
-                    />
-                  </th>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
-                    <FormattedMessage
-                      id="SIDEBAR_MODAL.RAW_MATERIAL"
-                      defaultMessage="Raw Material"
+                <tr>
+                  {/* ✅ SELECT ALL CHECKBOX */}
+                  <th className="px-4 py-4 text-center">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedRows.length === data.length && data.length > 0
+                      }
+                      onChange={toggleSelectAll}
                     />
                   </th>
 
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
-                    <FormattedMessage
-                      id="SIDEBAR_MODAL.AGENCY"
-                      defaultMessage="Agency"
-                    />
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                    SRNO
                   </th>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
-                    <FormattedMessage
-                      id="SIDEBAR_MODAL.PLACE"
-                      defaultMessage="Place"
-                    />
+
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                    Raw Material
                   </th>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider ">
-                    <FormattedMessage
-                      id="SIDEBAR_MODAL.DATE"
-                      defaultMessage="Date"
-                    />
+
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                    Agency
+                  </th>
+
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                    Place
+                  </th>
+
+                  <th className="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase">
+                    Date
                   </th>
                 </tr>
               </thead>
+
               {/* ===== TABLE BODY ===== */}
               <tbody>
                 {tableLoading ? (
@@ -640,7 +686,19 @@ const RawMaterialAllocation = ({ mode }) => {
                 ) : (
                   data.map((item, index) => (
                     <tr key={index} className="border-b border-gray-200">
+                      {/* ✅ ADD THIS */}
+                      <td className="px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.includes(item.rawMaterialId)}
+                          onChange={() =>
+                            toggleRowSelection(item.rawMaterialId)
+                          }
+                        />
+                      </td>
+
                       <td className="px-4 py-3">{item.id}</td>
+
                       <td
                         className="px-4 py-2 text-xs text-gray-700 truncate max-w-[150px]"
                         title={item.material}
