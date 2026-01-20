@@ -179,11 +179,55 @@ export default function RichTextEditor({ value, onChange }) {
         </button>
       </div>
 
-      {/* Editor Content */}
+      {/* Editor Content with inline styles for formatting */}
       <EditorContent
         editor={editor}
-        className="prose max-w-none p-4 min-h-[30px] focus:outline-none"
+        className="p-4 min-h-[100px] focus:outline-none"
       />
+
+      {/* Add CSS for editor formatting */}
+      <style jsx>{`
+        :global(.ProseMirror) {
+          outline: none;
+        }
+
+        :global(.ProseMirror strong) {
+          font-weight: bold;
+        }
+
+        :global(.ProseMirror em) {
+          font-style: italic;
+        }
+
+        :global(.ProseMirror s) {
+          text-decoration: line-through;
+        }
+
+        :global(.ProseMirror ul) {
+          list-style-type: disc;
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+
+        :global(.ProseMirror ol) {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+
+        :global(.ProseMirror li) {
+          margin: 0.25rem 0;
+        }
+
+        :global(.ProseMirror p) {
+          margin: 0.5rem 0;
+        }
+
+        :global(.ProseMirror mark) {
+          background-color: #fef08a;
+          padding: 0.125rem 0;
+        }
+      `}</style>
     </div>
   );
 }

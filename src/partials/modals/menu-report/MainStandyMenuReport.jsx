@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
+import { CheckSquare, Square } from "lucide-react";
+
 import { GripVertical, Printer, Save } from "lucide-react";
 import {
   GetNamePlatedata,
@@ -12,6 +14,7 @@ import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+
 const initialCounters = [];
 
 const MainStandyMenuReport = ({
@@ -27,7 +30,6 @@ const MainStandyMenuReport = ({
         enableShortcuts: true,
       },
     },
-    // Set initial zoom to 100%
     renderPage: (props) => (
       <>
         {props.canvasLayer.children}
@@ -42,15 +44,15 @@ const MainStandyMenuReport = ({
   let userId = localStorage.getItem("userId");
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
+  const [mainStandyItems, setMainStandyItems] = useState([]);
 
   useEffect(() => {
     if (eventId && eventFunctionId && userId) {
-      console.warn("Cannot fetch NamePlate: missing eventId or userId", {
+      console.log("Fetching MainStandy data", {
         eventId,
         eventFunctionId,
         currentlang,
       });
-
       fetchItemdata();
     }
   }, [eventId, eventFunctionId, currentlang]);
@@ -65,7 +67,7 @@ const MainStandyMenuReport = ({
       );
 
       const res = data?.data?.data?.data || [];
-      console.log("resposen", res);
+      console.log("MainStandy response:", res);
 
       const formattedCounters = res
         .sort((a, b) => a.sequence - b.sequence)
@@ -73,10 +75,12 @@ const MainStandyMenuReport = ({
           id: item.id,
           menuItemId: item.menuItemId,
           sequence: item.sequence,
-          isChecked: item.isChecked,
+
+          isStandyChecked: item.isStandyChecked === 1,
+          isTableMenuChecked: item.isTableMenuChecked === 1, // 🔥 keep backend value
+
           copies: item.itemCount ?? 0,
 
-          // store all languages
           itemNameEnglish: item.itemNameEnglish || "",
           itemNameHindi: item.itemNameHindi || item.itemNameEnglish,
           itemNameGujarati: item.itemNameGujarati || item.itemNameEnglish,
@@ -84,7 +88,7 @@ const MainStandyMenuReport = ({
 
       setCounters(formattedCounters);
     } catch (error) {
-      console.error("Error fetching name plate data:", error);
+      console.error("Error fetching main standy data:", error);
     }
   };
 
@@ -103,12 +107,9 @@ const MainStandyMenuReport = ({
       prev.map((item) => {
         if (item.id !== id) return item;
 
-        if (currentlang === 0)
-          return { ...item, name: value, itemNameEnglish: value };
-        if (currentlang === 1)
-          return { ...item, name: value, itemNameHindi: value };
-        if (currentlang === 2)
-          return { ...item, name: value, itemNameGujarati: value };
+        if (currentlang === 0) return { ...item, itemNameEnglish: value };
+        if (currentlang === 1) return { ...item, itemNameHindi: value };
+        if (currentlang === 2) return { ...item, itemNameGujarati: value };
 
         return item;
       }),
@@ -128,27 +129,28 @@ const MainStandyMenuReport = ({
   const handleSave = async ({ printAfterSave = false } = {}) => {
     Swal.fire({
       title: "Saving...",
-      text: "Please wait while we save name plate data",
+      text: "Please wait while we save main standy data",
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
 
     try {
       const payload = {
-        categoryFontSize: 0,
-        itemFontSize: 0,
-        eventFunctionId: Number(eventFunctionId),
-        eventId: Number(eventId),
-        userId: Number(userId),
-
+        moduleType: "MAIN_STANDY",
+        eventId,
+        eventFunctionId,
+        userId,
         namePlateRequests: counters.map((item, index) => ({
           id: item.id || -1,
           menuItemId: item.menuItemId,
-          isChecked: item.isChecked,
+
+          // MAIN STANDY controls this
+          isStandyChecked: item.isStandyChecked ? 1 : 0,
+
+          // KEEP table menu value from backend
+          isTableMenuChecked: 0,
+
           itemCount: item.copies,
-          itemNameEnglish: item.itemNameEnglish,
-          itemNameHindi: item.itemNameHindi,
-          itemNameGujarati: item.itemNameGujarati,
           sequence: index + 1,
         })),
       };
@@ -181,7 +183,6 @@ const MainStandyMenuReport = ({
       formData.append("isCompanyDetails", 0);
       formData.append("lang", currentlang);
       formData.append("twoLanugage", 0);
-
       formData.append("userId", userId);
 
       const res = await GenerateNamePlateReport(formData);
@@ -192,7 +193,7 @@ const MainStandyMenuReport = ({
       }
 
       setPdfUrl(url);
-      setShowPdfViewer(true); // Show the viewer
+      setShowPdfViewer(true);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -202,33 +203,52 @@ const MainStandyMenuReport = ({
     }
   };
 
+  // ✅ Fixed toggle function - only affects MainStandy items
+  const toggleItem = (id) => {
+    setCounters((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, isStandyChecked: !item.isStandyChecked }
+          : item,
+      ),
+    );
+  };
+
+  const getItemNameByLang = (item) => {
+    if (currentlang === 1) return item.itemNameHindi || item.itemNameEnglish;
+    if (currentlang === 2) return item.itemNameGujarati || item.itemNameEnglish;
+    return item.itemNameEnglish;
+  };
+
   return (
     <CustomModal
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
       title="Main Standy"
       width={1000}
-      footer=<div className="flex justify-between items-center px-6 py-4 border-t bg-white">
-        <button
-          className="btn btn-light flex items-center gap-2"
-          onClick={() => handleSave()}
-        >
-          <Save size={16} /> Save
-        </button>
-
-        <div className="flex gap-3">
-          <button className="btn btn-primary" onClick={callPrintApi}>
-            Print
-          </button>
+      footer={
+        <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
           <button
-            className="btn btn-primary flex items-center gap-2"
-            onClick={() => handleSave({ printAfterSave: true })}
+            className="btn btn-light flex items-center gap-2"
+            onClick={() => handleSave()}
           >
-            <Printer size={16} /> Save & Print
+            <Save size={16} /> Save
           </button>
-          <button className="btn btn-primary">Two Language PDF</button>
+
+          <div className="flex gap-3">
+            <button className="btn btn-primary" onClick={callPrintApi}>
+              Print
+            </button>
+            <button
+              className="btn btn-primary flex items-center gap-2"
+              onClick={() => handleSave({ printAfterSave: true })}
+            >
+              <Printer size={16} /> Save & Print
+            </button>
+            <button className="btn btn-primary">Two Language PDF</button>
+          </div>
         </div>
-      </div>
+      }
     >
       <div className="max-h-[420px] overflow-y-auto pr-2">
         {/* Language Selector */}
@@ -287,7 +307,7 @@ const MainStandyMenuReport = ({
                         {...provided.draggableProps}
                         className={`flex items-center justify-between gap-3 p-3 mb-3 rounded-xl border
                         ${
-                          item.copies === 0
+                          item.isStandyChecked === 0
                             ? "bg-gray-50 text-gray-400"
                             : "bg-blue-50 border-blue-200"
                         }`}
@@ -297,24 +317,30 @@ const MainStandyMenuReport = ({
                           <GripVertical className="text-gray-400" />
                         </div>
 
+                        {/* Checkbox */}
+                        <button onClick={() => toggleItem(item.id)}>
+                          {item.isStandyChecked ? (
+                            <CheckSquare className="text-blue-600" size={20} />
+                          ) : (
+                            <Square className="text-gray-400" size={20} />
+                          )}
+                        </button>
+
                         {/* Name */}
                         <input
-                          value={
-                            (currentlang === 0
-                              ? item.itemNameEnglish
-                              : currentlang === 1
-                                ? item.itemNameHindi || item.itemNameEnglish
-                                : item.itemNameGujarati || item.itemNameEnglish
-                            )?.toUpperCase() || ""
-                          }
+                          value={getItemNameByLang(item)?.toUpperCase() || ""}
                           onChange={(e) =>
                             handleNameChange(item.id, e.target.value)
                           }
-                          disabled={item.copies === 0}
-                          className="flex-1 bg-transparent font-semibold outline-none uppercase"
+                          disabled={!item.isStandyChecked}
+                          className={`flex-1 bg-transparent font-semibold outline-none uppercase
+                            ${
+                              item.isStandyChecked
+                                ? "text-gray-400"
+                                : "text-gray-800"
+                            }
+                          `}
                         />
-
-                        {/* Copies */}
                       </div>
                     )}
                   </Draggable>
@@ -329,7 +355,7 @@ const MainStandyMenuReport = ({
           <CustomModal
             open={showPdfViewer}
             onClose={() => setShowPdfViewer(false)}
-            title="Name Plate Report Preview"
+            title="Main Standy Report Preview"
             width={1000}
           >
             <div style={{ height: "80vh" }}>
@@ -344,8 +370,6 @@ const MainStandyMenuReport = ({
           </CustomModal>
         )}
       </div>
-
-      {/* Footer */}
     </CustomModal>
   );
 };

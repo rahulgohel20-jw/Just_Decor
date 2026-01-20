@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { CheckSquare, Square, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { GripVertical, Printer, Save } from "lucide-react";
+
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -32,6 +34,8 @@ export default function NamePlateReport({
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [currentlang, setCurrentLang] = useState(0);
   const storedUserId = localStorage.getItem("userId");
+  const [tableMenuItems, setTableMenuItems] = useState([]);
+
   const userId =
     storedUserId && Number(storedUserId) > 0 ? Number(storedUserId) : null;
 
@@ -79,7 +83,8 @@ export default function NamePlateReport({
             itemNameEnglish: item.itemNameEnglish,
             itemNameHindi: item.itemNameHindi,
             itemNameGujarati: item.itemNameGujarati,
-            checked: item.isChecked === 1,
+            isTableMenuChecked: item.isTableMenuChecked === 1,
+            isStandyChecked: 0,
           })),
       );
     } catch (err) {
@@ -127,13 +132,12 @@ export default function NamePlateReport({
   };
 
   const toggleItem = (id) => {
-    setItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.id === id) {
-          return { ...item, checked: !item.checked };
-        }
-        return item;
-      }),
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, isTableMenuChecked: !item.isTableMenuChecked }
+          : item,
+      ),
     );
   };
 
@@ -179,15 +183,18 @@ export default function NamePlateReport({
 
         namePlateRequests: items.map((item, index) => ({
           id: item.id || -1,
-          menuItemId: item.menuid, // ✅ Changed from item.menuItemId to item.menuid
-          isChecked: item.checked ? 1 : 0,
+          menuItemId: item.menuid,
+
+          isTableMenuChecked: item.isTableMenuChecked ? 1 : 0,
+          isStandyChecked: 0, // untouched
+
           itemCount: 1,
-          itemNameEnglish: item.itemNameEnglish || item.name, // ✅ Use proper field
-          itemNameHindi: item.itemNameHindi || item.name, // ✅ Use proper field
-          itemNameGujarati: item.itemNameGujarati || item.name, // ✅ Use proper field
+          itemNameEnglish: item.itemNameEnglish,
+          itemNameHindi: item.itemNameHindi,
+          itemNameGujarati: item.itemNameGujarati,
+
           sequence: index + 1,
         })),
-
         headerNotesEnglish: headerNotes.english,
         headerNotesHindi: headerNotes.hindi,
         headerNotesGujarati: headerNotes.gujarati,
@@ -345,7 +352,8 @@ export default function NamePlateReport({
                 ACTIVE MENU ITEMS
               </span>
               <span className="text-xs text-blue-600 font-semibold">
-                {items.filter((i) => i.checked).length} Items Selected
+                {items.filter((i) => i.isTableMenuChecked).length} Items
+                Selected
               </span>
             </div>
 
@@ -368,7 +376,7 @@ export default function NamePlateReport({
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                              item.checked
+                              item.isTableMenuChecked
                                 ? "bg-white"
                                 : "bg-gray-100 opacity-70"
                             } ${snapshot.isDragging ? "shadow-lg bg-blue-50" : ""}`}
@@ -383,7 +391,7 @@ export default function NamePlateReport({
 
                             {/* Checkbox */}
                             <button onClick={() => toggleItem(item.id)}>
-                              {item.checked ? (
+                              {item.isTableMenuChecked ? (
                                 <CheckSquare className="text-blue-600" />
                               ) : (
                                 <Square className="text-gray-400" />
@@ -397,7 +405,7 @@ export default function NamePlateReport({
                               </p>
                               <p
                                 className={`font-semibold ${
-                                  item.checked
+                                  item.isTableMenuChecked
                                     ? "text-gray-800"
                                     : "text-gray-400"
                                 }`}
@@ -449,6 +457,12 @@ export default function NamePlateReport({
         <button className="btn btn-primary" onClick={handlePrint}>
           Print
         </button>
+        <button
+          className="btn btn-primary flex items-center gap-2"
+          onClick={() => handleSave({ printAfterSave: true })}
+        >
+          <Printer size={16} /> Save & Print
+        </button>{" "}
      
       </div>
       {showPdfViewer && pdfUrl && (

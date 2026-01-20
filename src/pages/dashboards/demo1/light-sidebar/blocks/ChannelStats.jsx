@@ -1,87 +1,123 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toAbsoluteUrl } from "@/utils/Assets";
-import { SuperAdminDashboardTotalUserAndPlan } from "../../../../../services/apiServices";
+import {
+  GetAllPlans,
+  SuperAdminDashboardTotalUserAndPlan,
+} from "@/services/apiServices";
 
-const ChannelStats = ({ data }) => {
-  const [items, setItems] = useState([]);
+const ChannelStats = () => {
+  const [plans, setPlans] = useState([]);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [stats, setStats] = useState(null);
 
+  /* ---------------- Fetch Plans ---------------- */
   useEffect(() => {
-    if (!data) return;
+    const fetchPlans = async () => {
+      const res = await GetAllPlans();
+      if (res?.data?.success) {
+        const planList = res.data.data["Plan Details"];
+        setPlans(planList);
 
-    const planIcon = {
-      "E-Lite": "eliteplan.svg",
-      Lite: "liteplan.svg",
-      Elite: "eliteplan.svg",
-      Premium: "premiumplan.svg",
+        const lite = planList.find((p) => p.name.toLowerCase() === "lite");
+        setSelectedPlanId(lite?.id ?? planList[0]?.id);
+      }
     };
+    fetchPlans();
+  }, []);
 
-    const mapped = [
-      ...data.planData.map((p) => ({
-        logo: planIcon[p.planName] || "default.svg",
-        info: `₹ ${p.totalAmountReceived}`,
-        desc: `${p.planName} Plan`,
-        growth: "2.1%",
-        isPositive: true,
-      })),
+  /* ---------------- Fetch Stats ---------------- */
+  useEffect(() => {
+    if (!selectedPlanId) return;
 
-      {
-        logo: "active.svg",
-        info: data.totalActiveUser,
-        desc: "Active Users",
-        growth: "2.1%",
-        isPositive: true,
-      },
+    const fetchStats = async () => {
+      const res = await SuperAdminDashboardTotalUserAndPlan(selectedPlanId);
+      if (res?.data?.success) {
+        setStats(res.data.data);
+      }
+    };
+    fetchStats();
+  }, [selectedPlanId]);
 
-      {
-        logo: "totaluser.svg",
-        info: data.totalAllUser,
-        desc: "Total Users",
-        growth: "2.1%",
-        isPositive: true,
-      },
-    ];
+  if (!stats) return null;
 
-    setItems(mapped);
-  }, [data]);
-
-  const renderItem = (item, index) => {
-    return (
-      <div
-        key={index}
-        className="flex gap-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-[#D6ECFF] dark:border-gray-700 p-3 flex-1 min-w-[220px]"
-      >
-        <div className="flex items-center">
-          {/* Icon Container */}
-          <div className="rounded-lg bg-[#D6ECFF] p-3 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-            <img
-              src={toAbsoluteUrl(`/media/brand-logos/${item.logo}`)}
-              className="w-7 h-7"
-              alt=""
-            />
-          </div>
-        </div>
-        {/* Text Content */}
-        <div className="flex flex-col">
-          <div className="flex gap-5">
-            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              {item.info}
-            </span>
-            {/* Growth Indicator */}
-          </div>
-          <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {item.desc}
-            </span>
-          </div>
-        </div>
-        <div></div>
-      </div>
-    );
-  };
+  const items = [
+    {
+      icon: "dashsuper2.png",
+      value: `${stats.totalAllUser}k`,
+      label: "Total Users",
+      iconBg: "bg-blue-100 text-blue-600",
+    },
+    {
+      icon: "dashsuper.png",
+      value: `${stats.totalActiveUser}k`,
+      label: "Total Active Users",
+      iconBg: "bg-green-100 text-green-600",
+    },
+    {
+      icon: "superadmin.png",
+      value: `${stats.totalAmount}`,
+      label: "Total Amount",
+      iconBg: "bg-blue-100 text-blue-600",
+    },
+    {
+      icon: "super.png",
+      value: `${stats.totalPaid}`,
+      label: "Total Paid Amount",
+      iconBg: "bg-green-100 text-green-600",
+    },
+    {
+      icon: "dashsuper1.png",
+      value: ` ${stats.totalUnpaid}`,
+      label: "Total Unpaid Amount",
+      iconBg: "bg-red-100 text-red-600",
+    },
+  ];
 
   return (
-    <div className="flex justify-between gap-3 w-full">
-      {items.map(renderItem)}
+    <div className="flex flex-col gap-4 w-full">
+      {/* ---------- Dropdown ---------- */}
+      <select
+        className="w-36 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm"
+        value={selectedPlanId}
+        onChange={(e) => setSelectedPlanId(Number(e.target.value))}
+      >
+        {plans.map((plan) => (
+          <option key={plan.id} value={plan.id}>
+            {plan.name}
+          </option>
+        ))}
+      </select>
+
+      {/* ---------- Cards ---------- */}
+      <div className="flex gap-4 overflow-x-auto">
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 min-w-[230px] rounded-xl border border-blue-200 bg-white px-4 py-3 shadow-sm"
+          >
+            {/* Icon */}
+            <div
+              className={`flex h-12 w-12 items-center justify-center rounded-lg ${item.iconBg}`}
+            >
+              <img
+                src={toAbsoluteUrl(`/media/icons/${item.icon}`)}
+                className="h-6 w-6"
+              />
+            </div>
+
+            {/* Text */}
+            <div className="flex-1">
+              <div className="text-lg font-semibold text-gray-900">
+                {item.value}
+              </div>
+              <div className="text-sm text-gray-500">{item.label}</div>
+            </div>
+
+            {/* Growth */}
+            <div className="text-sm font-medium text-green-600">↑ 2.1%</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
