@@ -247,7 +247,6 @@ const RawMaterialAllocation = ({ mode }) => {
       );
       const items =
         response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
-        
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => {
@@ -263,12 +262,19 @@ const RawMaterialAllocation = ({ mode }) => {
           const originalPricePerUnit =
             originalQty > 0 ? originalTotal / originalQty : 0;
 
+          const originalFinalQty = item.finalQty || item.qty || 0;
+
+          const basePricePerUnit =
+            originalFinalQty > 0 ? originalTotal / originalFinalQty : 0;
+
           return {
             id: index + 1,
             rawMaterialId: item.rawMaterialId || item.id || 0,
             material: item.rawMaterialNameEng || "N/A",
             qty: item.qty || 0,
-            finalQty: item.finalQty || item.qty || 0,
+            finalQty: originalFinalQty,
+            total: originalTotal,
+            basePricePerUnit,
             unitHierarchyDto: item.unitHierarchyDto,
             units: item.units,
 
@@ -289,7 +295,7 @@ const RawMaterialAllocation = ({ mode }) => {
               functionDate && dayjs(functionDate).isValid()
                 ? dayjs(functionDate)
                 : null,
-            total: item.totalprice || 0,
+
             originalPricePerUnit: originalPricePerUnit, // ✅ Store this
             eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
           };
@@ -338,25 +344,25 @@ const RawMaterialAllocation = ({ mode }) => {
     const updated = [...data];
     const row = updated[index];
 
-    const prevFinalQty = parseFloat(row.finalQty) || 0;
-    const prevTotal = parseFloat(row.total) || 0;
+    const basePrice = Number(row.basePricePerUnit) || 0;
 
-    let currentPricePerUnit =
-      prevFinalQty > 0
-        ? prevTotal / prevFinalQty
-        : row.originalPricePerUnit || 0;
-
+    // ===============================
+    // FINAL QTY CHANGE
+    // ===============================
     if (field === "finalQty") {
-      const newFinalQty = parseFloat(value) || 0;
+      const newFinalQty = Number(value) || 0;
 
       row.finalQty = newFinalQty;
-      row.total = currentPricePerUnit * newFinalQty;
+      row.total = newFinalQty > 0 ? basePrice * newFinalQty : 0;
 
       setData(updated);
       setHasUnsavedChanges(true);
       return;
     }
 
+    // ===============================
+    // UNIT CHANGE
+    // ===============================
     if (field === "unitId") {
       const newUnitId = Number(value);
       const oldUnitId = row.unitId;
@@ -367,21 +373,26 @@ const RawMaterialAllocation = ({ mode }) => {
         row.unitHierarchyDto,
       );
 
-      const newFinalQty = prevFinalQty * factor;
+      // Convert quantity
+      const newFinalQty = (Number(row.finalQty) || 0) * factor;
+
+      // Convert price inversely
+      const newPricePerUnit = factor !== 0 ? basePrice / factor : basePrice;
 
       row.unitId = newUnitId;
       row.finalQty = newFinalQty;
-      row.total = prevTotal;
+      row.basePricePerUnit = newPricePerUnit;
+      row.total = newFinalQty > 0 ? newFinalQty * newPricePerUnit : 0;
 
+      // Update unit label
       const unitOptions = buildUnitOptions(
-        updated[index].units,
-        updated[index].unitHierarchyDto,
-        updated[index].unitId,
-        updated[index].unit,
+        row.units,
+        row.unitHierarchyDto,
+        newUnitId,
+        row.unit,
       );
 
       const selectedUnit = unitOptions.find((u) => u.value === newUnitId);
-
       if (selectedUnit) {
         row.unit = selectedUnit.label;
         row.units = {
@@ -400,6 +411,7 @@ const RawMaterialAllocation = ({ mode }) => {
     setData(updated);
     setHasUnsavedChanges(true);
   };
+
   const handleAgencyChange = (index, value) => {
     const updated = [...data];
     updated[index].agency = value;
@@ -422,7 +434,7 @@ const RawMaterialAllocation = ({ mode }) => {
       const payload = {
         eventId: parseInt(eventId),
         rawMaterialCategoryId: parseInt(activeTab || 0),
-        
+
         eventRawMaterial: data.map((item) => {
           const supplierId =
             agencies.find(
@@ -430,8 +442,6 @@ const RawMaterialAllocation = ({ mode }) => {
             )?.id ||
             item.supplierId ||
             0;
-
-            
 
           const eventRawMatFunctions = (
             item.eventRawMaterialFunctions || []
@@ -446,7 +456,7 @@ const RawMaterialAllocation = ({ mode }) => {
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
                 : "",
             isExtraField: fn.isExtraField === true,
-            rawMaterialRate:fn.rawMaterialPrice,
+            rawMaterialRate: fn.rawMaterialPrice,
             itemName: fn.itemName || item.material || "",
             place: fn.place || item.place || "",
             price: parseFloat(fn.price) || 0,
@@ -454,8 +464,6 @@ const RawMaterialAllocation = ({ mode }) => {
             supplierId: fn.supplierId || supplierId,
             unitId: fn.unitId || item.unitId || 0,
           }));
-
-          
 
           return {
             eventRawMatFunctions: eventRawMatFunctions,
@@ -1081,7 +1089,7 @@ const RawMaterialAllocation = ({ mode }) => {
 
                       <td className="px-4 py-3">
                         <input
-                          type="text"
+                          type="tel"
                           value={item.finalQty}
                           onChange={(e) =>
                             handleChange(index, "finalQty", e.target.value)
