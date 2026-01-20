@@ -22,6 +22,7 @@ export default function NamePlateReport({
   eventFunctionId,
   selectedTemplateId,
 }) {
+  
   const pdfPlugin = defaultLayoutPlugin();
 
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -45,7 +46,6 @@ export default function NamePlateReport({
   };
 
   useEffect(() => {
-    // Default to -1 if undefined
     const efId = eventFunctionId;
     console.log("eventfunction", efId);
 
@@ -64,7 +64,7 @@ export default function NamePlateReport({
       const res = await GetNamePlatedata(
         eventFunctionId,
         eventId,
-        currentlang, // ✅ lang
+        currentlang, 
         userId,
       );
 
@@ -108,11 +108,7 @@ export default function NamePlateReport({
       }),
     );
   };
-  const [items, setItems] = useState([
-    { id: 1, name: "STRAWBERRY BLACK GREAPS", checked: true },
-    { id: 2, name: "MINERAL WATER BOTTLE 200ML", checked: true },
-    { id: 3, name: "LEMON MINT SODA", checked: false },
-  ]);
+  const [items, setItems] = useState([]);
 
   const [headerNotes, setHeaderNotes] = useState({
     english: "",
@@ -463,14 +459,7 @@ export default function NamePlateReport({
         >
           <Printer size={16} /> Save & Print
         </button>{" "}
-        {["PDF 1", "Word 1", "PDF 2", "Word 2"].map((label, i) => (
-          <button
-            key={i}
-            className="btn btn-primary hover:bg-blue-700 flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-lg"
-          >
-            <FileText size={16} /> Design {label}
-          </button>
-        ))}
+     
       </div>
       {showPdfViewer && pdfUrl && (
         <CustomModal
