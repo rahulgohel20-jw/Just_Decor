@@ -237,7 +237,6 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
-  // ✅ UPDATED: Store units object and prioritize it for unit display
   const fetchRawMaterialItems = async (categoryId) => {
     setLoading(true);
     setTableLoading(true);
@@ -258,6 +257,12 @@ const RawMaterialAllocation = ({ mode }) => {
               ? item.eventRawMaterialFunctions[0].functiondatetime
               : null;
 
+          // ✅ Calculate and store the original price per unit
+          const originalQty = item.qty || 0;
+          const originalTotal = item.totalprice || 0;
+          const originalPricePerUnit =
+            originalQty > 0 ? originalTotal / originalQty : 0;
+
           return {
             id: index + 1,
             rawMaterialId: item.rawMaterialId || item.id || 0,
@@ -265,8 +270,8 @@ const RawMaterialAllocation = ({ mode }) => {
             qty: item.qty || 0,
             finalQty: item.finalQty || item.qty || 0,
             unitHierarchyDto: item.unitHierarchyDto,
-            units: item.units, // ✅ Store the units object
-            // ✅ Prioritize units object for display
+            units: item.units,
+
             unit:
               item.units?.nameEnglish ||
               item.unitHierarchyDto?.nameEnglish ||
@@ -285,13 +290,14 @@ const RawMaterialAllocation = ({ mode }) => {
                 ? dayjs(functionDate)
                 : null,
             total: item.totalprice || 0,
+            originalPricePerUnit: originalPricePerUnit, // ✅ Store this
             eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
           };
         });
 
         setData(formatted);
         setOriginalData(formatted);
-        setHasUnsavedChanges(false); // Reset unsaved changes flag
+        setHasUnsavedChanges(false);
       } else {
         setData([]);
       }
@@ -304,31 +310,69 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
-  // ✅ UPDATED: When unit changes, update both unitId and the units object
-  const handleChange = (index, field, value) => {
-    const updated = [...data];
+  const getEquivalentValue = (fromUnitId, toUnitId, unitHierarchyDto) => {
+    if (!unitHierarchyDto) return 1;
 
-    if (field === "finalQty") {
-      const oldFinalQty = parseFloat(updated[index].finalQty) || 0;
-      const newFinalQty = parseFloat(value) || 0;
-      const oldQty = parseFloat(updated[index].qty) || 0;
-      const difference = newFinalQty - oldFinalQty;
+    // Same unit
+    if (fromUnitId === toUnitId) return 1;
 
-      if (difference > 0) {
-        updated[index].extraQty = difference;
-        updated[index].needsExtraRow = true;
-      } else {
-        updated[index].extraQty = 0;
-        updated[index].needsExtraRow = false;
-      }
+    // Parent → Child (KILO → GRAM)
+    const child = unitHierarchyDto.children?.find((c) => c.unitId === toUnitId);
+    if (child) return child.equivalentValue;
+
+    // Child → Parent (GRAM → KILO)
+    const isChild = unitHierarchyDto.children?.some(
+      (c) => c.unitId === fromUnitId,
+    );
+    if (isChild && unitHierarchyDto.unitId === toUnitId) {
+      const childUnit = unitHierarchyDto.children.find(
+        (c) => c.unitId === fromUnitId,
+      );
+      return 1 / childUnit.equivalentValue;
     }
 
-    // ✅ Handle unit change - update units object
+    return 1;
+  };
+
+  const handleChange = (index, field, value) => {
+    const updated = [...data];
+    const row = updated[index];
+
+    const prevFinalQty = parseFloat(row.finalQty) || 0;
+    const prevTotal = parseFloat(row.total) || 0;
+
+    let currentPricePerUnit =
+      prevFinalQty > 0
+        ? prevTotal / prevFinalQty
+        : row.originalPricePerUnit || 0;
+
+    if (field === "finalQty") {
+      const newFinalQty = parseFloat(value) || 0;
+
+      row.finalQty = newFinalQty;
+      row.total = currentPricePerUnit * newFinalQty;
+
+      setData(updated);
+      setHasUnsavedChanges(true);
+      return;
+    }
+
     if (field === "unitId") {
       const newUnitId = Number(value);
-      updated[index].unitId = newUnitId;
+      const oldUnitId = row.unitId;
 
-      // Find the unit name from available options
+      const factor = getEquivalentValue(
+        oldUnitId,
+        newUnitId,
+        row.unitHierarchyDto,
+      );
+
+      const newFinalQty = prevFinalQty * factor;
+
+      row.unitId = newUnitId;
+      row.finalQty = newFinalQty;
+      row.total = prevTotal;
+
       const unitOptions = buildUnitOptions(
         updated[index].units,
         updated[index].unitHierarchyDto,
@@ -339,24 +383,23 @@ const RawMaterialAllocation = ({ mode }) => {
       const selectedUnit = unitOptions.find((u) => u.value === newUnitId);
 
       if (selectedUnit) {
-        // Update the units object with new selection
-        updated[index].units = {
-          ...updated[index].units,
+        row.unit = selectedUnit.label;
+        row.units = {
+          ...row.units,
           id: newUnitId,
           nameEnglish: selectedUnit.label,
         };
-        updated[index].unit = selectedUnit.label;
       }
-    } else if (field === "date" && value) {
-      updated[index][field] = dayjs(value);
-    } else {
-      updated[index][field] = value;
+
+      setData(updated);
+      setHasUnsavedChanges(true);
+      return;
     }
 
+    row[field] = value;
     setData(updated);
     setHasUnsavedChanges(true);
   };
-
   const handleAgencyChange = (index, value) => {
     const updated = [...data];
     updated[index].agency = value;
