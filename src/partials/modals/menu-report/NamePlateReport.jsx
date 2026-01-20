@@ -20,6 +20,7 @@ export default function NamePlateReport({
   eventFunctionId,
   selectedTemplateId,
 }) {
+  
   const pdfPlugin = defaultLayoutPlugin();
 
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -41,7 +42,6 @@ export default function NamePlateReport({
   };
 
   useEffect(() => {
-    // Default to -1 if undefined
     const efId = eventFunctionId;
     console.log("eventfunction", efId);
 
@@ -60,7 +60,7 @@ export default function NamePlateReport({
       const res = await GetNamePlatedata(
         eventFunctionId,
         eventId,
-        currentlang, // ✅ lang
+        currentlang, 
         userId,
       );
 
@@ -449,14 +449,7 @@ export default function NamePlateReport({
         <button className="btn btn-primary" onClick={handlePrint}>
           Print
         </button>
-        {["PDF 1", "Word 1", "PDF 2", "Word 2"].map((label, i) => (
-          <button
-            key={i}
-            className="btn btn-primary hover:bg-blue-700 flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-lg"
-          >
-            <FileText size={16} /> Design {label}
-          </button>
-        ))}
+     
       </div>
       {showPdfViewer && pdfUrl && (
         <CustomModal
