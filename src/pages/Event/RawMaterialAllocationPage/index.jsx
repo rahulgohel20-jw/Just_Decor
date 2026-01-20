@@ -193,7 +193,6 @@ const RawMaterialAllocation = ({ mode }) => {
       const res = await GetAllRawMaterialAllocationCategory(eventId);
       const categories =
         res?.data?.data?.["Raw Material Category Details"] || [];
-      console.log(categories);
 
       if (!Array.isArray(categories) || categories.length === 0) {
         console.warn("No categories found");
@@ -248,6 +247,7 @@ const RawMaterialAllocation = ({ mode }) => {
       );
       const items =
         response?.data?.data?.["Event_RAW_MATERIAL_ALLOCATION"] || [];
+        
 
       if (Array.isArray(items)) {
         const formatted = items.map((item, index) => {
@@ -422,6 +422,7 @@ const RawMaterialAllocation = ({ mode }) => {
       const payload = {
         eventId: parseInt(eventId),
         rawMaterialCategoryId: parseInt(activeTab || 0),
+        
         eventRawMaterial: data.map((item) => {
           const supplierId =
             agencies.find(
@@ -429,6 +430,8 @@ const RawMaterialAllocation = ({ mode }) => {
             )?.id ||
             item.supplierId ||
             0;
+
+            
 
           const eventRawMatFunctions = (
             item.eventRawMaterialFunctions || []
@@ -443,6 +446,7 @@ const RawMaterialAllocation = ({ mode }) => {
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
                 : "",
             isExtraField: fn.isExtraField === true,
+            rawMaterialRate:fn.rawMaterialPrice,
             itemName: fn.itemName || item.material || "",
             place: fn.place || item.place || "",
             price: parseFloat(fn.price) || 0,
@@ -450,6 +454,8 @@ const RawMaterialAllocation = ({ mode }) => {
             supplierId: fn.supplierId || supplierId,
             unitId: fn.unitId || item.unitId || 0,
           }));
+
+          
 
           return {
             eventRawMatFunctions: eventRawMatFunctions,
