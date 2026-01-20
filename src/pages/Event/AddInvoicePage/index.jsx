@@ -172,7 +172,7 @@ const AddInvoicePage = () => {
                   id: item.id || 0,
                   isNewRow: false,
                 };
-              }
+              },
             );
           } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
             mappedRows = invoiceDetails.event.eventFunctions.map(
@@ -187,7 +187,7 @@ const AddInvoicePage = () => {
                 isCustom: false,
                 isEventFunction: true,
                 id: 0,
-              })
+              }),
             );
           }
 
@@ -251,7 +251,7 @@ const AddInvoicePage = () => {
         key: `${rows.length + 1}-${Math.random()}`,
         name: "",
         date: "",
-        person: lastRow ? lastRow.person : 0,
+        person: "",
         extra: 0,
         rate: 0,
         amount: 0,
@@ -397,7 +397,7 @@ const AddInvoicePage = () => {
       const totalAdvancePayment =
         invoiceData?.eventInvoiceFunctionPayments?.reduce(
           (sum, payment) => sum + (Number(payment.advancePayment) || 0),
-          0
+          0,
         ) || 0;
 
       const remainingAmount = footerData.grandTotal - totalAdvancePayment;
@@ -491,7 +491,7 @@ const AddInvoicePage = () => {
               ...row,
               isNewRow: false,
               isCustom: true,
-            }))
+            })),
           );
 
           fetchInvoiceData();
@@ -768,7 +768,7 @@ const AddInvoicePage = () => {
                         onChange={(e) =>
                           handleTempValueChange(
                             "billingaddress",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         placeholder={intl.formatMessage({

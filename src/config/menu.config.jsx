@@ -336,6 +336,15 @@ export const allMenuItems = [
       {
         title: (
           <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Crockery Configuration"
+          />
+        ),
+        path: "/configuration/CrockeryConfiguration",
+      },
+      {
+        title: (
+          <FormattedMessage
             id="COMMON.CHANGESIDEBARRAWMATIRAL"
             defaultMessage="Change Raw Material Category"
           />
