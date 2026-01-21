@@ -383,7 +383,7 @@ const EventViewModal = ({
                   />
                 ),
                 icon: "/media/eventviewicon/menureport.png",
-                onClick: () => setIsSelectMenuReport(true),
+                onClick: () => navigate("/allreports"),
               },
               {
                 label: (

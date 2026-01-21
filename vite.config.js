@@ -10,7 +10,8 @@ export default defineConfig({
       plugins: [tailwindcss()],
     },
   },
-  base: "/",
+  // base: "/JCX/",
+   base: "/",
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

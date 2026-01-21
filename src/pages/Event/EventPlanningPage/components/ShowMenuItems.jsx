@@ -8,47 +8,43 @@ const ShowMenuItems = ({ isOpen, onClose, item }) => {
 
   console.log("ShowMenuItems rendered for item:", item);
 
-useEffect(() => {
-  const menuItemId = item?.menuItemId; // this is correct
-  if (menuItemId) {
-    fetchRawMaterials(menuItemId);
-  } else {
-    setRawMaterials([]);
-  }
-}, [item]);
-
-
-const fetchRawMaterials = async (menuItemId) => {
-  try {
-    const userId = localStorage.getItem("userId") || 1;
-    const isSync = false;
-
-    const response = await GetRawmaterialItemByRecipe(
-      menuItemId,
-      userId,
-      isSync
-    );
-
-    console.log("API Response:", response);
-
-    const rawMaterialsArray = response?.data?.data?.menuItemRawMaterials || [];
-
-    if (rawMaterialsArray.length > 0) {
-      setRawMaterials(rawMaterialsArray);
-      console.log("Raw materials set:", rawMaterialsArray);
+  useEffect(() => {
+    const menuItemId = item?.menuItemId; // this is correct
+    if (menuItemId) {
+      fetchRawMaterials(menuItemId);
     } else {
       setRawMaterials([]);
-      console.warn("No raw materials found in response");
     }
-  } catch (error) {
-    console.error("Error fetching raw materials:", error);
-    setRawMaterials([]);
-  }
-};
+  }, [item]);
 
+  const fetchRawMaterials = async (menuItemId) => {
+    try {
+      const userId = localStorage.getItem("userId") || 1;
+      const isSync = false;
 
+      const response = await GetRawmaterialItemByRecipe(
+        menuItemId,
+        userId,
+        isSync,
+      );
 
+      console.log("API Response:", response);
 
+      const rawMaterialsArray =
+        response?.data?.data?.menuItemRawMaterials || [];
+
+      if (rawMaterialsArray.length > 0) {
+        setRawMaterials(rawMaterialsArray);
+        console.log("Raw materials set:", rawMaterialsArray);
+      } else {
+        setRawMaterials([]);
+        console.warn("No raw materials found in response");
+      }
+    } catch (error) {
+      console.error("Error fetching raw materials:", error);
+      setRawMaterials([]);
+    }
+  };
 
   const handleModalClose = () => {
     console.log("Closing modal for item:", item?.menuItemName);
@@ -59,12 +55,13 @@ const fetchRawMaterials = async (menuItemId) => {
     <CustomModal
       open={isOpen}
       onClose={handleModalClose}
-      title="Item details"
-      width={650}
+      title="Item Details"
+      width={700}
       footer={[]}
     >
-      <div className="flex flex-col items-center w-full p-4 ">
-        <div className="relative w-full max-w-[520px] rounded-md overflow-hidden shadow-sm flex items-center justify-center">
+      <div className="w-full px-4 py-5">
+        {/* Image Section */}
+        <div className="relative mx-auto w-full max-w-[560px] rounded-xl overflow-hidden shadow-md bg-gray-100">
           <img
             src={
               item?.imagePath &&
@@ -78,29 +75,55 @@ const fetchRawMaterials = async (menuItemId) => {
                 : toAbsoluteUrl("/media/menu/noImage.jpg")
             }
             alt={item?.menuItemName}
-            className="w-[300px] h-[200px] object-cover"
+            className="w-full h-[260px] object-cover"
           />
+
+          {/* Overlay label */}
+          <span className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+            Menu Item
+          </span>
         </div>
 
-        <h2 className="mt-4 text-2xl font-bold text-gray-900">
-          {item?.menuItemName}
-        </h2>
+        {/* Content Section */}
+        <div className="mt-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {item?.menuItemName}
+          </h2>
 
-        <p className="mt-1 text-gray-600 text-center text-sm sm:text-base">
-          {item?.itemSlogan}
-        </p>
+          {item?.itemSlogan && (
+            <p className="mt-2 text-gray-600 text-sm sm:text-base italic">
+              “{item.itemSlogan}”
+            </p>
+          )}
+        </div>
 
+        {/* Divider */}
+        <div className="my-6 border-t border-gray-200" />
+
+        {/* Raw Materials */}
         {rawMaterials.length > 0 && (
-          <div className="mt-4 w-full max-w-[520px]">
-            <h3 className="text-lg font-semibold mb-2">Raw Materials:</h3>
-            <ul className="list-disc list-inside">
+          <div className="max-w-[560px] mx-auto">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              Raw Materials Used
+            </h3>
+
+            <div className="flex flex-wrap gap-2">
               {rawMaterials.map((rm) => (
-                <li key={rm.id}>
-                  {rm.rawMaterial?.nameEnglish} - {rm.weight}{" "}
-                  {rm.unit?.symbolEnglish} - ₹{rm.rate}
-                </li>
+                <span
+                  key={rm.id}
+                  className="px-3 py-1 rounded-full text-sm bg-blue-50 text-[#005BA8] border border-[#005BA8]"
+                >
+                  {rm.rawMaterial?.nameEnglish}
+                </span>
               ))}
-            </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {rawMaterials.length === 0 && (
+          <div className="text-center text-gray-500 text-sm mt-6">
+            No raw materials available for this item.
           </div>
         )}
       </div>

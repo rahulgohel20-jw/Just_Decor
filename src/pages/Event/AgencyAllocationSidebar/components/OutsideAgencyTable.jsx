@@ -8,6 +8,7 @@ export default function OutsideAgencyTable({
   onUpdate,
   selectedItems,
   onItemSelect,
+  vendorRefreshTrigger = 0,
 }) {
   const [localMenuItems, setLocalMenuItems] = useState(menuItems);
   const [vendors, setVendors] = useState([]);
@@ -17,7 +18,7 @@ export default function OutsideAgencyTable({
   useEffect(() => {
     fetchVendor();
     fetchUnit();
-  }, []);
+  }, [vendorRefreshTrigger]);
 
   const fetchUnit = async () => {
     try {
@@ -52,11 +53,11 @@ export default function OutsideAgencyTable({
         (allocation) => ({
           ...allocation,
           quantity:
-            allocation.quantity === undefined
-              ? (menuItem.personCount ?? "")
-              : allocation.quantity,
+            allocation.quantity && allocation.quantity > 0
+              ? allocation.quantity
+              : (menuItem.personCount ?? ""),
           isQuantityEdited: allocation.isQuantityEdited ?? false,
-        })
+        }),
       ),
     }));
 
@@ -73,28 +74,20 @@ export default function OutsideAgencyTable({
       ...updatedAllocations[allocationIndex],
       [field]: value,
     };
-    if (field === "quantity") {
-      updatedAllocations[allocationIndex].quantity = value;
-      updatedAllocations[allocationIndex].isQuantityEdited = true;
-    }
 
+    // Update pax ONLY
     if (field === "pax") {
-      // update pax
       updatedMenuItems[menuIndex] = {
         ...updatedMenuItems[menuIndex],
         personCount: value,
       };
-
-      // ONLY sync if user never edited quantity
-      if (!updatedAllocations[allocationIndex].isQuantityEdited) {
-        updatedAllocations[allocationIndex].quantity = value;
-      }
     }
 
-    // Recalculate total price based on quantity and price
+    // Recalculate total price (ONLY quantity × price)
     const allocation = updatedAllocations[allocationIndex];
     const qty = parseFloat(allocation.quantity) || 0;
     const price = parseFloat(allocation.price) || 0;
+
     updatedAllocations[allocationIndex].totalPrice = qty * price;
 
     updatedMenuItems[menuIndex] = {
@@ -105,6 +98,7 @@ export default function OutsideAgencyTable({
     setLocalMenuItems(updatedMenuItems);
     onUpdate(menuIndex, updatedMenuItems[menuIndex]);
   };
+
   const handleCheckboxChange = (menuIndex, allocationIndex, isChecked) => {
     const itemKey = `${menuIndex}-${allocationIndex}`;
     onItemSelect(itemKey, isChecked, menuIndex, allocationIndex);
@@ -132,7 +126,7 @@ export default function OutsideAgencyTable({
     menuItem.eventFunctionMenuAllocations?.every((_, allocationIndex) => {
       const itemKey = `${menuIndex}-${allocationIndex}`;
       return selectedItems[itemKey];
-    })
+    }),
   );
 
   return (
@@ -186,7 +180,7 @@ export default function OutsideAgencyTable({
                         (sum, item) =>
                           sum +
                           (item.eventFunctionMenuAllocations?.length || 0),
-                        0
+                        0,
                       ) +
                     allocationIndex +
                     1;
@@ -204,7 +198,7 @@ export default function OutsideAgencyTable({
                             handleCheckboxChange(
                               menuIndex,
                               allocationIndex,
-                              e.target.checked
+                              e.target.checked,
                             )
                           }
                         />
@@ -223,7 +217,7 @@ export default function OutsideAgencyTable({
                               menuIndex,
                               allocationIndex,
                               "partyId",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={loadingVendors}
@@ -232,7 +226,8 @@ export default function OutsideAgencyTable({
 
                           {allocation.partyId &&
                             !vendors.some(
-                              (v) => String(v.id) === String(allocation.partyId)
+                              (v) =>
+                                String(v.id) === String(allocation.partyId),
                             ) && (
                               <option value={allocation.partyId}>
                                 {allocation.partyName || "Selected contact"}
@@ -250,14 +245,14 @@ export default function OutsideAgencyTable({
                       <td className="p-2">
                         <BaseInput
                           type="number"
-                          placeholder="0"
+                          placeholder=""
                           value={menuItem.personCount || ""}
                           onChange={(e) =>
                             handleAllocationChange(
                               menuIndex,
                               allocationIndex,
                               "pax",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
@@ -270,7 +265,7 @@ export default function OutsideAgencyTable({
                               menuIndex,
                               allocationIndex,
                               "unitId",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         >
@@ -280,7 +275,7 @@ export default function OutsideAgencyTable({
                             !unit.some(
                               (u) =>
                                 String(u.id) ===
-                                String(allocation.unitId || menuItem.unitId)
+                                String(allocation.unitId || menuItem.unitId),
                             ) && (
                               <option
                                 value={allocation.unitId || menuItem.unitId}
@@ -308,7 +303,7 @@ export default function OutsideAgencyTable({
                               menuIndex,
                               allocationIndex,
                               "quantity",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
@@ -323,7 +318,7 @@ export default function OutsideAgencyTable({
                               menuIndex,
                               allocationIndex,
                               "price",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
@@ -338,8 +333,8 @@ export default function OutsideAgencyTable({
                       </td>
                     </tr>
                   );
-                }
-              )
+                },
+              ),
             )}
           </tbody>
         </table>

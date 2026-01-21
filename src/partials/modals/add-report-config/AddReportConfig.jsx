@@ -19,6 +19,8 @@ const defaultOptions = {
   itemSlogan: false,
   PartyDetails: false,
   WithQuantity: false,
+  isDropDown:false,
+  isWithPrice:false,
   size1: "A4",
   size2: "",
 };
@@ -36,6 +38,8 @@ const optionLabels = {
   WithQuantity: "With Quantity",
   size1: "Size1(A4)",
   size2: "Size2(A6)",
+  isDropDown: "Is DropDown",
+  isWithPrice: "Is With Price ",
 };
 
 const AddReportConfig = ({
@@ -146,6 +150,8 @@ const AddReportConfig = ({
             WithQuantity: !!data.isWithQty,
             size1: data.size1 || "",
             size2: data.size2 || "",
+            isDropDown: !!data.isDropDown,
+            isWithPrice: !!data.isWithPrice,
           });
         }
       } catch (error) {
@@ -171,7 +177,6 @@ const AddReportConfig = ({
         return {
           ...prev,
           size1: newSize1Value,
-          size2: newSize1Value === "A4" ? "" : prev.size2, // Turn off size2 when turning on size1
         };
       }
       if (key === "size2") {
@@ -179,10 +184,8 @@ const AddReportConfig = ({
         return {
           ...prev,
           size2: newSize2Value,
-          size1: newSize2Value === "A6" ? "" : prev.size1, // Turn off size1 when turning on size2
         };
       }
-      // For other options, just toggle normally
       return {
         ...prev,
         [key]: !prev[key],
@@ -232,7 +235,8 @@ const AddReportConfig = ({
       isItemSlogan: booleanToNumber(options.itemSlogan),
       isPartyDetails: booleanToNumber(options.PartyDetails),
       isWithQty: booleanToNumber(options.WithQuantity),
-
+      isDropDown:  booleanToNumber(options.isDropDown),
+      isWithPrice:  booleanToNumber(options.isWithPrice),
       size1: options.size1,
       size2: options.size2,
     };

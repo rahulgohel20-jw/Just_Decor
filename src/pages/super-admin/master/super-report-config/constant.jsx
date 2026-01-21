@@ -81,6 +81,16 @@ export const columns = (setSelectedRow, setIsModalOpen, onDelete) => [
     header: "Size2 (A6)",
     cell: ({ row }) => <YesNoIcon value={row.original.size2} />,
   },
+  {
+    accessorKey: "dropdown",
+    header: "Dropdown",
+    cell: ({ row }) => <YesNoIcon value={row.original.dropdown} />,
+  },
+  {
+    accessorKey: "WithPrice",
+    header: "With Price",
+    cell: ({ row }) => <YesNoIcon value={row.original.WithPrice} />,
+  },
 
   {
     accessorKey: "action",
