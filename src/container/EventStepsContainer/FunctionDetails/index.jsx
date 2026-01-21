@@ -112,7 +112,7 @@ const FunctionsDetails = ({
 
         if (formData.venueId) {
           const selectedVenue = venueArray.find(
-            (v) => v.id === formData.venueId
+            (v) => v.id === formData.venueId,
           );
           if (selectedVenue) {
             const venueName = getLocalizedVenueName(selectedVenue);
@@ -130,7 +130,7 @@ const FunctionsDetails = ({
   useEffect(() => {
     if (selectedVenueName && formData?.eventFunction?.length > 0) {
       const needsUpdate = formData.eventFunction.some(
-        (func) => !func.function_venue || func.function_venue === ""
+        (func) => !func.function_venue || func.function_venue === "",
       );
 
       if (needsUpdate) {
@@ -139,7 +139,7 @@ const FunctionsDetails = ({
           eventFunction: prev.eventFunction.map((func) =>
             !func.function_venue || func.function_venue === ""
               ? { ...func, function_venue: selectedVenueName }
-              : func
+              : func,
           ),
         }));
       }
@@ -231,7 +231,7 @@ const FunctionsDetails = ({
 
           // Find the first empty row or create a new one
           const emptyRowIndex = formData?.eventFunction?.findIndex(
-            (func) => !func.functionId
+            (func) => !func.functionId,
           );
 
           if (emptyRowIndex !== -1) {
@@ -253,7 +253,7 @@ const FunctionsDetails = ({
             setTimeout(() => {
               handleFunctionSelect(
                 updatedFunctions.length - 1,
-                latestFunction.value
+                latestFunction.value,
               );
             }, 100);
           }
@@ -466,14 +466,14 @@ const FunctionsDetails = ({
     if (!over || active.id === over.id) return;
 
     const oldIndex = formData.eventFunction.findIndex(
-      (f) => f.id === active.id
+      (f) => f.id === active.id,
     );
     const newIndex = formData.eventFunction.findIndex((f) => f.id === over.id);
 
     const reorderedFunctions = arrayMove(
       formData.eventFunction,
       oldIndex,
-      newIndex
+      newIndex,
     );
 
     const functionsWithSortOrder = reorderedFunctions.map((func, index) => ({
@@ -539,11 +539,11 @@ const FunctionsDetails = ({
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left border-gray-200 border-t">
+        <table className="w-full text-sm text-left border-gray-200 border-t table-fixed">
           <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
             <tr>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-5"></th>
-              <th className="text-sm font-semibold text-gray-900 p-3 ">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-12"></th>
+              <th className="text-sm font-semibold text-gray-900 p-3 w-[200px]">
                 <div className="flex items-center gap-2">
                   <span className="flex items-center">
                     <FormattedMessage
@@ -564,19 +564,19 @@ const FunctionsDetails = ({
                   </button>
                 </div>
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-30">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-[180px]">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
                   defaultMessage="Start Date"
                 />
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-[180px]">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE"
                   defaultMessage="End Date"
                 />
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-24">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-[100px]">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON"
                   defaultMessage="Person"
@@ -585,19 +585,19 @@ const FunctionsDetails = ({
                   *
                 </span>
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-24">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-[100px]">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE"
                   defaultMessage="Rate"
                 />
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-40">
+              <th className="text-sm font-semibold text-gray-900 p-3 w-[150px]">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE"
                   defaultMessage=" Venue"
                 />
               </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 text-center w-40">
+              <th className="text-sm font-semibold text-gray-900 p-3 text-center w-[120px]">
                 <FormattedMessage
                   id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_ACTIONS"
                   defaultMessage="Actions"
@@ -623,7 +623,7 @@ const FunctionsDetails = ({
                   return (
                     <SortableRow key={func.id || index} id={func.id || index}>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-10`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
                       >
                         <FunctionTypeDropdown
                           value={func.functionId || undefined}
@@ -638,7 +638,7 @@ const FunctionsDetails = ({
                               getFunctionFieldError(index, "functionId")
                                 ? "#ef4444"
                                 : undefined,
-                            width: "200px",
+                            width: "100%",
                           }}
                         />
                         {getFunctionFieldError(index, "functionId") && (
@@ -653,7 +653,7 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
                       >
                         <DatePicker
                           className="w-full border border-gray-500 rounded px px-2 py-1"
@@ -667,24 +667,23 @@ const FunctionsDetails = ({
                               handleInputChange(
                                 index,
                                 "functionStartDateTime",
-                                dayjs(date).format("DD/MM/YYYY hh:mm A")
+                                dayjs(date).format("DD/MM/YYYY hh:mm A"),
                               );
                             } else {
                               handleInputChange(
                                 index,
                                 "functionStartDateTime",
-                                null
+                                null,
                               );
                             }
                           }}
                           placeholderText="Select start date"
-                          wrapperClassName="w-full"
                           style={{
                             borderColor:
                               isDuplicate ||
                               getFunctionFieldError(
                                 index,
-                                "functionStartDateTime"
+                                "functionStartDateTime",
                               )
                                 ? "#ef4444"
                                 : undefined,
@@ -692,7 +691,7 @@ const FunctionsDetails = ({
                         />
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
                       >
                         <DatePicker
                           className="w-full border border-gray-500 rounded px px-2 py-1"
@@ -706,22 +705,21 @@ const FunctionsDetails = ({
                               handleInputChange(
                                 index,
                                 "functionEndDateTime",
-                                dayjs(date).format("DD/MM/YYYY hh:mm A")
+                                dayjs(date).format("DD/MM/YYYY hh:mm A"),
                               );
                             } else {
                               handleInputChange(
                                 index,
                                 "functionEndDateTime",
-                                null
+                                null,
                               );
                             }
                           }}
                           placeholderText="Select end date"
-                          wrapperClassName="w-full"
                           style={{
                             borderColor: getFunctionFieldError(
                               index,
-                              "functionEndDateTime"
+                              "functionEndDateTime",
                             )
                               ? "#ef4444"
                               : undefined,
@@ -729,29 +727,29 @@ const FunctionsDetails = ({
                         />
                         {getFunctionFieldError(
                           index,
-                          "functionStartDateTime"
+                          "functionStartDateTime",
                         ) && (
                           <div className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(
                               index,
-                              "functionStartDateTime"
+                              "functionStartDateTime",
                             )}
                           </div>
                         )}
                         {getFunctionFieldError(
                           index,
-                          "functionEndDateTime"
+                          "functionEndDateTime",
                         ) && (
                           <div className="text-red-500 text-xs mt-1">
                             {getFunctionFieldError(
                               index,
-                              "functionEndDateTime"
+                              "functionEndDateTime",
                             )}
                           </div>
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
                       >
                         <Input
                           className="w-full text-center"
@@ -769,7 +767,7 @@ const FunctionsDetails = ({
                         )}
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-30`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
                       >
                         <Input
                           className="w-full text-center"
@@ -782,7 +780,7 @@ const FunctionsDetails = ({
                         />
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
                       >
                         <Input
                           className="w-full"
@@ -793,15 +791,15 @@ const FunctionsDetails = ({
                             handleInputChange(
                               index,
                               "function_venue",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
                       </td>
                       <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} w-40`}
+                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
                       >
-                        <div className="text-center">
+                        <div className="flex justify-center items-center gap-2">
                           <Tooltip title="Add Notes">
                             <button
                               className="btn btn-sm btn-icon btn-clear btn-success"

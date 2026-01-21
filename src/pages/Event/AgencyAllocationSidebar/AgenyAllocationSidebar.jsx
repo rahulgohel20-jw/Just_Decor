@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react"; // ✅ Add useRef
 import ChefLabourSection from "./sections/ChefLabourSection";
 import OutsideAgencySection from "./sections/OutsideAgencySection";
 import InHouseCookSection from "./sections/InHouseCookSection";
@@ -8,7 +8,6 @@ import { Plus } from "lucide-react";
 
 import { GetAllItemByType } from "@/services/apiServices";
 
-// Tab configuration
 const TABS = [
   { id: "chef", label: "Chef Labour" },
   { id: "outside", label: "Outsource Agency" },
@@ -27,8 +26,13 @@ export default function AgencyAllocationSidebar({
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [concatId, setConcatId] = useState(null);
   const [contactTypeId, setContactTypeId] = useState(null);
+  const [vendorRefreshTrigger, setVendorRefreshTrigger] = useState(0);
+  const allocationDataRef = useRef(null);
 
-  // ✅ Extract event function data from first allocation
+  useEffect(() => {
+    allocationDataRef.current = allocationData;
+  }, [allocationData]);
+
   const eventFunctionData = useMemo(() => {
     if (!allocationData?.[0]?.eventFunction) return null;
 
@@ -46,21 +50,45 @@ export default function AgencyAllocationSidebar({
     };
   }, [allocationData]);
 
-  // ✅ Optimized API call with better error handling
+  const handleVendorRefresh = useCallback(() => {
+    console.log("🔄 Refreshing vendor list only...");
+    setVendorRefreshTrigger((prev) => prev + 1);
+  }, []);
+
   const fetchAllocationData = useCallback(
-    async (selectedTab) => {
+    async (selectedTab, preserveSelections = false) => {
       if (!eventId || !eventFunctionId) {
-        console.warn("⏳ Missing required IDs:", { eventId, eventFunctionId });
+        console.warn(" Missing required IDs:", { eventId, eventFunctionId });
         return;
       }
 
       try {
         setLoading(true);
 
+        let currentSelections = {};
+        if (preserveSelections && allocationDataRef.current) {
+          allocationDataRef.current.forEach((category) => {
+            const categoryKey = category.menuCategoryId;
+            currentSelections[categoryKey] = {};
+
+            category.menuAllocationItems?.forEach((item) => {
+              if (item.isSelected) {
+                currentSelections[categoryKey][item.menuItemId] = {
+                  isSelected: true,
+                  selectedContactId: item.selectedContactId,
+                  selectedContactName: item.selectedContactName,
+                };
+              }
+            });
+          });
+
+          console.log("🔵 Preserved selections:", currentSelections);
+        }
+
         const res = await GetAllItemByType(
           eventFunctionId,
           eventId,
-          selectedTab
+          selectedTab,
         );
 
         const details = res?.data?.data?.["Menu Allocation Details"];
@@ -71,7 +99,39 @@ export default function AgencyAllocationSidebar({
           return;
         }
 
-        setAllocationData(details);
+        // ✅ Restore selections if we have preserved data
+        if (preserveSelections && Object.keys(currentSelections).length > 0) {
+          const restoredData = details.map((category) => {
+            const categoryKey = category.menuCategoryId;
+            const savedSelections = currentSelections[categoryKey] || {};
+
+            return {
+              ...category,
+              menuAllocationItems: category.menuAllocationItems?.map((item) => {
+                const savedItem = savedSelections[item.menuItemId];
+                if (savedItem) {
+                  console.log(
+                    "🟢 Restoring item:",
+                    item.menuItemName,
+                    savedItem,
+                  );
+                  return {
+                    ...item,
+                    isSelected: savedItem.isSelected,
+                    selectedContactId: savedItem.selectedContactId,
+                    selectedContactName: savedItem.selectedContactName,
+                  };
+                }
+                return item;
+              }),
+            };
+          });
+
+          console.log("🟣 Restored data:", restoredData);
+          setAllocationData(restoredData);
+        } else {
+          setAllocationData(details);
+        }
       } catch (error) {
         console.error("❌ API Error:", error?.message || error);
         setAllocationData(null);
@@ -79,7 +139,7 @@ export default function AgencyAllocationSidebar({
         setLoading(false);
       }
     },
-    [eventId, eventFunctionId]
+    [eventId, eventFunctionId],
   );
 
   // ✅ Reset and fetch on modal open
@@ -99,7 +159,7 @@ export default function AgencyAllocationSidebar({
       setTab(selectedTab);
       fetchAllocationData(selectedTab);
     },
-    [tab, fetchAllocationData]
+    [tab, fetchAllocationData],
   );
 
   // ✅ Memoized section component renderer
@@ -127,13 +187,19 @@ export default function AgencyAllocationSidebar({
       case "chef":
         return <ChefLabourSection data={allocationData} close={onClose} />;
       case "outside":
-        return <OutsideAgencySection data={allocationData} close={onClose} />;
+        return (
+          <OutsideAgencySection
+            data={allocationData}
+            close={onClose}
+            vendorRefreshTrigger={vendorRefreshTrigger}
+          />
+        );
       case "inside":
         return <InHouseCookSection data={allocationData} close={onClose} />;
       default:
         return null;
     }
-  }, [tab, loading, allocationData]);
+  }, [tab, loading, allocationData, onClose, vendorRefreshTrigger]);
 
   return (
     <AnimatePresence>
@@ -250,7 +316,7 @@ export default function AgencyAllocationSidebar({
         setIsModalOpen={setIsMemberModalOpen}
         concatId={concatId}
         contactTypeId={contactTypeId}
-        refreshData={() => fetchAllocationData(tab)}
+        refreshData={handleVendorRefresh}
       />
     </AnimatePresence>
   );
