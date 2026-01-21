@@ -171,7 +171,6 @@ const AddReportConfig = ({
         return {
           ...prev,
           size1: newSize1Value,
-          size2: newSize1Value === "A4" ? "" : prev.size2, // Turn off size2 when turning on size1
         };
       }
       if (key === "size2") {
@@ -179,10 +178,8 @@ const AddReportConfig = ({
         return {
           ...prev,
           size2: newSize2Value,
-          size1: newSize2Value === "A6" ? "" : prev.size1, // Turn off size1 when turning on size2
         };
       }
-      // For other options, just toggle normally
       return {
         ...prev,
         [key]: !prev[key],

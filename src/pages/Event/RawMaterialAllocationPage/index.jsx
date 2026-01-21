@@ -132,7 +132,6 @@ const RawMaterialAllocation = ({ mode }) => {
     unitId: u.id,
   }));
 
-  // ✅ UPDATED: Build unit options from units object first, then fallback to unitHierarchyDto
   const buildUnitOptions = (
     unitsObject,
     unitHierarchyDto,
@@ -141,7 +140,6 @@ const RawMaterialAllocation = ({ mode }) => {
   ) => {
     const options = [];
 
-    // ✅ Priority 1: Use units object if available
     if (unitsObject && unitsObject.id) {
       options.push({
         value: unitsObject.id,
@@ -149,9 +147,7 @@ const RawMaterialAllocation = ({ mode }) => {
       });
     }
 
-    // ✅ Priority 2: Use hierarchy if available
     if (unitHierarchyDto) {
-      // Only add if not already added from units object
       if (!options.some((o) => o.value === unitHierarchyDto.unitId)) {
         options.push({
           value: unitHierarchyDto.unitId,
@@ -159,7 +155,6 @@ const RawMaterialAllocation = ({ mode }) => {
         });
       }
 
-      // Add children
       if (Array.isArray(unitHierarchyDto.children)) {
         unitHierarchyDto.children.forEach((child) => {
           if (!options.some((o) => o.value === child.unitId)) {
@@ -172,7 +167,6 @@ const RawMaterialAllocation = ({ mode }) => {
       }
     }
 
-    // ✅ Fallback if nothing matches current unit
     if (currentUnitId && !options.some((o) => o.value === currentUnitId)) {
       options.unshift({
         value: currentUnitId,
@@ -256,7 +250,6 @@ const RawMaterialAllocation = ({ mode }) => {
               ? item.eventRawMaterialFunctions[0].functiondatetime
               : null;
 
-          // ✅ Calculate and store the original price per unit
           const originalQty = item.qty || 0;
           const originalTotal = item.totalprice || 0;
           const originalPricePerUnit =
@@ -296,7 +289,7 @@ const RawMaterialAllocation = ({ mode }) => {
                 ? dayjs(functionDate)
                 : null,
 
-            originalPricePerUnit: originalPricePerUnit, // ✅ Store this
+            originalPricePerUnit: originalPricePerUnit,
             eventRawMaterialFunctions: item.eventRawMaterialFunctions || [],
           };
         });
@@ -319,14 +312,11 @@ const RawMaterialAllocation = ({ mode }) => {
   const getEquivalentValue = (fromUnitId, toUnitId, unitHierarchyDto) => {
     if (!unitHierarchyDto) return 1;
 
-    // Same unit
     if (fromUnitId === toUnitId) return 1;
 
-    // Parent → Child (KILO → GRAM)
     const child = unitHierarchyDto.children?.find((c) => c.unitId === toUnitId);
     if (child) return child.equivalentValue;
 
-    // Child → Parent (GRAM → KILO)
     const isChild = unitHierarchyDto.children?.some(
       (c) => c.unitId === fromUnitId,
     );
@@ -473,7 +463,7 @@ const RawMaterialAllocation = ({ mode }) => {
             rawMaterialId: item.rawMaterialId || 0,
             supplierId: supplierId,
             totalprice: parseFloat(item.total) || 0,
-            unitId: item.unitId || 0, // ✅ This will now have the updated unit ID
+            unitId: item.unitId || 0,
             date:
               item.date && dayjs(item.date).isValid()
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
@@ -520,7 +510,7 @@ const RawMaterialAllocation = ({ mode }) => {
   };
 
   const handleSave = async () => {
-    setIsSaving(true); // 🔥 Start loader
+    setIsSaving(true);
     const success = await autoSave(true);
 
     if (success) {

@@ -68,6 +68,12 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
 
   /* ------------------ SAVE ------------------ */
   const handleSave = () => {
+    console.log("🔵 Saving category notes:", {
+      notesEnglish: localNotes.categoryNotesEnglish,
+      notesHindi: localNotes.categoryNotesHindi,
+      notesGujarati: localNotes.categoryNotesGujarati,
+      slogan: localNotes.categorySlogan,
+    });
     onSave({
       notesEnglish: localNotes.categoryNotesEnglish,
       notesHindi: localNotes.categoryNotesHindi,
@@ -98,17 +104,13 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
             onChange={(e) =>
               handleChange("categoryNotesEnglish", e.target.value)
             }
-            onMicClick={() =>
-              triggerTranslate(localNotes.categoryNotesEnglish)
-            }
+            onMicClick={() => triggerTranslate(localNotes.categoryNotesEnglish)}
           />
 
           <InputWithIcon
             label="Category Notes (हिंदी)"
             value={localNotes.categoryNotesHindi}
-            onChange={(e) =>
-              handleChange("categoryNotesHindi", e.target.value)
-            }
+            onChange={(e) => handleChange("categoryNotesHindi", e.target.value)}
           />
 
           <InputWithIcon
@@ -125,9 +127,7 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
           <InputWithIcon
             label="Category Slogan"
             value={localNotes.categorySlogan}
-            onChange={(e) =>
-              handleChange("categorySlogan", e.target.value)
-            }
+            onChange={(e) => handleChange("categorySlogan", e.target.value)}
           />
         </div>
 
