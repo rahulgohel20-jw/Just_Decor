@@ -77,7 +77,7 @@ const MainStandyMenuReport = ({
           sequence: item.sequence,
 
           isStandyChecked: item.isStandyChecked === 1,
-          isTableMenuChecked: item.isTableMenuChecked === 1, // 🔥 keep backend value
+          isTableMenuChecked: item.isTableMenuChecked === 1,
 
           copies: item.itemCount ?? 0,
 
@@ -102,10 +102,11 @@ const MainStandyMenuReport = ({
     setCounters(items);
   };
 
-  const handleNameChange = (id, value) => {
+  // ✅ Updated to use menuItemId instead of id
+  const handleNameChange = (menuItemId, value) => {
     setCounters((prev) =>
       prev.map((item) => {
-        if (item.id !== id) return item;
+        if (item.menuItemId !== menuItemId) return item;
 
         if (currentlang === 0) return { ...item, itemNameEnglish: value };
         if (currentlang === 1) return { ...item, itemNameHindi: value };
@@ -116,12 +117,15 @@ const MainStandyMenuReport = ({
     );
   };
 
-  const handleCopiesChange = (id, value) => {
+  // ✅ Updated to use menuItemId instead of id
+  const handleCopiesChange = (menuItemId, value) => {
     const cleanedValue = value === "" ? "" : Math.max(0, parseInt(value, 10));
 
     setCounters((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, copies: cleanedValue } : item,
+        item.menuItemId === menuItemId
+          ? { ...item, copies: cleanedValue }
+          : item,
       ),
     );
   };
@@ -144,13 +148,14 @@ const MainStandyMenuReport = ({
           id: item.id || -1,
           menuItemId: item.menuItemId,
 
-          // MAIN STANDY controls this
           isStandyChecked: item.isStandyChecked ? 1 : 0,
-
-          // KEEP table menu value from backend
           isTableMenuChecked: 0,
 
           itemCount: item.copies,
+          itemNameEnglish: item.itemNameEnglish,
+          itemNameHindi: item.itemNameHindi,
+          itemNameGujarati: item.itemNameGujarati,
+
           sequence: index + 1,
         })),
       };
@@ -203,11 +208,11 @@ const MainStandyMenuReport = ({
     }
   };
 
-  // ✅ Fixed toggle function - only affects MainStandy items
-  const toggleItem = (id) => {
+  // ✅ Updated to use menuItemId instead of id
+  const toggleItem = (menuItemId) => {
     setCounters((prev) =>
       prev.map((item) =>
-        item.id === id
+        item.menuItemId === menuItemId
           ? { ...item, isStandyChecked: !item.isStandyChecked }
           : item,
       ),
@@ -297,28 +302,29 @@ const MainStandyMenuReport = ({
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 {counters.map((item, index) => (
                   <Draggable
-                    key={item.id}
-                    draggableId={String(item.id)}
+                    key={item.menuItemId ?? `temp-${index}`}
+                    draggableId={String(item.menuItemId ?? `temp-${index}`)}
                     index={index}
                   >
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`flex items-center justify-between gap-3 p-3 mb-3 rounded-xl border
+                        className={`flex items-center gap-3 p-3 mb-3 rounded-xl border transition-all
                         ${
-                          item.isStandyChecked === 0
-                            ? "bg-gray-50 text-gray-400"
-                            : "bg-blue-50 border-blue-200"
-                        }`}
+                          item.isStandyChecked
+                            ? "bg-white border-blue-200"
+                            : "bg-gray-100 opacity-70"
+                        }
+                        ${snapshot.isDragging ? "shadow-lg bg-blue-50" : ""}`}
                       >
-                        {/* Drag */}
+                        {/* Drag Handle */}
                         <div {...provided.dragHandleProps}>
-                          <GripVertical className="text-gray-400" />
+                          <GripVertical className="text-gray-400 cursor-move" />
                         </div>
 
                         {/* Checkbox */}
-                        <button onClick={() => toggleItem(item.id)}>
+                        <button onClick={() => toggleItem(item.menuItemId)}>
                           {item.isStandyChecked ? (
                             <CheckSquare className="text-blue-600" size={20} />
                           ) : (
@@ -326,21 +332,27 @@ const MainStandyMenuReport = ({
                           )}
                         </button>
 
-                        {/* Name */}
-                        <input
-                          value={getItemNameByLang(item)?.toUpperCase() || ""}
-                          onChange={(e) =>
-                            handleNameChange(item.id, e.target.value)
-                          }
-                          disabled={!item.isStandyChecked}
-                          className={`flex-1 bg-transparent font-semibold outline-none uppercase
-                            ${
-                              item.isStandyChecked
-                                ? "text-gray-400"
-                                : "text-gray-800"
+                        {/* Editable Name Input */}
+                        <div className="flex-1">
+                          <p className="text-xs text-gray-400 font-semibold mb-1">
+                            NAME
+                          </p>
+                          <input
+                            type="text"
+                            value={getItemNameByLang(item) || ""}
+                            onChange={(e) =>
+                              handleNameChange(item.menuItemId, e.target.value)
                             }
-                          `}
-                        />
+                            disabled={!item.isStandyChecked}
+                            className={`w-full font-semibold border rounded px-2 py-1 uppercase ${
+                              item.isStandyChecked
+                                ? "text-gray-800 bg-white"
+                                : ""
+                            }`}
+                          />
+                        </div>
+
+                        {/* Copies Input */}
                       </div>
                     )}
                   </Draggable>

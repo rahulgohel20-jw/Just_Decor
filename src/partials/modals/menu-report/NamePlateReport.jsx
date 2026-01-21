@@ -22,7 +22,6 @@ export default function NamePlateReport({
   eventFunctionId,
   selectedTemplateId,
 }) {
-  
   const pdfPlugin = defaultLayoutPlugin();
 
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -64,7 +63,7 @@ export default function NamePlateReport({
       const res = await GetNamePlatedata(
         eventFunctionId,
         eventId,
-        currentlang, 
+        currentlang,
         userId,
       );
 
@@ -92,22 +91,20 @@ export default function NamePlateReport({
     }
   };
 
-  const handleNameChange = (id, value) => {
-    setCounters((prev) =>
+  const handleNameChange = (menuItemId, value) => {
+    setItems((prev) =>
       prev.map((item) => {
-        if (item.id !== id) return item;
+        if (item.menuid !== menuItemId) return item;
 
-        if (currentlang === 0)
-          return { ...item, name: value, itemNameEnglish: value };
-        if (currentlang === 1)
-          return { ...item, name: value, itemNameHindi: value };
-        if (currentlang === 2)
-          return { ...item, name: value, itemNameGujarati: value };
+        if (currentlang === 0) return { ...item, itemNameEnglish: value };
+        if (currentlang === 1) return { ...item, itemNameHindi: value };
+        if (currentlang === 2) return { ...item, itemNameGujarati: value };
 
         return item;
       }),
     );
   };
+
   const [items, setItems] = useState([]);
 
   const [headerNotes, setHeaderNotes] = useState({
@@ -127,10 +124,10 @@ export default function NamePlateReport({
     return item.itemNameEnglish;
   };
 
-  const toggleItem = (id) => {
+  const toggleItem = (menuid) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id
+        item.menuid === menuid
           ? { ...item, isTableMenuChecked: !item.isTableMenuChecked }
           : item,
       ),
@@ -279,7 +276,7 @@ export default function NamePlateReport({
               className={`flex-1 py-2 text-sm font-semibold transition ${
                 selectedLanguage === lang
                   ? "btn btn-primary text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
+                  : "bg-white "
               }`}
             >
               {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -363,8 +360,10 @@ export default function NamePlateReport({
                   >
                     {items.map((item, index) => (
                       <Draggable
-                        key={item.id ?? `temp-${index}`}
-                        draggableId={(item.id ?? `temp-${index}`).toString()}
+                        key={item.menuid ?? `temp-${index}`}
+                        draggableId={(
+                          item.menuid ?? `temp-${index}`
+                        ).toString()}
                         index={index}
                       >
                         {(provided, snapshot) => (
@@ -386,29 +385,34 @@ export default function NamePlateReport({
                             </span>
 
                             {/* Checkbox */}
-                            <button onClick={() => toggleItem(item.id)}>
+                            {/* Checkbox */}
+                            <button onClick={() => toggleItem(item.menuid)}>
                               {item.isTableMenuChecked ? (
                                 <CheckSquare className="text-blue-600" />
                               ) : (
                                 <Square className="text-gray-400" />
                               )}
                             </button>
-
                             {/* Item Name */}
-                            <div>
-                              <p className="text-xs text-gray-400 font-semibold">
+                            {/* Item Name - Now Editable */}
+                            <div className="flex-1">
+                              <p className="text-xs text-gray-400 font-semibold mb-1">
                                 NAME
                               </p>
-                              <p
-                                className={`font-semibold ${
+                              <input
+                                type="text"
+                                value={getItemNameByLang(item)}
+                                onChange={(e) =>
+                                  handleNameChange(item.menuid, e.target.value)
+                                }
+                                className={`w-full font-semibold border rounded px-2 py-1 ${
                                   item.isTableMenuChecked
-                                    ? "text-gray-800"
-                                    : "text-gray-400"
+                                    ? "text-gray-800 bg-white"
+                                    : "text-gray-400 bg-gray-50"
                                 }`}
                                 style={{ fontSize: `${itemFontSize}px` }}
-                              >
-                                {getItemNameByLang(item)}
-                              </p>
+                                disabled={!item.isTableMenuChecked}
+                              />
                             </div>
                           </div>
                         )}
@@ -459,7 +463,6 @@ export default function NamePlateReport({
         >
           <Printer size={16} /> Save & Print
         </button>{" "}
-     
       </div>
       {showPdfViewer && pdfUrl && (
         <CustomModal
