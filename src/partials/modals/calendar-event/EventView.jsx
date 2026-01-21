@@ -29,7 +29,6 @@ const EventViewModal = ({
 
   const eventFunctionId = 108;
   const eventTypeId = eventDataAll?.eventTypeId ?? null;
-  console.log(eventDataAll);
 
   const safeEventId =
     eventDataAll?.eventid ?? eventDataAll?.id ?? eventData?.event?.id ?? null;
@@ -383,7 +382,11 @@ const EventViewModal = ({
                   />
                 ),
                 icon: "/media/eventviewicon/menureport.png",
-                onClick: () => navigate("/allreports"),
+                // onClick: () => navigate(`/allreports/${safeEventId}`),
+                onClick: () => {
+                  setIsSelectMenuReport(true);
+                  setMenuReportEventId(safeEventId);
+                }
               },
               {
                 label: (
