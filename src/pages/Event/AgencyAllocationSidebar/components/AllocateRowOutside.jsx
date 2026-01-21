@@ -4,7 +4,10 @@ import BaseInput from "../ui/BaseInput";
 import Swal from "sweetalert2";
 import { OutsideContactName } from "@/services/apiServices";
 
-export default function AllocateRowOutside({ onAllocate }) {
+export default function AllocateRowOutside({
+  onAllocate,
+  vendorRefreshTrigger = 0,
+}) {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState("");
@@ -13,7 +16,7 @@ export default function AllocateRowOutside({ onAllocate }) {
 
   useEffect(() => {
     fetchdata();
-  }, []);
+  }, [vendorRefreshTrigger]);
 
   const fetchdata = async () => {
     try {
@@ -48,7 +51,7 @@ export default function AllocateRowOutside({ onAllocate }) {
     }
 
     const selectedVendorData = vendors.find(
-      (v) => String(v.id) === String(selectedVendor)
+      (v) => String(v.id) === String(selectedVendor),
     );
 
     const success = onAllocate({

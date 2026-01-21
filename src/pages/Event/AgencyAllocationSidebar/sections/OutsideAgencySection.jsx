@@ -4,7 +4,12 @@ import OutsideAgencyTable from "../components/OutsideAgencyTable";
 import { MenuAllocationSave } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-export default function OutsideAgencySection({ data, onDataUpdate, close }) {
+export default function OutsideAgencySection({
+  data,
+  onDataUpdate,
+  close,
+  vendorRefreshTrigger,
+}) {
   const [selectedItems, setSelectedItems] = useState({});
   const [menuItems, setMenuItems] = useState(data[0].menuAllocation || []);
   const [saving, setSaving] = useState(false);
@@ -36,7 +41,7 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
 
     // Check if any items are selected
     const hasSelectedItems = Object.values(selectedItems).some(
-      (isSelected) => isSelected
+      (isSelected) => isSelected,
     );
 
     if (!hasSelectedItems) {
@@ -69,7 +74,7 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
 
           // Return unchanged if not selected
           return allocation;
-        }
+        },
       );
 
       // Check if any allocations in this menu item were updated
@@ -77,7 +82,7 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
         (_, allocationIndex) => {
           const itemKey = `${menuIndex}-${allocationIndex}`;
           return selectedItems[itemKey];
-        }
+        },
       );
 
       return {
@@ -188,7 +193,10 @@ export default function OutsideAgencySection({ data, onDataUpdate, close }) {
   };
   return (
     <>
-      <AllocateRowOutside onAllocate={handleAllocate} />
+      <AllocateRowOutside
+        onAllocate={handleAllocate}
+        vendorRefreshTrigger={vendorRefreshTrigger}
+      />
       <OutsideAgencyTable
         menuItems={menuItems}
         onUpdate={handleMenuItemUpdate}

@@ -62,8 +62,14 @@ const MenuReport = ({
           itemImage: config.isItemImage === 1,
           partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
-          size1: config.size1 || null, // string from API
-          size2: config.size2 || null, // string from API
+          size1: {
+            label: config.size1,
+            enabled: Boolean(config.size1 === 0),
+          },
+          size2: {
+            label: config.size2,
+            enabled: Boolean(config.size2 === 0),
+          },
           isWithPrice: config.isWithPrice === 1,
         });
 
@@ -79,8 +85,8 @@ const MenuReport = ({
             itemImage: config.isItemImage,
             partyDetails: config.isPartyDetails,
             isWithQty: config.isWithQty,
-            size1: config.size1 ? 1 : 0,
-            size2: config.size2 ? 1 : 0,
+            size1: !!config.size1,
+            size2: !!config.size2,
             isWithPrice:config.isWithPrice
           })
             .filter(([_, value]) => value)
@@ -98,25 +104,67 @@ const MenuReport = ({
   const toggleAll = (checked) => {
     setOptions((prev) => {
       const updated = { ...prev };
+
       visibleOptions.forEach((key) => {
-        updated[key] = checked;
+        if (key !== "size1" && key !== "size2") {
+          updated[key] = checked;
+        }
       });
+
       return updated;
     });
   };
 
-  const toggleOne = (key) =>
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleOne = (key) => {
+    setOptions((prev) => {
+      // Handle mutually exclusive sizes
+      if (key === "size1") {
+        return {
+          ...prev,
+          size1: {
+            ...prev.size1,
+            enabled: true,
+          },
+          size2: {
+            ...prev.size2,
+            enabled: false,
+          },
+        };
+      }
+
+      if (key === "size2") {
+        return {
+          ...prev,
+          size1: {
+            ...prev.size1,
+            enabled: false,
+          },
+          size2: {
+            ...prev.size2,
+            enabled: true,
+          },
+        };
+      }
+
+      // Normal toggle for other options
+      return { ...prev, [key]: !prev[key] };
+    });
+  };
 
   const isCheckAll =
     visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
-  /* ---------------- HANDLE REPORT ---------------- */
   const handleReport = async () => {
     if (isNamePlateTheme) {
-      setShowNamePlateUI(true); // 🔥 OPEN NamePlate UI
+      setShowNamePlateUI(true);
       return;
     }
+
+    const pageSize = options.size1?.enabled
+      ? options.size1.label
+      : options.size2?.enabled
+        ? options.size2.label
+        : "";
 
     const payload = {
       eventId,
@@ -140,8 +188,7 @@ const MenuReport = ({
       isCompanyLogo: options.companyLogo,
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
-      size1: options.size1,
-      size2: options.size2,
+      pageSize,
       isWithPrice:options.isWithPrice
     };
 
@@ -283,17 +330,18 @@ const MenuReport = ({
               <div key={key} className="flex justify-between items-center">
                 <span className="capitalize">
                   {key === "size1" || key === "size2"
-                    ? `Size ${options[key]}` // ✅ show string from API
+                    ? `Size ${options[key]?.label}`
                     : key.replace(/([A-Z])/g, " $1")}
                 </span>
 
-                {/* Show toggle only for non-size keys */}
-                {key !== "size1" && key !== "size2" && (
-                  <Toggle
-                    checked={options[key]}
-                    onChange={() => toggleOne(key)}
-                  />
-                )}
+                <Toggle
+                  checked={
+                    key === "size1" || key === "size2"
+                      ? options[key]?.enabled
+                      : options[key]
+                  }
+                  onChange={() => toggleOne(key)}
+                />
               </div>
             ))}
           </div>
