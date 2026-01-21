@@ -64,6 +64,7 @@ const MenuReport = ({
           isWithQty: config.isWithQty === 1,
           size1: config.size1 || null, // string from API
           size2: config.size2 || null, // string from API
+          isWithPrice: config.isWithPrice === 1,
         });
 
         setVisibleOptions(
@@ -80,6 +81,7 @@ const MenuReport = ({
             isWithQty: config.isWithQty,
             size1: config.size1 ? 1 : 0,
             size2: config.size2 ? 1 : 0,
+            isWithPrice:config.isWithPrice
           })
             .filter(([_, value]) => value)
 
@@ -140,6 +142,7 @@ const MenuReport = ({
       isWithQty: options.isWithQty,
       size1: options.size1,
       size2: options.size2,
+      isWithPrice:options.isWithPrice
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {

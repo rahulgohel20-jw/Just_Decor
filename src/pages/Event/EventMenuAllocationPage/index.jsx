@@ -410,7 +410,13 @@ const OrderSummary = ({
                                 >
                                   <div
                                     className="col-span-9 pl-6 hover:text-primary"
-                                    onClick={() => onItemClick(item, category)}
+                                    onClick={() =>
+                                      onItemClick(
+                                        item,
+                                        category,
+                                        functionGroup.eventFunctionId,
+                                      )
+                                    }
                                   >
                                     {getItemName(item)}
                                     <span className="ml-1 text-primary font-bold">
@@ -952,28 +958,33 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   }, [eventId]);
 
-  const handleOrderSummaryItemClick = async (item, group) => {
+  const handleOrderSummaryItemClick = async (
+    item,
+    group,
+    clickedFunctionId,
+  ) => {
     try {
       let eventFunctionId;
+      console.log(clickedFunctionId,"data");
+      
 
-      if (isAllFunctions) {
-        const matchingRow = rows.find((r) => r.menuItemId === item.menuItemId);
-        eventFunctionId = matchingRow?.eventFunctionId;
-      } else {
+      if (isAllFunctions && clickedFunctionId) {
+        eventFunctionId = clickedFunctionId;
+      }else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
-
+ 
       const menuItemId = item.menuItemId || item.id;
-
+ 
       const matchingRow = rows.find(
         (r) =>
           r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId,
       );
-
+ 
       if (matchingRow?.outside) {
         return;
       }
-
+ 
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
         allocationType = "chef";
@@ -982,7 +993,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else if (matchingRow?.inside) {
         allocationType = "inside";
       }
-
+ 
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
@@ -991,23 +1002,23 @@ const EventMenuAllocationPage = ({ mode }) => {
         eventId: eventId,
         allocationType: allocationType,
       });
-
+ 
       setIsCategoryModal(true);
       setMenuLoading(true);
-
+ 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
       );
-
+ 
       if (res?.data?.success) {
         const apiData = res.data.data;
-
+ 
         const rawMaterials =
           apiData["MenuItem RawMaterial Details"] ||
           apiData.menuItemRawMaterials ||
           [];
-
+ 
         setSelectedRow({
           ...apiData,
           "MenuItem RawMaterial Details": rawMaterials,
@@ -1908,8 +1919,9 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleSyncRawMaterial = async () => {
     try {
-      const eventFunctionId = getValidFunctionId(activeFunction);
-
+      const eventFunctionId = activeFunction?.id || -1;
+      console.log(eventFunctionId);
+      
       if (!eventFunctionId) {
         Swal.fire({
           icon: "error",
