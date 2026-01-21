@@ -70,6 +70,7 @@ const MenuReport = ({
             label: config.size2,
             enabled: Boolean(config.size2 === 0),
           },
+          isWithPrice: config.isWithPrice === 1,
         });
 
         setVisibleOptions(
@@ -86,6 +87,7 @@ const MenuReport = ({
             isWithQty: config.isWithQty,
             size1: !!config.size1,
             size2: !!config.size2,
+            isWithPrice:config.isWithPrice
           })
             .filter(([_, value]) => value)
 
@@ -187,6 +189,7 @@ const MenuReport = ({
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
       pageSize,
+      isWithPrice:options.isWithPrice
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {

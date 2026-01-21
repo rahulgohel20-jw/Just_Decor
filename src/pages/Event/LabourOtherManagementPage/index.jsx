@@ -146,26 +146,27 @@ const LabourOtherManagementPage = ({ mode }) => {
 
   const handleVendorAdded = async () => {
     if (!activeRowId) return;
-
+  
     const categoryId = rowCategoryMap[activeRowId];
     if (!categoryId) return;
-
+  
     // Refetch vendors for that category
     const res = await GetPartyMasterByCatId(categoryId, userId);
     const updatedContacts = res?.data?.data?.["Party Details"] || [];
-
+  
     // Update master contacts
     setAllContacts((prev) => ({
       ...prev,
       [categoryId]: updatedContacts,
     }));
-
+  
     // 🔥 Update dropdown ONLY for active row
     setFilteredContacts((prev) => ({
       ...prev,
       [activeRowId]: updatedContacts,
     }));
   };
+  
 
   const activeFunction = useMemo(
     () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
@@ -292,30 +293,45 @@ useEffect(() => {
     try {
       const res = await GetEventLaborDetails(functionObj.id, eventData.id);
       const laborData = res?.data?.data?.eventLabor || [];
+      const categoryMap = {};
+      const contactMap = {};
+      
+      const formattedRows = laborData.map((item) => {
+        const rowId = `server-${item.id}`;
+      
+        categoryMap[rowId] = item.labortypeid;
+        contactMap[rowId] = allContacts[item.labortypeid] || [];
+      
+        return {
+          id: rowId,
+          isSaved: true,
+          labourType:
+            labourCategories.find((c) => c.id === item.labortypeid)?.nameEnglish || "",
+          contact:
+            Object.values(allContacts)
+              .flat()
+              .find((c) => c.id === item.contactid)?.nameEnglish || "",
+          contactId: item.contactid,
+          shift: item.laborshift || "",
+          dateTime: parseDate(item.labordatetime, eventData?.eventStartDateTime),
+          price: item.price || "",
+          quantity: item.qty || "",
+          total: item.totalprice || "",
+          place: item.place || "",
+          notesEnglish: item.notesEnglish || "",
+          notesGujarati: item.notesGujarati || "",
+          notesHindi: item.notesHindi || "",
+        };
+      });
+      
 
-      const formattedRows = laborData.map((item) => ({
-        id: `server-${item.id}`,
-        isSaved: true,
-        labourType:
-          labourCategories.find((c) => c.id === item.labortypeid)
-            ?.nameEnglish || "",
-        contact:
-          Object.values(allContacts)
-            .flat()
-            .find((c) => c.id === item.contactid)?.nameEnglish || "",
-        contactId: item.contactid,
-        shift: item.laborshift || "",
-        dateTime: parseDate(item.labordatetime, eventData?.eventStartDateTime),
-        price: item.price || "",
-        quantity: item.qty || "",
-        total: item.totalprice || "",
-        place: item.place || "",
-        notesEnglish: item.notesEnglish || "",
-        notesGujarati: item.notesGujarati || "",
-        notesHindi: item.notesHindi || "",
-      }));
-
-      setLabourData(formattedRows);
+      setLabourData((prev) => {
+        const unsavedRows = prev.filter((r) => !r.isSaved);
+        return [...formattedRows, ...unsavedRows];
+      });
+      
+      setRowCategoryMap((prev) => ({ ...prev, ...categoryMap }));
+setFilteredContacts((prev) => ({ ...prev, ...contactMap }));
     } catch (err) {
       console.error("Error fetching labour details:", err);
     }
@@ -332,17 +348,18 @@ useEffect(() => {
 }, [eventData, activeTab, labourCategories, allContacts]);
 
 
-  useEffect(() => {
-    setFilteredContacts((prev) => {
-      const updated = { ...prev };
+useEffect(() => {
+  setFilteredContacts((prev) => {
+    const updated = { ...prev };
 
-      Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
-        updated[rowId] = allContacts[catId] || [];
-      });
-
-      return updated;
+    Object.entries(rowCategoryMap).forEach(([rowId, categoryId]) => {
+      updated[rowId] = allContacts[categoryId] || [];
     });
-  }, [allContacts]);
+
+    return updated;
+  });
+}, [allContacts, rowCategoryMap]);
+
 
   const handleRowChange = useCallback((id, field, value) => {
     setHasUnsavedChanges(true);
@@ -1108,7 +1125,7 @@ const LabourTable = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((row, index) => (
               <LabourRow
-                key={row.id}
+              key={`${row.id}-${(filteredContacts[row.id] || []).length}`}
                 row={row}
                 index={index}
                 labourCategories={labourCategories}
