@@ -266,7 +266,6 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Counter Name Plate"
     ) {
-      console.log("Opening Counter Name Plate");
       setIsModalOpen(true);
       return;
     }
@@ -277,19 +276,16 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
-      console.log("Opening MainStandyMenuReport");
       setOpenNamePlateTest(true);
       return;
     }
 
     // Normal Name Plate
     if (isNamePlateTheme && template.isNamePlate) {
-      console.log("Opening NamePlateReport");
       setOpenNamePlate(true);
       return;
     }
 
-    console.log("Opening MenuReport");
     setIsMenuReportOpen(true);
   };
 
