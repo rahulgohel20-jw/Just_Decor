@@ -50,6 +50,9 @@ export default function CategorySidebarModal({
   const [contactTypeName, setContactTypeName] = useState("Outside");
 
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
+  console.log(selectedRowData);
+  
   let concatId = null;
   if (allocationType === "inside") {
     concatId = 7;
@@ -100,20 +103,12 @@ export default function CategorySidebarModal({
     }
   }, [contactType, open]);
 
-  // Helper function to parse date from various formats to Date object
-  const parseDateToObject = (dateValue) => {
-    if (!dateValue) return null;
-    if (dateValue instanceof Date) return dateValue;
-
-    // Try dayjs parsing
-    const parsed = dayjs(dateValue, "DD/MM/YYYY hh:mm a", true);
-    if (parsed.isValid()) return parsed.toDate();
-
-    // Try ISO parsing
-    const isoDate = new Date(dateValue);
-    if (!isNaN(isoDate.getTime())) return isoDate;
-
-    return null;
+  const parseDateToObject = (value) => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+  
+    const parsed = dayjs(value, "DD/MM/YYYY hh:mm A", true);
+    return parsed.isValid() ? parsed.toDate() : null;
   };
 
   useEffect(() => {
@@ -342,7 +337,7 @@ export default function CategorySidebarModal({
           partyId: partyId,
           unitId: unitId,
           dateTime: item.dateTime
-            ? dayjs(item.dateTime).format("DD/MM/YYYY hh:mm a")
+            ? dayjs(item.dateTime).format("DD/MM/YYYY hh:mm A")
             : "",
           weight: Number(item.weight) || 0,
           rawmaterial_weight: Number(item.rawmaterial_weight) || 1,
@@ -686,19 +681,19 @@ export default function CategorySidebarModal({
                           </div>
 
                           <div>
-                            <DatePicker
-                              selected={row.dateTime}
-                              onChange={(date) =>
-                                handleChange(row.id, "dateTime", date)
-                              }
-                              showTimeSelect
-                              timeFormat="hh:mm aa"
-                              timeIntervals={15}
-                              dateFormat="MM/dd/yyyy hh:mm aa"
-                              className={baseField}
-                              placeholderText="Select date & time"
-                              popperPlacement="bottom-start"
-                            />
+                          <DatePicker
+                            selected={row.dateTime}
+                            onChange={(date) =>
+                              handleChange(row.id, "dateTime", date)
+                            }
+                            showTimeSelect
+                            timeFormat="hh:mm aa"
+                            timeIntervals={15}
+                            dateFormat="dd/MM/yyyy hh:mm aa"
+                            className={baseField}
+                            placeholderText="Select date & time"
+                          />
+
                           </div>
 
                           <div>
@@ -744,31 +739,7 @@ export default function CategorySidebarModal({
                               }
                             />
 
-                            {/* <BaseSelect
-                              value={row.place || ""}
-                              onChange={(e) =>
-                                handleChange(row.id, "place", e.target.value)
-                              }
-                            >
-                              <option value="">
-                                <FormattedMessage
-                                  id="SIDEBAR_MODAL.SELECT_PLACE"
-                                  defaultMessage="Select Place"
-                                />
-                              </option>
-                              <option>
-                                <FormattedMessage
-                                  id="SIDEBAR_MODAL.AT_VENUE"
-                                  defaultMessage="At Venue"
-                                />
-                              </option>
-                              <option>
-                                <FormattedMessage
-                                  id="SIDEBAR_MODAL.GO_DOWN"
-                                  defaultMessage="GoDown"
-                                />
-                              </option>
-                            </BaseSelect> */}
+                           
                           </div>
 
                           <div className="flex items-center justify-center">
