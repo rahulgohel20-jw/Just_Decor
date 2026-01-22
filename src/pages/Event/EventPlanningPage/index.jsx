@@ -844,20 +844,22 @@ const EventPlanningPage = ({ mode }) => {
 
       setHasExistingData(true);
       await loadSavedMenuPrep();
-      Swal.fire({
-        icon: "success",
-        title:
-          payload.id === 0
-            ? "Menu saved successfully!"
-            : "Menu updated successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
+      if (resp.data.success === true) {
+        Swal.fire({
+          icon: "success",
+          title:
+            payload.id === 0
+              ? "Menu saved successfully!"
+              : "Menu updated successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     } catch (err) {
       Swal.fire({
         icon: "error",
         title: "Failed to save menu!",
-        text: "Something went wrong",
+        text: res.data.msg,
       });
     } finally {
       setIsSaving(false);
@@ -929,10 +931,11 @@ const EventPlanningPage = ({ mode }) => {
     const bucket = selectedByFunction[selectedFunction];
 
     setCurrentCategoryForNotes(categoryName);
+
     setCategoryNotes({
-      notesEnglish: bucket?.categoryNotes?.[categoryName]?.english || "",
-      notesHindi: bucket?.categoryNotes?.[categoryName]?.hindi || "",
-      notesGujarati: bucket?.categoryNotes?.[categoryName]?.gujarati || "",
+      notesEnglish: bucket?.categoryNotes?.english || "",
+      notesHindi: bucket?.categoryNotes?.hindi || "",
+      notesGujarati: bucket?.categoryNotes?.gujarati || "",
       slogan: bucket?.categorySlogans?.[categoryName] || "",
     });
 

@@ -117,7 +117,7 @@ export default function SidebarRawMaterial({
   };
 
   const handleExtraQtyChange = (newExtraValue) => {
-    const parsedExtra = parseFloat(newExtraValue) || 0;
+    const parsedExtra = parseFloat(newExtraValue) || "";
     setExtraQty(parsedExtra);
   };
 
@@ -128,17 +128,17 @@ export default function SidebarRawMaterial({
       );
 
       // Recalculate extra qty whenever qty changes
-      if (field === "qty") {
-        const totalFunctionQty = updated.reduce(
-          (sum, row) => sum + (parseFloat(row.qty) || 0),
-          0,
-        );
-        const calculatedExtra = Math.max(
-          0,
-          (selectedRow.finalQty || 0) - totalFunctionQty,
-        );
-        setExtraQty(calculatedExtra);
-      }
+      // if (field === "qty") {
+      //   const totalFunctionQty = updated.reduce(
+      //     (sum, row) => sum + (parseFloat(row.qty) || 0),
+      //     0,
+      //   );
+      //   const calculatedExtra = Math.max(
+      //     0,
+      //     (selectedRow.finalQty || 0) - totalFunctionQty,
+      //   );
+      //   setExtraQty(calculatedExtra);
+      // }
 
       return updated;
     });
@@ -214,8 +214,36 @@ export default function SidebarRawMaterial({
             </div>
 
             {/* TABLE */}
+            {/* TABLE */}
             <div className="p-2 flex-1 overflow-auto">
               <div className="border rounded-xl overflow-x-auto">
+                {/* ✅ ADD EXTRA QTY DISPLAY AT TOP */}
+                <div className="bg-blue-50 border-b border-blue-200 px-6 py-3 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-700">
+                      Extra Quantity:
+                    </span>
+                    <input
+                      type="number"
+                      value={extraQty}
+                      onChange={(e) => handleExtraQtyChange(e.target.value)}
+                      className="w-32 h-9 rounded-md border border-gray-300 bg-white px-2 text-[13px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#005BA8]/40 focus:border-[#005BA8]"
+                      placeholder=""
+                    />
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">Total Functions Qty:</span>{" "}
+                    <span className="text-[#005BA8] font-semibold">
+                      {functionRows
+                        .reduce(
+                          (sum, row) => sum + (parseFloat(row.qty) || 0),
+                          0,
+                        )
+                        .toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
                 <table className="w-full border-collapse">
                   <thead className="bg-gray-100 sticky top-0 z-10">
                     <tr className="text-sm font-semibold text-gray-700">
@@ -236,12 +264,10 @@ export default function SidebarRawMaterial({
                         </div>
                       </th>
                       <th className="p-3 text-left">Qty</th>
-                      <th className="p-3 text-left">Extra</th>{" "}
                       <th className="p-3 text-left">Unit</th>
                       <th className="p-3 text-left">Place</th>
                       <th className="p-3 text-left">Date & Time</th>
                       <th className="p-3 text-left">Price</th>
-                      {/* NEW COLUMN */}
                     </tr>
                   </thead>
 
@@ -249,7 +275,7 @@ export default function SidebarRawMaterial({
                     {functionRows.length === 0 ? (
                       <tr>
                         <td
-                          colSpan="10"
+                          colSpan="9"
                           className="p-8 text-center text-gray-500"
                         >
                           No function data available
@@ -308,20 +334,6 @@ export default function SidebarRawMaterial({
                                   handleInputChange(idx, "qty", e.target.value)
                                 }
                               />
-                            </td>
-                            <td className="p-3 w-[90px]">
-                              {idx === 0 ? (
-                                <BaseInput
-                                  type="number"
-                                  value={extraQty}
-                                  onChange={(e) =>
-                                    handleExtraQtyChange(e.target.value)
-                                  }
-                                  placeholder="0"
-                                />
-                              ) : (
-                                "-"
-                              )}
                             </td>
 
                             <td className="p-3 w-[130px]">
