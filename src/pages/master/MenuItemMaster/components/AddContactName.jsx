@@ -196,10 +196,10 @@ const AddContactName = ({
       const allCategories = data["Contact Category Details"] || [];
       const filteredCategories = contactTypeId
         ? allCategories.filter(
-            (cat) => cat.contactType?.id === contactTypeId // 👈 ONLY SUPPLIER (3)
+            (cat) => cat.contactType?.id === contactTypeId, // 👈 ONLY SUPPLIER (3)
           )
         : allCategories.filter(
-            (cat) => cat.contactType?.id !== 1 // 👈 EXISTING BEHAVIOR
+            (cat) => cat.contactType?.id !== 1, // 👈 EXISTING BEHAVIOR
           );
 
       setCategories(filteredCategories);
@@ -365,7 +365,7 @@ const AddContactName = ({
         value !==
           initialFormState[
             Object.keys(formData).find((key) => formData[key] === value)
-          ]
+          ],
     );
 
     if (hasFormData && !formData.id) {
