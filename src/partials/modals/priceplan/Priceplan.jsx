@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
-import { Check } from "lucide-react";
+import { Check, FlameIcon, LucideAward, ThumbsUp } from "lucide-react";
 
 // Import your actual API services
 import { toAbsoluteUrl } from "@/utils";
@@ -324,6 +324,8 @@ const Priceplan = () => {
   };
 
   const handlePayment = async (plan, customAmount = null) => {
+    setSelectedPlan(plan);
+
     if (!userId) {
       Swal.fire({
         icon: "warning",
@@ -371,8 +373,6 @@ const Priceplan = () => {
         paymentData: null,
       };
 
-      console.log("Order Payload:", orderPayload);
-
       const res = await CreatePaymentOrder(orderPayload);
       const backendOrder = res.data?.data;
       const orderId =
@@ -417,8 +417,6 @@ const Priceplan = () => {
               paysignature: response.razorpay_signature,
             },
           };
-
-          console.log("Payment Payload:", paymentPayload);
 
           try {
             await AddUserPlan(paymentPayload);
@@ -508,16 +506,13 @@ const Priceplan = () => {
 
   const subtotal = planPrice + extraPaymentsTotal;
 
-  // Calculate amounts after coupon discount
   const amountAfterDiscount = subtotal - couponDiscount;
 
-  // Calculate GST on the discounted amount
   const totalGSTRate = cgstRate + sgstRate;
   const cgstAmount = (amountAfterDiscount * cgstRate) / 100;
   const sgstAmount = (amountAfterDiscount * sgstRate) / 100;
   const totalGSTAmount = cgstAmount + sgstAmount;
 
-  // Final total including GST
   const finalTotalWithGST = amountAfterDiscount + totalGSTAmount;
 
   const handlePlanSelect = (plan) => {
@@ -589,19 +584,22 @@ const Priceplan = () => {
                       return (
                         <div key={plan.id} className="relative">
                           {isPopular && (
-                            <div className="w-auto absolute -top-3 left-3/4 -translate-x-1/7 z-10">
-                              <div className="bg-white text-gray-900 text-xs px-3 py-2 rounded-full font-medium shadow-md border border-gray-400">
-                                Best choice
+                            <div className="w-auto absolute -top-5 left-2/3 -translate-x-1/7 z-1 text-lg">
+                              <div className="flex gap-1 justify-center align-center bg-green-700 text-white text-xs px-3 py-2 rounded-full font-medium shadow-md border-2 border-green-600">
+                                <LucideAward className="text-white font-bold" />{" "}
+                                <p className="flex align-center mt-1">
+                                  Best choice
+                                </p>
                               </div>
                             </div>
                           )}
 
                           <div
-                            className={`relative rounded-2xl p-8 cursor-pointer ${
+                            className={`relative rounded-2xl p-8 cursor-pointer shadow-xl ${
                               isPopular
-                                ? "bg-[#005BA8] text-white"
+                                ? "bg-white text-gray-900"
                                 : "bg-white text-gray-900 border border-gray-200"
-                            } ${selectedPlan?.id === plan.id ? "ring-4 ring-blue-400" : ""}`}
+                            } ${selectedPlan?.id === plan.id && isPopular ? "ring-4 ring-green-800" : "border-2 border-gray-400"} ${selectedPlan?.id === plan.id ? "ring-4 ring-blue-600" : ""}`}
                             onClick={() => handlePlanSelect(plan)}
                           >
                             <h3 className="text-base font-semibold mb-4">
@@ -609,7 +607,7 @@ const Priceplan = () => {
                             </h3>
 
                             <div
-                              className={`text-3xl font-bold mb-1 ${isPopular ? "text-white" : "text-gray-900"} line-through`}
+                              className={`text-3xl font-bold mb-1 ${isPopular ? "text-gray-900" : "text-gray-900"} line-through`}
                             >
                               {(plan.billingCycle === "Quarterly"
                                 ? 35000
@@ -628,12 +626,12 @@ const Priceplan = () => {
 
                             <div className="flex items-center justify-between mb-6">
                               <span
-                                className={`text-lg font-semibold ${isPopular ? "text-white" : "text-gray-700"}`}
+                                className={`text-lg font-semibold ${isPopular ? "text-gray-900" : "text-gray-700"}`}
                               >
                                 ₹ 9000/- AMC
                               </span>
                               <div
-                                className={`text-right ${isPopular ? "text-white/90" : "text-gray-600"}`}
+                                className={`text-right ${isPopular ? "text-gray/90" : "text-gray-600"}`}
                               >
                                 <div className="text-xs font-medium">
                                   {isPopular ? "Annually" : "Per 3 month"}
@@ -644,7 +642,7 @@ const Priceplan = () => {
                               </div>
                             </div>
 
-                            <button
+                            {/* <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handlePayment(
@@ -664,7 +662,7 @@ const Priceplan = () => {
                               {disabledBecauseSamePlan
                                 ? "Current Plan"
                                 : `Choose ${isPopular ? "Annual" : "3-Month"} Plan`}
-                            </button>
+                            </button> */}
                           </div>
                         </div>
                       );
