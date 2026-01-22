@@ -72,6 +72,7 @@ const FunctionsDetails = ({
   const [selectedFunctionIndex, setSelectedFunctionIndex] = useState(null);
   const [venueList, setVenueList] = useState([]);
   const [selectedVenueName, setSelectedVenueName] = useState("");
+  const [activeRowIndex, setActiveRowIndex] = useState(null);
 
   const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
 
@@ -203,61 +204,71 @@ const FunctionsDetails = ({
 
   const FetchFunction = (autoSelectLatest = false) => {
     const Id = localStorage.getItem("userId");
+
     GetAllFunctionsByUserId(Id)
       .then((res) => {
         const data = res?.data?.data?.["Function Details"] || [];
 
-        // ✅ Map function options with localized names
-        const functionOptions = data.map((item) => {
-          const localizedName = getLocalizedField(item, "name");
+        const functionOptions = data.map((item) => ({
+          label: getLocalizedField(item, "name"),
+          value: item.id,
+          functionstartTime: item.startTime,
+          functionendTime: item.endTime,
+        }));
 
-          return {
-            label: localizedName,
-            value: item.id,
-            functionstartTime: item.startTime,
-            functionendTime: item.endTime,
-            nameEnglish: item.nameEnglish,
-            nameHindi: item.nameHindi,
-            nameGujarati: item.nameGujarati,
-          };
-        });
-
-        console.log("Fetched Functions with lang:", lang, functionOptions);
         setOptions(functionOptions);
 
-        // Auto-select the latest function if flag is true
-        if (autoSelectLatest && functionOptions.length > 0) {
-          const latestFunction = functionOptions[functionOptions.length - 1];
+        if (!autoSelectLatest || functionOptions.length === 0) return;
 
-          // Find the first empty row or create a new one
-          const emptyRowIndex = formData?.eventFunction?.findIndex(
-            (func) => !func.functionId,
-          );
+        const latestFunction = functionOptions[functionOptions.length - 1];
 
-          if (emptyRowIndex !== -1) {
-            // Update existing empty row
-            handleFunctionSelect(emptyRowIndex, latestFunction.value);
-          } else {
-            // Add new row and select the function
-            const newRow = createEmptyRow();
-            const updatedFunctions = [
-              ...(formData.eventFunction || []),
-              newRow,
-            ];
+        setFormData((prev) => {
+          const updated = [...prev.eventFunction];
 
-            setFormData({
-              ...formData,
-              eventFunction: updatedFunctions,
-            });
+          let targetIndex = activeRowIndex;
 
-            setTimeout(() => {
-              handleFunctionSelect(
-                updatedFunctions.length - 1,
-                latestFunction.value,
-              );
-            }, 100);
+          if (targetIndex === null || !updated[targetIndex]) {
+            updated.push(createEmptyRow());
+            targetIndex = updated.length - 1;
           }
-        }
+
+          const row = updated[targetIndex];
+
+          const eventStartDate = dayjs(
+            eventStartDateTime,
+            "DD/MM/YYYY hh:mm A",
+          );
+          const eventEndDate = dayjs(eventEndDateTime, "DD/MM/YYYY hh:mm A");
+
+          const startTime = dayjs(latestFunction.functionstartTime, "HH:mm");
+          const endTime = dayjs(latestFunction.functionendTime, "HH:mm");
+
+          const baseStartDate = row.functionStartDateTime
+            ? dayjs(row.functionStartDateTime, "DD/MM/YYYY hh:mm A")
+            : eventStartDate;
+
+          const baseEndDate = row.functionEndDateTime
+            ? dayjs(row.functionEndDateTime, "DD/MM/YYYY hh:mm A")
+            : eventEndDate;
+
+          updated[targetIndex] = {
+            ...row,
+            functionId: latestFunction.value,
+            functionStartDateTime: baseStartDate
+              .hour(startTime.hour())
+              .minute(startTime.minute())
+              .format("DD/MM/YYYY hh:mm A"),
+            functionEndDateTime: baseEndDate
+              .hour(endTime.hour())
+              .minute(endTime.minute())
+              .format("DD/MM/YYYY hh:mm A"),
+          };
+
+          return {
+            ...prev,
+            eventFunction: updated,
+          };
+        });
       })
       .catch((err) => console.error("Error fetching functions:", err));
   };
@@ -456,7 +467,7 @@ const FunctionsDetails = ({
 
     setFormData({
       ...formData,
-      eventFunction: sortFunctionsByDateTime(updatedArray),
+      eventFunction: updatedArray,
     });
   };
 
@@ -630,6 +641,7 @@ const FunctionsDetails = ({
                           onChange={(value) =>
                             handleFunctionSelect(index, value)
                           }
+                          onFocus={() => setActiveRowIndex(index)}
                           options={options}
                           placeholder="Select Function"
                           style={{
@@ -847,7 +859,7 @@ const FunctionsDetails = ({
       <AddFunctionType
         isOpen={showFunctionModal}
         onClose={() => setShowFunctionModal(false)}
-        onSuccess={FetchFunction}
+        onSuccess={() => FetchFunction(true)}
         refreshData={() => FetchFunction(true)}
       />
       <AddNotes

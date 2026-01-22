@@ -24,9 +24,10 @@ const SelectedItems = ({
   const [expandedCategories, setExpandedCategories] = useState({});
   const [autoOpenItemId, setAutoOpenItemId] = useState(null);
   const [manuallyOpenItems, setManuallyOpenItems] = useState({});
+  const [itemInstructions, setItemInstructions] = useState({});
 
   const [currentLanguage, setCurrentLanguage] = useState(
-    localStorage.getItem("lang") || "en"
+    localStorage.getItem("lang") || "en",
   );
 
   // Track all item IDs to detect which specific item was added
@@ -35,15 +36,15 @@ const SelectedItems = ({
   const hasLoadedInitialDataRef = useRef(false);
   const getNotesByLang = (itemNotes) => {
     const lang = localStorage.getItem("lang") || "en";
-  
+
     if (!itemNotes) return "";
-  
+
     if (lang === "hi") return itemNotes.hindi || itemNotes.english || "";
     if (lang === "gu") return itemNotes.gujarati || itemNotes.english || "";
-  
+
     return itemNotes.english || "";
   };
-  
+
   useEffect(() => {
     setManuallyOpenItems({});
     setAutoOpenItemId(null);
@@ -254,7 +255,7 @@ const SelectedItems = ({
         categories: newCategories,
       });
     },
-    [categoriesOrder, categories, onDragEndNewState]
+    [categoriesOrder, categories, onDragEndNewState],
   );
 
   const { totalItems, totalRate } = useMemo(() => {
@@ -403,11 +404,11 @@ const SelectedItems = ({
                                                       .toLowerCase()
                                                       .includes("/null") &&
                                                     /\.(jpg|jpeg|png|webp|gif)$/i.test(
-                                                      item.imagePath
+                                                      item.imagePath,
                                                     )
                                                       ? item.imagePath
                                                       : toAbsoluteUrl(
-                                                          "/media/menu/noImage.jpg"
+                                                          "/media/menu/noImage.jpg",
                                                         )
                                                   }
                                                   alt="Images"
@@ -434,7 +435,9 @@ const SelectedItems = ({
                                                           functionId,
                                                           catName,
                                                           item.id,
-                                                          Number(e.target.value)
+                                                          Number(
+                                                            e.target.value,
+                                                          ),
                                                         )
                                                       }
                                                       onClick={(e) =>
@@ -452,7 +455,7 @@ const SelectedItems = ({
                                               <img
                                                 className="w-4 h-4 cursor-pointer"
                                                 src={toAbsoluteUrl(
-                                                  "/media/menu/notes.png"
+                                                  "/media/menu/notes.png",
                                                 )}
                                                 alt="notes"
                                                 onClick={(e) => {
@@ -468,7 +471,7 @@ const SelectedItems = ({
                                                   onRemove(
                                                     functionId,
                                                     catName,
-                                                    item.id
+                                                    item.id,
                                                   );
                                                 }}
                                               >
@@ -494,16 +497,26 @@ const SelectedItems = ({
                                             <textarea
                                               rows={2}
                                               placeholder="Add instructions..."
-                                              value={getNotesByLang(item.itemNotes)}
-                                              onChange={(e) =>
+                                              value={
+                                                itemInstructions[item.id] || ""
+                                              }
+                                              onChange={(e) => {
+                                                const value = e.target.value;
+
+                                                // update local typing immediately
+                                                setItemInstructions((prev) => ({
+                                                  ...prev,
+                                                  [item.id]: value,
+                                                }));
+
+                                                // update parent (API / state)
                                                 onInstructionsChange(
                                                   functionId,
                                                   catName,
                                                   item.id,
-                                                  e.target.value
-                                                )
-                                              }
-
+                                                  value,
+                                                );
+                                              }}
                                               onClick={(e) =>
                                                 e.stopPropagation()
                                               }
