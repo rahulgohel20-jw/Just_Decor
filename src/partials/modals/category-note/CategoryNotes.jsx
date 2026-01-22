@@ -68,12 +68,6 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
 
   /* ------------------ SAVE ------------------ */
   const handleSave = () => {
-    console.log("🔵 Saving category notes:", {
-      notesEnglish: localNotes.categoryNotesEnglish,
-      notesHindi: localNotes.categoryNotesHindi,
-      notesGujarati: localNotes.categoryNotesGujarati,
-      slogan: localNotes.categorySlogan,
-    });
     onSave({
       notesEnglish: localNotes.categoryNotesEnglish,
       notesHindi: localNotes.categoryNotesHindi,
