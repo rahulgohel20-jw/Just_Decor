@@ -264,7 +264,7 @@ const MenuReport = ({
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
       pageSize,
-      isWithPrice:options.isWithPrice
+      isWithPrice:options.isWithPrice,
       agencyId: selectedAgency,
       itemId: selectedItems,
       ...(startDate && { startDate: formatDate(startDate) }),
