@@ -91,6 +91,11 @@ export const columns = (setSelectedRow, setIsModalOpen, onDelete) => [
     header: "With Price",
     cell: ({ row }) => <YesNoIcon value={row.original.WithPrice} />,
   },
+  {
+    accessorKey: "date",
+    header: "Date",
+    cell: ({ row }) => <YesNoIcon value={row.original.date} />,
+  },
 
   {
     accessorKey: "action",

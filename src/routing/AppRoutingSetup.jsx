@@ -369,7 +369,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
-          <Route path="/allreports" element={<AllReports />} />
+          <Route path="/allreports/:eventId" element={<AllReports />} />
           <Route
             path="/Superadmin-member-edit/:id"
             element={<SuperAdminMemberEdit />}
