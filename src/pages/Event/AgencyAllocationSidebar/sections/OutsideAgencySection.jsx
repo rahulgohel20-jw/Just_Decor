@@ -202,6 +202,7 @@ export default function OutsideAgencySection({
         onUpdate={handleMenuItemUpdate}
         selectedItems={selectedItems}
         onItemSelect={handleItemSelect}
+        vendorRefreshTrigger={vendorRefreshTrigger}
       />
       <div className="flex justify-end gap-3 px-6 py-4 border-t bg-white">
         <button className="btn btn-danger" aria-label="Cancel" onClick={close}>

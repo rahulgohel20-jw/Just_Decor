@@ -63,6 +63,7 @@ const MenuReport = ({
   };
 
   /* ---------------- FETCH CONFIG ---------------- */
+
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
 
@@ -81,10 +82,10 @@ const MenuReport = ({
           setisDateStatus(1);
         }
         setOptions({
-          categorySlogan: config.isCategorySlogan === 1,
-          categoryInstruction: config.isCategoryInstruction === 1,
+          categorySlogan: config.isCategorySlogan === 0,
+          categoryInstruction: config.isCategoryInstruction === 0,
           categoryImage: config.isCategoryImage === 1,
-          itemSlogan: config.isItemSlogan === 1,
+          itemSlogan: config.isItemSlogan === 0,
           itemInstruction: config.isItemInstruction === 1,
           CompanyInfo: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 1,
@@ -116,7 +117,7 @@ const MenuReport = ({
             isWithQty: config.isWithQty,
             size1: !!config.size1,
             size2: !!config.size2,
-            isWithPrice:config.isWithPrice
+            isWithPrice: config.isWithPrice,
           })
             .filter(([_, value]) => value)
             .map(([key]) => key),
@@ -264,7 +265,7 @@ const MenuReport = ({
       isPartyDetails: options.partyDetails,
       isWithQty: options.isWithQty,
       pageSize,
-      isWithPrice:options.isWithPrice
+      isWithPrice: options.isWithPrice,
       agencyId: selectedAgency,
       itemId: selectedItems,
       ...(startDate && { startDate: formatDate(startDate) }),
