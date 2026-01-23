@@ -1476,3 +1476,25 @@ export const GetAgenciesForReportFilter = (event_func_id, event_id) => {
 export const GetSelectedItemsForReportFilter = (event_func_id, event_id) => {
   return GET(`/menupreparation/getselectedmenuitembyeventandeventfunctionid?eventFunctionId=${event_func_id}&eventId=${event_id}`);
 };
+
+export const GetNamePlateByNamePlateType = (
+  eventFunctionId,
+  eventId,
+  isCounterItem,
+  isStandyItem,
+  isTableMenuItem,
+  lang,
+  userId
+) => {
+  return GET(
+    `/nameplate/getbynameplatetype` +
+      `?eventFunctionId=${eventFunctionId}` +
+      `&eventId=${eventId}` +
+      `&isCounterItem=${isCounterItem}` +
+      `&isStandyItem=${isStandyItem}` +
+      `&isTableMenuItem=${isTableMenuItem}` +
+      `&lang=${lang}` +
+      `&userId=${userId}`
+  );
+};
+

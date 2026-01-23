@@ -16,7 +16,6 @@ export default function OutsideAgencyTable({
   const [unit, setUnit] = useState([]);
 
   useEffect(() => {
-    console.log("🔵 vendorRefreshTrigger changed:", vendorRefreshTrigger);
     fetchVendor();
     fetchUnit();
   }, [vendorRefreshTrigger]);

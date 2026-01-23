@@ -8,6 +8,7 @@ import {
   GetNamePlatedata,
   GenerateNamePlateReport,
   AddNamePlate,
+  GetNamePlateByNamePlateType,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -58,29 +59,54 @@ const MainStandyMenuReport = ({
   }, [eventId, eventFunctionId, currentlang]);
 
   const fetchItemdata = async () => {
+    if (!userId || eventFunctionId <= 0) {
+      console.warn(
+        "Cannot fetch Counter items: invalid eventFunctionId or missing userId",
+        {
+          eventId,
+          eventFunctionId,
+          userId,
+        },
+      );
+      setCounters([]); // reset if invalid
+      return;
+    }
+
     try {
-      const data = await GetNamePlatedata(
+      console.log("Calling Counter API:", {
         eventFunctionId,
         eventId,
-        currentlang,
         userId,
+        currentlang,
+      });
+
+      const res = await GetNamePlateByNamePlateType(
+        eventFunctionId, // must be > 0
+        eventId,
+        0, // isCounterItem
+        1, // isStandyItem
+        0, // isTableMenuItem
+        currentlang,
+        Number(userId),
       );
 
-      const res = data?.data?.data?.data || [];
-      console.log("MainStandy response:", res);
+      const list = res?.data?.data?.data || [];
+      console.log("Counter API response:", list);
 
-      const formattedCounters = res
-        .sort((a, b) => a.sequence - b.sequence)
-        .map((item) => ({
-          id: item.id,
+      if (list.length === 0) {
+        console.warn("No Counter items found for this event/function");
+      }
+
+      const formattedCounters = list
+        .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
+        .map((item, index) => ({
+          id: item.id ?? -1,
           menuItemId: item.menuItemId,
-          sequence: item.sequence,
-
-          isStandyChecked: item.isStandyChecked === 1,
-          isTableMenuChecked: item.isTableMenuChecked === 1,
-
+          sequence: item.sequence ?? index + 1,
+          isChecked: item.isChecked === 1,
           copies: item.itemCount ?? 0,
-
+          isStandyChecked: item.isStandyChecked === 1 || item.isChecked === 1,
+          // all languages
           itemNameEnglish: item.itemNameEnglish || "",
           itemNameHindi: item.itemNameHindi || item.itemNameEnglish,
           itemNameGujarati: item.itemNameGujarati || item.itemNameEnglish,
@@ -88,7 +114,8 @@ const MainStandyMenuReport = ({
 
       setCounters(formattedCounters);
     } catch (error) {
-      console.error("Error fetching main standy data:", error);
+      console.error("Error fetching Counter items:", error);
+      setCounters([]);
     }
   };
 
@@ -144,6 +171,10 @@ const MainStandyMenuReport = ({
         eventId,
         eventFunctionId,
         userId,
+        isCounterItem: 0,
+        isStandyItem: 1, // ✅ MAIN STANDY
+        isTableMenuItem: 0,
+
         namePlateRequests: counters.map((item, index) => ({
           id: item.id || -1,
           menuItemId: item.menuItemId,
