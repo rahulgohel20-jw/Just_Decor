@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { CheckSquare, Square } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Printer } from "lucide-react";
-
+import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -13,7 +13,6 @@ import Swal from "sweetalert2";
 import {
   AddNamePlate,
   GenerateNamePlateReport,
-  GetNamePlatedata,
   GetNamePlateByNamePlateType,
 } from "@/services/apiServices";
 
