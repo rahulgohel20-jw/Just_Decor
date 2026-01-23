@@ -965,26 +965,25 @@ const EventMenuAllocationPage = ({ mode }) => {
   ) => {
     try {
       let eventFunctionId;
-      console.log(clickedFunctionId,"data");
-      
+      console.log(clickedFunctionId, "data");
 
       if (isAllFunctions && clickedFunctionId) {
         eventFunctionId = clickedFunctionId;
-      }else {
+      } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
- 
+
       const menuItemId = item.menuItemId || item.id;
- 
+
       const matchingRow = rows.find(
         (r) =>
           r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId,
       );
- 
+
       if (matchingRow?.outside) {
         return;
       }
- 
+
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
         allocationType = "chef";
@@ -993,7 +992,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else if (matchingRow?.inside) {
         allocationType = "inside";
       }
- 
+
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
@@ -1002,23 +1001,23 @@ const EventMenuAllocationPage = ({ mode }) => {
         eventId: eventId,
         allocationType: allocationType,
       });
- 
+
       setIsCategoryModal(true);
       setMenuLoading(true);
- 
+
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
       );
- 
+
       if (res?.data?.success) {
         const apiData = res.data.data;
- 
+
         const rawMaterials =
           apiData["MenuItem RawMaterial Details"] ||
           apiData.menuItemRawMaterials ||
           [];
- 
+
         setSelectedRow({
           ...apiData,
           "MenuItem RawMaterial Details": rawMaterials,
@@ -1954,7 +1953,7 @@ const handleCategorySave = async (saveData) => {
     try {
       const eventFunctionId = activeFunction?.id || -1;
       console.log(eventFunctionId);
-      
+
       if (!eventFunctionId) {
         Swal.fire({
           icon: "error",

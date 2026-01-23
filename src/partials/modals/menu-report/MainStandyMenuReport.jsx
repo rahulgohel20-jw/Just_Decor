@@ -59,29 +59,27 @@ const MainStandyMenuReport = ({
   }, [eventId, eventFunctionId, currentlang]);
 
   const fetchItemdata = async () => {
-    if (!userId || eventFunctionId <= 0) {
-      console.warn(
-        "Cannot fetch Counter items: invalid eventFunctionId or missing userId",
-        {
-          eventId,
-          eventFunctionId,
-          userId,
-        },
-      );
-      setCounters([]); // reset if invalid
+    if (!userId) {
+      console.warn("Cannot fetch Main Standy items: missing userId", {
+        eventId,
+        eventFunctionId,
+        userId,
+      });
+      setCounters([]);
       return;
     }
 
     try {
-      console.log("Calling Counter API:", {
+      console.log("Calling Main Standy API:", {
         eventFunctionId,
         eventId,
         userId,
         currentlang,
       });
 
+      // ✅ Allow eventFunctionId = -1 for "All Functions"
       const res = await GetNamePlateByNamePlateType(
-        eventFunctionId, // must be > 0
+        eventFunctionId, // Can be -1 for all functions
         eventId,
         0, // isCounterItem
         1, // isStandyItem
@@ -91,10 +89,10 @@ const MainStandyMenuReport = ({
       );
 
       const list = res?.data?.data?.data || [];
-      console.log("Counter API response:", list);
+      console.log("Main Standy API response:", list);
 
       if (list.length === 0) {
-        console.warn("No Counter items found for this event/function");
+        console.warn("No Main Standy items found for this event/function");
       }
 
       const formattedCounters = list
@@ -114,7 +112,7 @@ const MainStandyMenuReport = ({
 
       setCounters(formattedCounters);
     } catch (error) {
-      console.error("Error fetching Counter items:", error);
+      console.error("Error fetching Main Standy items:", error);
       setCounters([]);
     }
   };
