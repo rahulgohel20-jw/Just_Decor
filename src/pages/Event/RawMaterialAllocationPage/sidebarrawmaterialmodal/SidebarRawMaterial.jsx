@@ -29,8 +29,6 @@ const BaseSelect = (props) => (
   </select>
 );
 
-/* ---------- MAIN COMPONENT ---------- */
-
 export default function SidebarRawMaterial({
   open,
   onClose,
@@ -43,8 +41,7 @@ export default function SidebarRawMaterial({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplier, setSupplier] = useState([]);
   const userId = localStorage.getItem("userId");
-
-  /* ---------- SET UNIT FROM PARENT ---------- */
+  const [extraQty, setExtraQty] = useState(0);
 
   useEffect(() => {
     if (sidebarunit && Array.isArray(sidebarunit)) {
@@ -52,12 +49,23 @@ export default function SidebarRawMaterial({
     }
   }, [sidebarunit]);
 
-  /* ---------- INITIAL DATA MAPPING ---------- */
-
   useEffect(() => {
     if (!selectedRow || !open) return;
 
     const functions = selectedRow.eventRawMaterialFunctions || [];
+
+    // Calculate total function qty
+    const totalFunctionQty = functions.reduce(
+      (sum, func) => sum + (parseFloat(func.qty) || 0),
+      0,
+    );
+
+    // Calculate extra qty (difference between finalQty and original total)
+    const calculatedExtra = Math.max(
+      0,
+      (selectedRow.finalQty || 0) - totalFunctionQty,
+    );
+    setExtraQty(calculatedExtra);
 
     const rows = functions.map((func, index) => {
       const unitHierarchy =
@@ -69,27 +77,19 @@ export default function SidebarRawMaterial({
         id: index + 1,
         functionType: func.functionName || "",
         menuItemName: func.itemName || "",
-
         qty: func.qty ?? selectedRow.qty ?? "",
         price: func.price ?? 0,
-
         supplierId: func.supplierId ?? selectedRow.supplierId ?? "",
         agency: func.supplierName ?? selectedRow.agency ?? "",
-
-        // ✅ unit comes from UNIT OBJECT
         unitId: baseUnit?.id || unitHierarchy?.unitId || 1,
         unit: baseUnit?.nameEnglish || unitHierarchy?.nameEnglish || "KILO",
-
         unitObject: baseUnit,
         unitHierarchyDto: unitHierarchy,
-
         place: func.place || selectedRow.place || "",
-
         dateTime:
           func.functiondatetime && dayjs(func.functiondatetime).isValid()
             ? dayjs(func.functiondatetime)
             : null,
-
         functionId: func.functionId || null,
         eventFunctionId: func.eventFunctionId || null,
         isExtraField: func.isExtraField || false,
@@ -102,8 +102,6 @@ export default function SidebarRawMaterial({
   useEffect(() => {
     if (!open) setFunctionRows([]);
   }, [open]);
-
-  /* ---------- SUPPLIER ---------- */
 
   useEffect(() => {
     fetchSupplier();
@@ -118,23 +116,42 @@ export default function SidebarRawMaterial({
     }
   };
 
-  /* ---------- HANDLERS ---------- */
-
-  const handleInputChange = (rowIndex, field, value) => {
-    setFunctionRows((prev) =>
-      prev.map((row, index) =>
-        index === rowIndex ? { ...row, [field]: value } : row
-      )
-    );
+  const handleExtraQtyChange = (newExtraValue) => {
+    const parsedExtra = parseFloat(newExtraValue) || "";
+    setExtraQty(parsedExtra);
   };
 
-  /* ---------- SAVE ---------- */
+  const handleInputChange = (rowIndex, field, value) => {
+    setFunctionRows((prev) => {
+      const updated = prev.map((row, index) =>
+        index === rowIndex ? { ...row, [field]: value } : row,
+      );
+
+      // Recalculate extra qty whenever qty changes
+      // if (field === "qty") {
+      //   const totalFunctionQty = updated.reduce(
+      //     (sum, row) => sum + (parseFloat(row.qty) || 0),
+      //     0,
+      //   );
+      //   const calculatedExtra = Math.max(
+      //     0,
+      //     (selectedRow.finalQty || 0) - totalFunctionQty,
+      //   );
+      //   setExtraQty(calculatedExtra);
+      // }
+
+      return updated;
+    });
+  };
 
   const handleSave = () => {
     const totalFunctionQty = functionRows.reduce(
       (sum, row) => sum + (parseFloat(row.qty) || 0),
-      0
+      0,
     );
+
+    // Add extraQty to the total
+    const finalCalculatedQty = totalFunctionQty + extraQty;
 
     const enrichedRows = functionRows.map((row) => ({
       functionId: row.functionId || 0,
@@ -143,36 +160,29 @@ export default function SidebarRawMaterial({
       itemName: row.menuItemName || "",
       qty: parseFloat(row.qty) || 0,
       price: parseFloat(row.price) || 0,
-
       supplierId: row.supplierId || 0,
       supplierName: row.agency || "",
-
-      // ✅ FINAL UNIT DATA
       unitId: row.unitId,
       unitName: row.unit,
       unit: row.unitObject,
       unitHierarchyDto: row.unitHierarchyDto,
-
       place: row.place,
-
       functiondatetime: row.dateTime
         ? dayjs(row.dateTime).format("YYYY-MM-DD HH:mm:ss.0")
         : "",
-
       isExtraField: row.isExtraField || false,
     }));
 
     onSave?.({
       ...selectedRow,
       eventRawMaterialFunctions: enrichedRows,
-      calculatedFinalQty: totalFunctionQty,
+      calculatedFinalQty: finalCalculatedQty, // Changed: now includes extraQty
+      extraQty: extraQty, // Add this to pass extra qty separately
       qtyWasModified: true,
     });
 
     onClose();
   };
-
-  /* ---------- UI ---------- */
 
   return (
     <AnimatePresence>
@@ -204,10 +214,38 @@ export default function SidebarRawMaterial({
             </div>
 
             {/* TABLE */}
+            {/* TABLE */}
             <div className="p-2 flex-1 overflow-auto">
               <div className="border rounded-xl overflow-x-auto">
+                {/* ✅ ADD EXTRA QTY DISPLAY AT TOP */}
+                <div className="bg-blue-50 border-b border-blue-200 px-6 py-3 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-700">
+                      Extra Quantity:
+                    </span>
+                    <input
+                      type="number"
+                      value={extraQty}
+                      onChange={(e) => handleExtraQtyChange(e.target.value)}
+                      className="w-32 h-9 rounded-md border border-gray-300 bg-white px-2 text-[13px] text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#005BA8]/40 focus:border-[#005BA8]"
+                      placeholder=""
+                    />
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">Total Functions Qty:</span>{" "}
+                    <span className="text-[#005BA8] font-semibold">
+                      {functionRows
+                        .reduce(
+                          (sum, row) => sum + (parseFloat(row.qty) || 0),
+                          0,
+                        )
+                        .toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
                 <table className="w-full border-collapse">
-                  <thead className="bg-gray-100 sticky top-0">
+                  <thead className="bg-gray-100 sticky top-0 z-10">
                     <tr className="text-sm font-semibold text-gray-700">
                       <th className="p-3 text-left">Sr.</th>
                       <th className="p-3 text-left">Function</th>
@@ -215,7 +253,6 @@ export default function SidebarRawMaterial({
                       <th className="p-3 text-left">
                         <div className="flex items-center gap-2">
                           <span>Agency</span>
-
                           <button
                             type="button"
                             onClick={() => setIsModalOpen(true)}
@@ -226,7 +263,6 @@ export default function SidebarRawMaterial({
                           </button>
                         </div>
                       </th>
-
                       <th className="p-3 text-left">Qty</th>
                       <th className="p-3 text-left">Unit</th>
                       <th className="p-3 text-left">Place</th>
@@ -246,149 +282,160 @@ export default function SidebarRawMaterial({
                         </td>
                       </tr>
                     ) : (
-                      functionRows.map((row, idx) => (
-                        <tr
-                          key={idx}
-                          className={`border-t ${
-                            row.isExtraField
-                              ? "bg-yellow-50"
-                              : "hover:bg-gray-50"
-                          }`}
-                        >
-                          <td className="p-3">{row.id}.</td>
-                          <td className="p-3">{row.functionType || "-"}</td>
-                          <td className="p-3 whitespace-normal break-words max-w-[320px]">
-                            {row.menuItemName || "-"}
-                          </td>
+                      <>
+                        {functionRows.map((row, idx) => (
+                          <tr
+                            key={idx}
+                            className={`border-t ${
+                              row.isExtraField
+                                ? "bg-yellow-50"
+                                : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <td className="p-3">{row.id}.</td>
+                            <td className="p-3">{row.functionType || "-"}</td>
+                            <td className="p-3 whitespace-normal break-words max-w-[320px]">
+                              {row.menuItemName || "-"}
+                            </td>
 
-                          <td className="p-3">
-                            <BaseSelect
-                              value={row.supplierId || ""}
-                              onChange={(e) => {
-                                const s = supplier.find(
-                                  (x) => x.id === Number(e.target.value)
-                                );
-                                handleInputChange(
-                                  idx,
-                                  "supplierId",
-                                  s?.id || ""
-                                );
-                                handleInputChange(
-                                  idx,
-                                  "agency",
-                                  s?.nameEnglish || ""
-                                );
-                              }}
-                            >
-                              <option value="">Select Agency</option>
-                              {supplier.map((s) => (
-                                <option key={s.id} value={s.id}>
-                                  {s.nameEnglish}
-                                </option>
-                              ))}
-                            </BaseSelect>
-                          </td>
+                            <td className="p-3">
+                              <BaseSelect
+                                value={row.supplierId || ""}
+                                onChange={(e) => {
+                                  const s = supplier.find(
+                                    (x) => x.id === Number(e.target.value),
+                                  );
+                                  handleInputChange(
+                                    idx,
+                                    "supplierId",
+                                    s?.id || "",
+                                  );
+                                  handleInputChange(
+                                    idx,
+                                    "agency",
+                                    s?.nameEnglish || "",
+                                  );
+                                }}
+                              >
+                                <option value="">Select Agency</option>
+                                {supplier.map((s) => (
+                                  <option key={s.id} value={s.id}>
+                                    {s.nameEnglish}
+                                  </option>
+                                ))}
+                              </BaseSelect>
+                            </td>
 
-                          <td className="p-3 w-[90px]">
-                            <BaseInput
-                              type="number"
-                              value={row.qty}
-                              onChange={(e) =>
-                                handleInputChange(idx, "qty", e.target.value)
-                              }
-                            />
-                          </td>
-
-                          {/* ✅ UNIT DROPDOWN (HIERARCHY ONLY) */}
-                          <td className="p-3 w-[130px]">
-                            <BaseSelect
-                              value={row.unitId}
-                              onChange={(e) => {
-                                const selectedId = Number(e.target.value);
-                                if (!selectedId) return;
-
-                                let selectedUnit = null;
-
-                                if (
-                                  row.unitHierarchyDto?.unitId === selectedId
-                                ) {
-                                  selectedUnit = row.unitHierarchyDto;
-                                } else {
-                                  selectedUnit =
-                                    row.unitHierarchyDto?.children?.find(
-                                      (c) => c.unitId === selectedId
-                                    );
+                            <td className="p-3 w-[90px]">
+                              <BaseInput
+                                type="number"
+                                value={row.qty}
+                                onChange={(e) =>
+                                  handleInputChange(idx, "qty", e.target.value)
                                 }
+                              />
+                            </td>
 
-                                if (!selectedUnit) return;
+                            <td className="p-3 w-[130px]">
+                              <BaseSelect
+                                value={row.unitId}
+                                onChange={(e) => {
+                                  const selectedId = Number(e.target.value);
+                                  if (!selectedId) return;
 
-                                handleInputChange(
-                                  idx,
-                                  "unitId",
-                                  selectedUnit.unitId
-                                );
-                                handleInputChange(
-                                  idx,
-                                  "unit",
-                                  selectedUnit.nameEnglish
-                                );
-                                handleInputChange(idx, "unitObject", {
-                                  id: selectedUnit.unitId,
-                                  nameEnglish: selectedUnit.nameEnglish,
-                                  symbolEnglish: selectedUnit.symbolEnglish,
-                                });
-                                handleInputChange(idx, "unitHierarchyDto", {
-                                  ...row.unitHierarchyDto,
-                                  unitId: selectedUnit.unitId,
-                                  nameEnglish: selectedUnit.nameEnglish,
-                                });
-                              }}
-                            >
-                              <option value="">Select Unit</option>
-                              {row.unitHierarchyDto && (
-                                <option value={row.unitHierarchyDto.unitId}>
-                                  {row.unitHierarchyDto.nameEnglish}
-                                </option>
-                              )}
-                              {row.unitHierarchyDto?.children?.map((child) => (
-                                <option key={child.unitId} value={child.unitId}>
-                                  {child.nameEnglish}
-                                </option>
-                              ))}
-                            </BaseSelect>
-                          </td>
+                                  let selectedUnit = null;
 
-                          <td className="p-3 w-[140px]">
-                            <PlaceSelect
-                              value={row.place}
-                              onChange={(value) =>
-                                handleInputChange(idx, "place", value)
-                              }
-                            />
-                          </td>
+                                  if (
+                                    row.unitHierarchyDto?.unitId === selectedId
+                                  ) {
+                                    selectedUnit = row.unitHierarchyDto;
+                                  } else {
+                                    selectedUnit =
+                                      row.unitHierarchyDto?.children?.find(
+                                        (c) => c.unitId === selectedId,
+                                      );
+                                  }
 
-                          <td className="p-3 w-[200px]">
-                            <DatePicker
-                              className="h-9 w-full"
-                              showTime
-                              value={row.dateTime}
-                              onChange={(date) =>
-                                handleInputChange(idx, "dateTime", date)
-                              }
-                            />
-                          </td>
+                                  if (!selectedUnit) return;
 
-                          <td className="p-3 w-[120px]">
-                            <BaseInput
-                              type="number"
-                              value={row.price}
-                              onChange={(e) =>
-                                handleInputChange(idx, "price", e.target.value)
-                              }
-                            />
-                          </td>
-                        </tr>
-                      ))
+                                  handleInputChange(
+                                    idx,
+                                    "unitId",
+                                    selectedUnit.unitId,
+                                  );
+                                  handleInputChange(
+                                    idx,
+                                    "unit",
+                                    selectedUnit.nameEnglish,
+                                  );
+                                  handleInputChange(idx, "unitObject", {
+                                    id: selectedUnit.unitId,
+                                    nameEnglish: selectedUnit.nameEnglish,
+                                    symbolEnglish: selectedUnit.symbolEnglish,
+                                  });
+                                  handleInputChange(idx, "unitHierarchyDto", {
+                                    ...row.unitHierarchyDto,
+                                    unitId: selectedUnit.unitId,
+                                    nameEnglish: selectedUnit.nameEnglish,
+                                  });
+                                }}
+                              >
+                                <option value="">Select Unit</option>
+                                {row.unitHierarchyDto && (
+                                  <option value={row.unitHierarchyDto.unitId}>
+                                    {row.unitHierarchyDto.nameEnglish}
+                                  </option>
+                                )}
+                                {row.unitHierarchyDto?.children?.map(
+                                  (child) => (
+                                    <option
+                                      key={child.unitId}
+                                      value={child.unitId}
+                                    >
+                                      {child.nameEnglish}
+                                    </option>
+                                  ),
+                                )}
+                              </BaseSelect>
+                            </td>
+
+                            <td className="p-3 w-[140px]">
+                              <PlaceSelect
+                                value={row.place}
+                                onChange={(value) =>
+                                  handleInputChange(idx, "place", value)
+                                }
+                              />
+                            </td>
+
+                            <td className="p-3 w-[200px]">
+                              <DatePicker
+                                className="h-9 w-full"
+                                showTime
+                                value={row.dateTime}
+                                onChange={(date) =>
+                                  handleInputChange(idx, "dateTime", date)
+                                }
+                                popupClassName="z-[9999]"
+                              />
+                            </td>
+
+                            <td className="p-3 w-[120px]">
+                              <BaseInput
+                                type="number"
+                                value={row.price}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    idx,
+                                    "price",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </>
                     )}
                   </tbody>
                 </table>

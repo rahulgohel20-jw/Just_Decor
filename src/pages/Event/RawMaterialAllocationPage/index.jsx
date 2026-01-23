@@ -45,9 +45,59 @@ const RawMaterialAllocation = ({ mode }) => {
   const [originalData, setOriginalData] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [newRowCounter, setNewRowCounter] = useState(0);
 
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
+
+  const handleAddNewRow = () => {
+    const newRow = {
+      id: data.length + 1,
+      rawMaterialId: `new_${Date.now()}_${newRowCounter}`,
+      material: "",
+      qty: 0,
+      finalQty: 0,
+      total: 0,
+      basePricePerUnit: 0,
+      unit: "KILO",
+      unitId: 1,
+      agency: "",
+      supplierId: 0,
+      place: "",
+      date: null,
+      originalPricePerUnit: 0,
+      eventRawMaterialFunctions: [],
+      isNewRow: true, // Flag to identify new rows
+    };
+
+    setData([...data, newRow]);
+    setNewRowCounter(newRowCounter + 1);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDeleteRow = (index) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You want to delete this row?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updated = data.filter((_, i) => i !== index);
+        // Reorder IDs
+        const reordered = updated.map((item, idx) => ({
+          ...item,
+          id: idx + 1,
+        }));
+        setData(reordered);
+        setHasUnsavedChanges(true);
+        Swal.fire("Deleted!", "Row has been deleted.", "success");
+      }
+    });
+  };
 
   const toggleRowSelection = (rawMaterialId) => {
     setSelectedRows((prev) =>
@@ -132,6 +182,7 @@ const RawMaterialAllocation = ({ mode }) => {
     unitId: u.id,
   }));
 
+  // ✅ UPDATED: Build unit options from units object first, then fallback to unitHierarchyDto
   const buildUnitOptions = (
     unitsObject,
     unitHierarchyDto,
@@ -140,6 +191,7 @@ const RawMaterialAllocation = ({ mode }) => {
   ) => {
     const options = [];
 
+    // ✅ Priority 1: Use units object if available
     if (unitsObject && unitsObject.id) {
       options.push({
         value: unitsObject.id,
@@ -147,7 +199,9 @@ const RawMaterialAllocation = ({ mode }) => {
       });
     }
 
+    // ✅ Priority 2: Use hierarchy if available
     if (unitHierarchyDto) {
+      // Only add if not already added from units object
       if (!options.some((o) => o.value === unitHierarchyDto.unitId)) {
         options.push({
           value: unitHierarchyDto.unitId,
@@ -155,6 +209,7 @@ const RawMaterialAllocation = ({ mode }) => {
         });
       }
 
+      // Add children
       if (Array.isArray(unitHierarchyDto.children)) {
         unitHierarchyDto.children.forEach((child) => {
           if (!options.some((o) => o.value === child.unitId)) {
@@ -167,6 +222,7 @@ const RawMaterialAllocation = ({ mode }) => {
       }
     }
 
+    // ✅ Fallback if nothing matches current unit
     if (currentUnitId && !options.some((o) => o.value === currentUnitId)) {
       options.unshift({
         value: currentUnitId,
@@ -250,6 +306,7 @@ const RawMaterialAllocation = ({ mode }) => {
               ? item.eventRawMaterialFunctions[0].functiondatetime
               : null;
 
+          // ✅ Calculate and store the original price per unit
           const originalQty = item.qty || 0;
           const originalTotal = item.totalprice || 0;
           const originalPricePerUnit =
@@ -312,11 +369,14 @@ const RawMaterialAllocation = ({ mode }) => {
   const getEquivalentValue = (fromUnitId, toUnitId, unitHierarchyDto) => {
     if (!unitHierarchyDto) return 1;
 
+    // Same unit
     if (fromUnitId === toUnitId) return 1;
 
+    // Parent → Child (KILO → GRAM)
     const child = unitHierarchyDto.children?.find((c) => c.unitId === toUnitId);
     if (child) return child.equivalentValue;
 
+    // Child → Parent (GRAM → KILO)
     const isChild = unitHierarchyDto.children?.some(
       (c) => c.unitId === fromUnitId,
     );
@@ -463,7 +523,7 @@ const RawMaterialAllocation = ({ mode }) => {
             rawMaterialId: item.rawMaterialId || 0,
             supplierId: supplierId,
             totalprice: parseFloat(item.total) || 0,
-            unitId: item.unitId || 0,
+            unitId: item.unitId || 0, // ✅ This will now have the updated unit ID
             date:
               item.date && dayjs(item.date).isValid()
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
@@ -510,7 +570,7 @@ const RawMaterialAllocation = ({ mode }) => {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
+    setIsSaving(true); // 🔥 Start loader
     const success = await autoSave(true);
 
     if (success) {
@@ -772,40 +832,40 @@ const RawMaterialAllocation = ({ mode }) => {
     setIsRawSidebar(true);
   };
 
-  // ✅ UPDATED: Handle save from sidebar with quantity calculation
   const handleSaveFromSidebar = (updatedRow) => {
     const updatedData = data.map((item) => {
       if (
         item.id === updatedRow.id ||
         item.rawMaterialId === updatedRow.rawMaterialId
       ) {
-        // ✅ If quantity was modified in sidebar, use calculated value
-        // Otherwise keep the existing finalQty from backend
         const newFinalQty = updatedRow.qtyWasModified
           ? updatedRow.calculatedFinalQty
           : item.finalQty;
+
+        const newTotal = newFinalQty * (item.basePricePerUnit || 0);
 
         return {
           ...item,
           ...updatedRow,
           rawMaterialId: item.rawMaterialId,
           id: item.id,
-          finalQty: newFinalQty, // ✅ Update finalQty with calculated or original value
+          finalQty: newFinalQty,
+          total: newTotal,
         };
       }
       return item;
     });
 
     setData(updatedData);
-    setHasUnsavedChanges(true); // 🔥 Mark as changed
+    setHasUnsavedChanges(true);
 
     Swal.fire({
       icon: "success",
       title: "Updated",
       text: updatedRow.qtyWasModified
-        ? `Row updated successfully. Final Qty updated to ${updatedRow.calculatedFinalQty}. Changes will be saved when switching tabs or clicking Save.`
+        ? `Row updated successfully. Final Qty updated to ${updatedRow.calculatedFinalQty.toFixed(2)} (including extra: ${updatedRow.extraQty || 0}). Changes will be saved when switching tabs or clicking Save.`
         : "Row updated successfully. Changes will be saved when switching tabs or clicking Save.",
-      timer: 2000,
+      timer: 2500,
       showConfirmButton: false,
     });
   };
@@ -1021,33 +1081,46 @@ const RawMaterialAllocation = ({ mode }) => {
               />
             </div>
           </div>
-          <button
-            className="bg-primary text-white text-sm px-4 py-2 rounded-lg"
-            onClick={handleModalOpen}
-          >
-            <FormattedMessage
-              id="RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE"
-              defaultMessage="+ Supplier Allocation"
-            />
-          </button>
+          <div className="flex gap-2">
+            {/* ADD THIS BUTTON */}
+            <button
+              className="bg-green-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2"
+              onClick={handleAddNewRow}
+            >
+              <i className="ki-filled ki-plus"></i>
+              <FormattedMessage
+                id="RAW_MATERIAL_ALLOCATION.ADD_NEW_ROW"
+                defaultMessage="Add New Row"
+              />
+            </button>
+            <button
+              className="bg-primary text-white text-sm px-4 py-2 rounded-lg"
+              onClick={handleModalOpen}
+            >
+              <FormattedMessage
+                id="RAW_MATERIAL_ALLOCATION.ADD_AGENCY_PLACE_DATE"
+                defaultMessage="+ Supplier Allocation"
+              />
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow border border-gray-200">
           <div className="max-h-[380px] overflow-y-auto scrollbar-hide">
             <table className="min-w-full table-fixed text-sm text-gray-700">
               {/* ===== TABLE HEADER ===== */}
-              <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10">
+              <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-1">
                 <tr>
-                  <th className="w-12 px-4 py-3 text-left">ID</th>
-                  <th className="w-20 px-4 py-3 text-left">Raw Material</th>
-                  <th className="w-20 px-4 py-3 text-left">Qty</th>
-                  <th className="w-30 px-4 py-3 text-left">Final Qty</th>
-                  <th className="w-28 px-4 py-3 text-left">Unit</th>
-                  <th className="w-32 px-4 py-3 text-left">Agency</th>
-                  <th className="w-24 px-4 py-3 text-left">Place</th>
-                  <th className="w-44 px-4 py-3 text-left">Date</th>
+                  <th className="w-16 px-4 py-3 text-left">ID</th>
+                  <th className="w-48 px-4 py-3 text-left">Raw Material</th>
+                  <th className="w-24 px-4 py-3 text-left">Qty</th>
+                  <th className="w-28 px-4 py-3 text-left">Final Qty</th>
+                  <th className="w-32 px-4 py-3 text-left">Unit</th>
+                  <th className="w-40 px-4 py-3 text-left">Agency</th>
+                  <th className="w-36 px-4 py-3 text-left">Place</th>
+                  <th className="w-52 px-4 py-3 text-left">Date</th>
                   <th className="w-28 px-4 py-3 text-left">Total</th>
-                  <th className="w-16 px-4 py-3 text-center">Action</th>
+                  <th className="w-24 px-4 py-3 text-center">Action</th>
                 </tr>
               </thead>
 
@@ -1067,19 +1140,55 @@ const RawMaterialAllocation = ({ mode }) => {
                   </tr>
                 ) : (
                   data.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-200">
+                    <tr
+                      key={index}
+                      className={`border-b border-gray-200 ${item.isNewRow ? "bg-green-50" : ""}`}
+                    >
                       <td className="px-4 py-3">{item.id}</td>
-                      <td
-                        className="px-4 py-2 text-xs text-gray-700 truncate max-w-[150px]"
-                        title={item.material}
-                      >
-                        {item.material}
-                      </td>
-                      <td className="px-4 py-3">{item.qty}</td>
 
+                      {/* Raw Material - Editable for new rows */}
+                      <td className="px-4 py-2 text-xs text-gray-700">
+                        {item.isNewRow ? (
+                          <input
+                            type="text"
+                            value={item.material}
+                            onChange={(e) =>
+                              handleChange(index, "material", e.target.value)
+                            }
+                            className="w-full border border-gray-300 rounded px-2 py-2"
+                            placeholder="Enter material name"
+                          />
+                        ) : (
+                          <span
+                            className="truncate max-w-[150px] block"
+                            title={item.material}
+                          >
+                            {item.material}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Qty - Editable for new rows */}
+                      <td className="px-4 py-3">
+                        {item.isNewRow ? (
+                          <input
+                            type="number"
+                            value={item.qty}
+                            onChange={(e) =>
+                              handleChange(index, "qty", e.target.value)
+                            }
+                            className="w-full border border-gray-300 rounded px-2 py-1"
+                            placeholder="0"
+                          />
+                        ) : (
+                          item.qty
+                        )}
+                      </td>
+
+                      {/* Final Qty - Always editable */}
                       <td className="px-4 py-3">
                         <input
-                          type="tel"
+                          type="number"
                           value={item.finalQty}
                           onChange={(e) =>
                             handleChange(index, "finalQty", e.target.value)
@@ -1088,6 +1197,7 @@ const RawMaterialAllocation = ({ mode }) => {
                         />
                       </td>
 
+                      {/* Unit - Always editable */}
                       <td className="px-4 py-3">
                         <select
                           value={item.unitId}
@@ -1113,20 +1223,89 @@ const RawMaterialAllocation = ({ mode }) => {
                         </select>
                       </td>
 
-                      <td className="px-4 py-3">{item.agency}</td>
-                      <td className="px-4 py-3">{item.place}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        {item.date
-                          ? dayjs(item.date).format("DD/MM/YYYY hh:mm A")
-                          : "-"}
+                      {/* Agency - Editable for new rows */}
+                      <td className="px-4 py-3">
+                        {item.isNewRow ? (
+                          <select
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
+                            value={item.agency || ""}
+                            onChange={(e) =>
+                              handleAgencyChange(index, e.target.value)
+                            }
+                          >
+                            <option value="">Select Agency</option>
+                            {agencies.map((agency) => (
+                              <option
+                                key={agency.id}
+                                value={agency.nameEnglish || agency.name}
+                              >
+                                {agency.nameEnglish || agency.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          item.agency
+                        )}
                       </td>
+
+                      {/* Place - Editable for new rows */}
+                      <td className="px-4 py-3">
+                        {item.isNewRow ? (
+                          <PlaceSelect
+                            value={item.place || ""}
+                            onChange={(value, placeId) => {
+                              const updated = [...data];
+                              updated[index].place = value;
+                              updated[index].placeId = placeId || 0;
+                              setData(updated);
+                              setHasUnsavedChanges(true);
+                            }}
+                          />
+                        ) : (
+                          item.place
+                        )}
+                      </td>
+
+                      {/* Date - Editable for new rows */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {item.isNewRow ? (
+                          <DatePicker
+                            selected={
+                              item.date ? dayjs(item.date).toDate() : null
+                            }
+                            onChange={(date) => handleDateChange(index, date)}
+                            showTimeSelect
+                            timeFormat="hh:mm aa"
+                            dateFormat="MM/dd/yyyy hh:mm aa"
+                            className="border px-2 py-1 w-[180px]"
+                            placeholderText="Select date"
+                          />
+                        ) : item.date ? (
+                          dayjs(item.date).format("DD/MM/YYYY hh:mm A")
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      {/* Total */}
                       <td className="px-4 py-3">{item.total}</td>
 
+                      {/* Action */}
                       <td className="px-4 py-3 text-center">
-                        <i
-                          className="ki-filled ki-notepad-edit text-primary cursor-pointer"
-                          onClick={() => handleEditRow(item)}
-                        ></i>
+                        <div className="flex items-center justify-center gap-2">
+                          <i
+                            className="ki-filled ki-notepad-edit text-primary cursor-pointer hover:text-blue-700"
+                            onClick={() => handleEditRow(item)}
+                            title="Edit"
+                          ></i>
+                          {item.isNewRow && (
+                            <i
+                              className="ki-filled ki-trash text-red-500 cursor-pointer hover:text-red-700"
+                              onClick={() => handleDeleteRow(index)}
+                              title="Delete"
+                            ></i>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))

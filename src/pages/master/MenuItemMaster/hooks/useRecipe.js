@@ -37,6 +37,42 @@ export default function useRecipe(rawmaterialList, initialData = []) {
     setDishCosting(total > 0 ? total / 100 : 0);
   }, [tableData]);
 
+  // ✅ NEW: Calculate rate based on unit conversion
+  const calculateRate = (raw, weightValue, selectedUnitId) => {
+    const supplierRate = raw?.supplierRate || 0;
+    const unitHierarchy = raw?.unitHierarchy;
+
+    if (!unitHierarchy) {
+      // Fallback if no hierarchy
+      return weightValue * supplierRate;
+    }
+
+    // Check if selected unit is the parent unit
+    const isParentUnit = unitHierarchy.unitId === selectedUnitId;
+
+    if (isParentUnit) {
+      // Parent unit (e.g., KILO)
+      // Rate = weight * supplierRate
+      return weightValue * supplierRate;
+    } else {
+      // Child unit (e.g., GRAM)
+      // Find the child unit to get equivalentValue
+      const childUnit = unitHierarchy.children?.find(
+        (c) => c.unitId === selectedUnitId
+      );
+
+      if (childUnit && childUnit.equivalentValue > 0) {
+        // Convert child to parent: weightInParent = weight / equivalentValue
+        // Example: 50 GRAM / 1000 = 0.05 KILO
+        const weightInParent = weightValue / childUnit.equivalentValue;
+        return weightInParent * supplierRate;
+      } else {
+        // Fallback
+        return weightValue * supplierRate;
+      }
+    }
+  };
+
   const handleAddRecipe = () => {
     if (!selectedRaw || !weight || !unit) {
       return message.error("Please fill all recipe fields");
@@ -47,10 +83,16 @@ export default function useRecipe(rawmaterialList, initialData = []) {
       return message.error("Invalid raw material selected");
     }
 
-    const unitName = unitOptions.find((u) => u.value === unit)?.label || "";
+    const weightValue = parseFloat(weight);
+    if (isNaN(weightValue) || weightValue <= 0) {
+      return message.error("Please enter a valid weight");
+    }
 
+    const unitName = unitOptions.find((u) => u.value === unit)?.label || "";
     const supplierRate = raw?.supplierRate || 0;
-    const rate = Number(weight) * Number(supplierRate);
+
+    // ✅ CHANGED: Use the new calculateRate function
+    const rate = calculateRate(raw, weightValue, unit);
 
     const duplicate = tableData.find(
       (r) => r.rawMaterialId === raw.rawMaterialId
@@ -63,15 +105,16 @@ export default function useRecipe(rawmaterialList, initialData = []) {
       const updatedRows = tableData.map((row) =>
         row.sr_no === editingRowId
           ? {
-              ...row,
-              category: raw.category, // ← Fixed: use raw.category instead of raw.rawMaterialCat?.nameEnglish
-              name: raw.name, // ← Fixed: use raw.name instead of raw.nameEnglish
-              weight,
-              unit: unitName,
-              unitId: unit,
-              supplierRate,
-              rate,
-            }
+            ...row,
+            category: raw.category,
+            name: raw.name,
+            weight: weightValue,
+            unit: unitName,
+            unitId: unit,
+            supplierRate,
+            rate: Number(rate.toFixed(2)), // ✅ Round to 2 decimals
+            rawMaterialId: raw.rawMaterialId, // ✅ Add this to update
+          }
           : row
       );
 
@@ -83,11 +126,11 @@ export default function useRecipe(rawmaterialList, initialData = []) {
         sr_no: rowCounter,
         category: raw.category,
         name: raw.name,
-        weight,
+        weight: weightValue,
         unit: unitName,
         unitId: unit,
         supplierRate,
-        rate,
+        rate: Number(rate.toFixed(2)), // ✅ Round to 2 decimals
         menuRmId: null,
         rawMaterialId: raw.rawMaterialId,
       };
@@ -97,9 +140,11 @@ export default function useRecipe(rawmaterialList, initialData = []) {
       message.success("Recipe added");
     }
 
+    // Reset form
     setSelectedRaw(null);
     setWeight("");
     setUnit(null);
+    setUnitOptions([]); // ✅ Also reset unit options
   };
 
   const handleDeleteRow = async (row) => {
@@ -123,11 +168,31 @@ export default function useRecipe(rawmaterialList, initialData = []) {
 
   const handleEditRow = (row) => {
     setEditingRowId(row.sr_no);
-    const raw = rawmaterialList.find((r) => r.name === row.name);
+    const raw = rawmaterialList.find((r) => r.rawMaterialId === row.rawMaterialId);
+
     if (!raw) return;
+
     setSelectedRaw(raw.rawMaterialId);
-    setUnitOptions([{ label: raw.unit, value: raw.unitId }]);
-    setUnit(raw.unitId);
+
+    // ✅ Build unit options from hierarchy
+    const unitHierarchy = raw.unitHierarchy;
+    if (unitHierarchy) {
+      const options = [
+        {
+          label: unitHierarchy.nameEnglish,
+          value: unitHierarchy.unitId,
+        },
+        ...(unitHierarchy.children?.map((child) => ({
+          label: child.nameEnglish,
+          value: child.unitId,
+        })) || []),
+      ];
+      setUnitOptions(options);
+    } else {
+      setUnitOptions([{ label: raw.unit, value: raw.unitId }]);
+    }
+
+    setUnit(row.unitId);
     setWeight(row.weight);
   };
 
