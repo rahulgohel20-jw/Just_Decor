@@ -21,6 +21,7 @@ import SidebarRawMaterial from "./sidebarrawmaterialmodal/SidebarRawMaterial";
 import { FormattedMessage, useIntl } from "react-intl";
 import dayjs from "dayjs";
 import DatePicker from "react-datepicker";
+import AddRawMaterial from "./AddRawMaterial";
 
 const RawMaterialAllocation = ({ mode }) => {
   let { eventId } = useParams();
@@ -47,31 +48,43 @@ const RawMaterialAllocation = ({ mode }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [newRowCounter, setNewRowCounter] = useState(0);
 
+  const [isAddMaterialModal, setIsAddMaterialModal] = useState(false);
+  const [eventFunctions, setEventFunctions] = useState([]);
+
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
 
-  const handleAddNewRow = () => {
-    const newRow = {
-      id: data.length + 1,
-      rawMaterialId: `new_${Date.now()}_${newRowCounter}`,
-      material: "",
-      qty: 0,
-      finalQty: 0,
-      total: 0,
-      basePricePerUnit: 0,
-      unit: "KILO",
-      unitId: 1,
-      agency: "",
-      supplierId: 0,
-      place: "",
-      date: null,
-      originalPricePerUnit: 0,
-      eventRawMaterialFunctions: [],
-      isNewRow: true, // Flag to identify new rows
-    };
+  // Replace the fetchEventFunctions function with this:
+  const fetchEventFunctions = async () => {
+    try {
+      const response = await GetEventMasterById(eventId);
+      const eventDetails = response?.data?.data?.["Event Details"];
 
-    setData([...data, newRow]);
-    setNewRowCounter(newRowCounter + 1);
+      if (eventDetails && eventDetails.length > 0) {
+        const functions = eventDetails[0].eventFunctions || [];
+
+        // Transform the data to match the modal's expected format
+        const transformedFunctions = functions.map((fn) => ({
+          eventFunctionId: fn.id,
+          functionId: fn.function.id,
+          functionName: fn.function.nameEnglish,
+          functiondatetime: fn.functionStartDateTime,
+          pax: fn.pax,
+          venue: fn.function_venue,
+        }));
+
+        setEventFunctions(transformedFunctions);
+      }
+    } catch (error) {
+      console.error("Error fetching event functions:", error);
+    }
+  };
+  const handleAddNewRow = () => {
+    setIsAddMaterialModal(true);
+  };
+
+  const handleSaveNewMaterial = (newRowData) => {
+    setData([...data, { ...newRowData, id: data.length + 1 }]);
     setHasUnsavedChanges(true);
   };
 
@@ -118,6 +131,7 @@ const RawMaterialAllocation = ({ mode }) => {
   useEffect(() => {
     if (eventId) {
       fetchEventData();
+      fetchEventFunctions();
     }
   }, [eventId]);
 
@@ -320,7 +334,7 @@ const RawMaterialAllocation = ({ mode }) => {
           return {
             id: index + 1,
             rawMaterialId: item.rawMaterialId || item.id || 0,
-            material: item.rawMaterialNameEng || "N/A",
+            material: item.rawMaterialNameEng || item.extraItemName || "N/A",
             qty: item.qty || 0,
             finalQty: originalFinalQty,
             total: originalTotal,
@@ -481,7 +495,12 @@ const RawMaterialAllocation = ({ mode }) => {
         return false;
       }
 
+      // ✅ Get eventFunctionId from the first new row (if exists)
+      const newRow = data.find((item) => item.isNewRow);
+      const payloadEventFunctionId = newRow?.eventFunctionId || 0;
+
       const payload = {
+        eventFunctionId: payloadEventFunctionId, // ✅ Use the selected function ID
         eventId: parseInt(eventId),
         rawMaterialCategoryId: parseInt(activeTab || 0),
 
@@ -493,37 +512,39 @@ const RawMaterialAllocation = ({ mode }) => {
             item.supplierId ||
             0;
 
-          const eventRawMatFunctions = (
-            item.eventRawMaterialFunctions || []
-          ).map((fn) => ({
-            eventFunctionId: fn.eventFunctionId || 0,
-            functionId: fn.functionId || 0,
-            functiondatetime: fn.functiondatetime
-              ? dayjs(fn.functiondatetime).isValid()
-                ? dayjs(fn.functiondatetime).format("YYYY-MM-DD HH:mm:ss.0")
-                : ""
-              : item.date && dayjs(item.date).isValid()
-                ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
-                : "",
-            isExtraField: fn.isExtraField === true,
-            rawMaterialRate: fn.rawMaterialPrice,
-            itemName: fn.itemName || item.material || "",
-            place: fn.place || item.place || "",
-            price: parseFloat(fn.price) || 0,
-            qty: parseFloat(fn.qty) || 0,
-            supplierId: fn.supplierId || supplierId,
-            unitId: fn.unitId || item.unitId || 0,
-          }));
+          // ✅ For new rows (with extraItem), don't send eventRawMatFunctions
+          const eventRawMatFunctions = item.isNewRow
+            ? []
+            : (item.eventRawMaterialFunctions || []).map((fn) => ({
+                eventFunctionId: fn.eventFunctionId || 0,
+                functionId: fn.functionId || 0,
+                functiondatetime: fn.functiondatetime
+                  ? dayjs(fn.functiondatetime).isValid()
+                    ? dayjs(fn.functiondatetime).format("YYYY-MM-DD HH:mm:ss.0")
+                    : ""
+                  : item.date && dayjs(item.date).isValid()
+                    ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
+                    : "",
+                isExtraField: fn.isExtraField === true,
+                rawMaterialRate: fn.rawMaterialRate || fn.rawMaterialPrice,
+                itemName: fn.itemName || item.material || "",
+                place: fn.place || item.place || "",
+                price: parseFloat(fn.price) || 0,
+                qty: parseFloat(fn.qty) || 0,
+                supplierId: fn.supplierId || supplierId,
+                unitId: fn.unitId || item.unitId || 0,
+              }));
 
           return {
-            eventRawMatFunctions: eventRawMatFunctions,
+            eventRawMatFunctions: eventRawMatFunctions, // ✅ Empty array for new items
+            extraItem: item.isNewRow ? item.material : "", // ✅ Only for new rows
             finalQty: parseFloat(item.finalQty) || 0,
             place: item.place || "",
             qty: parseFloat(item.qty) || 0,
-            rawMaterialId: item.rawMaterialId || 0,
+            rawMaterialId: item.rawMaterialId || null,
             supplierId: supplierId,
             totalprice: parseFloat(item.total) || 0,
-            unitId: item.unitId || 0, // ✅ This will now have the updated unit ID
+            unitId: item.unitId || 0,
             date:
               item.date && dayjs(item.date).isValid()
                 ? dayjs(item.date).format("YYYY-MM-DD HH:mm:ss.0")
@@ -1368,6 +1389,15 @@ const RawMaterialAllocation = ({ mode }) => {
             setIsMenuReport(true);
           }}
           mode={mode}
+        />
+
+        <AddRawMaterial
+          isOpen={isAddMaterialModal}
+          onClose={() => setIsAddMaterialModal(false)}
+          onSave={handleSaveNewMaterial}
+          agencies={agencies}
+          unit={unit}
+          eventFunctions={eventFunctions}
         />
       </Container>
       {isSaving && (
