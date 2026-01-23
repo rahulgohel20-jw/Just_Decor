@@ -381,12 +381,12 @@ const QuotationPage = () => {
     const newFunctions = [...quotationData.functions];
     newFunctions[index][field] = value;
 
-    if (field === "persons" || field === "rate" || field === "extra") {
+    if (field === "persons" || field === "rate" ) {
       const persons = parseFloat(newFunctions[index].persons) || 0;
       // const extra = parseFloat(newFunctions[index].extra) || 0;
       const rate = parseFloat(newFunctions[index].rate) || 0;
 
-      const total = (persons + extra) * rate;
+      const total = persons  * rate;
       newFunctions[index].totalPrice =
         total % 1 === 0 ? total.toString() : total;
     }
@@ -850,7 +850,9 @@ const QuotationPage = () => {
                         className="input text-sm font-medium text-gray-900 w-[260px]"
                         type="text"
                         value={billingName || quotationData.billingname}
-                        onChange={(e) => setBillingName(e.target.value)}
+                        onChange={(e) => {setBillingName(e.target.value);
+                          setIsEdited(true);
+                        }}
                       />
                     </div>
                   </div>
@@ -867,7 +869,10 @@ const QuotationPage = () => {
                         className="input text-sm font-medium text-gray-900 w-[270px]"
                         type="text"
                         value={gstNumber || quotationData.gstnumber}
-                        onChange={(e) => setGstNumber(e.target.value)}
+                        onChange={(e) => {
+                          setGstNumber(e.target.value);
+                          setIsEdited(true);}
+                        }
                       />
                     </div>
                   </div>
@@ -889,7 +894,10 @@ const QuotationPage = () => {
                             ? dayjs(quotationData.duedate, "DD/MM/YYYY")
                             : null)
                         }
-                        onChange={(date) => setDueDate(date)}
+                        onChange={(date) => {
+                          setDueDate(date)
+                          setIsEdited(true)
+                        }}
                       />
                     </div>
                   </div>

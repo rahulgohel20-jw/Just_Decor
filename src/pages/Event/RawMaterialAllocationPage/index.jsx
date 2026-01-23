@@ -949,7 +949,7 @@ const RawMaterialAllocation = ({ mode }) => {
 
         <div className="card bg-white mb-3">
           <div className="flex flex-wrap items-center justify-between p-4 gap-6">
-            <div className="flex flex-wrap items-center justify-between gap-24">
+            <div className="flex  items-center justify-between gap-10">
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
                 <div className="flex flex-col">
@@ -997,7 +997,7 @@ const RawMaterialAllocation = ({ mode }) => {
 
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-calendar-tick text-success"></i>
-                <div className="flex flex-col">
+                <div className="flex flex-col W-1/2">
                   <span className="text-sm">
                     <FormattedMessage
                       id="RAW_MATERIAL_ALLOCATION.EVENT_VENUE"
