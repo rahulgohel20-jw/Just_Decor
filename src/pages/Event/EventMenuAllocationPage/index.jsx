@@ -1686,38 +1686,71 @@ const EventMenuAllocationPage = ({ mode }) => {
     setIsChefModal(false);
   };
 
-  const handleCategorySave = (saveData) => {
-    setAllocationData((prev) => {
-      const updated = {
-        ...prev,
-        [`${saveData.menuItemId}-category`]: {
-          ...saveData,
-          response: {
-            isFromNewTable: saveData.isFromNewTable || false,
-          },
+ // ... (keep all existing imports and code the same)
+
+// ✅ UPDATED handleCategorySave function in EventMenuAllocationPage component:
+
+const handleCategorySave = async (saveData) => {
+  setAllocationData((prev) => {
+    const updated = {
+      ...prev,
+      [`${saveData.menuItemId}-category`]: {
+        ...saveData,
+        response: {
+          isFromNewTable: saveData.isFromNewTable || false,
         },
-      };
-      return updated;
+      },
+    };
+    return updated;
+  });
+
+  setRows((prevRows) => {
+    const updatedRows = prevRows.map((r) => {
+      if (r.menuItemId === saveData.menuItemId) {
+        return {
+          ...r,
+          menuItemRawMaterials: saveData.rawMaterials || [],
+          isFromNewTable: saveData.isFromNewTable || false,
+        };
+      }
+      return r;
     });
 
-    setRows((prevRows) => {
-      const updatedRows = prevRows.map((r) => {
-        if (r.menuItemId === saveData.menuItemId) {
-          return {
-            ...r,
-            menuItemRawMaterials: saveData.rawMaterials || [],
-            isFromNewTable: saveData.isFromNewTable || false,
-          };
-        }
-        return r;
-      });
+    setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+    return updatedRows;
+  });
 
-      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-      return updatedRows;
-    });
+  setIsCategoryModal(false);
 
-    setIsCategoryModal(false);
-  };
+  // ✅ NEW: Refresh all data if shouldRefresh flag is true
+  if (saveData.shouldRefresh) {
+    const currentActiveFunctionId = activeFunction?.id;
+    
+    if (currentActiveFunctionId) {
+      // Show loading indicator
+      setTableLoading(true);
+      
+      try {
+        // Refresh the menu allocation data
+        await fetchMenuAllocation(currentActiveFunctionId);
+        
+        // Optional: Show success message
+        console.log("Data refreshed successfully after category save");
+      } catch (error) {
+        console.error("Error refreshing data after category save:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Refresh Error",
+          text: "Data was saved but failed to refresh. Please reload the page.",
+          confirmButtonColor: "#d33",
+        });
+      } finally {
+        setTableLoading(false);
+      }
+    }
+  }
+};
+
 
   if (loading) {
     return (
@@ -2420,6 +2453,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventId={eventId}
           onSave={handleCategorySave}
           allocationType={selectedRow?.allocationType}
+         
         />
         <WhatsappSidebarMenu
           open={iswhatsAppSidebar}

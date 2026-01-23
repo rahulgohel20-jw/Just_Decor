@@ -322,12 +322,12 @@ export default function CategorySidebarModal({
         });
         return;
       }
-
+  
       const payload = rawMaterials.map((item) => {
         const partyId =
           suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0;
         const unitId = unit.find((u) => u.nameEnglish === item.unit)?.id || 0;
-
+  
         return {
           id: item.itemId || 0,
           eventId: eventId || 0,
@@ -346,7 +346,7 @@ export default function CategorySidebarModal({
           place: item.place || "",
         };
       });
-
+  
       const hasInvalidData = payload.some(
         (item) =>
           !item.eventId ||
@@ -354,7 +354,7 @@ export default function CategorySidebarModal({
           !item.menuItemId ||
           !item.rawMaterialId
       );
-
+  
       if (hasInvalidData) {
         Swal.fire({
           icon: "warning",
@@ -363,30 +363,30 @@ export default function CategorySidebarModal({
         });
         return;
       }
-
+  
       const res = await SelectedRawMenuallocation(payload);
-
+  
       if (res?.data?.success === true) {
         Swal.fire({
           icon: "success",
           title: "Saved!",
           text: "Raw material data saved successfully.",
         });
-
+  
         let freshData = [];
-
+  
         try {
           const refresh = await SelectedItemNameMenuAllocation(
             eventFunctionId,
             payload[0]?.menuItemId
           );
-
+  
           if (refresh?.data?.success) {
             freshData =
               refresh.data.data["MenuItem RawMaterial Details"] ||
               refresh.data.data.menuItemRawMaterials ||
               [];
-
+  
             setRawMaterials(
               freshData.map((item, index) => ({
                 id: `row-${Date.now()}-${index}`,
@@ -409,7 +409,8 @@ export default function CategorySidebarModal({
         } catch (err) {
           console.error("Error refresh raw materials:", err);
         }
-
+  
+        // ✅ UPDATED: Added shouldRefresh flag
         if (onSave) {
           onSave({
             menuItemId: payload[0]?.menuItemId,
@@ -417,9 +418,10 @@ export default function CategorySidebarModal({
             eventId,
             rawMaterials: freshData,
             response: res.data,
+            shouldRefresh: true, // ← This triggers refresh in parent
           });
         }
-
+  
         onClose();
       } else {
         Swal.fire({
@@ -441,6 +443,7 @@ export default function CategorySidebarModal({
       });
     }
   };
+  
 
   return (
     <AnimatePresence>
