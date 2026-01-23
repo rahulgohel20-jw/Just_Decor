@@ -6,6 +6,7 @@ import {
   GetNamePlatedata,
   GenerateNamePlateReport,
   AddNamePlate,
+  GetNamePlateByNamePlateType,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -57,15 +58,20 @@ const CounterNameplate = ({
 
   const fetchItemdata = async () => {
     try {
-      const data = await GetNamePlatedata(
+      const url = `/nameplate/getbynameplatetype?eventFunctionId=${eventFunctionId}&eventId=${eventId}&isCounterItem=1&isStandyItem=0&isTableMenuItem=0&lang=${currentlang}&userId=${userId}`;
+      console.log("Calling API:", url);
+      const data = await GetNamePlateByNamePlateType(
         eventFunctionId,
         eventId,
+        1, // counter items only
+        0,
+        0,
         currentlang,
         userId,
       );
 
       const res = data?.data?.data?.data || [];
-      console.log("resposen", res);
+      console.log("response", res);
 
       const formattedCounters = res
         .sort((a, b) => a.sequence - b.sequence)
@@ -135,7 +141,7 @@ const CounterNameplate = ({
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
-  
+
     try {
       const payload = {
         categoryFontSize: 0,
@@ -154,14 +160,14 @@ const CounterNameplate = ({
           sequence: index + 1,
         })),
       };
-  
+
       const res = await AddNamePlate(payload);
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
       }
-  
+
       Swal.close();
-  
+
       if (printAfterSave) {
         await callPrintApi({ twoLanugage });
       } else {
@@ -172,7 +178,6 @@ const CounterNameplate = ({
       Swal.fire("Save Failed", error.message, "error");
     }
   };
-  
 
   const callPrintApi = async ({ twoLanugage = 0 } = {}) => {
     try {
@@ -184,12 +189,12 @@ const CounterNameplate = ({
       formData.append("lang", currentlang);
       formData.append("userId", userId);
       formData.append("twoLanugage", twoLanugage);
-  
+
       const res = await GenerateNamePlateReport(formData);
       const url = res.data?.report_path;
-  
+
       if (!url) throw new Error("PDF URL not received");
-  
+
       setPdfUrl(url);
       setShowPdfViewer(true);
     } catch (error) {
@@ -200,7 +205,6 @@ const CounterNameplate = ({
       });
     }
   };
-  
 
   return (
     <CustomModal
@@ -209,39 +213,33 @@ const CounterNameplate = ({
       title="Counter Name Plate Report"
       width={1000}
       footer=<div className="flex justify-between items-center px-6 py-4 border-t bg-white">
-       <button
+        <button
           className="btn btn-light flex items-center gap-2"
           onClick={() => handleSave()}
         >
           <Save size={16} /> Save
         </button>
 
-
         <div className="flex gap-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => callPrintApi({ twoLanugage: 0 })}
-        >
-          Print
-      </button>
-        <button
+          <button
+            className="btn btn-primary"
+            onClick={() => callPrintApi({ twoLanugage: 0 })}
+          >
+            Print
+          </button>
+          <button
             className="btn btn-primary flex items-center gap-2"
-            onClick={() =>
-              handleSave({ printAfterSave: true, twoLanugage: 0 })
-            }
+            onClick={() => handleSave({ printAfterSave: true, twoLanugage: 0 })}
           >
             <Printer size={16} /> Save & Print
           </button>
 
           <button
             className="btn btn-primary"
-            onClick={() =>
-              handleSave({ printAfterSave: true, twoLanugage: 1 })
-            }
+            onClick={() => handleSave({ printAfterSave: true, twoLanugage: 1 })}
           >
             Two Language PDF
           </button>
-
         </div>
       </div>
     >

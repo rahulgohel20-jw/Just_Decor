@@ -247,11 +247,13 @@ export default function SelectMenureport({
   }, [eventData, setEventFunctionId, isSelectMenureport]);
 
   const handleGenerateReport = (template) => {
-    console.log("Clicked template:", {
+    console.log("=== HANDLE GENERATE REPORT CALLED ===");
+    console.log("Template details:", {
       name: template.name,
       isNamePlate: template.isNamePlate,
-      type: template.namePlateType,
-      isNamePlateTheme,
+      namePlateType: template.namePlateType,
+      isNamePlateTheme: isNamePlateTheme,
+      templateId: template.id,
     });
 
     setSelectedCard(template.id);
@@ -266,26 +268,52 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Counter Name Plate"
     ) {
+      console.log("✅ MATCHED: Counter Name Plate - Opening CounterNameplate");
       setIsModalOpen(true);
       return;
     }
 
-    // Test Name Plate
+    // 🔄 BACKEND WORKAROUND: Backend sends "Table Menu" but it's actually Main Standy data
+    // So when backend says "Table Menu" → Open MainStandyMenuReport
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Table Menu"
+    ) {
+      console.log(
+        "✅ MATCHED: Table Menu (Backend) - Opening MainStandyMenuReport (Frontend Workaround)",
+      );
+      console.log(
+        "This opens: MainStandyMenuReport component for 'Name Plate Test'",
+      );
+      setOpenNamePlateTest(true); // Opens MainStandyMenuReport
+      return;
+    }
+
+    // 🔄 BACKEND WORKAROUND: Backend sends "Main Standy" but it's actually Table Menu data
+    // So when backend says "Main Standy" → Open NamePlateReport
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
-      setOpenNamePlateTest(true);
+      console.log(
+        "✅ MATCHED: Main Standy (Backend) - Opening NamePlateReport (Frontend Workaround)",
+      );
+      console.log(
+        "This opens: NamePlateReport component for 'Table Menu Report'",
+      );
+      setOpenNamePlate(true); // Opens NamePlateReport
       return;
     }
 
-    // Normal Name Plate
-    if (isNamePlateTheme && template.isNamePlate) {
-      setOpenNamePlate(true);
-      return;
-    }
-
+    // Default: Normal menu report
+    console.log("⚠️ NO MATCH - Opening default MenuReport");
+    console.log("Conditions check:", {
+      isNamePlateTheme,
+      "template.isNamePlate": template.isNamePlate,
+      "template.namePlateType": template.namePlateType,
+    });
     setIsMenuReportOpen(true);
   };
 
