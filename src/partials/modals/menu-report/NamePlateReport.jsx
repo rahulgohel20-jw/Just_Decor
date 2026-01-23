@@ -14,6 +14,7 @@ import {
   AddNamePlate,
   GenerateNamePlateReport,
   GetNamePlatedata,
+  GetNamePlateByNamePlateType,
 } from "@/services/apiServices";
 
 export default function NamePlateReport({
@@ -52,42 +53,41 @@ export default function NamePlateReport({
   }, [eventId, eventFunctionId, currentlang, userId]);
 
   const fetchItemData = async (efId) => {
-    try {
-      console.log("Fetching Name Plate Data...", {
-        eventFunctionId,
-        eventId,
-        userId,
-        currentlang,
-      });
+    if (!userId) {
+      console.warn("UserId missing – skipping API call");
+      return;
+    }
 
-      const res = await GetNamePlatedata(
-        eventFunctionId,
-        eventId,
-        currentlang,
-        userId,
+    try {
+      const res = await GetNamePlateByNamePlateType(
+        efId ?? -1, // eventFunctionId
+        eventId, // eventId
+        0, // isCounterItem
+        0, // isStandyItem
+        1, // isTableMenuItem
+        currentlang, // lang
+        userId, // userId ✅ REQUIRED
       );
 
-      console.log("Raw API Response:", res);
-
       const data = res?.data?.data?.data || [];
-      console.log("Formatted API Data (before mapping):", data);
 
       setItems(
         data
           .sort((a, b) => a.sequence - b.sequence)
           .map((item) => ({
             id: item.id,
-            name: item.itemNameEnglish,
             menuid: item.menuItemId,
+
             itemNameEnglish: item.itemNameEnglish,
             itemNameHindi: item.itemNameHindi,
             itemNameGujarati: item.itemNameGujarati,
+
             isTableMenuChecked: item.isTableMenuChecked === 1,
-            isStandyChecked: 0,
+            isStandyChecked: item.isStandyChecked === 1,
           })),
       );
     } catch (err) {
-      console.error("Failed to fetch items:", err);
+      console.error("Failed to fetch name plate data:", err);
     }
   };
 
@@ -170,31 +170,31 @@ export default function NamePlateReport({
       const payload = {
         categoryFontSize: menuFontSize,
         itemFontSize: itemFontSize,
+
         eventFunctionId: Number(eventFunctionId),
         eventId: Number(eventId),
         userId: Number(userId),
+
+        // 🔴 MODULE FLAGS (IMPORTANT)
+        isCounterItem: 0,
+        isStandyItem: 0,
+        isTableMenuItem: 1, // ✅ because this screen is Table Menu
 
         namePlateRequests: items.map((item, index) => ({
           id: item.id || -1,
           menuItemId: item.menuid,
 
           isTableMenuChecked: item.isTableMenuChecked ? 1 : 0,
-          isStandyChecked: 0, // untouched
+          isStandyChecked: 0,
 
           itemCount: 1,
+
           itemNameEnglish: item.itemNameEnglish,
           itemNameHindi: item.itemNameHindi,
           itemNameGujarati: item.itemNameGujarati,
 
           sequence: index + 1,
         })),
-        headerNotesEnglish: headerNotes.english,
-        headerNotesHindi: headerNotes.hindi,
-        headerNotesGujarati: headerNotes.gujarati,
-
-        footerNotesEnglish: footerNotes.english,
-        footerNotesHindi: footerNotes.hindi,
-        footerNotesGujarati: footerNotes.gujarati,
       };
 
       console.log("payload", payload);
@@ -405,13 +405,13 @@ export default function NamePlateReport({
                                 onChange={(e) =>
                                   handleNameChange(item.menuid, e.target.value)
                                 }
+                                disabled={!item.isTableMenuChecked} // ✅ ONLY table menu items editable
                                 className={`w-full font-semibold border rounded px-2 py-1 ${
                                   item.isTableMenuChecked
                                     ? "text-gray-800 bg-white"
                                     : "text-gray-400 bg-gray-50"
                                 }`}
                                 style={{ fontSize: `${itemFontSize}px` }}
-                                disabled={!item.isTableMenuChecked}
                               />
                             </div>
                           </div>
@@ -468,7 +468,7 @@ export default function NamePlateReport({
         <CustomModal
           open={showPdfViewer}
           onClose={() => setShowPdfViewer(false)}
-          title="Name Plate Report Preview"
+          title="Table Menu Report"
           width={1000}
         >
           <div style={{ height: "80vh" }}>

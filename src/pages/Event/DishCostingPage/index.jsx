@@ -196,7 +196,7 @@ const DishCostingPage = () => {
       try {
         const res = await GetDishCostingByEventFunction(
           eventId,
-          selectedFunctionId
+          selectedFunctionId,
         );
         setDishCostingData(res.data.data);
       } catch (err) {
@@ -316,6 +316,13 @@ const DishCostingPage = () => {
             </div>
 
             <div className="flex flex-row items-end gap-2">
+              <button
+                onClick={openSelectMenureport}
+                className="bg-[#05B723] text-white text-sm px-5 py-2 rounded-md transition"
+                title="Report"
+              >
+                Report
+              </button>
               {/* Total-wise button */}
               <div className="relative group">
                 <button
