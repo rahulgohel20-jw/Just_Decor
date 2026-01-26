@@ -33,6 +33,8 @@ const MenuReport = ({
   PartyNumber,
   selectedTemplateName,
   isNamePlateTheme,
+  startDate: adminStartDate,
+  endDate: adminEndDate,
 }) => {
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
@@ -169,6 +171,12 @@ const MenuReport = ({
     fetchFilters();
   }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId]);
 
+  const formatAdminDate = (dateString) => {
+    if (!dateString) return null;
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
   const toggleAll = (checked) => {
     setOptions((prev) => {
       const updated = { ...prev };
@@ -268,8 +276,12 @@ const MenuReport = ({
       isWithPrice: options.isWithPrice,
       agencyId: selectedAgency,
       itemId: selectedItems,
-      ...(startDate && { startDate: formatDate(startDate) }),
-      ...(endDate && { endDate: formatDate(endDate) }),
+      ...(adminStartDate && {
+        startDate: formatAdminDate(adminStartDate),
+      }),
+      ...(adminEndDate && {
+        endDate: formatAdminDate(adminEndDate),
+      }),
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
@@ -405,119 +417,6 @@ const MenuReport = ({
               ))}
             </div>
           </div>
-
-          {/* Filters Section */}
-          {(isDateStatus === 1 || isDropdownStatus === 1) && (
-            <div className=" p-5 rounded-xl border-2 ">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Date Range Picker */}
-                {isDateStatus === 1 && (
-                  <>
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        Start Date
-                      </label>
-                      <div className="relative">
-                        <CalendarOutlined className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#005BA8] z-10" />
-                        <DatePicker
-                          selected={startDate}
-                          onChange={(date) => setStartDate(date)}
-                          placeholderText="Select start date"
-                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005BA8] focus:border-[#005BA8] outline-none transition shadow-sm hover:border-[#005BA8]"
-                          dateFormat="dd MMM yyyy"
-                          maxDate={endDate || new Date()}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        End Date
-                      </label>
-                      <div className="relative">
-                        <CalendarOutlined className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#005BA8] z-10" />
-                        <DatePicker
-                          selected={endDate}
-                          onChange={(date) => setEndDate(date)}
-                          placeholderText="Select end date"
-                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005BA8] focus:border-[#005BA8] outline-none transition shadow-sm hover:border-[#005BA8]"
-                          dateFormat="dd MMM yyyy"
-                          minDate={startDate}
-                          maxDate={new Date()}
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Dropdowns */}
-                {isDropdownStatus === 1 && (
-                  <>
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        <TeamOutlined className="mr-1" />
-                        Agency
-                      </label>
-                      <Select
-                        mode="multiple"
-                        value={selectedAgency}
-                        onChange={setSelectedAgency}
-                        placeholder="Select agencies..."
-                        className="w-full custom-select"
-                        size="large"
-                        loading={loadingFilters}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={agencies.map((agency) => ({
-                          value: agency.id,
-                          label: agency.nameEnglish,
-                        }))}
-                        maxTagCount="responsive"
-                        allowClear
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        <AppstoreOutlined className="mr-1" />
-                        Items
-                      </label>
-                      <Select
-                        mode="multiple"
-                        value={selectedItems}
-                        onChange={setSelectedItems}
-                        placeholder="Select items..."
-                        className="w-full custom-select"
-                        size="large"
-                        loading={loadingFilters}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={items.map((item) => ({
-                          value: item.id,
-                          label: item.nameEnglish,
-                        }))}
-                        maxTagCount="responsive"
-                        allowClear
-                        style={{
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Report Options */}
           {!isNamePlateTheme && (

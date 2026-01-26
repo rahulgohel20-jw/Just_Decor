@@ -135,14 +135,13 @@ export default function SelectMenureport({
             label: getLangValue(module, "name", activeLang),
             moduleId: module.id,
             img: "/media/icons/simple.png",
-            nameEnglish: module.nameEnglish, // KEEP TRACK OF MODULE NAME
+            nameEnglish: module.nameEnglish,
           }));
 
           setTabs(formattedModules);
 
           if (formattedModules.length > 0) {
             setActiveTab(formattedModules[0].key);
-            // CHECK IF FIRST TAB IS NAME PLATE THEME
             setIsNamePlateTheme(
               formattedModules[0].nameEnglish === "Name Plate Theme",
             );

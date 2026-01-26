@@ -382,11 +382,11 @@ const EventViewModal = ({
                   />
                 ),
                 icon: "/media/eventviewicon/menureport.png",
-                // onClick: () => navigate(`/allreports/${safeEventId}`),
-                onClick: () => {
-                  setIsSelectMenuReport(true);
-                  setMenuReportEventId(safeEventId);
-                }
+                onClick: () => navigate(`/allreports/${safeEventId}`),
+                // onClick: () => {
+                //   setIsSelectMenuReport(true);
+                //   setMenuReportEventId(safeEventId);
+                // }
               },
               {
                 label: (
