@@ -580,15 +580,7 @@ export const superAdminMenuItems = [
         ),
         path: "/super-allreport-config",
       },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CUSTOMERS"
-            defaultMessage="Module Name"
-          />
-        ),
-        path: "/ModuleRights",
-      },
+
       {
         title: (
           <FormattedMessage
@@ -612,6 +604,15 @@ export const superAdminMenuItems = [
     ),
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMERS"
+            defaultMessage="Module Right  Name"
+          />
+        ),
+        path: "/ModuleRights",
+      },
       {
         title: (
           <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Pages" />

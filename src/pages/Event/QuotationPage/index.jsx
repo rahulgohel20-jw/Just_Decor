@@ -141,7 +141,10 @@ const QuotationPage = () => {
 
           const mappedData = {
             quotationId: quotationInfo.id,
-            QuotationDate: quotationInfo.createdAt || todayDate,
+            QuotationDate:
+              quotationInfo.quotationdate ||
+              quotationInfo.createdAt ||
+              todayDate, // Use quotationdate if available, fallback to createdAt or today
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             billingname: quotationInfo.billingname || "",
@@ -178,7 +181,6 @@ const QuotationPage = () => {
                     (eventFunc, index) => ({
                       id: 0,
                       name: eventFunc.function?.nameEnglish || "",
-
                       date: eventFunc.functionStartDateTime
                         ? dayjs(
                             eventFunc.functionStartDateTime,
@@ -285,7 +287,6 @@ const QuotationPage = () => {
         console.log("Error fetching quotation:", error);
       });
   };
-
   const calculateTotals = () => {
     const subtotal = quotationData.functions.reduce((sum, func) => {
       const total = parseFloat(func.totalPrice) || 0;
@@ -381,12 +382,12 @@ const QuotationPage = () => {
     const newFunctions = [...quotationData.functions];
     newFunctions[index][field] = value;
 
-    if (field === "persons" || field === "rate" ) {
+    if (field === "persons" || field === "rate") {
       const persons = parseFloat(newFunctions[index].persons) || 0;
       // const extra = parseFloat(newFunctions[index].extra) || 0;
       const rate = parseFloat(newFunctions[index].rate) || 0;
 
-      const total = persons  * rate;
+      const total = persons * rate;
       newFunctions[index].totalPrice =
         total % 1 === 0 ? total.toString() : total;
     }
@@ -458,9 +459,68 @@ const QuotationPage = () => {
       return sum + val;
     }, 0);
 
-    const sumAdvance = payments.reduce((s, p) => s + (p.amount || 0), 0);
+    const sumAdvance = payments.reduce(
+      (s, p) => s + (p.advancePayment || 0),
+      0,
+    );
     const remainingAmount = Math.max(0, totalAmount - sumAdvance);
-    return {
+
+    // Format quotation date for payload
+    console.log("=== QUOTATION DATE DEBUG ===");
+    console.log("quotationDate (from state):", quotationDate);
+    console.log("quotationData.QuotationDate:", quotationData.QuotationDate);
+
+    let formattedQuotationDate;
+
+    if (
+      quotationDate &&
+      quotationDate !== "Invalid Date" &&
+      quotationDate.trim() !== ""
+    ) {
+      // User edited the date - it's in YYYY-MM-DD format from HTML input
+      const parsed = dayjs(quotationDate, "YYYY-MM-DD");
+      if (parsed.isValid()) {
+        formattedQuotationDate = parsed.format("DD/MM/YYYY");
+        console.log(
+          "Using edited quotationDate (YYYY-MM-DD → DD/MM/YYYY):",
+          formattedQuotationDate,
+        );
+      } else {
+        // Invalid edited date, use QuotationDate
+        formattedQuotationDate =
+          quotationData.QuotationDate || dayjs().format("DD/MM/YYYY");
+        console.log(
+          "Edited date invalid, using QuotationDate or today:",
+          formattedQuotationDate,
+        );
+      }
+    } else if (quotationData.QuotationDate) {
+      // Date from API - already in DD/MM/YYYY format
+      const parsed = dayjs(quotationData.QuotationDate, "DD/MM/YYYY");
+      if (parsed.isValid()) {
+        formattedQuotationDate = parsed.format("DD/MM/YYYY");
+        console.log(
+          "Using QuotationDate (already DD/MM/YYYY):",
+          formattedQuotationDate,
+        );
+      } else {
+        // Fallback: try to parse as ISO
+        const parsedISO = dayjs(quotationData.QuotationDate);
+        formattedQuotationDate = parsedISO.isValid()
+          ? parsedISO.format("DD/MM/YYYY")
+          : dayjs().format("DD/MM/YYYY");
+        console.log("Parsed as ISO or using today:", formattedQuotationDate);
+      }
+    } else {
+      // Default to today
+      formattedQuotationDate = dayjs().format("DD/MM/YYYY");
+      console.log("Using today's date:", formattedQuotationDate);
+    }
+
+    console.log("Final formattedQuotationDate:", formattedQuotationDate);
+    console.log("=== END QUOTATION DATE DEBUG ===\n");
+
+    const payload = {
       eventFunctionQuotationPayments: payments,
       discount: discount,
       eventId: parseInt(eventId),
@@ -486,11 +546,24 @@ const QuotationPage = () => {
       remainingAmount: remainingAmount,
       roundOff: roundOff,
       totalAmount: totalPaid,
-      userId: Id,
-      billingname: billingName,
-      duedate: dueDate ? dueDate.format("DD/MM/YYYY") : "",
-      gstnumber: gstNumber,
+      userId: parseInt(Id),
+      billingname: billingName || quotationData.billingname || "",
+      duedate: dueDate
+        ? dueDate.format("DD/MM/YYYY")
+        : quotationData.duedate || "",
+      gstnumber: gstNumber || quotationData.gstnumber || "",
+      quotationdate: formattedQuotationDate,
     };
+
+    console.log("=== BUILD PAYLOAD ===");
+    console.log("Full Payload:", payload);
+    console.log("quotationdate:", payload.quotationdate);
+    console.log("duedate:", payload.duedate);
+    console.log("billingname:", payload.billingname);
+    console.log("gstnumber:", payload.gstnumber);
+    console.log("=== END BUILD PAYLOAD ===\n");
+
+    return payload;
   };
 
   const handleSaveNotes = () => {
@@ -539,6 +612,40 @@ const QuotationPage = () => {
       .catch((error) => {
         console.error("Error saving quotation:", error);
       });
+  };
+
+  const saveNotes = () => {
+    const payload = buildPayload();
+
+    if (!quotationId) {
+      return Promise.reject("No quotationId");
+    }
+
+    return UpdateQuotation(quotationId, payload).then((response) => {
+      if (
+        response?.data?.msg?.toLowerCase().includes("successfully") ||
+        response?.data?.success === true
+      )
+        setIsEdited(false);
+      return response;
+    });
+  };
+
+  const handleSaveAndOpenPdf = async () => {
+    try {
+      setLoadingPdf(true);
+
+      // STEP 1: SAVE
+      await saveNotes();
+
+      // STEP 2: OPEN PDF
+      await handleGenrateReport();
+      // If this function already opens the PDF, you’re DONE here
+    } catch (error) {
+      console.error("Save then open PDF failed", error);
+    } finally {
+      setLoadingPdf(false);
+    }
   };
 
   const handleAddAdvancePayment = () => {
@@ -850,7 +957,8 @@ const QuotationPage = () => {
                         className="input text-sm font-medium text-gray-900 w-[260px]"
                         type="text"
                         value={billingName || quotationData.billingname}
-                        onChange={(e) => {setBillingName(e.target.value);
+                        onChange={(e) => {
+                          setBillingName(e.target.value);
                           setIsEdited(true);
                         }}
                       />
@@ -871,8 +979,8 @@ const QuotationPage = () => {
                         value={gstNumber || quotationData.gstnumber}
                         onChange={(e) => {
                           setGstNumber(e.target.value);
-                          setIsEdited(true);}
-                        }
+                          setIsEdited(true);
+                        }}
                       />
                     </div>
                   </div>
@@ -895,8 +1003,8 @@ const QuotationPage = () => {
                             : null)
                         }
                         onChange={(date) => {
-                          setDueDate(date)
-                          setIsEdited(true)
+                          setDueDate(date);
+                          setIsEdited(true);
                         }}
                       />
                     </div>
@@ -907,8 +1015,8 @@ const QuotationPage = () => {
               <div className="flex flex-row items-end gap-2 mt-[-30px]">
                 <button
                   className="btn btn-sm btn-primary"
-                  title="Share"
-                  onClick={handleGenrateReport}
+                  title="Save & Open PDF"
+                  onClick={handleSaveAndOpenPdf}
                   disabled={loadingPdf}
                 >
                   {loadingPdf ? (
@@ -921,10 +1029,25 @@ const QuotationPage = () => {
                     </>
                   ) : (
                     <>
-                      <i className="ki-filled ki-exit-right-corner"></i>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+                        <rect x="6" y="14" width="12" height="8" rx="1" />
+                      </svg>
+
                       <FormattedMessage
                         id="COMMON.SHARE"
-                        defaultMessage="Share"
+                        defaultMessage="Print"
                       />
                     </>
                   )}

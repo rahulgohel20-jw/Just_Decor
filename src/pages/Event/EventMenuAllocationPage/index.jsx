@@ -1686,71 +1686,70 @@ const EventMenuAllocationPage = ({ mode }) => {
     setIsChefModal(false);
   };
 
- // ... (keep all existing imports and code the same)
+  // ... (keep all existing imports and code the same)
 
-// ✅ UPDATED handleCategorySave function in EventMenuAllocationPage component:
+  // ✅ UPDATED handleCategorySave function in EventMenuAllocationPage component:
 
-const handleCategorySave = async (saveData) => {
-  setAllocationData((prev) => {
-    const updated = {
-      ...prev,
-      [`${saveData.menuItemId}-category`]: {
-        ...saveData,
-        response: {
-          isFromNewTable: saveData.isFromNewTable || false,
+  const handleCategorySave = async (saveData) => {
+    setAllocationData((prev) => {
+      const updated = {
+        ...prev,
+        [`${saveData.menuItemId}-category`]: {
+          ...saveData,
+          response: {
+            isFromNewTable: saveData.isFromNewTable || false,
+          },
         },
-      },
-    };
-    return updated;
-  });
-
-  setRows((prevRows) => {
-    const updatedRows = prevRows.map((r) => {
-      if (r.menuItemId === saveData.menuItemId) {
-        return {
-          ...r,
-          menuItemRawMaterials: saveData.rawMaterials || [],
-          isFromNewTable: saveData.isFromNewTable || false,
-        };
-      }
-      return r;
+      };
+      return updated;
     });
 
-    setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-    return updatedRows;
-  });
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((r) => {
+        if (r.menuItemId === saveData.menuItemId) {
+          return {
+            ...r,
+            menuItemRawMaterials: saveData.rawMaterials || [],
+            isFromNewTable: saveData.isFromNewTable || false,
+          };
+        }
+        return r;
+      });
 
-  setIsCategoryModal(false);
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
 
-  // ✅ NEW: Refresh all data if shouldRefresh flag is true
-  if (saveData.shouldRefresh) {
-    const currentActiveFunctionId = activeFunction?.id;
-    
-    if (currentActiveFunctionId) {
-      // Show loading indicator
-      setTableLoading(true);
-      
-      try {
-        // Refresh the menu allocation data
-        await fetchMenuAllocation(currentActiveFunctionId);
-        
-        // Optional: Show success message
-        console.log("Data refreshed successfully after category save");
-      } catch (error) {
-        console.error("Error refreshing data after category save:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Refresh Error",
-          text: "Data was saved but failed to refresh. Please reload the page.",
-          confirmButtonColor: "#d33",
-        });
-      } finally {
-        setTableLoading(false);
+    setIsCategoryModal(false);
+
+    // ✅ NEW: Refresh all data if shouldRefresh flag is true
+    if (saveData.shouldRefresh) {
+      const currentActiveFunctionId = activeFunction?.id;
+
+      if (currentActiveFunctionId) {
+        // Show loading indicator
+        setTableLoading(true);
+
+        try {
+          // Refresh the menu allocation data
+          await fetchMenuAllocation(currentActiveFunctionId);
+
+          // Optional: Show success message
+          console.log("Data refreshed successfully after category save");
+        } catch (error) {
+          console.error("Error refreshing data after category save:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Refresh Error",
+            text: "Data was saved but failed to refresh. Please reload the page.",
+            confirmButtonColor: "#d33",
+          });
+        } finally {
+          setTableLoading(false);
+        }
       }
     }
-  }
-};
-
+  };
 
   if (loading) {
     return (
@@ -2068,6 +2067,7 @@ const handleCategorySave = async (saveData) => {
 
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            {/* ROW 1 */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
@@ -2108,22 +2108,7 @@ const handleCategorySave = async (saveData) => {
                   />
                 </span>
                 <span className="text-sm font-medium text-gray-900">
-                  {getEventTypeName(eventData?.eventType)} {/* ✅ Updated */}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
-                    defaultMessage="Event Venue:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getVenueName(eventData?.venue)}
+                  {getEventTypeName(eventData?.eventType)}
                 </span>
               </div>
             </div>
@@ -2143,7 +2128,27 @@ const handleCategorySave = async (saveData) => {
               </div>
             </div>
 
-            <div className="flex flex-row items-end gap-2">
+            {/* FORCE NEW ROW */}
+            <div className="w-full h-0"></div>
+
+            {/* ROW 2 LEFT — Event Venue */}
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                    defaultMessage="Event Venue:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {getVenueName(eventData?.venue)}
+                </span>
+              </div>
+            </div>
+
+            {/* ROW 2 RIGHT — Buttons */}
+            <div className="ml-auto flex items-center gap-2">
               <button
                 className="btn btn-sm btn-primary"
                 title="Save"
@@ -2152,6 +2157,7 @@ const handleCategorySave = async (saveData) => {
               >
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
               </button>
+
               <button
                 className="btn btn-sm btn-primary"
                 title="Sync Raw Material"
@@ -2453,7 +2459,6 @@ const handleCategorySave = async (saveData) => {
           eventId={eventId}
           onSave={handleCategorySave}
           allocationType={selectedRow?.allocationType}
-         
         />
         <WhatsappSidebarMenu
           open={iswhatsAppSidebar}

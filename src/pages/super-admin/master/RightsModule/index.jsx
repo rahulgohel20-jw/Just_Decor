@@ -9,6 +9,7 @@ import {
   updatestatusrawmaterialtype,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
+import AddModuleRight from "../../../../partials/modals/add-module-right/AddModuleRight";
 import AddTemplateName from "../../../../partials/modals/Template-modal/AddTemplateName";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
@@ -49,7 +50,7 @@ const RightsModule = () => {
 
     // Apply Search Filter
     const filteredData = rawOriginalData.filter((item) =>
-      item[field]?.toLowerCase().includes(searchQuery.toLowerCase())
+      item[field]?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     const mapped = filteredData.map((item, index) => ({
@@ -82,7 +83,7 @@ const RightsModule = () => {
               Swal.fire(
                 "Removed!",
                 "Template deleted successfully.",
-                "success"
+                "success",
               );
             }
           })
@@ -115,7 +116,7 @@ const RightsModule = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.RAW_MATERIAL_TYPE_TITLE"
-                    defaultMessage="Module Name Master"
+                    defaultMessage="Module Right Name Master"
                   />
                 ),
               },
@@ -142,7 +143,7 @@ const RightsModule = () => {
           </button>
         </div>
 
-        <AddTemplateName
+        <AddModuleRight
           isOpen={isRawModalOpen}
           onClose={setIsRawModalOpen}
           refreshData={FetchModuleName}
