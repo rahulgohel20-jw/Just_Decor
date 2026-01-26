@@ -928,19 +928,24 @@ const EventPlanningPage = ({ mode }) => {
     setShowNoteModal(true);
   };
   const openCategoryNotesModal = (categoryName) => {
-    const bucket = selectedByFunction[selectedFunction];
-
-    setCurrentCategoryForNotes(categoryName);
-
+    const bucket = selectedByFunction[selectedFunction] || {};
+    const note = bucket.categoryNotes?.[categoryName];
+  
+    const hasEnglish = note?.english?.trim();
+  
     setCategoryNotes({
-      notesEnglish: bucket?.categoryNotes?.english || "",
-      notesHindi: bucket?.categoryNotes?.hindi || "",
-      notesGujarati: bucket?.categoryNotes?.gujarati || "",
+      notesEnglish: note?.english || "",
+      notesHindi: hasEnglish ? note?.hindi || "" : "",
+      notesGujarati: hasEnglish ? note?.gujarati || "" : "",
       slogan: bucket?.categorySlogans?.[categoryName] || "",
     });
-
+  
+    setCurrentCategoryForNotes(categoryName);
     setShowCategoryNoteModal(true);
   };
+  
+  
+  
 
   const handleNoteSave = (updatedSlogan) => {
     if (!selectedFunction || !currentItemForNotes) return;
