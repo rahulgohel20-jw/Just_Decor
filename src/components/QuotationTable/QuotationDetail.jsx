@@ -1,10 +1,15 @@
-import { Button, Table } from "antd";
+import { Button, Table, Modal } from "antd";
 import { useState, useEffect } from "react";
 import { SettingOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
-import { GetQuotation } from "@/services/apiServices";
+import { GetQuotation, GetQuotationReport } from "@/services/apiServices";
 import { useNavigate } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import Swal from "sweetalert2";
 
 const QuotationDetail = ({ Eventid }) => {
   const navigate = useNavigate();
@@ -15,6 +20,10 @@ const QuotationDetail = ({ Eventid }) => {
   const [functionData, setFunctionData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [subTotal, setSubTotal] = useState(0);
+  const [isPdfModalVisible, setIsPdfModalVisible] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [loadingPdf, setLoadingPdf] = useState(false);
+  const pdfPlugin = defaultLayoutPlugin();
 
   const numberToIndianWords = (num) => {
     if (!num || isNaN(num)) return "";
@@ -140,6 +149,15 @@ const QuotationDetail = ({ Eventid }) => {
     },
   ];
 
+  const formatDateDDMMYYYY = (date) => {
+    if (!date) return "-";
+
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+
+    return d.toLocaleDateString("en-GB"); // DD/MM/YYYY
+  };
+
   const fetchEventData = async (id) => {
     if (!id) return;
     try {
@@ -160,13 +178,15 @@ const QuotationDetail = ({ Eventid }) => {
           duedate: quotationDetails?.duedate || "-",
           notes: quotationDetails?.notes || "",
           discount: quotationDetails?.discount || 0,
-          quotationDate: quotationDetails?.createdAt
-            ? new Date(quotationDetails.createdAt).toLocaleDateString("en-GB")
-            : "-",
+          // Use quotationdate if available, otherwise fall back to createdAt
+          quotationDate: formatDateDDMMYYYY(
+            quotationDetails?.quotationdate || quotationDetails?.createdAt,
+          ),
+
           terms: quotationDetails?.terms || "Due on Receipt",
           eventDate: quotationDetails?.event?.eventStartDateTime
             ? new Date(
-                quotationDetails.event.eventStartDateTime
+                quotationDetails.event.eventStartDateTime,
               ).toLocaleDateString("en-GB")
             : "-",
         });
@@ -202,6 +222,52 @@ const QuotationDetail = ({ Eventid }) => {
     }
   };
 
+  const handleGenerateReport = () => {
+    setLoadingPdf(true);
+
+    const userId = localStorage.getItem("userId");
+    const activeEventId = Eventid || EventId;
+
+    GetQuotationReport(activeEventId, userId)
+      .then((response) => {
+        if (response.data) {
+          const pdfPath = response.data?.report_path;
+          setPdfUrl(pdfPath);
+          setIsPdfModalVisible(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error generating report:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to generate PDF report",
+          icon: "error",
+          confirmButtonColor: "#005BA8",
+        });
+      })
+      .finally(() => {
+        setLoadingPdf(false);
+      });
+  };
+
+  const handleWhatsAppShare = (pdfUrl) => {
+    const name = invoiceInfo.customerName || "there";
+    const mobile =
+      eventData?.["Event Functions Quotation Details"]?.[0]?.event?.mobileno ||
+      "";
+
+    const message = `Hi ${name},
+Hope you're doing well!
+
+Please find the quotation PDF below:
+${pdfUrl}
+
+Thanks!`;
+
+    const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   useEffect(() => {
     if (EventId) {
       fetchEventData(EventId);
@@ -215,224 +281,303 @@ const QuotationDetail = ({ Eventid }) => {
   }, [Eventid]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg w-full mx-auto border border-gray-100 overflow-hidden">
-      {/* Header */}
-      <div className="flex justify-between items-start p-6 border-b border-gray-100">
-        <div className="flex-1">
-          <h2 className="text-2xl font-bold text-[#005BA8]">
-            <FormattedMessage
-              id="QUOTATION.TITLE"
-              defaultMessage={`Quotation - ${invoiceInfo.quotationNumber}`}
-            />
-          </h2>
-          <p className="text-gray-500 text-sm break-words">
-            {invoiceInfo.Address}
-          </p>
+    <>
+      <div className="bg-white rounded-2xl shadow-lg w-full mx-auto border border-gray-100 overflow-hidden">
+        {/* Header */}
+        <div className="flex justify-between items-start p-6 border-b border-gray-100">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-[#005BA8]">
+              <FormattedMessage
+                id="QUOTATION.TITLE"
+                defaultMessage={`Quotation - ${invoiceInfo.quotationNumber}`}
+              />
+            </h2>
+            <p className="text-gray-500 text-sm break-words">
+              {invoiceInfo.Address}
+            </p>
+          </div>
+
+          <div className="flex flex-row items-end gap-2">
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={handleGenerateReport}
+              disabled={loadingPdf}
+            >
+              {loadingPdf ? (
+                <>
+                  <i className="ki-filled ki-loading animate-spin"></i>
+                  <FormattedMessage
+                    id="COMMON.LOADING"
+                    defaultMessage="Loading..."
+                  />
+                </>
+              ) : (
+                <>
+                  <i className="ki-filled ki-printer"></i>
+                  <FormattedMessage id="COMMON.PRINT" defaultMessage="Print" />
+                </>
+              )}
+            </button>
+            <Button
+              icon={<SettingOutlined />}
+              className="font-semibold border-[#005BA8] text-[#005BA8] hover:bg-[#005BA8] hover:text-white transition-all whitespace-nowrap"
+              onClick={() => navigate(`/quotation/${Eventid || EventId}`)}
+            >
+              <FormattedMessage
+                id="COMMON.CUSTOMIZE"
+                defaultMessage="Customize"
+              />
+            </Button>
+          </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2 ml-4 flex-shrink-0">
-          <Button
-            icon={<SettingOutlined />}
-            className="font-semibold border-[#005BA8] text-[#005BA8] hover:bg-[#005BA8] hover:text-white transition-all whitespace-nowrap"
-            onClick={() => navigate(`/quotation/${Eventid || EventId}`)}
-          >
-            <FormattedMessage
-              id="COMMON.CUSTOMIZE"
-              defaultMessage="Customize"
-            />
-          </Button>
-        </div>
-      </div>
+        {/* Invoice Details */}
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm border-b border-gray-100">
+          <div className="md:border-r border-gray-200 md:pr-6">
+            <p className="flex justify-between mb-1 gap-4">
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.BILLING_NAME"
+                  defaultMessage="Billing Name"
+                />
+              </span>
+              <span className="font-medium text-right break-words">
+                {invoiceInfo.billingname || invoiceInfo.customerName}
+              </span>
+            </p>
+            <p className="flex justify-between mb-1 gap-4">
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.QUOTATION_NUMBER"
+                  defaultMessage="Quotation Number"
+                />
+              </span>
+              <span className="font-medium text-right">
+                {invoiceInfo.quotationNumber}
+              </span>
+            </p>
+            <p className="flex justify-between mb-1 gap-4">
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.QUOTATION_DATE"
+                  defaultMessage="Quotation Date"
+                />
+              </span>
+              <span className="font-medium text-right">
+                {invoiceInfo.quotationDate}
+              </span>
+            </p>
 
-      {/* Invoice Details */}
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm border-b border-gray-100">
-        <div className="md:border-r border-gray-200 md:pr-6">
-          <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0">
-              <FormattedMessage
-                id="INVOICE.BILLING_NAME"
-                defaultMessage="Billing Name"
-              />
-            </span>
-            <span className="font-medium text-right break-words">
-              {invoiceInfo.billingname || invoiceInfo.customerName}
-            </span>
-          </p>
-          <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0">
-              <FormattedMessage
-                id="INVOICE.QUOTATION_NUMBER"
-                defaultMessage="Quotation Number"
-              />
-            </span>
-            <span className="font-medium text-right">
-              {invoiceInfo.quotationNumber}
-            </span>
-          </p>
-          <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0">
-              <FormattedMessage
-                id="INVOICE.QUOTATION_DATE"
-                defaultMessage="Quotation Date"
-              />
-            </span>
-            <span className="font-medium text-right">
-              {invoiceInfo.quotationDate}
-            </span>
-          </p>
+            <p className="flex justify-between mb-1 gap-4">
+              <span className="text-gray-500 flex-shrink-0">
+                <FormattedMessage
+                  id="INVOICE.EVENT_DATE"
+                  defaultMessage="Event Date"
+                />
+              </span>
+              <span className="font-medium text-right">
+                {invoiceInfo.eventDate}
+              </span>
+            </p>
+          </div>
 
-          <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0">
-              <FormattedMessage
-                id="INVOICE.EVENT_DATE"
-                defaultMessage="Event Date"
-              />
-            </span>
-            <span className="font-medium text-right">
-              {invoiceInfo.eventDate}
-            </span>
-          </p>
-        </div>
-
-        <div>
-          <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0">
-              <FormattedMessage
-                id="INVOICE.GST_NUMBER"
-                defaultMessage="GST Number"
-              />
-            </span>
-            <span className="font-medium text-right break-all">
-              {invoiceInfo.gstnumber}
-            </span>
-          </p>
-          <p className="flex justify-between mb-1 gap-4">
-            <span className="text-gray-500 flex-shrink-0">
-              <FormattedMessage
-                id="INVOICE.DUE_DATE"
-                defaultMessage="Due Date"
-              />
-            </span>
-            <span className="font-medium text-right">
-              {invoiceInfo.duedate}
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {/* Items Table */}
-      <div className="mt-6 overflow-x-auto">
-        <h4 className="p-4 font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
-          <FormattedMessage
-            id="FUNCTION.DETAILS"
-            defaultMessage="Function Details"
-          />
-        </h4>
-        <Table
-          columns={columns}
-          dataSource={functionData}
-          pagination={false}
-          className="!border-0 [&_.ant-table-thead>tr>th]:bg-[#F8FAFC] [&_.ant-table-thead>tr>th]:text-[#005BA8]"
-        />
-      </div>
-
-      {/* Footer / Totals */}
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        {/* Left Side */}
-        <div className="p-6 text-sm text-gray-700">
-          <p>
-            <strong>
-              <FormattedMessage
-                id="INVOICE.TOTAL_IN_WORDS"
-                defaultMessage="Total in Words:"
-              />
-            </strong>{" "}
-            <br />
-            <p>Indian Rupee: {numberToIndianWords(totalAmount)}</p>
-          </p>
-          <p className="mt-4">
-            <strong>
-              <FormattedMessage id="INVOICE.NOTES" defaultMessage="Notes:" />
-            </strong>{" "}
-            <br />
-            <span className="break-words">{invoiceInfo.notes}</span>
-          </p>
-          <p className="mt-4 text-xs text-gray-500 leading-relaxed">
-            <strong>
-              <FormattedMessage
-                id="INVOICE.TERMS_CONDITIONS"
-                defaultMessage="Terms & Conditions:"
-              />
-            </strong>{" "}
-            <br />
-            <FormattedMessage
-              id="INVOICE.TERMS_CONDITIONS_VALUE"
-              defaultMessage="Your company's Terms and Conditions will appear here."
-            />
-          </p>
-        </div>
-
-        {/* Right Side */}
-        <div className="flex flex-col justify-between p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-sm">
           <div>
-            <div className="flex justify-between mb-1 gap-4">
+            <p className="flex justify-between mb-1 gap-4">
               <span className="text-gray-500 flex-shrink-0">
                 <FormattedMessage
-                  id="INVOICE.SUB_TOTAL"
-                  defaultMessage="Sub Total"
+                  id="INVOICE.GST_NUMBER"
+                  defaultMessage="GST Number"
                 />
               </span>
-              <span className="text-right">₹ {subTotal}</span>
-            </div>
-            <div className="flex justify-between mb-1 gap-4">
+              <span className="font-medium text-right break-all">
+                {invoiceInfo.gstnumber}
+              </span>
+            </p>
+            <p className="flex justify-between mb-1 gap-4">
               <span className="text-gray-500 flex-shrink-0">
                 <FormattedMessage
-                  id="INVOICE.CGST"
-                  defaultMessage="CGST"
-                  values={{ percent: gstInfo.cgst }}
+                  id="INVOICE.DUE_DATE"
+                  defaultMessage="Due Date"
                 />
               </span>
-              <span className="text-right">₹{gstInfo.cgstAmnt}</span>
-            </div>
-            <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0">
+              <span className="font-medium text-right">
+                {invoiceInfo.duedate}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Items Table */}
+        <div className="mt-6 overflow-x-auto">
+          <h4 className="p-4 font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
+            <FormattedMessage
+              id="FUNCTION.DETAILS"
+              defaultMessage="Function Details"
+            />
+          </h4>
+          <Table
+            columns={columns}
+            dataSource={functionData}
+            pagination={false}
+            className="!border-0 [&_.ant-table-thead>tr>th]:bg-[#F8FAFC] [&_.ant-table-thead>tr>th]:text-[#005BA8]"
+          />
+        </div>
+
+        {/* Footer / Totals */}
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* Left Side */}
+          <div className="p-6 text-sm text-gray-700">
+            <p>
+              <strong>
                 <FormattedMessage
-                  id="INVOICE.SGST"
-                  defaultMessage="SGST"
-                  values={{ percent: gstInfo.sgst }}
+                  id="INVOICE.TOTAL_IN_WORDS"
+                  defaultMessage="Total in Words:"
                 />
-              </span>
-              <span className="text-right">₹{gstInfo.sgstAmnt}</span>
-            </div>
-            <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0">
+              </strong>{" "}
+              <br />
+              <p>Indian Rupee: {numberToIndianWords(totalAmount)}</p>
+            </p>
+            <p className="mt-4">
+              <strong>
+                <FormattedMessage id="INVOICE.NOTES" defaultMessage="Notes:" />
+              </strong>{" "}
+              <br />
+              <span className="break-words">{invoiceInfo.notes}</span>
+            </p>
+            <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+              <strong>
                 <FormattedMessage
-                  id="INVOICE.IGST"
-                  defaultMessage="IGST"
-                  values={{ percent: gstInfo.igst }}
+                  id="INVOICE.TERMS_CONDITIONS"
+                  defaultMessage="Terms & Conditions:"
                 />
-              </span>
-              <span className="text-right">₹{gstInfo.igstAmnt}</span>
-            </div>
-            <div className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500 flex-shrink-0">
-                <FormattedMessage
-                  id="INVOICE.DISCOUNT"
-                  defaultMessage="Discount"
-                />
-              </span>
-              <span className="text-right">₹{invoiceInfo.discount}</span>
-            </div>
-            <div className="flex justify-between font-bold text-[#005BA8] text-base gap-4">
-              <span className="flex-shrink-0">
-                <FormattedMessage id="INVOICE.TOTAL" defaultMessage="Total" />
-              </span>
-              <span className="text-right">₹ {totalAmount}</span>
+              </strong>{" "}
+              <br />
+              <FormattedMessage
+                id="INVOICE.TERMS_CONDITIONS_VALUE"
+                defaultMessage="Your company's Terms and Conditions will appear here."
+              />
+            </p>
+          </div>
+
+          {/* Right Side */}
+          <div className="flex flex-col justify-between p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-sm">
+            <div>
+              <div className="flex justify-between mb-1 gap-4">
+                <span className="text-gray-500 flex-shrink-0">
+                  <FormattedMessage
+                    id="INVOICE.SUB_TOTAL"
+                    defaultMessage="Sub Total"
+                  />
+                </span>
+                <span className="text-right">₹ {subTotal}</span>
+              </div>
+              <div className="flex justify-between mb-1 gap-4">
+                <span className="text-gray-500 flex-shrink-0">
+                  <FormattedMessage
+                    id="INVOICE.CGST"
+                    defaultMessage="CGST"
+                    values={{ percent: gstInfo.cgst }}
+                  />
+                </span>
+                <span className="text-right">₹{gstInfo.cgstAmnt}</span>
+              </div>
+              <div className="flex justify-between mb-1 gap-4">
+                <span className="text-gray-500 flex-shrink-0">
+                  <FormattedMessage
+                    id="INVOICE.SGST"
+                    defaultMessage="SGST"
+                    values={{ percent: gstInfo.sgst }}
+                  />
+                </span>
+                <span className="text-right">₹{gstInfo.sgstAmnt}</span>
+              </div>
+              <div className="flex justify-between mb-1 gap-4">
+                <span className="text-gray-500 flex-shrink-0">
+                  <FormattedMessage
+                    id="INVOICE.IGST"
+                    defaultMessage="IGST"
+                    values={{ percent: gstInfo.igst }}
+                  />
+                </span>
+                <span className="text-right">₹{gstInfo.igstAmnt}</span>
+              </div>
+              <div className="flex justify-between mb-1 gap-4">
+                <span className="text-gray-500 flex-shrink-0">
+                  <FormattedMessage
+                    id="INVOICE.DISCOUNT"
+                    defaultMessage="Discount"
+                  />
+                </span>
+                <span className="text-right">₹{invoiceInfo.discount}</span>
+              </div>
+              <div className="flex justify-between font-bold text-[#005BA8] text-base gap-4">
+                <span className="flex-shrink-0">
+                  <FormattedMessage id="INVOICE.TOTAL" defaultMessage="Total" />
+                </span>
+                <span className="text-right">₹ {totalAmount}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* PDF Modal */}
+      <Modal
+        title={
+          <FormattedMessage
+            id="COMMON.QUOTATION_REPORT"
+            defaultMessage="Quotation Report"
+          />
+        }
+        open={isPdfModalVisible}
+        onCancel={() => {
+          setIsPdfModalVisible(false);
+          if (pdfUrl) {
+            URL.revokeObjectURL(pdfUrl);
+            setPdfUrl("");
+          }
+        }}
+        width="60%"
+        footer={[
+          <div key="footer" className="flex justify-end gap-2">
+            <button
+              onClick={() => handleWhatsAppShare(pdfUrl)}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+              </svg>
+              Share on WhatsApp
+            </button>
+            <button
+              className="btn btn-sm btn-light"
+              onClick={() => {
+                setIsPdfModalVisible(false);
+                if (pdfUrl) {
+                  URL.revokeObjectURL(pdfUrl);
+                  setPdfUrl("");
+                }
+              }}
+            >
+              <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
+            </button>
+          </div>,
+        ]}
+        style={{ top: 20 }}
+      >
+        <div style={{ height: "80vh" }}>
+          {pdfUrl && (
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+              <Viewer
+                fileUrl={pdfUrl}
+                plugins={[pdfPlugin]}
+                defaultScale={1.0}
+              />
+            </Worker>
+          )}
+        </div>
+      </Modal>
+    </>
   );
 };
 

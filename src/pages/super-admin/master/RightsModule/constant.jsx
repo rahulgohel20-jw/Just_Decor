@@ -53,7 +53,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
             </button>
           </Tooltip>
 
-          <Tooltip title="Delete">
+          {/* <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
@@ -61,7 +61,7 @@ export const columns = (onEdit, onDelete, onstatus) => [
             >
               <i className="ki-filled ki-trash  text-danger"></i>
             </button>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       );
     },
