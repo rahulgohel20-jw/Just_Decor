@@ -6,6 +6,11 @@ import ItemTable from "@/components/InvoiceTable/ItemTable";
 import InvoiceFooter from "@/components/InvoiceTable/InvoiceFooter";
 import { AddInvoice, UpdateInvoice } from "@/services/apiServices";
 import dayjs from "dayjs";
+import { Modal } from "antd";
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 
@@ -14,6 +19,7 @@ import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router";
 import { GetInvoiceByEventId } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
+import { GetQuotationReport } from "../../../services/apiServices";
 
 dayjs.extend(customParseFormat);
 
@@ -31,6 +37,11 @@ const AddInvoicePage = () => {
   const [isEdited, setIsEdited] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [invoiceDate, setInvoiceDate] = useState("");
+  // PDF Modal states
+  const [isPdfModalVisible, setIsPdfModalVisible] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [loadingPdf, setLoadingPdf] = useState(false);
+  const pdfPlugin = defaultLayoutPlugin();
 
   // New state for invoice footer data
   const [footerData, setFooterData] = useState({
@@ -77,6 +88,203 @@ const AddInvoicePage = () => {
     shipname: "",
     gstnumber: "",
   });
+
+  const handleGenerateInvoiceReport = async () => {
+    setLoadingPdf(true);
+    const userId = localStorage.getItem("userId");
+
+    await GetQuotationReport(eventId, userId, 1)
+      .then((response) => {
+        if (response.data) {
+          const pdfPath = response.data?.report_path;
+          setPdfUrl(pdfPath);
+          setIsPdfModalVisible(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error generating invoice report:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Failed to generate invoice PDF report",
+          icon: "error",
+          confirmButtonColor: "#005BA8",
+        });
+      })
+      .finally(() => {
+        setLoadingPdf(false);
+      });
+  };
+
+  const handleSaveAndPrint = async () => {
+    try {
+      setLoadingPdf(true);
+
+      // Save invoice silently (without success popup)
+      const UserId = localStorage.getItem("userId");
+
+      const formatDateForAPI = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        const formattedHours = String(hours % 12 || 12).padStart(2, "0");
+        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
+      };
+
+      const convertDisplayDateToAPI = (displayDate) => {
+        if (!displayDate) return null;
+        try {
+          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
+            return `${displayDate} 12:00 AM`;
+          }
+          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate)) {
+            return displayDate;
+          }
+          const monthMap = {
+            Jan: "01",
+            Feb: "02",
+            Mar: "03",
+            Apr: "04",
+            May: "05",
+            Jun: "06",
+            Jul: "07",
+            Aug: "08",
+            Sep: "09",
+            Oct: "10",
+            Nov: "11",
+            Dec: "12",
+          };
+          const parts = displayDate.split(" ");
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, "0");
+            const month = monthMap[parts[1]];
+            const year = parts[2];
+            if (month) {
+              return `${day}/${month}/${year} 12:00 AM`;
+            }
+          }
+          const date = new Date(displayDate);
+          if (!isNaN(date.getTime())) {
+            const d = String(date.getDate()).padStart(2, "0");
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const y = date.getFullYear();
+            return `${d}/${m}/${y} 12:00 AM`;
+          }
+          return null;
+        } catch (error) {
+          console.error("Error converting date:", displayDate, error);
+          return null;
+        }
+      };
+
+      const totalAdvancePayment =
+        invoiceData?.eventInvoiceFunctionPayments?.reduce(
+          (sum, payment) => sum + (Number(payment.advancePayment) || 0),
+          0,
+        ) || 0;
+
+      const remainingAmount = footerData.grandTotal - totalAdvancePayment;
+
+      const payload = {
+        billingaddress: tempValues.billingaddress || "",
+        billingname: tempValues.billingname || "",
+        cgst: String(footerData.cgst),
+        cgstAmnt: footerData.cgstAmnt,
+        discount: footerData.discount,
+        duedate: dueDate ? dueDate.format("DD/MM/YYYY") : "",
+        eventId: eventId,
+        eventInvoiceFunctionPayments:
+          invoiceData?.eventInvoiceFunctionPayments?.map((payment) => ({
+            advancePayment: Number(payment.advancePayment) || 0,
+            advancePaymentDate:
+              payment.advancePaymentDate || formatDateForAPI(new Date()),
+            advancePaymentNotes: payment.advancePaymentNotes || "",
+            id: payment.id || 0,
+          })) || [
+            {
+              advancePayment: 0,
+              advancePaymentDate: formatDateForAPI(new Date()),
+              advancePaymentNotes: "",
+              id: 0,
+            },
+          ],
+        grandTotal: footerData.grandTotal,
+        gstnumber: tempValues.gstnumber || "",
+        igst: String(footerData.igst),
+        igstAmnt: footerData.igstAmnt,
+        invoiceFunctionItems: rows.map((r) => ({
+          amount: Number(r.amount) || 0,
+          extraPax: Number(r.extra) || 0,
+          functionDate: convertDisplayDateToAPI(r.date),
+          functionName: r.name || "",
+          id: r.id || 0,
+          isEventFunction: !r.isCustom,
+          pax: Number(r.person) || 0,
+          ratePerPlate: Number(r.rate) || 0,
+        })),
+        notes: footerData.notes,
+        remainingAmount: remainingAmount,
+        roundOff: footerData.roundOff,
+        sgst: String(footerData.sgst),
+        sgstAmnt: footerData.sgstAmnt,
+        shipaddress: tempValues.shipaddress || "",
+        shipname: tempValues.shipname || "",
+        subTotal: footerData.subTotal,
+        totalAmount: footerData.totalAmount,
+        userId: UserId,
+      };
+
+      // Save without showing success message
+      const response = await UpdateInvoice(invoiceData?.id, payload);
+
+      if (response?.data?.success === true) {
+        setIsEdited(false);
+        setRows((prevRows) =>
+          prevRows.map((row) => ({
+            ...row,
+            isNewRow: false,
+            isCustom: true,
+          })),
+        );
+
+        // Then generate and show the report
+        await handleGenerateInvoiceReport();
+      } else {
+        throw new Error(response?.data?.msg || "Failed to save invoice");
+      }
+    } catch (error) {
+      console.error("Save and print failed", error);
+      Swal.fire({
+        title: "Error",
+        text: error?.message || "Unable to save and print invoice.",
+        icon: "error",
+        confirmButtonColor: "#d9534f",
+      });
+    } finally {
+      setLoadingPdf(false);
+    }
+  };
+
+  // WhatsApp Share
+  const handleWhatsAppShare = (pdfUrl) => {
+    const name = invoiceData?.event?.party?.nameEnglish || "there";
+    const mobile = invoiceData?.event?.party?.mobileno || "";
+
+    const message = `Hi ${name},
+Hope you're doing well!
+
+Please find the invoice PDF below:
+${pdfUrl}
+
+Thanks!`;
+
+    const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   useEffect(() => {
     if (invoiceData?.createdAt) {
@@ -232,9 +440,18 @@ const AddInvoicePage = () => {
     setIsEdited(true);
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
+
+    if (field === "person" || field === "extra" || field === "rate") {
+      const person = parseFloat(updatedRows[index].person) || 0;
+      const extra = parseFloat(updatedRows[index].extra) || 0;
+      const rate = parseFloat(updatedRows[index].rate) || 0;
+
+      const calculatedAmount = (person + extra) * rate;
+      updatedRows[index].amount = calculatedAmount;
+    }
+
     setRows(updatedRows);
   };
-
   const handleDeleteRow = (key) => {
     setIsEdited(true);
 
@@ -704,14 +921,29 @@ const AddInvoicePage = () => {
                 </div>
 
                 <div className="flex flex-row items-end gap-2">
-                  <button className="btn btn-sm btn-primary">
-                    <i className="ki-filled ki-printer"></i>{" "}
-                    <FormattedMessage
-                      id="COMMON.PRINT"
-                      defaultMessage="Print"
-                    />
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={handleSaveAndPrint}
+                    disabled={loadingPdf}
+                  >
+                    {loadingPdf ? (
+                      <>
+                        <i className="ki-filled ki-loading animate-spin"></i>
+                        <FormattedMessage
+                          id="COMMON.LOADING"
+                          defaultMessage="Loading..."
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <i className="ki-filled ki-printer"></i>
+                        <FormattedMessage
+                          id="COMMON.PRINT"
+                          defaultMessage="Print"
+                        />
+                      </>
+                    )}
                   </button>
-
                   {/* <button className="btn btn-sm btn-primary">
                     <i className="ki-filled ki-exit-right-corner"></i>{" "}
                     <FormattedMessage
@@ -1004,6 +1236,62 @@ const AddInvoicePage = () => {
           </div>
         </div>
       </Container>
+      {/* PDF Modal */}
+      <Modal
+        title={
+          <FormattedMessage
+            id="INVOICE.INVOICE_REPORT"
+            defaultMessage="Invoice Report"
+          />
+        }
+        open={isPdfModalVisible}
+        onCancel={() => {
+          setIsPdfModalVisible(false);
+          if (pdfUrl) {
+            URL.revokeObjectURL(pdfUrl);
+            setPdfUrl("");
+          }
+        }}
+        width="60%"
+        footer={[
+          <div className="flex justify-end gap-2" key="footer">
+            <button
+              onClick={() => handleWhatsAppShare(pdfUrl)}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+              </svg>
+              Share on WhatsApp
+            </button>
+            <button
+              className="btn btn-sm btn-light"
+              onClick={() => {
+                setIsPdfModalVisible(false);
+                if (pdfUrl) {
+                  URL.revokeObjectURL(pdfUrl);
+                  setPdfUrl("");
+                }
+              }}
+            >
+              <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
+            </button>
+          </div>,
+        ]}
+        style={{ top: 20 }}
+      >
+        <div style={{ height: "80vh" }}>
+          {pdfUrl && (
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+              <Viewer
+                fileUrl={pdfUrl}
+                plugins={[pdfPlugin]}
+                defaultScale={1.0}
+              />
+            </Worker>
+          )}
+        </div>
+      </Modal>
     </Fragment>
   );
 };
