@@ -712,13 +712,13 @@ const AddInvoicePage = () => {
                     />
                   </button>
 
-                  <button className="btn btn-sm btn-primary">
+                  {/* <button className="btn btn-sm btn-primary">
                     <i className="ki-filled ki-exit-right-corner"></i>{" "}
                     <FormattedMessage
                       id="COMMON.SHARE"
                       defaultMessage="Share"
                     />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

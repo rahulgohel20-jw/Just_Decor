@@ -1498,3 +1498,10 @@ export const GetNamePlateByNamePlateType = (
   );
 };
 
+export const AddModuleRights = (data) => {
+  return POST(`/modulerights/add`, data);
+};
+
+export const UpdateModuleRights = (id, data) => {
+  return PUT(`/modulerights/update?id=${id}`, data);
+}
