@@ -77,7 +77,7 @@ const MenuReport = ({
 
         setReportType(config.type);
 
-        if (config.isDropDown === 1) {
+        if (config.isAgency === 1 && config.isItem === 1)  {
           setisDropdownStatus(1);
         }
         if (config.isDate === 1) {
@@ -144,7 +144,6 @@ const MenuReport = ({
           eventFunctionId,
           eventId,
         );
-        console.log("agencies", agencyRes);
 
         if (agencyRes?.data?.success && agencyRes?.data?.data) {
           setAgencies(agencyRes.data.data);
@@ -417,6 +416,79 @@ const MenuReport = ({
               ))}
             </div>
           </div>
+          {(isDateStatus === 1 || isDropdownStatus === 1) && (
+            <div className=" p-5 rounded-xl border-2 ">
+              <div className="grid grid-cols-2 gap-4">
+            
+ 
+                {/* Dropdowns */}
+                {isDropdownStatus === 1 && (
+                  <>
+                    <div className="relative">
+                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                        <TeamOutlined className="mr-1" />
+                        Agency
+                      </label>
+                      <Select
+                        mode="multiple"
+                        value={selectedAgency}
+                        onChange={setSelectedAgency}
+                        placeholder="Select agencies..."
+                        className="w-full custom-select"
+                        size="large"
+                        loading={loadingFilters}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={agencies.map((agency) => ({
+                          value: agency.id,
+                          label: agency.nameEnglish,
+                        }))}
+                        maxTagCount="responsive"
+                        allowClear
+                      />
+                    </div>
+ 
+                    <div className="relative">
+                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                        <AppstoreOutlined className="mr-1" />
+                        Items
+                      </label>
+                      <Select
+                        mode="multiple"
+                        value={selectedItems}
+                        onChange={setSelectedItems}
+                        placeholder="Select items..."
+                        className="w-full custom-select"
+                        size="large"
+                        loading={loadingFilters}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={items.map((item) => ({
+                          value: item.id,
+                          label: item.nameEnglish,
+                        }))}
+                        maxTagCount="responsive"
+                        allowClear
+                        style={{
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Report Options */}
           {!isNamePlateTheme && (
