@@ -213,6 +213,7 @@ import ExtraPaymentMaster from "../pages/super-admin/master/ExtraPayment-master"
 import CouponMaster from "../pages/super-admin/master/Coupon-master";
 import { CrockeryConfiguration } from "../pages/Configuration/CrockeryConfiguration/CrockeryConfiguration";
 import AllReports from "../pages/Event/AllReportsPage/AllReports";
+import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleReport";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -370,6 +371,11 @@ const AppRoutingSetup = () => {
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route path="/allreports/:eventId" element={<AllReports />} />
+          <Route
+            path="/adminmodulereport"
+            element={<AdminModuleReport />}
+            mode="adminmodulereport"
+          />
           <Route
             path="/Superadmin-member-edit/:id"
             element={<SuperAdminMemberEdit />}

@@ -295,6 +295,16 @@ export const allMenuItems = [
     path: "/adminreportcustomtheme",
   },
   {
+    title: (
+      <FormattedMessage
+        id="COMMON.ADMIN_MODULE_REPORT"
+        defaultMessage="Admin Module Report"
+      />
+    ),
+    icon: " ki-filled ki-document text-primary",
+    path: "/adminmodulereport",
+  },
+  {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
     icon: "  text-lg ki-filled ki-graph-up text-primary",
     children: [
