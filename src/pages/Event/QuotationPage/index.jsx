@@ -635,12 +635,9 @@ const QuotationPage = () => {
     try {
       setLoadingPdf(true);
 
-      // STEP 1: SAVE
       await saveNotes();
 
-      // STEP 2: OPEN PDF
-      await handleGenrateReport();
-      // If this function already opens the PDF, you’re DONE here
+      handleGenrateReport();
     } catch (error) {
       console.error("Save then open PDF failed", error);
     } finally {
@@ -729,7 +726,7 @@ const QuotationPage = () => {
 
     const userId = localStorage.getItem("userId");
 
-    GetQuotationReport(eventId, userId)
+    GetQuotationReport(eventId, userId, 0)
       .then((response) => {
         if (response.data) {
           const pdfPath = response.data?.report_path;
