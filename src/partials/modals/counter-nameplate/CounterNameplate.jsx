@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { GripVertical, Printer, Save } from "lucide-react";
 import {
-  GetNamePlatedata,
+  Translateapi,
   GenerateNamePlateReport,
   AddNamePlate,
   GetNamePlateByNamePlateType,
@@ -57,19 +57,16 @@ const CounterNameplate = ({
   }, [eventId, eventFunctionId, currentlang]);
 
   const fetchItemdata = async () => {
+    const data = await GetNamePlateByNamePlateType(
+      eventFunctionId,
+      eventId,
+      1,
+      0,
+      0,
+      0, // ALWAYS FETCH ENGLISH ONCE
+      userId,
+    );
     try {
-      const url = `/nameplate/getbynameplatetype?eventFunctionId=${eventFunctionId}&eventId=${eventId}&isCounterItem=1&isStandyItem=0&isTableMenuItem=0&lang=${currentlang}&userId=${userId}`;
-      console.log("Calling API:", url);
-      const data = await GetNamePlateByNamePlateType(
-        eventFunctionId,
-        eventId,
-        1, // counter items only
-        0,
-        0,
-        currentlang,
-        userId,
-      );
-
       const res = data?.data?.data?.data || [];
       console.log("response", res);
 
@@ -104,29 +101,53 @@ const CounterNameplate = ({
     setCounters(items);
   };
 
-  const handleNameChange = (id, value) => {
+  const handleNameChange = async (menuItemId, value) => {
+    // 1️⃣ Update CURRENT language
     setCounters((prev) =>
       prev.map((item) => {
-        if (item.id !== id) return item;
+        if (item.menuItemId !== menuItemId) return item;
 
-        if (currentlang === 0)
-          return { ...item, name: value, itemNameEnglish: value };
-        if (currentlang === 1)
-          return { ...item, name: value, itemNameHindi: value };
-        if (currentlang === 2)
-          return { ...item, name: value, itemNameGujarati: value };
+        if (currentlang === 0) return { ...item, itemNameEnglish: value };
+        if (currentlang === 1) return { ...item, itemNameHindi: value };
+        if (currentlang === 2) return { ...item, itemNameGujarati: value };
 
         return item;
       }),
     );
+
+    // 2️⃣ Translate ONLY when editing English
+    if (currentlang !== 0) return;
+
+    try {
+      const res = await Translateapi(value);
+
+      const hi = res?.data?.hindi || value;
+      const gu = res?.data?.gujarati || value;
+
+      setCounters((prev) =>
+        prev.map((item) =>
+          item.menuItemId === menuItemId
+            ? {
+                ...item,
+                itemNameHindi: hi,
+                itemNameGujarati: gu,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      console.error("Translation failed", error);
+    }
   };
 
-  const handleCopiesChange = (id, value) => {
+  const handleCopiesChange = (menuItemId, value) => {
     const cleanedValue = value === "" ? "" : Math.max(0, parseInt(value, 10));
 
     setCounters((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, copies: cleanedValue } : item,
+        item.menuItemId === menuItemId
+          ? { ...item, copies: cleanedValue }
+          : item,
       ),
     );
   };
@@ -149,6 +170,9 @@ const CounterNameplate = ({
         eventFunctionId: Number(eventFunctionId),
         eventId: Number(eventId),
         userId: Number(userId),
+        isStandyItem: 0,
+        isCounterItem: 1,
+        isTableMenuItem: 0,
         namePlateRequests: counters.map((item, index) => ({
           id: item.id || -1,
           menuItemId: item.menuItemId,
@@ -290,8 +314,8 @@ const CounterNameplate = ({
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 {counters.map((item, index) => (
                   <Draggable
-                    key={item.id}
-                    draggableId={String(item.id)}
+                    key={item.menuItemId}
+                    draggableId={String(item.menuItemId)}
                     index={index}
                   >
                     {(provided) => (
@@ -316,14 +340,13 @@ const CounterNameplate = ({
                             (currentlang === 0
                               ? item.itemNameEnglish
                               : currentlang === 1
-                                ? item.itemNameHindi || item.itemNameEnglish
-                                : item.itemNameGujarati || item.itemNameEnglish
+                                ? item.itemNameHindi
+                                : item.itemNameGujarati
                             )?.toUpperCase() || ""
                           }
                           onChange={(e) =>
-                            handleNameChange(item.id, e.target.value)
+                            handleNameChange(item.menuItemId, e.target.value)
                           }
-                          disabled={item.copies === 0}
                           className="flex-1 bg-transparent font-semibold outline-none uppercase"
                         />
 
@@ -333,7 +356,10 @@ const CounterNameplate = ({
                             type="number"
                             value={item.copies}
                             onChange={(e) =>
-                              handleCopiesChange(item.id, e.target.value)
+                              handleCopiesChange(
+                                item.menuItemId,
+                                e.target.value,
+                              )
                             }
                             className="w-16 text-center border rounded-md"
                           />

@@ -5,7 +5,7 @@ import { CheckSquare, Square } from "lucide-react";
 
 import { GripVertical, Printer, Save } from "lucide-react";
 import {
-  GetNamePlatedata,
+  Translateapi,
   GenerateNamePlateReport,
   AddNamePlate,
   GetNamePlateByNamePlateType,
@@ -128,7 +128,8 @@ const MainStandyMenuReport = ({
   };
 
   // ✅ Updated to use menuItemId instead of id
-  const handleNameChange = (menuItemId, value) => {
+  const handleNameChange = async (menuItemId, value) => {
+    // 1️⃣ Update immediately for better UX
     setCounters((prev) =>
       prev.map((item) => {
         if (item.menuItemId !== menuItemId) return item;
@@ -140,6 +141,31 @@ const MainStandyMenuReport = ({
         return item;
       }),
     );
+
+    // 2️⃣ ONLY translate when editing English
+    if (currentlang !== 0) return;
+
+    try {
+      const res = await Translateapi(value);
+
+      const hindi = res?.data?.hindi || value;
+      const gujarati = res?.data?.gujarati || value;
+
+      // 3️⃣ Update Hindi & Gujarati after translation
+      setCounters((prev) =>
+        prev.map((item) =>
+          item.menuItemId === menuItemId
+            ? {
+                ...item,
+                itemNameHindi: hindi,
+                itemNameGujarati: gujarati,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      console.error("Translation failed", error);
+    }
   };
 
   // ✅ Updated to use menuItemId instead of id

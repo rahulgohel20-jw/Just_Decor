@@ -628,6 +628,7 @@ Thanks!`;
         discount: footerData.discount,
         duedate: dueDate ? dueDate.format("DD/MM/YYYY") : "",
         eventId: eventId,
+
         eventInvoiceFunctionPayments:
           invoiceData?.eventInvoiceFunctionPayments?.map((payment) => ({
             advancePayment: Number(payment.advancePayment) || 0,

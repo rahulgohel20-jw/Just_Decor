@@ -12,6 +12,7 @@ import RichTextEditor from "./RichTextEditor";
 import Swal from "sweetalert2";
 import {
   AddNamePlate,
+  Translateapi,
   GenerateNamePlateReport,
   GetNamePlateByNamePlateType,
 } from "@/services/apiServices";
@@ -27,8 +28,8 @@ export default function NamePlateReport({
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
 
-  const [menuFontSize, setMenuFontSize] = useState(10);
-  const [itemFontSize, setItemFontSize] = useState(15);
+  const [menuFontSize, setMenuFontSize] = useState();
+  const [itemFontSize, setItemFontSize] = useState();
   const [activeTab, setActiveTab] = useState("menu");
   const [selectedLanguage, setSelectedLanguage] = useState("english");
   const [currentlang, setCurrentLang] = useState(0);
@@ -52,37 +53,41 @@ export default function NamePlateReport({
   }, [eventId, eventFunctionId, currentlang, userId]);
 
   const fetchItemData = async (efId) => {
-    if (!userId) {
-      console.warn("UserId missing – skipping API call");
-      return;
-    }
+    if (!userId) return;
 
     try {
       const res = await GetNamePlateByNamePlateType(
-        efId ?? -1, // eventFunctionId
-        eventId, // eventId
-        0, // isCounterItem
-        0, // isStandyItem
-        1, // isTableMenuItem
-        currentlang, // lang
-        userId, // userId ✅ REQUIRED
+        efId ?? -1,
+        eventId,
+        0,
+        0,
+        1,
+        currentlang,
+        userId,
       );
 
-      const data = res?.data?.data?.data || [];
+      const apiData = res?.data?.data;
+      const list = apiData?.data || [];
+
+      // ✅ SET FONT SIZES FROM API
+      setMenuFontSize(apiData?.category_font_size ?? 10);
+      setItemFontSize(apiData?.item_font_size ?? 15);
 
       setItems(
-        data
+        list
           .sort((a, b) => a.sequence - b.sequence)
-          .map((item) => ({
+          .map((item, index) => ({
             id: item.id,
             menuid: item.menuItemId,
 
-            itemNameEnglish: item.itemNameEnglish,
-            itemNameHindi: item.itemNameHindi,
-            itemNameGujarati: item.itemNameGujarati,
+            itemNameEnglish: item.itemNameEnglish || "",
+            itemNameHindi: item.itemNameHindi || "",
+            itemNameGujarati: item.itemNameGujarati || "",
 
             isTableMenuChecked: item.isTableMenuChecked === 1,
             isStandyChecked: item.isStandyChecked === 1,
+
+            sequence: item.sequence ?? index + 1,
           })),
       );
     } catch (err) {
@@ -90,18 +95,33 @@ export default function NamePlateReport({
     }
   };
 
-  const handleNameChange = (menuItemId, value) => {
+  const handleNameChange = async (menuItemId, value) => {
+    // Update English immediately
     setItems((prev) =>
-      prev.map((item) => {
-        if (item.menuid !== menuItemId) return item;
-
-        if (currentlang === 0) return { ...item, itemNameEnglish: value };
-        if (currentlang === 1) return { ...item, itemNameHindi: value };
-        if (currentlang === 2) return { ...item, itemNameGujarati: value };
-
-        return item;
-      }),
+      prev.map((item) =>
+        item.menuid === menuItemId ? { ...item, itemNameEnglish: value } : item,
+      ),
     );
+
+    // Translate only if English is being edited
+    if (currentlang === 0) {
+      try {
+        const res = await Translateapi(value); // your API call
+        const hindi = res?.data?.hindi || value; // fallback to English
+        const gujarati = res?.data?.gujarati || value;
+
+        // Update Hindi & Gujarati in state
+        setItems((prev) =>
+          prev.map((item) =>
+            item.menuid === menuItemId
+              ? { ...item, itemNameHindi: hindi, itemNameGujarati: gujarati }
+              : item,
+          ),
+        );
+      } catch (err) {
+        console.error("Transliteration failed", err);
+      }
+    }
   };
 
   const [items, setItems] = useState([]);
@@ -392,6 +412,7 @@ export default function NamePlateReport({
                                 <Square className="text-gray-400" />
                               )}
                             </button>
+
                             {/* Item Name */}
                             {/* Item Name - Now Editable */}
                             <div className="flex-1">
@@ -410,7 +431,6 @@ export default function NamePlateReport({
                                     ? "text-gray-800 bg-white"
                                     : "text-gray-400 bg-gray-50"
                                 }`}
-                                style={{ fontSize: `${itemFontSize}px` }}
                               />
                             </div>
                           </div>
