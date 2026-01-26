@@ -176,9 +176,9 @@ export const GetSuplier = (id) => {
 export const GetAllQuotation = (id) => {
   return GET(`/quotation/getallbyfilter?userid=${id}`);
 };
-export const GetQuotationReport = (eventId, userId) => {
+export const GetQuotationReport = (eventId, userId, isInvoice) => {
   return POST(
-    `/quotationreport/generatequotation?eventId=${eventId}&lang=0&userId=${userId}`
+    `/quotationreport/generatequotation?eventId=${eventId}&lang=0&userId=${userId}&isInvoice=${isInvoice}`
   );
 };
 
@@ -1488,13 +1488,13 @@ export const GetNamePlateByNamePlateType = (
 ) => {
   return GET(
     `/nameplate/getbynameplatetype` +
-      `?eventFunctionId=${eventFunctionId}` +
-      `&eventId=${eventId}` +
-      `&isCounterItem=${isCounterItem}` +
-      `&isStandyItem=${isStandyItem}` +
-      `&isTableMenuItem=${isTableMenuItem}` +
-      `&lang=${lang}` +
-      `&userId=${userId}`
+    `?eventFunctionId=${eventFunctionId}` +
+    `&eventId=${eventId}` +
+    `&isCounterItem=${isCounterItem}` +
+    `&isStandyItem=${isStandyItem}` +
+    `&isTableMenuItem=${isTableMenuItem}` +
+    `&lang=${lang}` +
+    `&userId=${userId}`
   );
 };
 
