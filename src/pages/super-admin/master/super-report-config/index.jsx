@@ -43,7 +43,8 @@ const SuperReportConfig = () => {
         moduleId: item.templateModuleId,
         dropdown:item.isDropDown,
         WithPrice:item.isWithPrice,
-        date:item.isDate
+        isAgency:item.isAgency,
+        isItem:item.isItem,
       }));
 
       setTableData(mapped);

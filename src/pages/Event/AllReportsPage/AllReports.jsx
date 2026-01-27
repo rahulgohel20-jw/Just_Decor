@@ -117,6 +117,7 @@ export default function AllReports() {
             raw: [],
             labour: [],
             costing: [],
+            profitloss: [],
             menuForHM: [],
           };
 
@@ -183,6 +184,9 @@ export default function AllReports() {
             } else if (moduleName === "Costing Report Theme") {
               addToModuleGroup(moduleGroups.costing);
             }
+            else if (moduleName === "Profit And Loss") {
+              addToModuleGroup(moduleGroups.profitloss);
+            }
           });
 
           // Create report sections structure
@@ -226,6 +230,14 @@ export default function AllReports() {
               modules: moduleGroups.costing,
             });
           }
+          if (moduleGroups.profitloss.length > 0) {
+            sections.push({
+              id: "profitloss",
+              name: "Profitloss Reports",
+              modules: moduleGroups.profitloss,
+            });
+          }
+          
 
           if (moduleGroups.menuForHM.length > 0) {
             sections.push({

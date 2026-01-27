@@ -24,7 +24,7 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
     time: Yup.string()
       .matches(
         /^([01]\d|2[0-3]):([0-5]\d)$/,
-        "Time must be in HH:mm 24-hour format"
+        "Time must be in HH:mm 24-hour format",
       )
       .required("Shift time is required"),
   });
@@ -59,7 +59,7 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
         Swal.fire(
           "Success!",
           response.data.msg || "Operation successful",
-          "success"
+          "success",
         );
         refreshData();
         onClose();
@@ -68,7 +68,7 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
         Swal.fire(
           "Error!",
           response?.data?.msg || "Something went wrong!",
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -141,12 +141,18 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
                     {({ field, form }) => (
                       <input
                         {...field}
-                        type="time"
+                        type="text"
+                        placeholder="HH:mm"
+                        inputMode="numeric"
                         className="border border-gray-300 rounded-md p-2 w-40"
                         onChange={(e) => {
                           form.setFieldValue(field.name, e.target.value);
                         }}
-                        value={field.value}
+                        onBeforeInput={(e) => {
+                          if (!/[0-9:]/.test(e.data)) {
+                            e.preventDefault();
+                          }
+                        }}
                       />
                     )}
                   </Field>
