@@ -38,6 +38,7 @@ export default function AdminModuleReport() {
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [eventName, setEventName] = useState("");
   const [partyNumber, setPartyNumber] = useState("");
+  const [selectedTemplateIsDate, setSelectedTemplateIsDate] = useState(0);
 
   const getLangValue = (obj, baseKey) => {
     if (!obj) return "";
@@ -158,6 +159,7 @@ export default function AdminModuleReport() {
           name: item.templateMaster.name,
           description: `${item.templateMaster.name} - Custom theme template`,
           mappingId: item.templateMappingResponseDto?.id || item.id,
+          isDate: item.templateMappingResponseDto?.isDate || 0,
         }));
       }
 
@@ -190,12 +192,19 @@ export default function AdminModuleReport() {
     }
   };
 
+  const shouldShowDateFilter = (moduleId) => {
+    const templates = moduleTemplates[moduleId];
+    if (!templates || templates.length === 0) return false;
+    return templates.some((template) => template.isDate === 1);
+  };
+
   const handleGenerateReport = (moduleId, template) => {
     setSelectedCard(template.id);
     setSelectedModuleId(moduleId);
     setSelectedMappingId(template.mappingId);
     setSelectedTemplateIdForReport(template.id);
     setSelectedTemplateName(template.name);
+    setSelectedTemplateIsDate(template.isDate || 0);
 
     setIsMenuReportOpen(true);
   };
@@ -380,38 +389,42 @@ export default function AdminModuleReport() {
                         <div className="flex justify-center py-8">
                           <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" />
                         </div>
-                      ) : moduleTemplates[module.id]?.length > 0 ? (
-                        moduleTemplates[module.id].map((template) => (
-                          <div
-                            key={template.id}
-                            className={`border shadow-lg p-4 rounded-lg flex justify-between items-center ${
-                              selectedCard === template.id
-                                ? "border-primary bg-blue-50"
-                                : "border-gray-300"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <i className="ki-filled ki-calendar-tick text-primary text-lg" />
-                              <div>
-                                <h4 className="font-semibold text-primary">
-                                  {template.name}
-                                </h4>
-                                <p className="text-sm text-gray-500">
-                                  {template.description}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              className="btn btn-primary rounded-3xl px-6 py-2"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleGenerateReport(module.id, template);
-                              }}
+                      ) : moduleTemplates[module.id]?.filter(
+                          (template) => template.isDate === 1,
+                        ).length > 0 ? (
+                        moduleTemplates[module.id]
+                          .filter((template) => template.isDate === 1)
+                          .map((template) => (
+                            <div
+                              key={template.id}
+                              className={`border shadow-lg p-4 rounded-lg flex justify-between items-center ${
+                                selectedCard === template.id
+                                  ? "border-primary bg-blue-50"
+                                  : "border-gray-300"
+                              }`}
                             >
-                              Generate Report
-                            </button>
-                          </div>
-                        ))
+                              <div className="flex items-center gap-3">
+                                <i className="ki-filled ki-calendar-tick text-primary text-lg" />
+                                <div>
+                                  <h4 className="font-semibold text-primary">
+                                    {template.name}
+                                  </h4>
+                                  <p className="text-sm text-gray-500">
+                                    {template.description}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                className="btn btn-primary rounded-3xl px-6 py-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleGenerateReport(module.id, template);
+                                }}
+                              >
+                                Generate Report
+                              </button>
+                            </div>
+                          ))
                       ) : (
                         <div className="text-center text-gray-500 py-8">
                           No templates available for this module
