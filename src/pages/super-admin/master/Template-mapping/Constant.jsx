@@ -39,6 +39,17 @@ export const columns = (onEdit, onDelete, onstatus) => [
     },
   },
   {
+    accessorKey: "isDate",
+
+    header: (
+      <FormattedMessage id="COMMON.NAME" defaultMessage="Date Type" />
+    ),
+    meta: {
+      headerClassName: "w-[8%]",
+      cellClassName: "w-[8%]",
+    },
+  },
+  {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Action" />,
     cell: ({ row }) => {

@@ -23,7 +23,8 @@ const defaultOptions = {
   isWithPrice:false,
   size1: "A4",
   size2: "",
-  isDate: false
+ isAgency: false,
+ isItem: false,
 };
 
 const optionLabels = {
@@ -41,7 +42,8 @@ const optionLabels = {
   size2: "Size2(A6)",
   isDropDown: "Is DropDown",
   isWithPrice: "Is With Price ",
-  isDate: "Is Date",
+  isAgency: "Is Agency",
+  isItem : "Is Item"
 };
 
 const AddReportConfig = ({
@@ -154,7 +156,8 @@ const AddReportConfig = ({
             size2: data.size2 || "",
             isDropDown: !!data.isDropDown,
             isWithPrice: !!data.isWithPrice,
-            isDate: !!data.isDate
+            isAgency: !!data.isAgency,
+            isItem : !!data.isAgency,
           });
         }
       } catch (error) {
@@ -240,7 +243,8 @@ const AddReportConfig = ({
       isWithQty: booleanToNumber(options.WithQuantity),
       isDropDown:  booleanToNumber(options.isDropDown),
       isWithPrice:  booleanToNumber(options.isWithPrice),
-      isDate:  booleanToNumber(options.isDate),
+      isAgency:  booleanToNumber(options.isAgency),
+      isItem: booleanToNumber(options.isItem),
       size1: options.size1,
       size2: options.size2,
     };

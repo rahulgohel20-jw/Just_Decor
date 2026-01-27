@@ -24,6 +24,7 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
     nameHindi: rawdata?.nameHindi || "",
     sequence: rawdata?.sortorder || "",
     namePlateType: rawdata?.namePlateType || "",
+    isDate:rawdata?.isDate || "",
   };
 
   const validationSchema = Yup.object().shape({
@@ -70,6 +71,7 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
         templateModuleId: Number(values.templateModuleId),
         sortorder: Number(values.sequence),
         namePlateType: values.namePlateType,
+        isDate:values.isDate,
       };
 
       const response = await AddThemeType(payload);
@@ -202,6 +204,11 @@ const TemplateType = ({ isOpen, onClose, rawdata, refreshData }) => {
                 <label className="block mt-4 mb-1">Name Plate Type</label>
                 <Field
                   name="namePlateType"
+                  className="border rounded-lg p-2 w-full"
+                />
+                   <label className="block mt-4 mb-1">Date Type</label>
+                <Field
+                  name="isDate"
                   className="border rounded-lg p-2 w-full"
                 />
 
