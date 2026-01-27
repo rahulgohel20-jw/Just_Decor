@@ -235,13 +235,13 @@ export default function SidebarChefModal({
         (m) =>
           m.menuItemId === row?.menuItemId &&
           m.menuCategoryId === row?.menuCategoryId &&
-          m.chefLabour === true
+          m.chefLabour === true,
       );
 
       if (currentItem && currentItem.eventFunctionMenuAllocations) {
         currentItem.eventFunctionMenuAllocations =
           currentItem.eventFunctionMenuAllocations.filter(
-            (_, idx) => idx !== allocIndex
+            (_, idx) => idx !== allocIndex,
           );
       }
 
@@ -277,7 +277,7 @@ export default function SidebarChefModal({
         (m) =>
           m.menuItemId === row?.menuItemId &&
           m.menuCategoryId === row?.menuCategoryId &&
-          m.chefLabour === true
+          m.chefLabour === true,
       );
 
       if (currentItem && currentItem.eventFunctionMenuAllocations) {
@@ -304,20 +304,26 @@ export default function SidebarChefModal({
   };
 
   const handleSave = async () => {
+    // ✅ ADD THIS: Prevent saving if only contact name and type are selected but no quantities
+    const hasIncompleteDefaultRow =
+      (defaultRow.partyId || defaultRow.serviceType) &&
+      !(defaultRow.counterQuantity || defaultRow.helperQuantity);
+
+    if (hasIncompleteDefaultRow) {
+      alert("Please complete all fields or clear the selection before saving");
+      return;
+    }
     const currentItem = menuAllocations.find(
       (m) =>
         m.menuItemId === row?.menuItemId &&
         m.menuCategoryId === row?.menuCategoryId &&
-        m.chefLabour === true
+        m.chefLabour === true,
     );
 
     const existingAllocations = currentItem?.eventFunctionMenuAllocations || [];
 
     const defaultRowData = [];
-    if (
-      defaultRow.partyId &&
-      (defaultRow.counterQuantity || defaultRow.helperQuantity)
-    ) {
+    if (defaultRow.partyId && defaultRow.partyId && defaultRow.serviceType) {
       const defaultRowToSave = {
         partyId: defaultRow.partyId,
         serviceType: defaultRow.serviceType,
@@ -326,10 +332,10 @@ export default function SidebarChefModal({
 
       // For Plate Wise, only include relevant fields
       if (defaultRow.serviceType === "Plate Wise") {
-        defaultRowToSave.quantity = defaultRow.counterQuantity;
-        defaultRowToSave.price = defaultRow.counterPrice;
-        defaultRowToSave.unit = defaultRow.unit;
-        defaultRowToSave.unitId = defaultRow.unitId;
+        defaultRowToSave.quantity = defaultRow.counterQuantity || 0;
+        defaultRowToSave.price = defaultRow.counterPrice || 0;
+        defaultRowToSave.unit = defaultRow.unit || "";
+        defaultRowToSave.unitId = defaultRow.unitId || "";
         defaultRowToSave.totalPrice =
           (parseFloat(defaultRow.counterQuantity) || 0) *
           (parseFloat(defaultRow.counterPrice) || 0);
@@ -339,10 +345,10 @@ export default function SidebarChefModal({
         defaultRowToSave.helperQuantity = 0;
         defaultRowToSave.helperPrice = 0;
       } else {
-        defaultRowToSave.counterQuantity = defaultRow.counterQuantity;
-        defaultRowToSave.counterPrice = defaultRow.counterPrice;
-        defaultRowToSave.helperQuantity = defaultRow.helperQuantity;
-        defaultRowToSave.helperPrice = defaultRow.helperPrice;
+        defaultRowToSave.counterQuantity = defaultRow.counterQuantity || 0;
+        defaultRowToSave.counterPrice = defaultRow.counterPrice || 0;
+        defaultRowToSave.helperQuantity = defaultRow.helperQuantity || 0;
+        defaultRowToSave.helperPrice = defaultRow.helperPrice || 0;
         defaultRowToSave.totalPrice =
           (parseFloat(defaultRow.counterQuantity) || 0) *
             (parseFloat(defaultRow.counterPrice) || 0) +
@@ -370,7 +376,7 @@ export default function SidebarChefModal({
           (alloc.helperQuantity && parseFloat(alloc.helperQuantity) > 0) ||
           (alloc.quantity && parseFloat(alloc.quantity) > 0);
 
-        return hasParty && hasQuantity;
+        return hasParty;
       })
       .map((alloc) => {
         const allocToSave = {
@@ -432,7 +438,7 @@ export default function SidebarChefModal({
         (m) =>
           m.menuItemId === row?.menuItemId &&
           m.menuCategoryId === row?.menuCategoryId &&
-          m.chefLabour === true
+          m.chefLabour === true,
       );
 
       if (itemIndex !== -1) {
@@ -552,7 +558,7 @@ export default function SidebarChefModal({
                               menuAllocations.find(
                                 (m) =>
                                   m.menuItemId === row?.menuItemId &&
-                                  m.menuCategoryId === row?.menuCategoryId
+                                  m.menuCategoryId === row?.menuCategoryId,
                               )?.personCount || ""
                             }
                             readOnly
@@ -648,7 +654,7 @@ export default function SidebarChefModal({
                         (m) =>
                           m.menuItemId === row?.menuItemId &&
                           m.menuCategoryId === row?.menuCategoryId &&
-                          m.chefLabour === true
+                          m.chefLabour === true,
                       );
 
                       if (
@@ -666,7 +672,7 @@ export default function SidebarChefModal({
                                 onChange={(e) =>
                                   handleDefaultRowChange(
                                     "partyId",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               >
@@ -690,7 +696,7 @@ export default function SidebarChefModal({
                                 onChange={(e) =>
                                   handleDefaultRowChange(
                                     "serviceType",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               >
@@ -729,7 +735,7 @@ export default function SidebarChefModal({
                                     onChange={(e) =>
                                       handleDefaultRowChange(
                                         "counterQuantity",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -740,16 +746,16 @@ export default function SidebarChefModal({
                                       const selectedUnit = units.find(
                                         (u) =>
                                           String(u.unitId) ===
-                                          String(selectedUnitId)
+                                          String(selectedUnitId),
                                       );
                                       handleDefaultRowChange(
                                         "unitId",
-                                        selectedUnitId
+                                        selectedUnitId,
                                       );
                                       if (selectedUnit) {
                                         handleDefaultRowChange(
                                           "unit",
-                                          selectedUnit.nameEnglish
+                                          selectedUnit.nameEnglish,
                                         );
                                       }
                                     }}
@@ -781,7 +787,7 @@ export default function SidebarChefModal({
                                     onChange={(e) =>
                                       handleDefaultRowChange(
                                         "counterPrice",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -800,7 +806,7 @@ export default function SidebarChefModal({
                                     onChange={(e) =>
                                       handleDefaultRowChange(
                                         "counterQuantity",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -814,7 +820,7 @@ export default function SidebarChefModal({
                                     onChange={(e) =>
                                       handleDefaultRowChange(
                                         "helperQuantity",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -831,7 +837,7 @@ export default function SidebarChefModal({
                                     onChange={(e) =>
                                       handleDefaultRowChange(
                                         "counterPrice",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -845,7 +851,7 @@ export default function SidebarChefModal({
                                     onChange={(e) =>
                                       handleDefaultRowChange(
                                         "helperPrice",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -903,7 +909,7 @@ export default function SidebarChefModal({
                                   handleExistingRowChange(
                                     idx,
                                     "partyId",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               >
@@ -927,7 +933,7 @@ export default function SidebarChefModal({
                                   handleExistingRowChange(
                                     idx,
                                     "serviceType",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               >
@@ -967,7 +973,7 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "counterQuantity",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -978,18 +984,18 @@ export default function SidebarChefModal({
                                       const selectedUnit = units.find(
                                         (u) =>
                                           String(u.unitId) ===
-                                          String(selectedUnitId)
+                                          String(selectedUnitId),
                                       );
 
                                       handleExistingRowChange(
                                         idx,
                                         "unitId",
-                                        selectedUnitId
+                                        selectedUnitId,
                                       );
                                       handleExistingRowChange(
                                         idx,
                                         "unit",
-                                        selectedUnit?.nameEnglish || ""
+                                        selectedUnit?.nameEnglish || "",
                                       );
                                     }}
                                   >
@@ -1021,7 +1027,7 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "counterPrice",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1041,7 +1047,7 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "counterQuantity",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1056,7 +1062,7 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "helperQuantity",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1073,7 +1079,7 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "counterPrice",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1088,7 +1094,7 @@ export default function SidebarChefModal({
                                       handleExistingRowChange(
                                         idx,
                                         "helperPrice",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -1133,7 +1139,7 @@ export default function SidebarChefModal({
                               </button>
                             </div>
                           </div>
-                        )
+                        ),
                       );
                     })()
                   )}
@@ -1147,7 +1153,7 @@ export default function SidebarChefModal({
                         {(menuAllocations.find(
                           (m) =>
                             m.menuItemId === row?.menuItemId &&
-                            m.menuCategoryId === row?.menuCategoryId
+                            m.menuCategoryId === row?.menuCategoryId,
                         )?.eventFunctionMenuAllocations?.length || 0) +
                           idx +
                           1}
@@ -1182,7 +1188,7 @@ export default function SidebarChefModal({
                             handleExtraRowChange(
                               idx,
                               "serviceType",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         >
@@ -1222,7 +1228,7 @@ export default function SidebarChefModal({
                                 handleExtraRowChange(
                                   idx,
                                   "counterQuantity",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1232,18 +1238,18 @@ export default function SidebarChefModal({
                                 const selectedUnitId = e.target.value;
                                 const selectedUnit = units.find(
                                   (u) =>
-                                    String(u.unitId) === String(selectedUnitId)
+                                    String(u.unitId) === String(selectedUnitId),
                                 );
                                 handleExtraRowChange(
                                   idx,
                                   "unitId",
-                                  selectedUnitId
+                                  selectedUnitId,
                                 );
                                 if (selectedUnit) {
                                   handleExtraRowChange(
                                     idx,
                                     "unit",
-                                    selectedUnit.nameEnglish
+                                    selectedUnit.nameEnglish,
                                   );
                                 }
                               }}
@@ -1273,7 +1279,7 @@ export default function SidebarChefModal({
                                 handleExtraRowChange(
                                   idx,
                                   "counterPrice",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1293,7 +1299,7 @@ export default function SidebarChefModal({
                                 handleExtraRowChange(
                                   idx,
                                   "counterQuantity",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1308,7 +1314,7 @@ export default function SidebarChefModal({
                                 handleExtraRowChange(
                                   idx,
                                   "helperQuantity",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1326,7 +1332,7 @@ export default function SidebarChefModal({
                                 handleExtraRowChange(
                                   idx,
                                   "counterPrice",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1341,7 +1347,7 @@ export default function SidebarChefModal({
                                 handleExtraRowChange(
                                   idx,
                                   "helperPrice",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />

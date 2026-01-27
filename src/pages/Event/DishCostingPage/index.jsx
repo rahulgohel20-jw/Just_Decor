@@ -597,12 +597,10 @@ const DishCostingPage = () => {
           eventId={menuReportEventId}
         />
         <SelectMenureport
+          eventId={eventId}
+          mode="costing" // ✅ THIS IS THE KEY
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
-          onConfirm={() => {
-            setIsSelectMenuReport(false);
-            setIsMenuReport(true);
-          }}
         />
       </Container>
     </Fragment>

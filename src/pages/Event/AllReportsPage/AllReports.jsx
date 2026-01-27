@@ -306,7 +306,8 @@ export default function AllReports() {
       console.log(
         "This opens: MainStandyMenuReport component for 'Name Plate Test'",
       );
-      setOpenNamePlateTest(true); // Opens MainStandyMenuReport
+      setOpenNamePlate(true); // Opens NamePlateReport
+
       return;
     }
 
@@ -323,7 +324,8 @@ export default function AllReports() {
       console.log(
         "This opens: NamePlateReport component for 'Table Menu Report'",
       );
-      setOpenNamePlate(true); // Opens NamePlateReport
+      setOpenNamePlateTest(true); // Opens MainStandyMenuReport
+
       return;
     }
 
