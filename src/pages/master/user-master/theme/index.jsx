@@ -19,11 +19,17 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
   const [loading, setLoading] = useState(false);
   const [loadingItems, setLoadingItems] = useState(false);
   const [assignLoading, setAssignLoading] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
 
   // Preview states
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewItem, setPreviewItem] = useState(null);
   const [previewPage, setPreviewPage] = useState("frontPage");
+
+  const filteredCategories = categories.filter((cat) =>
+    cat.label.toLowerCase().includes(categorySearch.toLowerCase()),
+  );
 
   useEffect(() => {
     if (isModalOpen && userId) {
@@ -69,7 +75,7 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
       const response = await GetAllThemeByModuleId(
         isNameplate,
         selectedCategory,
-        userId
+        userId,
       );
 
       if (response?.data) {
@@ -215,18 +221,60 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
 
           {/* Category Filter */}
           {activeTab === "theme" && (
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="mb-4 w-64 px-3 py-2 border rounded"
-              disabled={loading}
-            >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative mb-4 w-64">
+              {/* Selected value */}
+              <button
+                type="button"
+                onClick={() => setCategoryOpen((prev) => !prev)}
+                className="w-full px-3 py-2 border rounded text-left bg-white flex justify-between items-center"
+                disabled={loading}
+              >
+                <span>
+                  {categories.find((c) => c.id === selectedCategory)?.label ||
+                    "Select Category"}
+                </span>
+                <span className="text-gray-400">▾</span>
+              </button>
+
+              {/* Dropdown */}
+              {categoryOpen && (
+                <div className="absolute z-20 mt-1 w-full bg-white border rounded shadow-lg">
+                  {/* Search input */}
+                  <input
+                    type="text"
+                    placeholder="Search category..."
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    className="w-full px-3 py-2 border-b outline-none text-sm"
+                  />
+
+                  {/* List */}
+                  <div className="max-h-48 overflow-y-auto">
+                    {filteredCategories.length ? (
+                      filteredCategories.map((cat) => (
+                        <div
+                          key={cat.id}
+                          onClick={() => {
+                            setSelectedCategory(cat.id);
+                            setCategoryOpen(false);
+                            setCategorySearch("");
+                          }}
+                          className={`px-3 py-2 cursor-pointer text-sm hover:bg-primary hover:text-white
+                  ${selectedCategory === cat.id ? "bg-primary text-white" : ""}
+                `}
+                        >
+                          {cat.label}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-sm text-gray-500">
+                        No category found
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Grid */}
@@ -341,7 +389,7 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
                   >
                     {page.replace(/([A-Z])/g, " $1")}
                   </button>
-                )
+                ),
             )}
           </div>
 

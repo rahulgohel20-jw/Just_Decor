@@ -52,6 +52,7 @@ const AccountUserProfilePage = () => {
     image: "",
   });
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
 
   const userMasterId = getUserIdFromLocalStorage();
 
@@ -90,6 +91,8 @@ const AccountUserProfilePage = () => {
   }, [userMasterId, refreshKey]);
 
   const handleSave = () => {
+    setIsSaving(true); // 🔄 start loader
+
     const submitButton = document.getElementById("profile-form-submit");
     if (submitButton) {
       submitButton.click();
@@ -97,8 +100,8 @@ const AccountUserProfilePage = () => {
   };
 
   const handleSaveSuccess = () => {
+    setIsSaving(false); // ✅ stop loader
     setIsEditing(false);
-    // Refresh profile data after successful save
     setRefreshKey((prev) => prev + 1);
   };
 
@@ -151,6 +154,17 @@ const AccountUserProfilePage = () => {
 
   return (
     <Fragment>
+      {isSaving && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3 bg-white px-6 py-5 rounded-xl shadow-lg">
+            <span className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
+            <span className="text-sm font-medium text-gray-700">
+              <FormattedMessage id="COMMON.SAVING" defaultMessage="Saving..." />
+            </span>
+          </div>
+        </div>
+      )}
+
       <Container>
         <div className="mb-3">
           <Breadcrumbs
@@ -359,7 +373,7 @@ const AccountUserProfilePage = () => {
                           "pb-3 text-sm font-medium transition-colors",
                           active
                             ? "text-primary border-b-2 border-[#2563EB]"
-                            : "text-[#94A3B8] hover:text-[#2563EB]"
+                            : "text-[#94A3B8] hover:text-[#2563EB]",
                         )}
                       >
                         {t.title}
@@ -371,12 +385,17 @@ const AccountUserProfilePage = () => {
                 {activeTab === "account" &&
                   (isEditing ? (
                     <button
-                      className="rounded-md bg-primary text-white text-sm px-4 py-2"
+                      className="rounded-md bg-primary text-white text-sm px-4 py-2 flex items-center gap-2"
                       onClick={handleSave}
+                      disabled={isSaving}
                     >
+                      {isSaving && (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      )}
+
                       <FormattedMessage
-                        id="COMMON.SAVE"
-                        defaultMessage="Save"
+                        id={isSaving ? "COMMON.SAVING" : "COMMON.SAVE"}
+                        defaultMessage={isSaving ? "Saving..." : "Save"}
                       />
                     </button>
                   ) : (

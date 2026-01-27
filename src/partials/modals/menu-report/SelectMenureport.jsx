@@ -43,6 +43,7 @@ export default function SelectMenureport({
   const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
   const [openNamePlate, setOpenNamePlate] = useState(false);
   const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
+  const [isCostingReportOpen, setIsCostingReportOpen] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -127,6 +128,10 @@ export default function SelectMenureport({
           } else if (mode === "labour") {
             modules = modules.filter(
               (module) => module.nameEnglish === "Labour Agency Theme",
+            );
+          } else if (mode === "costing") {
+            modules = modules.filter(
+              (module) => module.nameEnglish === "Costing Report Theme",
             );
           }
 
@@ -302,7 +307,7 @@ export default function SelectMenureport({
       console.log(
         "This opens: NamePlateReport component for 'Table Menu Report'",
       );
-     
+
       setOpenNamePlateTest(true); // Opens NamePlateReport
       return;
     }
@@ -316,6 +321,7 @@ export default function SelectMenureport({
     });
     setIsMenuReportOpen(true);
   };
+  // ✅ COSTING REPORT
 
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
