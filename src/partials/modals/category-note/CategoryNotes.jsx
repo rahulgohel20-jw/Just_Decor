@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import { Mic } from "lucide-react";
 import { Translateapi } from "@/services/apiServices";
 
 const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
+  
   const [debounceTimer, setDebounceTimer] = useState(null);
+  const isUserTypingRef = useRef(false);
 
   const [localNotes, setLocalNotes] = useState({
     categoryNotesEnglish: "",
@@ -15,6 +17,7 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
   /* ------------------ PREFILL DATA ------------------ */
   useEffect(() => {
     if (isOpen) {
+      isUserTypingRef.current = false; // 👈 reset
       setLocalNotes({
         categoryNotesEnglish: notes?.notesEnglish || "",
         categoryNotesHindi: notes?.notesHindi || "",
@@ -23,11 +26,16 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
       });
     }
   }, [isOpen, notes]);
-
+  
   /* ------------------ INPUT CHANGE ------------------ */
   const handleChange = (field, value) => {
+    if (field === "categoryNotesEnglish") {
+      isUserTypingRef.current = true; 
+    }
+  
     setLocalNotes((prev) => ({ ...prev, [field]: value }));
   };
+  
 
   /* ------------------ TRANSLATE FUNCTION ------------------ */
   const triggerTranslate = (text) => {
@@ -54,10 +62,15 @@ const CategoryNotes = ({ isOpen, onClose, notes, onSave }) => {
 
   /* ------------------ AUTO TRANSLATE ON TYPE ------------------ */
   useEffect(() => {
-    if (isOpen && localNotes.categoryNotesEnglish?.trim()) {
+    if (
+      isOpen &&
+      isUserTypingRef.current && // 👈 IMPORTANT
+      localNotes.categoryNotesEnglish?.trim()
+    ) {
       triggerTranslate(localNotes.categoryNotesEnglish);
     }
   }, [localNotes.categoryNotesEnglish]);
+  
 
   /* ------------------ CLEANUP DEBOUNCE ------------------ */
   useEffect(() => {

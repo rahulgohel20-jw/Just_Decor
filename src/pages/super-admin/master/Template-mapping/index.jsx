@@ -62,6 +62,7 @@ const TemplateMapping = () => {
       status: item.isActive,
       sortorder: item.sortorder,
       namePlate: item.namePlateType || "-",
+      isDate:item.isDate || "-"
     }));
 
     setTableData(mapped);
