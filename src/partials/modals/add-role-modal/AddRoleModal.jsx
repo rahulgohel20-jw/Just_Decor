@@ -5,7 +5,7 @@ import { FormattedMessage } from "react-intl";
 import { Addrole } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-const AddRoleModal = ({ isModalOpen, setIsModalOpen, selectedEvent }) => {
+const AddRoleModal = ({ isModalOpen, setIsModalOpen, selectedEvent, onRoleAdded,   }) => {
   if (!isModalOpen) return null;
 
   const initialFormState = {
@@ -49,6 +49,11 @@ const AddRoleModal = ({ isModalOpen, setIsModalOpen, selectedEvent }) => {
 
         setFormData(initialFormState);
         setIsModalOpen(false);
+      
+        if (onRoleAdded) {
+          onRoleAdded();
+        }
+      
       } else {
         Swal.fire({
           icon: "error",

@@ -20,56 +20,8 @@ export const columns = (onEdit, onDelete, onStatus) => [
       cellClassName: "w-[20%]",
     },
   },
-  //   {
-  //     accessorKey: "module_name",
-  //     header: (
-  //       <FormattedMessage
-  //         id="USER.MASTER.MODULE_NAME"
-  //         defaultMessage="Module Name"
-  //       />
-  //     ),
-  //     meta: {
-  //       headerClassName: "w-[20%]",
-  //       cellClassName: "w-[20%]",
-  //     },
-  //   },
-  {
-    accessorKey: "isActive",
-    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-1">
-          <Popconfirm
-            title="Are you sure to change this status?"
-            onConfirm={() =>
-              onStatus(
-                row.original.pageid,
-                row.original.isActive ? false : true
-              )
-            }
-            onCancel={() => console.log("Cancelled")}
-            okText="Yes"
-            cancelText="No"
-          >
-            <label className="switch switch-lg">
-              <input
-                type="checkbox"
-                value="1"
-                name="check"
-                defaultChecked={row.original.isActive}
-                readOnly
-                checked={row.original.isActive}
-              />
-            </label>
-          </Popconfirm>
-        </div>
-      );
-    },
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
-  },
+
+ 
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
@@ -86,7 +38,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
             </button>
           </Tooltip>
 
-          <Tooltip title="Delete">
+          {/* <Tooltip title="Delete">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title="Delete"
@@ -94,7 +46,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
             >
               <i className="ki-filled ki-trash text-danger"></i>
             </button>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       );
     },

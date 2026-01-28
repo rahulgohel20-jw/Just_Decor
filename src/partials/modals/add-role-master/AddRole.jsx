@@ -14,6 +14,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const [roles, setRoles] = useState([]);
   const [rights, setRights] = useState({});
   const [activeTab, setActiveTab] = useState("pages");
+  const [modules, setModules] = useState([]);
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
   const userId = localStorage.getItem("userId");
@@ -39,11 +40,15 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const fetchPages = async () => {
     try {
       const res = await axios.get(`${API_BASE}/user-rights/getPages`);
-      setPages(res.data?.data?.["UserRightsPages"] || []);
+  
+      setModules(
+        res.data?.data?.ModuleWiseUserRights || []
+      );
     } catch {
-      setPages([]);
+      setModules([]);
     }
   };
+  
 
   /* ---------------- FETCH ROLE RIGHTS (EDIT) ---------------- */
   const fetchRoleRights = async (roleId) => {
@@ -96,11 +101,12 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (pageId, action, checked) => {
+  const handleCheckboxChange = (moduleId,pageId, action, checked) => {
     setRights((prev) => ({
       ...prev,
       [pageId]: {
         ...prev[pageId],
+        moduleId,
         pageid: pageId,
         [action]: checked,
       },
@@ -128,15 +134,15 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
       return;
     }
 
-    const actions = ["view", "edit", "delete", "add"];
-
     const rightsList = Object.values(rights).map((item) => ({
+      moduleId: item.moduleId,   
       pageid: item.pageid,
-      ...actions.reduce((acc, action) => {
-        acc[action] = !!item[action];
-        return acc;
-      }, {}),
+      view: !!item.view,
+      edit: !!item.edit,
+      delete: !!item.delete,
+      add: !!item.add,
     }));
+    
 
     const payload = {
       roleId: role.id,
@@ -151,8 +157,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: res.data.msg, // show BE success message
-          position: "top-end",
+          text: res.data.msg, 
           timer: 1500,
           showConfirmButton: false,
         });
@@ -231,45 +236,54 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
 
           {/* RIGHTS TABLE */}
           <div className="border rounded-lg overflow-hidden">
-            <div className="flex border-b bg-gray-200">
-              <button className="px-4 py-2 font-bold text-primary border-b-2 border-primary">
-                Pages
-              </button>
-            </div>
+            {modules.map((module) => (
+              <div key={module.moduleId} className="mb-4">
+                
+                {/* MODULE HEADER */}
+                <div className="bg-gray-200 px-4 py-2 font-bold text-primary">
+                  {module.moduleName}
+                </div>
 
-            <table className="min-w-full table-auto">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="p-3">Page Name</th>
-                  <th className="p-3 text-center">View</th>
-                  <th className="p-3 text-center">Edit</th>
-                  <th className="p-3 text-center">Delete</th>
-                  <th className="p-3 text-center">Add</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pages.map((page) => (
-                  <tr key={page.pageId} className="border-t">
-                    <td className="p-3">{page.pagename}</td>
-                    {["view", "edit", "delete", "add"].map((action) => (
-                      <td key={action} className="text-center">
-                        <Checkbox
-                          checked={rights[page.pageId]?.[action] || false}
-                          onChange={(e) =>
-                            handleCheckboxChange(
-                              page.pageId,
-                              action,
-                              e.target.checked
-                            )
-                          }
-                        />
-                      </td>
+                {/* PAGES TABLE */}
+                <table className="min-w-full table-auto">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="p-3 text-left">Page Name</th>
+                      <th className="p-3 text-center">View</th>
+                      <th className="p-3 text-center">Edit</th>
+                      <th className="p-3 text-center">Delete</th>
+                      <th className="p-3 text-center">Add</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {module.userRightsPages.map((page) => (
+                      <tr key={page.pageId} className="border-t">
+                        <td className="p-3">{page.pagename}</td>
+
+                        {["view", "edit", "delete", "add"].map((action) => (
+                          <td key={action} className="text-center">
+                            <Checkbox
+                              checked={rights[page.pageId]?.[action] || false}
+                              onChange={(e) =>
+                                handleCheckboxChange(
+                                  module.moduleId, 
+                                  page.pageId,
+                                  action,
+                                  e.target.checked
+                                )
+                              }
+                            />
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
+
         </div>
 
         {/* ADD ROLE MODAL */}
