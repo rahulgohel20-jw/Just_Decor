@@ -45,7 +45,7 @@ const CounterNameplate = ({
   const [showPdfViewer, setShowPdfViewer] = useState(false);
 
   useEffect(() => {
-    if (eventId && eventFunctionId && userId) {
+    if (isModalOpen && eventId && eventFunctionId && userId) {
       console.warn("Cannot fetch NamePlate: missing eventId or userId", {
         eventId,
         eventFunctionId,
@@ -54,7 +54,7 @@ const CounterNameplate = ({
 
       fetchItemdata();
     }
-  }, [eventId, eventFunctionId, currentlang]);
+  }, [isModalOpen, eventId, eventFunctionId, currentlang]);
 
   const fetchItemdata = async () => {
     const data = await GetNamePlateByNamePlateType(

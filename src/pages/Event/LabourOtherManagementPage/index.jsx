@@ -709,88 +709,115 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="4. Raw Material Distribution"
                   />
                 </button>
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  onClick={() => navigate(`/dish-costing/${eventId}`)}
+                >
+                  <i
+                    className="ki-filled ki-grid hover:!text-gray-400"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  6. Per Dish-costng
+                </button>
               </div>
             </div>
           </div>
         </div>
 
         {/* Event Info Card */}
-        <div className="card min-w-full bg-no-repeat user-access-bg mb-5">
+        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-            <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-7">
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-calendar-tick text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-sm">
-                      <FormattedMessage
-                        id="COMMON.EVENT_ID"
-                        defaultMessage="Event ID:"
-                      />
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {eventData?.eventNo}
-                    </span>
-                  </div>
-                </div>
-                <EventInfoItem
-                  icon="ki-calendar-tick"
-                  label={
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.PARTY_NAME"
-                      defaultMessage="Party Name"
-                    />
-                  }
-                  value={eventData?.party?.nameEnglish}
-                />
-
-                <EventInfoItem
-                  icon="ki-user"
-                  label={
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.EVENT_NAME"
-                      defaultMessage="Event Name"
-                    />
-                  }
-                  value={eventData?.eventType?.nameEnglish}
-                />
-
-                <EventInfoItem
-                  icon="ki-calendar-tick"
-                  label={
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
-                      defaultMessage="Event Venue"
-                    />
-                  }
-                  value={eventData?.venue?.nameEnglish}
-                />
-
-                <EventInfoItem
-                  icon="ki-calendar-tick"
-                  label={
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
-                      defaultMessage="Event Date Time"
-                    />
-                  }
-                  value={eventData?.eventStartDateTime}
-                />
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                    defaultMessage="Event ID:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventNo || "-"}
+                </span>
               </div>
             </div>
 
-            <button
-              onClick={handleSave}
-              disabled={!hasUnsavedChanges || isSaving}
-              className={`text-sm px-3 py-2 rounded-md transition
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-user text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                    defaultMessage="Party Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.party?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                    defaultMessage="Event Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventType?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                    defaultMessage="Event Date & Time:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventStartDateTime || ""}
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full h-0"></div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                    defaultMessage="Event Venue:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.venue?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200">
+              <button
+                onClick={handleSave}
+                disabled={!hasUnsavedChanges || isSaving}
+                className={`text-sm px-3 py-2 rounded-md transition
         ${
           hasUnsavedChanges && !isSaving
             ? "bg-[#005BA8] text-white"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}
-            >
-              <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-            </button>
+              >
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+              </button>
+            </div>
           </div>
         </div>
 

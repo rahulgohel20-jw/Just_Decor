@@ -236,103 +236,106 @@ const DishCostingPage = () => {
         </div>
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-            <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-7">
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-calendar-tick text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.PARTY_NAME"
-                        defaultMessage="Party Name: "
-                      />
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {eventData?.party?.nameEnglish || "-"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-user text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.EVENT_NAME"
-                        defaultMessage="Event Name: "
-                      />
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {eventData?.eventType?.nameEnglish || "-"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-geolocation-home text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.FUNCTION_NAME"
-                        defaultMessage="Function Name: "
-                      />
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {eventData?.eventType?.nameEnglish || "N/A"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-calendar-tick text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
-                        defaultMessage="Event Venue: "
-                      />
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {eventData?.venue?.nameEnglish || "-"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <i className="ki-filled ki-calendar-tick text-success"></i>
-                  <div className="flex flex-col">
-                    <span className="text-xs">
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
-                        defaultMessage="Event Date & Time:"
-                      />
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {eventData?.eventStartDateTime || ""}
-                    </span>
-                  </div>
-                </div>
+            {/* ROW 1 */}
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                    defaultMessage="Event ID:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventNo || "-"}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-row items-end gap-2">
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-user text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                    defaultMessage="Party Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.party?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                    defaultMessage="Event Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventType?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                    defaultMessage="Event Date & Time:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventStartDateTime || ""}
+                </span>
+              </div>
+            </div>
+
+            {/* FORCE NEW ROW */}
+            <div className="w-full h-0"></div>
+
+            {/* ROW 2 LEFT — Event Venue */}
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                    defaultMessage="Event Venue:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.venue?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            {/* ROW 2 RIGHT — Buttons */}
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200">
+              {/* Report Button */}
               <button
                 onClick={openSelectMenureport}
-                className="bg-[#05B723] text-white text-sm px-5 py-2 rounded-md transition"
+                className="bg-[#05B723] hover:bg-[#049b1e] text-white text-sm font-medium px-5 py-2 rounded-md transition-colors"
                 title="Report"
               >
-                Report
+                <i className="ki-filled ki-document "></i> Report
               </button>
-              {/* Total-wise button */}
+
+              {/* Total Wise Button */}
               <div className="relative group">
                 <button
-                  className={`text-sm px-3 py-2 rounded-md transition ${
+                  className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
                     viewType === "Total Wise"
                       ? "bg-[#005BA8] text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                   onClick={handleTotalWiseClick}
-                  title="" // prevent default browser tooltip
                 >
                   <FormattedMessage
                     id="TOTAL_WISE.TITLE"
@@ -341,28 +344,24 @@ const DishCostingPage = () => {
                 </button>
 
                 {/* Tooltip */}
-                <div
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap
-                  bg-gray-900 text-white text-xs rounded-md px-3 py-2
-                  opacity-0 group-hover:opacity-100 transition-opacity
-                  pointer-events-none shadow-lg z-50"
-                >
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap bg-gray-900 text-white text-xs rounded-md px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg z-50">
                   <FormattedMessage
                     id="FUNCTION_WISE.SUMMARY"
                     defaultMessage="Sum of all persons and all charges"
                   />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
                 </div>
               </div>
 
+              {/* Function Wise Button */}
               <div className="relative group">
                 <button
-                  className={`text-sm px-3 py-2 rounded-md transition ${
+                  className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
                     viewType === "Function Wise"
                       ? "bg-[#005BA8] text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                   onClick={() => setViewType("Function Wise")}
-                  title=""
                 >
                   <FormattedMessage
                     id="FUNCTION_WISE.TITLE"
@@ -371,17 +370,12 @@ const DishCostingPage = () => {
                 </button>
 
                 {/* Tooltip */}
-                <div
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap
-               bg-gray-900 text-white text-xs rounded-md px-3 py-2
-               opacity-0 group-hover:opacity-100 transition-opacity
-               pointer-events-none shadow-lg z-50"
-                >
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap bg-gray-900 text-white text-xs rounded-md px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg z-50">
                   <FormattedMessage
                     id="FUNCTION_WISE.DESCRIPTION"
-                    defaultMessage="Shows charges and persons for the <br />
-                  selected function"
+                    defaultMessage="Shows charges and persons for the selected function"
                   />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
                 </div>
               </div>
             </div>

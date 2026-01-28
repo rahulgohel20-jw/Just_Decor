@@ -96,21 +96,18 @@ export default function NamePlateReport({
   };
 
   const handleNameChange = async (menuItemId, value) => {
-    // Update English immediately
     setItems((prev) =>
       prev.map((item) =>
         item.menuid === menuItemId ? { ...item, itemNameEnglish: value } : item,
       ),
     );
 
-    // Translate only if English is being edited
     if (currentlang === 0) {
       try {
-        const res = await Translateapi(value); // your API call
-        const hindi = res?.data?.hindi || value; // fallback to English
+        const res = await Translateapi(value);
+        const hindi = res?.data?.hindi || value;
         const gujarati = res?.data?.gujarati || value;
 
-        // Update Hindi & Gujarati in state
         setItems((prev) =>
           prev.map((item) =>
             item.menuid === menuItemId
