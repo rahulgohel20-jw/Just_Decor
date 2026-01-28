@@ -942,121 +942,137 @@ const RawMaterialAllocation = ({ mode }) => {
                   ></i>{" "}
                   5. Agency Distribution
                 </button>
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  onClick={() => navigate(`/dish-costing/${eventId}`)}
+                >
+                  <i
+                    className="ki-filled ki-g hover:!text-gray-400"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  6. Per Dish-costng
+                </button>
               </div>
             </div>
           </div>
         </div>
-
-        <div className="card bg-white mb-3">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-6">
-            <div className="flex  items-center justify-between gap-10">
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-calendar-tick text-success"></i>
-                <div className="flex flex-col">
-                  <span className="text-sm">
-                    <FormattedMessage
-                      id="COMMON.EVENT_ID"
-                      defaultMessage="Event ID:"
-                    />
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {eventData?.eventNo}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-user text-success"></i>
-                <div className="flex flex-col">
-                  <span className="text-sm">
-                    <FormattedMessage
-                      id="COMMON.PARTY_NAME"
-                      defaultMessage="Party Name:"
-                    />
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {eventData?.party?.nameEnglish}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-geolocation-home text-success"></i>
-                <div className="flex flex-col">
-                  <span className="text-sm">
-                    <FormattedMessage
-                      id="COMMON.EVENT_NAME"
-                      defaultMessage="Event Name:"
-                    />
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {eventData?.eventType?.nameEnglish}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-calendar-tick text-success"></i>
-                <div className="flex flex-col W-1/2">
-                  <span className="text-sm">
-                    <FormattedMessage
-                      id="RAW_MATERIAL_ALLOCATION.EVENT_VENUE"
-                      defaultMessage="Event Venue"
-                    />{" "}
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {eventData?.venue?.nameEnglish}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-calendar-tick text-success"></i>
-                <div className="flex flex-col">
-                  <span className="text-sm">
-                    <FormattedMessage
-                      id="RAW_MATERIAL_ALLOCATION.EVENT_DATE_TIME"
-                      defaultMessage="Event Date & Time:"
-                    />
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {eventData?.eventStartDateTime}
-                  </span>
-                </div>
+        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
+          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            {/* ROW 1 */}
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                    defaultMessage="Event ID:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventNo || "-"}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-row items-end gap-2">
-              <button
-                onClick={openSelectMenureport}
-                className="bg-[#05B723] text-white text-sm px-5 py-2 rounded-md transition"
-                title="Report"
-              >
-                Report
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={!hasUnsavedChanges || isSaving} // 🔥 Add isSaving
-                className={`text-sm px-5 py-2 rounded-md transition flex items-center gap-2
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-user text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                    defaultMessage="Party Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.party?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                    defaultMessage="Event Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventType?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                    defaultMessage="Event Date & Time:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventStartDateTime || ""}
+                </span>
+              </div>
+            </div>
+
+            {/* FORCE NEW ROW */}
+            <div className="w-full h-0"></div>
+
+            {/* ROW 2 LEFT — Event Venue */}
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                    defaultMessage="Event Venue:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.venue?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+
+            {/* ROW 2 RIGHT — Buttons */}
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200">
+              {/* Report Button */}
+              <div className="flex flex-row items-end gap-2">
+                <button
+                  onClick={openSelectMenureport}
+                  className="bg-[#05B723] text-white text-sm px-5 py-2 rounded-md transition"
+                  title="Report"
+                >
+                  Report
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={!hasUnsavedChanges || isSaving} // 🔥 Add isSaving
+                  className={`text-sm px-5 py-2 rounded-md transition flex items-center gap-2
     ${
       hasUnsavedChanges && !isSaving
         ? "bg-primary text-white"
         : "bg-gray-300 text-gray-500 cursor-not-allowed"
     }`}
-                title={hasUnsavedChanges ? "Save" : "No changes to save"}
-              >
-                {isSaving ? (
-                  <>
-                    <i className="ki-filled ki-loading animate-spin"></i>
-                    <FormattedMessage
-                      id="COMMON.SAVING"
-                      defaultMessage="Saving..."
-                    />
-                  </>
-                ) : (
-                  <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-                )}
-              </button>
+                  title={hasUnsavedChanges ? "Save" : "No changes to save"}
+                >
+                  {isSaving ? (
+                    <>
+                      <i className="ki-filled ki-loading animate-spin"></i>
+                      <FormattedMessage
+                        id="COMMON.SAVING"
+                        defaultMessage="Saving..."
+                      />
+                    </>
+                  ) : (
+                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

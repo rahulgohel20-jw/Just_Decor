@@ -96,7 +96,7 @@ const ChannelStats = () => {
         {items.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 min-w-[230px] rounded-xl border border-blue-200 bg-white px-4 py-3 shadow-sm"
+            className="flex items-center  min-w-[200px] rounded-xl border border-blue-200 bg-white px-4 py-3 shadow-sm"
           >
             {/* Icon */}
             <div

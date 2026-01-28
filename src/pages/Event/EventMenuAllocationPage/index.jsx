@@ -19,6 +19,7 @@ import {
   MenuAllocationSave,
   SyncRawmaterialMenuallocation,
   MenuAllocationTypeSummary,
+  GETallGodown,
 } from "@/services/apiServices";
 import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -812,6 +813,10 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [chefModalData, setChefModalData] = useState(null);
   const [tableLoading, setTableLoading] = useState(false);
   const [allMenuData, setAllMenuData] = useState([]);
+  const [placeOptions, setPlaceOptions] = useState([
+    { value: "venue", label: "At venue", id: "venue" },
+  ]);
+  const [placeLoading, setPlaceLoading] = useState(false);
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
@@ -1434,6 +1439,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     return filteredRows.map((r) => ({
       ...r,
+
       openChefSidebar: () => {
         setOpen(false);
         setIsChefModal(false);
@@ -1485,7 +1491,15 @@ const EventMenuAllocationPage = ({ mode }) => {
         }, 1000);
       },
     }));
-  }, [rows, eventId, activeFunction, searchTerm, currentLang]); // Add currentLang as dependency
+  }, [
+    rows,
+    eventId,
+    activeFunction,
+    searchTerm,
+    currentLang,
+    placeOptions,
+    placeLoading,
+  ]); // Add currentLang as dependency
 
   const handleInsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -1729,10 +1743,6 @@ const EventMenuAllocationPage = ({ mode }) => {
     setIsChefModal(false);
   };
 
-  // ... (keep all existing imports and code the same)
-
-  // ✅ UPDATED handleCategorySave function in EventMenuAllocationPage component:
-
   const handleCategorySave = async (saveData) => {
     setAllocationData((prev) => {
       const updated = {
@@ -1794,6 +1804,45 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
+  // ✅ NEW: Fetch godown data once on component mount
+  useEffect(() => {
+    const fetchGodowns = async () => {
+      try {
+        setPlaceLoading(true);
+
+        // Get userId from localStorage
+        const userId = localStorage.getItem("userId");
+
+        // Validate userId
+        if (!userId || userId === "undefined" || userId === "null") {
+          console.warn("No valid userId found, skipping godown fetch");
+          return;
+        }
+
+        // Pass userId to the API call
+        const res = await GETallGodown(userId);
+
+        if (res?.data?.data?.length) {
+          const godownOptions = res.data.data.map((g) => ({
+            value: g.nameEnglish,
+            label: g.nameEnglish,
+            id: g.id,
+          }));
+
+          setPlaceOptions([
+            { value: "venue", label: "At venue", id: "venue" },
+            ...godownOptions,
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching godowns:", err);
+      } finally {
+        setPlaceLoading(false);
+      }
+    };
+
+    fetchGodowns();
+  }, []);
   if (loading) {
     return (
       <Container>
@@ -2104,6 +2153,18 @@ const EventMenuAllocationPage = ({ mode }) => {
                   style={{ color: "white" }}
                 ></i>{" "}
                 5. Agency Distribution
+              </button>
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                onClick={() =>
+                  handleNavigateWithWarning(`/dish-costing/${eventId}`)
+                }
+              >
+                <i
+                  className="ki-filled ki-grid hover:!text-gray-400"
+                  style={{ color: "white" }}
+                ></i>{" "}
+                6. Per Dish-costng
               </button>
             </div>
           </div>

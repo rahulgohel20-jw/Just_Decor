@@ -987,6 +987,16 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="4. Raw Material Distribution"
                   />
                 </button>
+                <button
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  onClick={() => navigate(`/dish-costing/${eventId}`)}
+                >
+                  <i
+                    className="ki-filled ki-grid hover:!text-gray-400"
+                    style={{ color: "white" }}
+                  ></i>{" "}
+                  6. Per Dish-costng
+                </button>
               </div>
             </div>
           </div>

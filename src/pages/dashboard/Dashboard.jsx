@@ -34,7 +34,7 @@ const Dashboard = () => {
   });
 
   const [dashboardData, setDashboardData] = useState(null);
-  const [teamsData, setTeamsData] = useState([]); // Store teams data here
+  const [teamsData, setTeamsData] = useState([]);
   const { isRTL } = useLanguage();
 
   // 🔥 Fetch dashboard data
@@ -51,11 +51,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTeam = async () => {
       try {
-        const res = await GetUsersByRoleId(2); // roleId 2
+        const res = await GetUsersByRoleId(2);
         if (res?.data?.success === true) {
           const users = res?.data?.data?.["User Details"] || [];
 
-          // Map the API response to Teams table structure
           const mappedTeams = users.map((user) => ({
             id: user.id,
             name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
@@ -67,7 +66,7 @@ const Dashboard = () => {
               user.createdAt || user.userBasicDetails?.createdAt || "N/A",
             created_at_iso: user.createdAt
               ? new Date(
-                  user.createdAt.split("/").reverse().join("-")
+                  user.createdAt.split("/").reverse().join("-"),
                 ).toISOString()
               : null,
           }));
@@ -107,7 +106,7 @@ const Dashboard = () => {
                   id="date"
                   className={cn(
                     "btn btn-sm btn-light data-[state=open]:bg-light-active",
-                    !date && "text-gray-400"
+                    !date && "text-gray-400",
                   )}
                 >
                   <KeenIcon icon="calendar" className="me-0.5" />

@@ -570,17 +570,58 @@ const QuotationPage = () => {
     const payload = buildPayload();
     if (!quotationId) {
       console.error("No quotationId available to save notes");
+      Swal.fire({
+        title: "Error",
+        text: "No quotation ID found. Please refresh and try again.",
+        icon: "error",
+        background: "#fff5f5",
+        color: "#7a0000",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#d33",
+        customClass: {
+          popup: "rounded-2xl shadow-xl",
+          title: "text-2xl font-bold",
+          confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+        },
+      });
       return;
     }
+
+    // Validate that all advance payment dates are set
+    const hasEmptyDate = quotationData.advancePayments.some(
+      (payment) => !payment.date,
+    );
+    if (hasEmptyDate) {
+      Swal.fire({
+        title: "Validation Error",
+        text: "Please select a date and time for all advance payments.",
+        icon: "warning",
+        background: "#fffbf0",
+        color: "#8B4513",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#FFA500",
+        customClass: {
+          popup: "rounded-2xl shadow-xl",
+          title: "text-2xl font-bold",
+          confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+        },
+      });
+      return;
+    }
+
     UpdateQuotation(quotationId, payload)
       .then((response) => {
-        if (
-          response?.data?.msg?.toLowerCase().includes("Successfully") ||
-          response?.data?.success === true
-        ) {
+        if (response?.data?.success === true) {
+          const successMsg =
+            response?.data?.msg &&
+            typeof response.data.msg === "string" &&
+            response.data.msg.trim() !== ""
+              ? response.data.msg
+              : "Quotation saved successfully!";
+
           Swal.fire({
-            title: response?.data?.msg,
-            text: "",
+            title: "Success",
+            text: successMsg,
             icon: "success",
             background: "#f5faff",
             color: "#003f73",
@@ -606,11 +647,59 @@ const QuotationPage = () => {
               confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
             },
           });
+
+          setIsEdited(false);
+          FetchGetQuotation(); // Refresh data after successful save
+        } else {
+          // Success is false or not present - treat as error
+          const errorMsg = getErrorMessage(
+            { response: { data: response?.data } },
+            "Failed to save quotation. Please try again.",
+          );
+
+          Swal.fire({
+            title: "Save Failed",
+            text: errorMsg,
+            icon: "error",
+            background: "#fff5f5",
+            color: "#7a0000",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#d33",
+            customClass: {
+              popup: "rounded-2xl shadow-xl",
+              title: "text-2xl font-bold",
+              confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+            },
+          });
         }
-        setIsEdited(false);
       })
       .catch((error) => {
-        console.error("Error saving quotation:", error);
+        console.error("=== ERROR DETAILS ===");
+        console.error("Full error object:", error);
+        console.error("Error response:", error?.response);
+        console.error("Error response data:", error?.response?.data);
+        console.error("Error response status:", error?.response?.status);
+        console.error("=== END ERROR DETAILS ===");
+
+        const beMsg = getErrorMessage(
+          error,
+          "Something went wrong while saving quotation",
+        );
+
+        Swal.fire({
+          title: "Save Failed",
+          text: beMsg,
+          icon: "error",
+          background: "#fff5f5",
+          color: "#7a0000",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#d33",
+          customClass: {
+            popup: "rounded-2xl shadow-xl",
+            title: "text-2xl font-bold",
+            confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+          },
+        });
       });
   };
 
@@ -650,13 +739,12 @@ const QuotationPage = () => {
       ...prev,
       advancePayments: [
         ...prev.advancePayments,
-        { amount: "0", date: null, description: "" },
+        { amount: "0", date: dayjs(), description: "" },
       ],
     }));
   };
 
   const handleRemoveAdvancePayment = (idx) => {
-    // keep at least one
     setQuotationData((prev) => {
       if ((prev.advancePayments?.length || 1) <= 1) return prev;
       const copy = [...prev.advancePayments];
@@ -1493,25 +1581,42 @@ const QuotationPage = () => {
                           <div className="flex flex-col gap-2">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                               <i className="ki-filled ki-calendar text-gray-500"></i>
-                              <DatePicker
-                                id={`advance-payment-date-${i}`}
-                                className="input w-full sm:w-[200px]"
-                                showTime={{
-                                  use12Hours: true,
-                                  format: "hh:mm A",
-                                }}
-                                format="DD/MM/YYYY hh:mm A"
-                                value={pay.date}
-                                onChange={(date) =>
-                                  handleAdvancePaymentChange(i, "date", date)
-                                }
-                                placeholder={intl.formatMessage({
-                                  id: "COMMON.PAYMENT_DATE_TIME",
-                                  defaultMessage: "Payment date & time",
-                                })}
-                              />
+                              <div className="flex flex-col w-full">
+                                <label className="text-xs font-medium text-gray-700 mb-1">
+                                  {intl.formatMessage({
+                                    id: "COMMON.PAYMENT_DATE_TIME",
+                                    defaultMessage: "Payment date & time",
+                                  })}
+                                  <span className="text-red-500 ml-1">*</span>
+                                </label>
+                                <DatePicker
+                                  id={`advance-payment-date-${i}`}
+                                  className={`input w-full sm:w-[200px] ${!pay.date ? "border-red-500" : ""}`}
+                                  showTime={{
+                                    use12Hours: true,
+                                    format: "hh:mm A",
+                                  }}
+                                  format="DD/MM/YYYY hh:mm A"
+                                  value={pay.date}
+                                  onChange={(date) =>
+                                    handleAdvancePaymentChange(i, "date", date)
+                                  }
+                                  placeholder={intl.formatMessage({
+                                    id: "COMMON.PAYMENT_DATE_TIME",
+                                    defaultMessage: "Payment date & time",
+                                  })}
+                                  status={!pay.date ? "error" : ""}
+                                />
+                                {!pay.date && (
+                                  <span className="text-xs text-red-500 mt-1">
+                                    {intl.formatMessage({
+                                      id: "COMMON.DATE_REQUIRED",
+                                      defaultMessage: "Date is required",
+                                    })}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                               <i className="ki-filled ki-notepad text-gray-500"></i>
                               <input
