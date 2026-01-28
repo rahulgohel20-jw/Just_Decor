@@ -8,6 +8,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
+  
   const [formData, setFormData] = useState({});
   const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
   const [pages, setPages] = useState([]);
@@ -54,42 +55,49 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const fetchRoleRights = async (roleId) => {
     try {
       const res = await axios.get(
-        `${API_BASE}/user-rights/getRoleRights/${roleId}`
+        `${API_BASE}/user-rights/getByRole?roleId=${roleId}`
       );
-
-      const assignedRights = res.data?.data || [];
+  
+      const data = res.data.data?.UserRights || {};
+   
+      
       const formatted = {};
-
-      assignedRights.forEach((item) => {
-        formatted[item.pageid] = {
-          pageid: item.pageid,
-          view: item.view,
-          edit: item.edit,
-          delete: item.delete,
-          add: item.add,
-        };
+  
+      data.forEach((module) => {
+        module.userRights.forEach((page) => {
+          formatted[page.pageid] = {
+            moduleId: module.moduleId,
+            pageId: page.pageid,   // ✅ normalize
+            view: page.view,
+            add: page.add,
+            edit: page.edit,
+            delete: page.delete,
+          };
+        });
       });
-
+  
       setRights(formatted);
     } catch (err) {
       console.error("Error fetching role rights", err);
     }
   };
+  
 
   /* ---------------- EFFECT ---------------- */
   useEffect(() => {
     if (!isModalOpen) return;
-
+  
     fetchPages();
     fetchRoles();
-
-    if (editData) {
+  
+    if (editData?.roleId) {
       setFormData({ role_name: editData.role_name });
-      fetchRoleRights(editData.id);
+      fetchRoleRights(editData.roleId); // ✅ correct
     } else {
       resetForm();
     }
   }, [isModalOpen, editData]);
+  
 
   /* ---------------- HANDLERS ---------------- */
   const handleModalClose = () => {

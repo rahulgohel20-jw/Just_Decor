@@ -36,7 +36,7 @@ export const columns = (onEdit, onDelete, onStatus) => [
           </Tooltip>
           <Popconfirm
             title="Are you sure to delete this item?"
-            onConfirm={() => onDelete(row.original.id)}
+            onConfirm={() => onDelete(row.original.roleId)}
             onCancel={() => console.log("Cancelled")}
             okText="Yes"
             cancelText="No"

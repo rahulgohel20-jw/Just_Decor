@@ -22,72 +22,80 @@ const PageMaster = () => {
   // SEARCH FUNCTION
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (!searchQuery.trim()) {
-        FetchPages();
-        return;
-      }
-
-      // Filter tableData based on search query
       GetAllPages()
         .then((res) => {
-          // Handle different response structures
-          const pages = res?.data?.data?.["UserRightsPages"];
-
-          if (pages && Array.isArray(pages)) {
-            const filtered = pages.filter((page) =>
-              page.pagename?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            const formatted = filtered.map((page, index) => ({
-              sr_no: index + 1,
-              pagename: page.pagename || "-",
-              module_name: page.moduleName || "-",
-              pageid: page.id,
-              moduleId: page.moduleId,
-              isActive: page.isActive,
-            }));
-            setTableData(formatted);
-          } else {
+          const modules = res?.data?.data?.ModuleWiseUserRights;
+  
+          if (!Array.isArray(modules)) {
             setTableData([]);
+            return;
           }
+  
+          let srNo = 1;
+  
+          let flatData = modules.flatMap((module) =>
+            (module.userRightsPages || []).map((page) => ({
+              sr_no: srNo++,
+              pagename: page.pagename || "-",
+              module_name: module.moduleName || "-",
+              pageid: page.pageId,
+              moduleId: module.moduleId,
+              isActive: page.isActive ?? true,
+            }))
+          );
+  
+          if (searchQuery.trim()) {
+            flatData = flatData.filter((item) =>
+              item.pagename
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase())
+            );
+          }
+  
+          setTableData(flatData);
         })
         .catch((error) => {
           console.error("Error searching pages:", error);
           setTableData([]);
         });
     }, 500);
-
+  
     return () => clearTimeout(handler);
   }, [searchQuery]);
+  
 
   // FETCH PAGES
   const FetchPages = () => {
     GetAllPages()
       .then((res) => {
-        // Handle different response structures
-        const pages = res?.data?.data?.["UserRightsPages"];
-        console.log(pages);
-        
-
-        if (pages && Array.isArray(pages)) {
-          const formatted = pages.map((page, index) => ({
-            sr_no: index + 1,
-            pagename: page.pagename || "-",
-            module_name: page.moduleName || "-",
-            pageid: page.id,
-            moduleId: page.moduleId,
-            isActive: page.isActive,
-          }));
-
-          setTableData(formatted);
-        } else {
+        const modules = res?.data?.data?.ModuleWiseUserRights;
+  
+        if (!Array.isArray(modules)) {
           setTableData([]);
+          return;
         }
+  
+        let srNo = 1;
+  
+        const formatted = modules.flatMap((module) =>
+          (module.userRightsPages || []).map((page) => ({
+            sr_no: srNo++,
+            pagename: page.pagename || "-",
+            module_name: module.moduleName || "-",
+            pageid: page.pageId,
+            moduleId: module.moduleId,
+            isActive: page.isActive ?? true, // fallback if backend doesn’t send it
+          }))
+        );
+  
+        setTableData(formatted);
       })
       .catch((error) => {
         console.error("Error fetching pages:", error);
         setTableData([]);
       });
   };
+  
 
   const DeletePage = (pageid) => {
     Swal.fire({
