@@ -5,12 +5,11 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import {
   GetModuleRights,
-  Deletetemplatebyid,
+  DeleteModuleRights,
   updatestatusrawmaterialtype,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import AddModuleRight from "../../../../partials/modals/add-module-right/AddModuleRight";
-import AddTemplateName from "../../../../partials/modals/Template-modal/AddTemplateName";
 import { FormattedMessage } from "react-intl";
 import { useIntl } from "react-intl";
 
@@ -76,13 +75,13 @@ const RightsModule = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        Deletetemplatebyid(rawid)
+        DeleteModuleRights(rawid)
           .then((response) => {
             if (response?.data?.success) {
               FetchModuleName();
               Swal.fire(
                 "Removed!",
-                "Template deleted successfully.",
+                "Module Rights deleted successfully.",
                 "success",
               );
             }

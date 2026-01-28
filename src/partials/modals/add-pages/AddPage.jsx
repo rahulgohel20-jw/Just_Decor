@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 const AddPage = ({ isOpen, onClose, page, refreshData }) => {
+  console.log(page);
+  
   if (!isOpen) return null;
 
   const [modules, setModules] = useState([]);
@@ -13,6 +15,7 @@ const AddPage = ({ isOpen, onClose, page, refreshData }) => {
   useEffect(() => {
     GetModuleRights()
       .then((res) => {
+        
         setModules(res.data.data || []);
       })
       .catch((error) => {

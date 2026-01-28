@@ -65,6 +65,8 @@ const PageMaster = () => {
       .then((res) => {
         // Handle different response structures
         const pages = res?.data?.data?.["UserRightsPages"];
+        console.log(pages);
+        
 
         if (pages && Array.isArray(pages)) {
           const formatted = pages.map((page, index) => ({
