@@ -644,8 +644,10 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
   const handlePersonCountBlur = () => {
     if (localPersonCount !== row.personCount) {
       onChange({ ...row, personCount: localPersonCount });
+      row.onPaxBlur && row.onPaxBlur(); 
     }
   };
+  
   
 
   return (
@@ -817,19 +819,12 @@ const EventMenuAllocationPage = ({ mode }) => {
     { value: "venue", label: "At venue", id: "venue" },
   ]);
   const [placeLoading, setPlaceLoading] = useState(false);
+  const personSaveTimeoutRef = useRef(null);
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
 
-  useEffect(() => {
-    if (!hasUnsavedChanges) return;
-  
-    const timer = setTimeout(() => {
-      handleMainSave();
-    }, 800);
-  
-    return () => clearTimeout(timer);
-  }, [rows]);
+
   
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
@@ -1482,14 +1477,15 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
       },
       onPaxBlur: () => {
-        if (saveTimeoutRef.current) {
-          clearTimeout(saveTimeoutRef.current);
+        if (personSaveTimeoutRef.current) {
+          clearTimeout(personSaveTimeoutRef.current);
         }
-  
-        saveTimeoutRef.current = setTimeout(() => {
+      
+        personSaveTimeoutRef.current = setTimeout(() => {
           handleMainSave();
-        }, 1000);
+        }, 1000); 
       },
+      
     }));
   }, [
     rows,
