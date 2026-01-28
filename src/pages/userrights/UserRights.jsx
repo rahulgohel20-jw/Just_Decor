@@ -1,9 +1,7 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { DataGridColumnHeader } from "@/components";
-import AdduserRight from "@/partials/modals/add-user-right/AdduserRight";
 import Addpermission from "@/partials/modals/add-user-right/Addpermission";
 import {
   GetAllRole,
@@ -14,14 +12,11 @@ import {
 const UserRights = () => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const [pages, setPages] = useState([]);
-
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [selectedFunction, setSelectedFunction] = useState(null);
-
+  const [permissions, setPermissions] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [selectedPermissions, setSelectedPermissions] = useState(null);
 
   const userId = localStorage.getItem("userId");
 
@@ -30,20 +25,17 @@ const UserRights = () => {
       setLoading(true);
       const res = await GetAllRole(userId);
 
-      if (res?.data?.success && res?.data?.data) {
-        const formatted = res.data.data["Role Details"].map((item, index) => ({
-          sr_no: index + 1,
+      if (res?.data?.success) {
+        const formatted = res.data.data["Role Details"].map((item, i) => ({
+          sr_no: i + 1,
           roleId: item.id,
           role: item.name,
           created_date: item.createdAt || "N/A",
-          id: item._id,
         }));
         setTableData(formatted);
-      } else {
-        setTableData([]);
       }
-    } catch (error) {
-      console.error("Error fetching roles:", error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -53,57 +45,58 @@ const UserRights = () => {
     fetchRoles();
   }, []);
 
-  const handleUserModalClose = () => {
-    setIsUserModalOpen(false);
-    setSelectedFunction(null);
-  };
-
-  const handleUserModalSuccess = () => {
-    setIsUserModalOpen(false);
-    fetchRoles();
-  };
-
-  const handleOpenPermission = async (rowData) => {
-    setSelectedRow(rowData);
+  const handleOpenPermission = async (role) => {
+    setSelectedRole(role);
     setIsPermissionModalOpen(true);
-
+  
     try {
       const [pagesRes, rightsRes] = await Promise.all([
         GetPages(),
-        GetRightsBYroleId(rowData.roleId),
+        GetRightsBYroleId(role.roleId),
       ]);
-
-      if (pagesRes?.data?.success) {
-        const pageList = pagesRes.data.data["UserRightsPages"] || [];
-
-        setPages(pageList);
-
-        const rights = rightsRes.data.data["UserRights"];
-
-        let formattedPermissions = rights.map((p) => ({
-          name: p.pageName,
-          Add: p.add,
-          Edit: p.edit,
-          view: p.view,
-          Delete: p.delete,
-          roleId: rowData.roleId,
-        }));
-
-        setSelectedPermissions(formattedPermissions);
-      }
+  
+ 
+      const rightsModules = rightsRes?.data?.data?.UserRights || [];
+  
+      const rightsMap = {};
+      rightsModules.forEach((module) => {
+        module.userRights?.forEach((page) => {
+          rightsMap[`${module.moduleId}_${page.pageid}`] = page;
+        });
+      });
+  
+ 
+      const moduleWisePages =
+        pagesRes?.data?.data?.ModuleWiseUserRights || [];
+  
+      const finalPermissions = moduleWisePages.flatMap((module) =>
+        (module.userRightsPages || []).map((page) => {
+          const key = `${module.moduleId}_${page.pageId}`;
+          const right = rightsMap[key];
+  
+          return {
+            moduleId: module.moduleId,
+            moduleName: module.moduleName,
+            pageId: page.pageId,
+            name: page.pagename,
+  
+            add: right ? Boolean(right.add) : false,
+            edit: right ? Boolean(right.edit) : false,
+            view: right ? Boolean(right.view) : false,
+            delete: right ? Boolean(right.delete) : false,
+  
+            roleId: role.roleId,
+          };
+        })
+      );
+  
+      setPermissions(finalPermissions);
     } catch (error) {
-      console.error("Error fetching pages/rights:", error);
+      console.error("Error loading permissions:", error);
     }
   };
-
-  const handleClosePermission = () => {
-    setIsPermissionModalOpen(false);
-    setSelectedRow(null);
-  };
-
-  const refreshData = () => {
-    fetchRoles();
-  };
+  
+  
 
   const columns = [
     {
@@ -125,7 +118,6 @@ const UserRights = () => {
       ),
     },
     {
-      accessorKey: "rights",
       header: "Rights",
       cell: ({ row }) => (
         <button
@@ -141,33 +133,21 @@ const UserRights = () => {
   return (
     <Fragment>
       <Container>
-        <div className="gap-2 mb-3">
-      <h1 className="text-xl text-gray-900">
-            User Rights
-            </h1>
-        </div>
+        <h1 className="text-xl font-semibold mb-4">User Rights</h1>
 
-        <div className="w-fit filItems relative mb-4">
-          <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-          <input className="input pl-8" type="text" placeholder="Search Role" />
-        </div>
-
-        <TableComponent columns={columns} data={tableData} loading={loading} />
-
-        <AdduserRight
-          isOpen={isUserModalOpen}
-          onClose={handleUserModalClose}
-          selectedFunction={selectedFunction}
-          onSuccess={handleUserModalSuccess}
+        <TableComponent
+          columns={columns}
+          data={tableData}
+          loading={loading}
         />
 
         <Addpermission
           isOpen={isPermissionModalOpen}
-          onClose={handleClosePermission}
-          contactType={selectedRow}
-          permissionsData={selectedPermissions}
-          pages={pages}
-          refreshData={refreshData}
+          onClose={() => setIsPermissionModalOpen(false)}
+          role={selectedRole}
+          permissions={permissions}
+          setPermissions={setPermissions}
+          refreshData={fetchRoles}
         />
       </Container>
     </Fragment>

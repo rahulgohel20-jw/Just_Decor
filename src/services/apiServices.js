@@ -247,11 +247,12 @@ export const RawMaterialName = (Id, name) => {
   );
 };
 
-export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid) => {
+export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid,newpax,oldPax) => {
   return GET(
-    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}&newPax=${newpax}&oldPax=${oldPax}`
   );
 };
+
 export const ContactNameItem = (Id, name) => {
   return GET(`/partymaster/getallbyuserid?partyName=${name}&userId=${Id}`);
 };
@@ -1137,6 +1138,10 @@ export const GettemplatebyuserId = () => {
 
 export const Deletetemplatebyid = (id) => {
   return DELETE(`/templatemodulemaster/deletebyid?id=${id}`);
+};
+
+export const DeleteModuleRights = (id) => {
+  return DELETE(`/modulerights/deletebyid?id=${id}`);
 };
 
 export const Edittemplatebyid = (id, data) => {

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState,useRef } from "react";
 import { Container } from "@/components/container";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
 import Swal from "sweetalert2";
@@ -622,7 +622,11 @@ const TableHeader = () => (
   </div>
 );
 
-const TableRow = ({ row, onChange, disabled }) => {
+const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
+  const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
+  useEffect(() => {
+    setLocalPersonCount(row.personCount);
+  }, [row.personCount]);
   const handleCheckboxChange = (type, checked) => {
     const updated = {
       ...row,
@@ -633,6 +637,16 @@ const TableRow = ({ row, onChange, disabled }) => {
 
     onChange(updated);
   };
+  const handlePersonCountChange = (e) => {
+    setLocalPersonCount(Number(e.target.value) || 0);
+  };
+
+  const handlePersonCountBlur = () => {
+    if (localPersonCount !== row.personCount) {
+      onChange({ ...row, personCount: localPersonCount });
+    }
+  };
+  
 
   return (
     <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
@@ -701,13 +715,12 @@ const TableRow = ({ row, onChange, disabled }) => {
       </div>
 
       <div className="col-span-1 flex justify-center">
-        <Input
+      <Input
           min={0}
           type="text"
-          value={row.personCount}
-          onChange={(e) =>
-            onChange({ ...row, personCount: Number(e.target.value) || 0 })
-          }
+          value={localPersonCount}
+          onChange={handlePersonCountChange}
+          onBlur={handlePersonCountBlur}
           className="w-16 p-1 text-center"
         />
       </div>
@@ -766,6 +779,8 @@ const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
 const EventMenuAllocationPage = ({ mode }) => {
   let { eventId } = useParams();
   const navigate = useNavigate();
+  const saveTimeoutRef = useRef(null);
+
   const [activeFunction, setActiveFunction] = useState(null);
   const [rows, setRows] = useState([]);
   const [orderSummaryGroups, setOrderSummaryGroups] = useState([]);
@@ -806,6 +821,16 @@ const EventMenuAllocationPage = ({ mode }) => {
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
 
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+  
+    const timer = setTimeout(() => {
+      handleMainSave();
+    }, 800);
+  
+    return () => clearTimeout(timer);
+  }, [rows]);
+  
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
     const handleStorageChange = () => {
@@ -970,25 +995,28 @@ const EventMenuAllocationPage = ({ mode }) => {
   ) => {
     try {
       let eventFunctionId;
-      console.log(clickedFunctionId, "data");
-
+  
       if (isAllFunctions && clickedFunctionId) {
         eventFunctionId = clickedFunctionId;
       } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
-
+  
       const menuItemId = item.menuItemId || item.id;
-
+  
       const matchingRow = rows.find(
         (r) =>
           r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId,
       );
-
+  
       if (matchingRow?.outside) {
         return;
       }
-
+  
+      // Calculate oldPax and newPax
+      const oldPax = matchingRow?.oldPersonCount || 0;
+      const newPax = matchingRow?.personCount || 0;
+  
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
         allocationType = "chef";
@@ -997,7 +1025,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else if (matchingRow?.inside) {
         allocationType = "inside";
       }
-
+  
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
@@ -1006,23 +1034,27 @@ const EventMenuAllocationPage = ({ mode }) => {
         eventId: eventId,
         allocationType: allocationType,
       });
-
+  
       setIsCategoryModal(true);
       setMenuLoading(true);
 
+  
+      // Pass oldPax and newPax to the API
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
+        newPax,
+        oldPax
       );
-
+  
       if (res?.data?.success) {
         const apiData = res.data.data;
-
+  
         const rawMaterials =
           apiData["MenuItem RawMaterial Details"] ||
           apiData.menuItemRawMaterials ||
           [];
-
+  
         setSelectedRow({
           ...apiData,
           "MenuItem RawMaterial Details": rawMaterials,
@@ -1100,6 +1132,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         inside: item.inside || false,
         outside: item.outside || false,
         personCount: item.personCount || 0,
+        oldPersonCount:item.oldPersonCount || 0,
         place: item.place || "venue",
         instructions: item.instructions || "",
         eventId: item.eventId,
@@ -1248,6 +1281,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           const res = await SelectedItemNameMenuAllocation(
             row.eventFunctionId,
             row.menuItemId,
+            row.personCount,
+            row.oldPersonCount
           );
 
           if (res?.data?.success) {
@@ -1358,13 +1393,12 @@ const EventMenuAllocationPage = ({ mode }) => {
   const updateRow = (updated) => {
     setRows((prevRows) => {
       const updatedRows = prevRows.map((x) =>
-        x.key === updated.key ? updated : x,
+        x.key === updated.key ? updated : x
       );
-
+  
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
-
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-
+  
       return updatedRows;
     });
   };
@@ -1446,6 +1480,15 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventId,
           eventFunctionId: getEventFunctionId(activeFunction),
         });
+      },
+      onPaxBlur: () => {
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+  
+        saveTimeoutRef.current = setTimeout(() => {
+          handleMainSave();
+        }, 1000);
       },
     }));
   }, [
@@ -1929,6 +1972,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuItemId: r.menuItemId || 0,
           menuItemRawMaterials,
           outside: r.outside || false,
+          oldPersonCount: r.oldPersonCount || 0,
           personCount: r.personCount || 0,
           place: r.place || "venue",
           userId: Number(Id) || 0,
@@ -2415,6 +2459,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                             key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
                             row={row}
                             onChange={updateRow}
+                           
                           />
                         ))
                       )}
@@ -2439,6 +2484,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                         key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                         row={row}
                         onChange={updateRow}
+                   
                       />
                     ))
                   );

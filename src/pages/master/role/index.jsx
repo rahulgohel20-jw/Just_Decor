@@ -1,13 +1,8 @@
 import { Fragment, useEffect, useState } from "react";
-import { BadgeDollarSign, FileText, Receipt } from "lucide-react";
-import { Tooltip } from "antd";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import { message } from "antd";
-import { Link } from "react-router-dom";
-import { underConstruction } from "@/underConstruction";
 import { GetAllRole, DeleteRole } from "@/services/apiServices";
 import AddRole from "@/partials/modals/add-role-master/AddRole";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -19,57 +14,25 @@ const RoleMaster = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const intl = useIntl();
-
-  const formatData = (apiData) =>
-    apiData.map((item, index) => ({
-      sr_no: index + 1,
-      id: item.id,
-      role_name: item.name,
-      created_at: item.createdAt,
-      proforma_invoice: (
-        <Tooltip className="cursor-pointer" title="Proforma Invoice">
-          <div
-            className="flex justify-center items-center w-full"
-            onClick={underConstruction}
-          >
-            <FileText className="w-5 h-5 text-primary" />
-          </div>
-        </Tooltip>
-      ),
-      invoice: (
-        <Link to="/invoice-dashboard">
-          <Tooltip className="cursor-pointer" title="Invoice">
-            <div className="flex justify-center items-center w-full">
-              <Receipt className="w-5 h-5 text-success" />
-            </div>
-          </Tooltip>
-        </Link>
-      ),
-      quotation: (
-        <Link to="/quotation">
-          <Tooltip className="cursor-pointer" title="Quotation">
-            <div className="flex justify-center items-center w-full">
-              <BadgeDollarSign className="w-5 h-5 text-blue-600" />
-            </div>
-          </Tooltip>
-        </Link>
-      ),
-    }));
-
   const fetchRoles = async (search = "") => {
     try {
       const userId = localStorage.getItem("userId");
 
       const res = await GetAllRole(userId);
       let roles = res?.data?.data?.["Role Details"] || [];
-
+      
+      const roleData = roles.map((role, index) => ({
+        sr_no: index + 1,
+        role_name: role.name || "",
+        roleId: role.id || ""
+      }));
       if (search) {
         roles = roles.filter((r) =>
           r.name.toLowerCase().includes(search.toLowerCase())
         );
       }
 
-      setTableData(formatData(roles));
+      setTableData(roleData);
     } catch (err) {
       console.error("Error fetching roles:", err);
       setTableData([]);
@@ -153,10 +116,10 @@ const RoleMaster = () => {
 
         {/* Modal */}
         <AddRole
-          isModalOpen={isRoleModalOpen} // ✅ Changed from isOpen
-          setIsModalOpen={setIsRoleModalOpen} // ✅ Changed from onClose
-          editData={selectedRole} // ✅ Changed from selectedRole
-          successFunction={fetchRoles} // ✅ Changed from refreshData
+          isModalOpen={isRoleModalOpen} 
+          setIsModalOpen={setIsRoleModalOpen} 
+          editData={selectedRole} 
+          onRoleAdded={fetchRoles} 
         />
 
         {/* Table */}
