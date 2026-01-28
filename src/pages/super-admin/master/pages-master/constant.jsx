@@ -21,7 +21,16 @@ export const columns = (onEdit, onDelete, onStatus) => [
     },
   },
 
- 
+  {
+    accessorKey: "module_name",
+    header: (
+      <FormattedMessage id="USER.MASTER.PAGE_NAME" defaultMessage="Module Name" />
+    ),
+    meta: {
+      headerClassName: "w-[20%]",
+      cellClassName: "w-[20%]",
+    },
+  },
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
