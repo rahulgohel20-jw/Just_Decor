@@ -1509,4 +1509,14 @@ export const AddModuleRights = (data) => {
 
 export const UpdateModuleRights = (id, data) => {
   return PUT(`/modulerights/update?id=${id}`, data);
-}
+};
+
+// Add or Update
+   export const AddorUpdatebankdetails = (userId, data) => {
+     return POST(`bankdetails/add`, data);
+   };
+
+   // Get by User ID
+   export const GetbankdetailsbyuserId = (userId) => {
+     return GET(`bankdetails/getbyuserid?userId=${userId}`);
+   };

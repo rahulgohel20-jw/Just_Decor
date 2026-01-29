@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import ProfileForm from "@/components/profile/ProfileForm";
 import Password from "@/components/profile/Password";
 import Log from "@/components/profile/log";
+import BankDetail from "@/components/profile/BankDetails"; // ✅ Import BankDetail
 import clsx from "clsx";
 import { toAbsoluteUrl } from "@/utils";
 import { FormattedMessage } from "react-intl";
@@ -23,6 +24,15 @@ const TABS = [
   {
     key: "logs",
     title: <FormattedMessage id="PROFILE.LOGS" defaultMessage="User Log" />,
+  },
+  {
+    key: "bankdetails",
+    title: (
+      <FormattedMessage
+        id="PROFILE.BANK_DETAILS"
+        defaultMessage="Bank Details"
+      />
+    ),
   },
 ];
 
@@ -144,12 +154,14 @@ const AccountUserProfilePage = () => {
     }
   };
 
+  // ✅ Updated content to use BankDetail component
   const content = {
     account: (
       <ProfileForm isEditing={isEditing} onSaveSuccess={handleSaveSuccess} />
     ),
     security: <Password isEditing={isEditing} />,
     logs: <Log isEditing={isEditing} />,
+    bankdetails: <BankDetail isEditing={isEditing} />,
   }[activeTab];
 
   return (
