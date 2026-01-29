@@ -1036,7 +1036,11 @@
   "GST.ADD_OPTIONAL": "जीएसटी और पता जोड़ें (वैकल्पिक)",
   "GST.GSTIN": "जीएसटीआईएन",
   "ADDRESS.BILLING": "बिलिंग पता",
-  "ADDRESS.SAME_AS_BILLING": "शिपिंग पता बिलिंग जैसा ही है?"
+  "ADDRESS.SAME_AS_BILLING": "शिपिंग पता बिलिंग जैसा ही है?",
+    "COMMON.ADMIN_MODULE_REPORT": "एडमिन मॉड्यूल रिपोर्ट",
+    "COMMON.CHANGESIDEARRAWMATIRAL": "क्रॉकरी कॉन्फ़िगरेशन"
+
+
 
 
 

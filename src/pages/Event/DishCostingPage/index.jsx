@@ -6,7 +6,7 @@ import DishCostingModal from "./CostingSidebar/DishCostingModal";
 import TotalAgencySidebar from "./CostingSidebar/TotalAgencySidebar";
 import { FormattedMessage, useIntl } from "react-intl";
 import MenuReport from "@/partials/modals/menu-report/MenuReport";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   GetEventMasterById,
   GetDishCostingByEventFunction,
@@ -14,6 +14,7 @@ import {
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 
 const DishCostingPage = () => {
+  const navigate = useNavigate();
   const classes = useStyles();
   const [eventData, setEventData] = useState(null);
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
@@ -227,12 +228,50 @@ const DishCostingPage = () => {
         {" "}
         {/* Breadcrumbs */}
         <div className=" pb-2 mb-3">
-          <h1 className="text-xl text-gray-900">
-            <FormattedMessage
-              id="COMMON.DISH_COSTING"
-              defaultMessage="Dish Costing"
-            />
-          </h1>
+          <div className="flex items-center gap-6">
+            <h2 className="text-xl text-black font-semibold">
+              <FormattedMessage
+                id="COMMON.DISH_COSTING"
+                defaultMessage="6. Dish Costing"
+              />
+            </h2>
+
+            {/* ONLY FOR THIS SCREEN */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate(`/menu-preparation/${eventId}`)}
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+              >
+                <i className="ki-filled ki-menu" style={{ color: "white" }}></i>{" "}
+                <FormattedMessage
+                  id="MENU_PLANNING.BUTTON"
+                  defaultMessage="2. Menu Planning"
+                />
+              </button>
+
+              <button
+                onClick={() => navigate(`/menu-allocation/${eventId}`)}
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+              >
+                <i className="ki-filled ki-menu" style={{ color: "white" }}></i>{" "}
+                <FormattedMessage
+                  id="MENU_EXECUTION.BUTTON"
+                  defaultMessage="3. Menu Execution"
+                />
+              </button>
+
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                onClick={() => navigate(`/raw-material-allocation/${eventId}`)}
+              >
+                <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}
+                <FormattedMessage
+                  id="RAW_MATERIAL_DISTRIBUTION.BUTTON"
+                  defaultMessage="4. Raw Material Distribution"
+                />
+              </button>
+            </div>
+          </div>
         </div>
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
