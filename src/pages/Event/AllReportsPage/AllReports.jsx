@@ -119,6 +119,8 @@ export default function AllReports() {
             costing: [],
             profitloss: [],
             menuForHM: [],
+            generalFixTheme:[],
+            crockertCutleryTheme:[]
           };
 
           allTemplates.forEach((item) => {
@@ -187,6 +189,12 @@ export default function AllReports() {
             else if (moduleName === "Profit And Loss") {
               addToModuleGroup(moduleGroups.profitloss);
             }
+            else if (moduleName === "General Fix Theme") {
+              addToModuleGroup(moduleGroups.generalFixTheme);
+            }
+            else if (moduleName === "Crockert Cutlery Theme") {
+              addToModuleGroup(moduleGroups.crockertCutleryTheme);
+            }
           });
 
           // Create report sections structure
@@ -238,7 +246,20 @@ export default function AllReports() {
             });
           }
           
-
+          if (moduleGroups.generalFixTheme.length > 0) {
+            sections.push({
+              id: "generalFixTheme",
+              name: "General Fix Theme",
+              modules: moduleGroups.generalFixTheme,
+            });
+          }
+          if (moduleGroups.crockertCutleryTheme.length > 0) {
+            sections.push({
+              id: "crockertCutleryTheme",
+              name: "Crockert Cutlery Theme",
+              modules: moduleGroups.crockertCutleryTheme,
+            });
+          }
           if (moduleGroups.menuForHM.length > 0) {
             sections.push({
               id: "menu-hm",
