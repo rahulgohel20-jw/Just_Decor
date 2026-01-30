@@ -51,7 +51,6 @@ export default function CategorySidebarModal({
 
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
-  console.log(selectedRowData);
   
   let concatId = null;
   if (allocationType === "inside") {
@@ -122,6 +121,8 @@ export default function CategorySidebarModal({
     }
 
     const rawMaterialDetails = selectedRowData["MenuItem RawMaterial Details"];
+    console.log(rawMaterialDetails,"data");
+    
 
     if (rawMaterialDetails && rawMaterialDetails.length > 0) {
       const details = rawMaterialDetails.map((item, index) => ({
@@ -129,8 +130,10 @@ export default function CategorySidebarModal({
         itemId: item.id || 0,
         name: item.rawMaterialName || "",
         menuItemName: item.menuItemName || "-",
+        newPax:item.newPax,
+        oldPax:item.oldPax,
         agency: item.partyName || "",
-        dateTime: parseDateToObject(item.dateTime), // Convert to Date object
+        dateTime: parseDateToObject(item.dateTime), 
         weight: item.weight || "",
         unit: item.unitName || "",
         place: item.place || "",
@@ -324,6 +327,7 @@ export default function CategorySidebarModal({
       }
   
       const payload = rawMaterials.map((item) => {
+        
         const partyId =
           suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0;
         const unitId = unit.find((u) => u.nameEnglish === item.unit)?.id || 0;
@@ -333,6 +337,8 @@ export default function CategorySidebarModal({
           eventId: eventId || 0,
           eventFunctionId: eventFunctionId || 0,
           menuItemId: item.menuItemId || 0,
+          newPax:item.newPax,
+          oldPax:item.oldPax,
           rawMaterialId: item.rawMaterialId || 0,
           partyId: partyId,
           unitId: unitId,
@@ -346,6 +352,8 @@ export default function CategorySidebarModal({
           place: item.place || "",
         };
       });
+
+      
   
       const hasInvalidData = payload.some(
         (item) =>
