@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState,useRef } from "react";
+import { Fragment, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { Container } from "@/components/container";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
 import Swal from "sweetalert2";
@@ -21,34 +21,22 @@ import {
   MenuAllocationTypeSummary,
   GETallGodown,
 } from "@/services/apiServices";
-import { useParams, useNavigate, useBlocker } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 import { message } from "antd";
 
 // ============= LANGUAGE HELPER FUNCTIONS =============
-/**
- * Get the current language from localStorage
- * @returns {string} - Language code (e.g., 'en', 'gu', 'hi')
- */
 const getCurrentLanguage = () => {
-  return localStorage.getItem("lang") || "en"; // Default to English
+  return localStorage.getItem("lang") || "en";
 };
 
-/**
- * Get localized value from an object
- * @param {Object} obj - Object containing the data
- * @param {string} baseFieldName - Base field name
- * @param {string} fallbackValue - Fallback value if field not found
- * @returns {string} - Localized value
- */
 const getLocalizedValue = (obj, baseFieldName, fallbackValue = "-") => {
   if (!obj) return fallbackValue;
 
   const lang = getCurrentLanguage();
 
-  // Try language-specific field first
   if (lang !== "en") {
     const languageMap = {
       gu: "Gujarati",
@@ -58,23 +46,15 @@ const getLocalizedValue = (obj, baseFieldName, fallbackValue = "-") => {
     const suffix = languageMap[lang];
     if (suffix) {
       const localizedField = `${baseFieldName}${suffix}`;
-
       if (obj[localizedField]) {
         return obj[localizedField];
       }
     }
   }
 
-  // Fallback to base field (English) or fallback value
   return obj[baseFieldName] || fallbackValue;
 };
 
-/**
- * Get display name based on current language
- * @param {Object} row - Row data
- * @param {string} fieldType - 'categoryName' or 'itemName'
- * @returns {string} - Localized name
- */
 const getDisplayName = (row, fieldType) => {
   const lang = getCurrentLanguage();
   const langMap = {
@@ -85,11 +65,6 @@ const getDisplayName = (row, fieldType) => {
   return row[langMap[lang]] || row[fieldType] || "";
 };
 
-// Add these helper functions at the top with your other helper functions
-
-/**
- * Get localized party name
- */
 const getPartyName = (party) => {
   if (!party) return "-";
   const lang = getCurrentLanguage();
@@ -99,23 +74,15 @@ const getPartyName = (party) => {
   return party.nameEnglish || "-";
 };
 
-/**
- * Get localized event type name
- */
 const getEventTypeName = (eventType) => {
   if (!eventType) return "N/A";
   const lang = getCurrentLanguage();
 
-  if (lang === "hi")
-    return eventType.nameHindi || eventType.nameEnglish || "N/A";
-  if (lang === "gu")
-    return eventType.nameGujarati || eventType.nameEnglish || "N/A";
+  if (lang === "hi") return eventType.nameHindi || eventType.nameEnglish || "N/A";
+  if (lang === "gu") return eventType.nameGujarati || eventType.nameEnglish || "N/A";
   return eventType.nameEnglish || "N/A";
 };
 
-/**
- * Get localized venue name
- */
 const getVenueName = (venue) => {
   if (!venue) return "-";
   const lang = getCurrentLanguage();
@@ -125,17 +92,12 @@ const getVenueName = (venue) => {
   return venue.nameEnglish || "-";
 };
 
-/**
- * Get localized function name
- */
 const getFunctionName = (functionObj) => {
   if (!functionObj) return "Unnamed";
   const lang = getCurrentLanguage();
 
-  if (lang === "hi")
-    return functionObj.nameHindi || functionObj.nameEnglish || "Unnamed";
-  if (lang === "gu")
-    return functionObj.nameGujarati || functionObj.nameEnglish || "Unnamed";
+  if (lang === "hi") return functionObj.nameHindi || functionObj.nameEnglish || "Unnamed";
+  if (lang === "gu") return functionObj.nameGujarati || functionObj.nameEnglish || "Unnamed";
   return functionObj.nameEnglish || "Unnamed";
 };
 
@@ -147,8 +109,7 @@ const TopTabs = ({ value, onChange, functions }) => {
       {functions.map((item) => {
         const dateTime = item?.functionStartDateTime || "";
         const parts = dateTime.split(" ");
-
-        const date = parts[0]; // 26/12/2025
+        const date = parts[0];
         const time = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : "";
 
         return (
@@ -162,26 +123,11 @@ const TopTabs = ({ value, onChange, functions }) => {
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50")
             }
           >
-            <p className="font-semibold">
-              {getFunctionName(item.function)} {/* ✅ Updated */}
-            </p>
-
-            <p
-              className={
-                value?.id === item.id
-                  ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700  hover:bg-gray-50"
-              }
-            >
+            <p className="font-semibold">{getFunctionName(item.function)}</p>
+            <p className={value?.id === item.id ? "bg-primary text-white shadow" : "bg-white text-gray-700 hover:bg-gray-50"}>
               {date}
             </p>
-            <p
-              className={
-                value?.id === item.id
-                  ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700  hover:bg-gray-50"
-              }
-            >
+            <p className={value?.id === item.id ? "bg-primary text-white shadow" : "bg-white text-gray-700 hover:bg-gray-50"}>
               {time}
             </p>
           </button>
@@ -190,31 +136,17 @@ const TopTabs = ({ value, onChange, functions }) => {
     </div>
   );
 };
-const OrderSummary = ({
-  groups,
-  onItemClick,
-  loading,
-  pax,
-  groupedByFunction,
-  rows,
-}) => {
-  // Helper function to get localized names
-  console.log(groups, groupedByFunction);
 
+const OrderSummary = ({ groups, onItemClick, loading, pax, groupedByFunction, rows }) => {
   const getItemName = (item) => {
     return getLocalizedValue(item, "menuItemName", item.menuItemName);
   };
 
   const getCategoryName = (category) => {
-    return getLocalizedValue(
-      category,
-      "menuCategoryName",
-      category.menuCategoryName,
-    );
+    return getLocalizedValue(category, "menuCategoryName", category.menuCategoryName);
   };
 
-  // Helper function to calculate item price based on row configuration
-  const calculateItemPrice = (item, matchingRow) => {
+  const calculateItemPrice = useCallback((item, matchingRow) => {
     if (!matchingRow) return item.totalPrice || 0;
 
     const basePrice = Number(item.totalPrice) || 0;
@@ -240,47 +172,41 @@ const OrderSummary = ({
     }
 
     return basePrice;
-  };
+  }, []);
 
-  // Calculate grand total
   const grandTotal = useMemo(() => {
     if (groupedByFunction) {
-      // For "All Functions" view, sum across all functions
       return Math.round(
         groupedByFunction.reduce((total, functionGroup) => {
           const functionTotal = functionGroup.selectedItemDetails.reduce(
             (ftotal, category) => {
-              const categoryTotal =
-                category.selectedMenuPreparationItems.reduce((sum, item) => {
-                  // Find the matching row for this specific function
-                  const matchingRow = rows.find(
-                    (r) =>
-                      r.menuItemId === item.menuItemId &&
-                      r.eventFunctionId === functionGroup.eventFunctionId,
-                  );
-
-                  const itemPrice = calculateItemPrice(item, matchingRow);
-                  return sum + itemPrice;
-                }, 0);
+              const categoryTotal = category.selectedMenuPreparationItems.reduce((sum, item) => {
+                const matchingRow = rows.find(
+                  (r) =>
+                    r.menuItemId === item.menuItemId &&
+                    r.eventFunctionId === functionGroup.eventFunctionId
+                );
+                const itemPrice = calculateItemPrice(item, matchingRow);
+                return sum + itemPrice;
+              }, 0);
               return ftotal + categoryTotal;
             },
-            0,
+            0
           );
           return total + functionTotal;
-        }, 0),
+        }, 0)
       );
     } else {
-      // For single function view
       return Math.round(
         groups.reduce((total, group) => {
           const groupTotal = group.items.reduce((sum, item) => {
             return sum + (item.totalPrice || 0);
           }, 0);
           return total + groupTotal;
-        }, 0),
+        }, 0)
       );
     }
-  }, [groups, groupedByFunction, rows]);
+  }, [groups, groupedByFunction, rows, calculateItemPrice]);
 
   const dishCosting = pax > 0 ? Math.round(grandTotal / pax) : 0;
   let totalChefPrice = groups[0]?.totalChefPrice || 0;
@@ -293,14 +219,9 @@ const OrderSummary = ({
         bodyStyle={{ padding: 0 }}
         title={
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-              ✱
-            </span>
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600">✱</span>
             <span className="text-gray-800">
-              <FormattedMessage
-                id="EVENT_MENU_ALLOCATION.ORDER_SUMMARY"
-                defaultMessage="Order Summary"
-              />
+              <FormattedMessage id="EVENT_MENU_ALLOCATION.ORDER_SUMMARY" defaultMessage="Order Summary" />
             </span>
           </div>
         }
@@ -311,56 +232,39 @@ const OrderSummary = ({
           </div>
         ) : groups.length === 0 && !groupedByFunction ? (
           <div className="p-4 text-center text-gray-500">
-            <FormattedMessage
-              id="EVENT_MENU_ALLOCATION.NO_ITEMS"
-              defaultMessage="No items available"
-            />
+            <FormattedMessage id="EVENT_MENU_ALLOCATION.NO_ITEMS" defaultMessage="No items available" />
           </div>
         ) : groupedByFunction ? (
-          // FUNCTION-WISE VIEW
           <>
             <div className="divide-y">
               {groupedByFunction.map((functionGroup, fIdx) => {
-                // Calculate function total with proper row matching
                 const functionTotal = functionGroup.selectedItemDetails.reduce(
                   (total, category) => {
-                    const categoryTotal =
-                      category.selectedMenuPreparationItems.reduce(
-                        (sum, item) => {
-                          // Find the matching row for this specific function
-                          const matchingRow = rows.find(
-                            (r) =>
-                              r.menuItemId === item.menuItemId &&
-                              r.eventFunctionId ===
-                                functionGroup.eventFunctionId,
-                          );
-
-                          const itemPrice = calculateItemPrice(
-                            item,
-                            matchingRow,
-                          );
-                          return sum + itemPrice;
-                        },
-                        0,
+                    const categoryTotal = category.selectedMenuPreparationItems.reduce((sum, item) => {
+                      const matchingRow = rows.find(
+                        (r) =>
+                          r.menuItemId === item.menuItemId &&
+                          r.eventFunctionId === functionGroup.eventFunctionId
                       );
+                      const itemPrice = calculateItemPrice(item, matchingRow);
+                      return sum + itemPrice;
+                    }, 0);
                     return total + categoryTotal;
                   },
-                  0,
+                  0
                 );
 
                 const functionDishCosting =
-                  functionGroup.pax > 0
-                    ? Math.round(functionTotal / functionGroup.pax)
-                    : 0;
+                  functionGroup.pax > 0 ? Math.round(functionTotal / functionGroup.pax) : 0;
 
                 const totalChefPrice = functionGroup?.totalChefPrice || 0;
                 const totalOutSidePrice = functionGroup?.totalOutSidePrice || 0;
+
                 return (
                   <div
                     key={`function-summary-${functionGroup.eventFunctionId}-${fIdx}`}
                     className="border-b-2 border-gray-300 last:border-b-0"
                   >
-                    {/* Function Header */}
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-l-4 border-primary">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -371,14 +275,11 @@ const OrderSummary = ({
                         </div>
                         <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-md">
                           <i className="ki-filled ki-people text-primary text-xs"></i>
-                          <span className="text-xs font-semibold text-primary">
-                            {functionGroup.pax}
-                          </span>
+                          <span className="text-xs font-semibold text-primary">{functionGroup.pax}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Categories for this function */}
                     {functionGroup.selectedItemDetails.map((category, cIdx) => (
                       <div
                         key={`${functionGroup.eventFunctionId}-${category.menuCategoryId}-${cIdx}`}
@@ -386,101 +287,59 @@ const OrderSummary = ({
                       >
                         <div className="mb-2 flex items-center gap-2">
                           <Badge color="#22c55e" />
-                          <span className="font-medium text-gray-900">
-                            {getCategoryName(category)}
-                          </span>
+                          <span className="font-medium text-gray-900">{getCategoryName(category)}</span>
                         </div>
                         <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
-                          {category.selectedMenuPreparationItems.map(
-                            (item, iIdx) => {
-                              // Find the matching row for price calculation
-                              const matchingRow = rows.find(
-                                (r) =>
-                                  r.menuItemId === item.menuItemId &&
-                                  r.eventFunctionId ===
-                                    functionGroup.eventFunctionId,
-                              );
+                          {category.selectedMenuPreparationItems.map((item, iIdx) => {
+                            const matchingRow = rows.find(
+                              (r) =>
+                                r.menuItemId === item.menuItemId &&
+                                r.eventFunctionId === functionGroup.eventFunctionId
+                            );
+                            const displayPrice = calculateItemPrice(item, matchingRow);
 
-                              const displayPrice = calculateItemPrice(
-                                item,
-                                matchingRow,
-                              );
-
-                              return (
-                                <Fragment
-                                  key={`${category.menuCategoryId}-${item.menuItemId}-${iIdx}`}
+                            return (
+                              <Fragment key={`${category.menuCategoryId}-${item.menuItemId}-${iIdx}`}>
+                                <div
+                                  className="col-span-9 pl-6 hover:text-primary"
+                                  onClick={() => onItemClick(item, category, functionGroup.eventFunctionId)}
                                 >
-                                  <div
-                                    className="col-span-9 pl-6 hover:text-primary"
-                                    onClick={() =>
-                                      onItemClick(
-                                        item,
-                                        category,
-                                        functionGroup.eventFunctionId,
-                                      )
-                                    }
-                                  >
-                                    {getItemName(item)}
-                                    <span className="ml-1 text-primary font-bold">
-                                      - {item.typeName}
-                                    </span>
-                                  </div>
-                                  <div className="col-span-3 text-right tabular-nums">
-                                    ₹{displayPrice.toFixed(2)}
-                                  </div>
-                                </Fragment>
-                              );
-                            },
-                          )}
+                                  {getItemName(item)}
+                                  <span className="ml-1 text-primary font-bold">- {item.typeName}</span>
+                                </div>
+                                <div className="col-span-3 text-right tabular-nums">₹{displayPrice.toFixed(2)}</div>
+                              </Fragment>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
 
-                    {/* Function Subtotal */}
                     <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <div className="flex gap-1">
                           <span className="font-medium text-gray-700">
-                            <FormattedMessage
-                              id="EVENT_MENU_ALLOCATION.DISH_COSTING"
-                              defaultMessage="Dish Costing :"
-                            />
+                            <FormattedMessage id="EVENT_MENU_ALLOCATION.DISH_COSTING" defaultMessage="Dish Costing :" />
                           </span>
-                          <span className="font-semibold text-gray-800">
-                            ₹{functionDishCosting.toFixed(2)}
-                          </span>
+                          <span className="font-semibold text-gray-800">₹{functionDishCosting.toFixed(2)}</span>
                         </div>
                         <div className="flex gap-1">
                           <span className="font-medium text-gray-700">
-                            <FormattedMessage
-                              id="EVENT_MENU_ALLOCATION.SUBTOTAL"
-                              defaultMessage="Subtotal :"
-                            />
+                            <FormattedMessage id="EVENT_MENU_ALLOCATION.SUBTOTAL" defaultMessage="Subtotal :" />
                           </span>
-                          <span className="font-semibold text-primary">
-                            ₹{Math.round(functionTotal).toFixed(2)}
-                          </span>
+                          <span className="font-semibold text-primary">₹{Math.round(functionTotal).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
                     <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <div className="flex gap-1">
-                          <span className="font-medium text-gray-700">
-                            Total Chef Price:
-                          </span>
-                          <span className="font-semibold text-primary">
-                            {totalChefPrice}
-                          </span>
+                          <span className="font-medium text-gray-700">Total Chef Price:</span>
+                          <span className="font-semibold text-primary">{totalChefPrice}</span>
                         </div>
-
                         <div className="flex gap-1">
-                          <span className="font-medium text-gray-700">
-                            Total OutSide Price:
-                          </span>
-                          <span className="font-semibold text-primary">
-                            {totalOutSidePrice}
-                          </span>
+                          <span className="font-medium text-gray-700">Total OutSide Price:</span>
+                          <span className="font-semibold text-primary">{totalOutSidePrice}</span>
                         </div>
                       </div>
                     </div>
@@ -489,48 +348,32 @@ const OrderSummary = ({
               })}
             </div>
 
-            {/* Grand Total for All Functions */}
             <div className="card flex flex-row justify-between p-4 bg-[#FAFAFA] border-t-2 border-primary">
               <div className="flex flex-row gap-1">
                 <span className="font-bold text-gray-900">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.GRAND_TOTAL"
-                    defaultMessage="Grand Total :"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.GRAND_TOTAL" defaultMessage="Grand Total :" />
                 </span>
-                <span className="font-bold text-primary text-lg">
-                  ₹{grandTotal.toFixed(2)}
-                </span>
+                <span className="font-bold text-primary text-lg">₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
           </>
         ) : (
-          // SINGLE FUNCTION VIEW (Original)
           <>
             <div className="divide-y">
               {groups.map((g, gi) => (
                 <div key={gi} className="p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <Badge color="#22c55e" />
-                    <span className="font-medium text-gray-900">
-                      {g.categoryName}
-                    </span>
+                    <span className="font-medium text-gray-900">{g.categoryName}</span>
                   </div>
                   <div className="mt-2 grid grid-cols-12 gap-y-2 text-sm text-gray-700 cursor-pointer">
                     {g.items.map((it, ii) => (
                       <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
-                        <div
-                          className="col-span-9 pl-6 hover:text-primary"
-                          onClick={() => onItemClick(it, g)}
-                        >
+                        <div className="col-span-9 pl-6 hover:text-primary" onClick={() => onItemClick(it, g)}>
                           {it.menuItemName}{" "}
-                          <span className="text-primary font-bold">
-                            - {it.typeName}
-                          </span>
+                          <span className="text-primary font-bold">- {it.typeName}</span>
                         </div>
-                        <div className="col-span-3 text-right tabular-nums">
-                          ₹{it.totalPrice?.toFixed(2) || "0.00"}
-                        </div>
+                        <div className="col-span-3 text-right tabular-nums">₹{it.totalPrice?.toFixed(2) || "0.00"}</div>
                       </Fragment>
                     ))}
                   </div>
@@ -541,46 +384,27 @@ const OrderSummary = ({
             <div className="card flex flex-row justify-between p-4 bg-[#FAFAFA]">
               <div className="flex flex-row gap-1">
                 <span className="font-medium text-gray-900">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.DISH_COSTING"
-                    defaultMessage="Dish Costing :"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.DISH_COSTING" defaultMessage="Dish Costing :" />
                 </span>
-                <span className="font-semibold text-gray-900">
-                  ₹{dishCosting.toFixed(2)}
-                </span>
+                <span className="font-semibold text-gray-900">₹{dishCosting.toFixed(2)}</span>
               </div>
               <div className="flex flex-row gap-1">
                 <span className="font-medium text-gray-900">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.TOTAL"
-                    defaultMessage="Total :"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.TOTAL" defaultMessage="Total :" />
                 </span>
-                <span className="font-semibold text-primary">
-                  ₹{grandTotal.toFixed(2)}
-                </span>
+                <span className="font-semibold text-primary">₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
 
             <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
               <div className="flex justify-between text-sm">
                 <div className="flex gap-1">
-                  <span className="font-medium text-gray-700">
-                    Total Chef Price:
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {totalChefPrice}
-                  </span>
+                  <span className="font-medium text-gray-700">Total Chef Price:</span>
+                  <span className="font-semibold text-primary">{totalChefPrice}</span>
                 </div>
-
                 <div className="flex gap-1">
-                  <span className="font-medium text-gray-700">
-                    Total OutSide Price:
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {totalOutSidePrice}
-                  </span>
+                  <span className="font-medium text-gray-700">Total OutSide Price:</span>
+                  <span className="font-semibold text-primary">{totalOutSidePrice}</span>
                 </div>
               </div>
             </div>
@@ -615,44 +439,42 @@ const TableHeader = () => (
       <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
     </div>
     <div className="col-span-2">
-      <FormattedMessage
-        id="COMMON.INSTRUCTIONS"
-        defaultMessage="Instructions"
-      />
+      <FormattedMessage id="COMMON.INSTRUCTIONS" defaultMessage="Instructions" />
     </div>
   </div>
 );
 
-const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
-  const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
+const TableRow = ({ row, onChange, disabled }) => {
+  const [localPersonCount, setLocalPersonCount] = useState(row.personCount);
   const [hasError, setHasError] = useState(false);
+
   useEffect(() => {
     setLocalPersonCount(row.personCount);
     setHasError(false);
   }, [row.personCount]);
-  const handleCheckboxChange = (type, checked) => {
+
+  const handleCheckboxChange = useCallback((type, checked) => {
     const updated = {
       ...row,
       chefLabour: type === "chef" ? checked : false,
       outside: type === "outside" ? checked : false,
       inside: type === "inside" ? checked : false,
     };
-
     onChange(updated);
-  };
-  const handlePersonCountChange = (e) => {
+  }, [row, onChange]);
+
+  const handlePersonCountChange = useCallback((e) => {
     setLocalPersonCount(Number(e.target.value) || 0);
     setHasError(false);
+  }, []);
 
-  };
-
-  const handlePersonCountBlur = () => {
+  const handlePersonCountBlur = useCallback(() => {
     const value = Number(localPersonCount);
 
     if (value === 0) {
       setHasError(true);
       message.error("Value cannot be zero");
-      return; 
+      return;
     }
 
     if (isNaN(value) || value < 0) {
@@ -664,17 +486,13 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
     if (value !== row.personCount) {
       onChange({ ...row, personCount: value });
     }
-  };
-  
-  
+  }, [localPersonCount, row, onChange]);
 
   return (
     <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
       <div className="col-span-2 font-medium text-gray-800">
         <div className="flex flex-col">
-          <span className="text-xs text-gray-500">
-            {getDisplayName(row, "categoryName")}
-          </span>
+          <span className="text-xs text-gray-500">{getDisplayName(row, "categoryName")}</span>
           <span>{getDisplayName(row, "itemName")}</span>
         </div>
       </div>
@@ -685,7 +503,6 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
           disabled={disabled}
           onChange={(e) => handleCheckboxChange("chef", e.target.checked)}
         />
-
         {row.chefLabour && !disabled && (
           <button
             type="button"
@@ -735,7 +552,7 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
       </div>
 
       <div className="col-span-1 flex justify-center">
-      <Input
+        <Input
           min={0}
           type="text"
           value={localPersonCount}
@@ -747,10 +564,7 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
       </div>
 
       <div className="col-span-2">
-        <PlaceSelect
-          value={row.place}
-          onChange={(val) => onChange({ ...row, place: val })}
-        />
+        <PlaceSelect value={row.place} onChange={(val) => onChange({ ...row, place: val })} />
       </div>
 
       <div className="col-span-2">
@@ -766,7 +580,6 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
   );
 };
 
-// Function Section Label
 const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
   return (
     <div
@@ -778,9 +591,7 @@ const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
           <div className="flex items-center gap-2">
             <i className="ki-filled ki-calendar text-primary text-xl"></i>
             <div>
-              <h3 className="text-lg font-bold text-gray-800 uppercase">
-                {functionName} {/* This will now show localized name */}
-              </h3>
+              <h3 className="text-lg font-bold text-gray-800 uppercase">{functionName}</h3>
               <p className="text-sm text-gray-600">{functionDateTime}</p>
             </div>
           </div>
@@ -819,8 +630,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] =
-    useState(false);
+  const [isOutsideAgencyModalOpen, setIsOutsideAgencyModalOpen] = useState(false);
   const [isInHouseCookModalOpen, setIsInHouseCookModalOpen] = useState(false);
   const [isInsideModal, setIsInsideModal] = useState(false);
   const intl = useIntl();
@@ -838,96 +648,11 @@ const EventMenuAllocationPage = ({ mode }) => {
     { value: "venue", label: "At venue", id: "venue" },
   ]);
   const [placeLoading, setPlaceLoading] = useState(false);
-  const personSaveTimeoutRef = useRef(null);
-
-  // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
- const lastSavedPersonRef = useRef({});
- const isInitialLoadRef = useRef(true);
+  const lastSavedPersonRef = useRef({});
+  const isInitialLoadRef = useRef(true);
 
-
-  
-  // ============= LISTEN FOR LANGUAGE CHANGES =============
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const newLang = getCurrentLanguage();
-      if (newLang !== currentLang) {
-        setCurrentLang(newLang);
-      }
-    };
-
-    // Listen for storage changes from other tabs
-    window.addEventListener("storage", handleStorageChange);
-
-    // Also check on interval (in case same tab changes it)
-    const interval = setInterval(() => {
-      const newLang = getCurrentLanguage();
-      if (newLang !== currentLang) {
-        setCurrentLang(newLang);
-      }
-    }, 500);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [currentLang]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = "";
-        return "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
-
-  const handleNavigateWithWarning = async (path, state = null) => {
-    if (hasUnsavedChanges) {
-      const result = await Swal.fire({
-        title: "Unsaved Changes",
-        text: "You have unsaved changes. Do you want to save before leaving?",
-        icon: "warning",
-        showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonText: "Save & Leave",
-        denyButtonText: "Leave Without Saving",
-        cancelButtonText: "Stay",
-        confirmButtonColor: "#3085d6",
-        denyButtonColor: "#d33",
-        cancelButtonColor: "#6c757d",
-      });
-
-      if (result.isConfirmed) {
-        await handleMainSave();
-        if (state) {
-          navigate(path, { state });
-        } else {
-          navigate(path);
-        }
-      } else if (result.isDenied) {
-        if (state) {
-          navigate(path, { state });
-        } else {
-          navigate(path);
-        }
-      }
-    } else {
-      if (state) {
-        navigate(path, { state });
-      } else {
-        navigate(path);
-      }
-    }
-  };
-
+  // ============= MEMOIZED VALUES =============
   const allFunctionTab = useMemo(
     () => ({
       id: -1,
@@ -935,13 +660,13 @@ const EventMenuAllocationPage = ({ mode }) => {
       functionStartDateTime: "",
       allFunctionIds: eventData?.eventFunctions?.map((f) => f.id) || [],
     }),
-    [eventData?.eventFunctions],
+    [eventData?.eventFunctions]
   );
 
-  const getEventFunctionId = (functionItem) => {
+  const getEventFunctionId = useCallback((functionItem) => {
     if (!functionItem) return null;
     return functionItem.id;
-  };
+  }, []);
 
   const isAllFunctions = activeFunction?.id === -1;
 
@@ -969,9 +694,7 @@ const EventMenuAllocationPage = ({ mode }) => {
     if (!groupedByFunction || !eventData?.eventFunctions) return null;
 
     return groupedByFunction.map((group) => {
-      const functionDetail = eventData.eventFunctions.find(
-        (f) => f.id === group.eventFunctionId,
-      );
+      const functionDetail = eventData.eventFunctions.find((f) => f.id === group.eventFunctionId);
       return {
         ...group,
         functionDateTime: functionDetail?.functionStartDateTime || "",
@@ -980,6 +703,79 @@ const EventMenuAllocationPage = ({ mode }) => {
     });
   }, [groupedByFunction, eventData]);
 
+  const totalPax = useMemo(() => {
+    if (activeFunction?.id === -1) {
+      return "";
+    }
+    return activeFunction?.pax || 0;
+  }, [activeFunction]);
+
+  // ============= LANGUAGE CHANGE LISTENER =============
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newLang = getCurrentLanguage();
+      if (newLang !== currentLang) {
+        setCurrentLang(newLang);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    const interval = setInterval(() => {
+      const newLang = getCurrentLanguage();
+      if (newLang !== currentLang) {
+        setCurrentLang(newLang);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [currentLang]);
+
+  // ============= UNSAVED CHANGES WARNING =============
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // ============= NAVIGATION WITH WARNING =============
+  const handleNavigateWithWarning = useCallback(async (path, state = null) => {
+    if (hasUnsavedChanges) {
+      const result = await Swal.fire({
+        title: "Unsaved Changes",
+        text: "You have unsaved changes. Do you want to save before leaving?",
+        icon: "warning",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "Save & Leave",
+        denyButtonText: "Leave Without Saving",
+        cancelButtonText: "Stay",
+        confirmButtonColor: "#3085d6",
+        denyButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+      });
+
+      if (result.isConfirmed) {
+        await handleMainSave();
+        navigate(path, state ? { state } : undefined);
+      } else if (result.isDenied) {
+        navigate(path, state ? { state } : undefined);
+      }
+    } else {
+      navigate(path, state ? { state } : undefined);
+    }
+  }, [hasUnsavedChanges, navigate]);
+
+  // ============= FETCH EVENT DETAILS (ONCE) =============
   useEffect(() => {
     const FetchEventDetails = async () => {
       try {
@@ -1004,398 +800,41 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   }, [eventId]);
 
-  const handleOrderSummaryItemClick = async (
-    item,
-    group,
-    clickedFunctionId,
-  ) => {
-    try {
-      let eventFunctionId;
-  
-      if (isAllFunctions && clickedFunctionId) {
-        eventFunctionId = clickedFunctionId;
-      } else {
-        eventFunctionId = getEventFunctionId(activeFunction);
-      }
-  
-      const menuItemId = item.menuItemId || item.id;
-  
-      const matchingRow = rows.find(
-        (r) =>
-          r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId,
-      );
-  
-      if (matchingRow?.outside) {
-        return;
-      }
-  
-      // Calculate oldPax and newPax
-      const oldPax = matchingRow?.oldPersonCount || 0;
-      const newPax = matchingRow?.personCount || 0;
-  
-      let allocationType = "inside";
-      if (matchingRow?.chefLabour) {
-        allocationType = "chef";
-      } else if (matchingRow?.outside) {
-        allocationType = "outsource";
-      } else if (matchingRow?.inside) {
-        allocationType = "inside";
-      }
-  
-      setSelectedRow({
-        "MenuItem RawMaterial Details": [],
-        menuItemName: item.menuItemName || "-",
-        menuItemId: menuItemId,
-        eventFunctionId: eventFunctionId,
-        eventId: eventId,
-        allocationType: allocationType,
-      });
-  
-      setIsCategoryModal(true);
-      setMenuLoading(true);
-
-  
-      // Pass oldPax and newPax to the API
-      const res = await SelectedItemNameMenuAllocation(
-        eventFunctionId,
-        menuItemId,
-        newPax,
-        oldPax
-      );
-  
-      if (res?.data?.success) {
-        const apiData = res.data.data;
-  
-        const rawMaterials =
-          apiData["MenuItem RawMaterial Details"] ||
-          apiData.menuItemRawMaterials ||
-          [];
-  
-        setSelectedRow({
-          ...apiData,
-          "MenuItem RawMaterial Details": rawMaterials,
-          menuItemName: item.menuItemName || apiData.menuItemName || "-",
-          menuItemId: menuItemId,
-          eventFunctionId: eventFunctionId,
-          eventId: eventId,
-          allocationType: allocationType,
-        });
-      }
-    } catch (error) {
-      console.error("Error opening category sidebar:", error);
-    } finally {
-      setMenuLoading(false);
-    }
-  };
-
-  const fetchMenuAllocation = async (eventFunctionId) => {
-    try {
-      setMenuLoading(true);
-      setTableLoading(true);
-
-      const isAllFunctions = eventFunctionId === -1;
-
-      let allMenuDataResponse = [];
-
-      if (isAllFunctions) {
-        const menudata = await GetMenuAllocation(eventId, -1);
-
-        if (
-          menudata?.data?.success &&
-          menudata.data.data["Menu Allocation Details"]?.length > 0
-        ) {
-          allMenuDataResponse = menudata.data.data["Menu Allocation Details"];
-          setAllMenuData(allMenuDataResponse);
-        }
-      } else {
-        const menudata = await GetMenuAllocation(eventId, eventFunctionId);
-        if (
-          menudata?.data?.success &&
-          menudata.data.data["Menu Allocation Details"]?.length > 0
-        ) {
-          allMenuDataResponse = menudata.data.data["Menu Allocation Details"];
-          setAllMenuData(allMenuDataResponse);
-        }
-      }
-
-      if (allMenuDataResponse.length === 0) {
-        setRows([]);
-        setOrderSummaryGroups([]);
-        setAllMenuData([]);
-        return;
-      }
-
-      const mergedMenuAllocation = allMenuDataResponse.flatMap(
-        (d) => d.menuAllocation || [],
-      );
-
-      // ============= UPDATED: Store all language variants =============
-      const transformedRows = mergedMenuAllocation.map((item) => ({
-        key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
-        id: item.id,
-        // Store all language variants
-        categoryName: getLocalizedValue(item, "menuCategoryName", ""),
-        categoryNameEn: item.menuCategoryName,
-        categoryNameGu: item.menuCategoryNameGujarati,
-        categoryNameHi: item.menuCategoryNameHindi,
-
-        itemName: getLocalizedValue(item, "menuItemName", ""),
-        itemNameEn: item.menuItemName,
-        itemNameGu: item.menuItemNameGujarati,
-        itemNameHi: item.menuItemNameHindi,
-
-        chefLabour: item.chefLabour || false,
-        inside: item.inside || false,
-        outside: item.outside || false,
-        personCount: item.personCount || 0,
-        oldPersonCount:item.oldPersonCount || 0,
-        place: item.place || "venue",
-        instructions: item.instructions || "",
-        eventId: item.eventId,
-        eventFunctionId: item.eventFunctionId,
-        menuCategoryId: item.menuCategoryId,
-        menuItemId: item.menuItemId,
-        eventFunctionMenuAllocations:
-          item.eventFunctionMenuAllocations?.map((alloc) => {
-            const isChefLabour =
-              item.chefLabour && !item.outside && !item.inside;
-            const isOutside = item.outside;
-            const isInside = item.inside;
-
-            let allocationTotal = 0;
-
-            if (isChefLabour) {
-              allocationTotal =
-                (Number(alloc.counterPrice) || 0) *
-                  (Number(alloc.counterQuantity) || 0) +
-                (Number(alloc.helperPrice) || 0) *
-                  (Number(alloc.helperQuantity) || 0);
-            } else {
-              allocationTotal =
-                (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
-            }
-
-            return {
-              id: alloc.id || null,
-              partyId: alloc.partyId,
-              partyName: alloc.partyName,
-              menuAllocationId: item.id,
-              price: Number(alloc.price) || 0,
-              quantity: Number(alloc.quantity) || 0,
-              unitId: alloc.unitId ?? null,
-              unitName: alloc.unitName ?? null,
-              serviceType: alloc.serviceType || "",
-              counterQuantity: alloc.counterQuantity || 0,
-              helperQuantity: alloc.helperQuantity || 0,
-              counterPrice: alloc.counterPrice || 0,
-              helperPrice: alloc.helperPrice || 0,
-              totalPrice: allocationTotal,
-              isOutside,
-              isChefLabour,
-              isInside,
-              number: alloc.number ?? null,
-              remarks: alloc.remarks ?? null,
-              pax: alloc.pax ?? null,
-            };
-          }) || [],
-
-        menuItemRawMaterials: [],
-      }));
-
-      setRows(transformedRows);
-
-      if (isAllFunctions) {
-        setOrderSummaryGroups([]);
-      } else {
-        console.log(allMenuDataResponse, "all");
-
-        const allSelectedItems = allMenuDataResponse.flatMap(
-          (detail) => detail?.selectedItemDetails || [],
-        );
-
-        const totalChefPrice = allMenuDataResponse[0].totalChefPrice;
-        const totalOutSidePrice = allMenuDataResponse[0].totalOutSidePrice;
-
-        const categoryMap = new Map();
-
-        allSelectedItems.forEach((category) => {
-          const categoryId = category.menuCategoryId;
-
-          if (!categoryMap.has(categoryId)) {
-            categoryMap.set(categoryId, {
-              categoryId: category.menuCategoryId,
-              categoryName: category.menuCategoryName,
-              itemsMap: new Map(),
-            });
-          }
-
-          const existingCategory = categoryMap.get(categoryId);
-
-          category.selectedMenuPreparationItems?.forEach((item) => {
-            if (!existingCategory.itemsMap.has(item.menuItemId)) {
-              existingCategory.itemsMap.set(item.menuItemId, item);
-            }
-          });
-        });
-
-        const summaryGroups =
-          Array.from(categoryMap.values())?.map((category) => ({
-            categoryId: category.categoryId,
-            categoryName: category.categoryName,
-            totalChefPrice,
-            totalOutSidePrice,
-            items:
-              Array.from(category.itemsMap.values())?.map((summaryItem) => {
-                const matchingRows = transformedRows.filter(
-                  (r) => r.menuItemId === summaryItem.menuItemId,
-                );
-
-                const basePrice = Number(summaryItem.totalPrice) || 0;
-                let finalPrice = basePrice;
-
-                if (matchingRows.length > 0) {
-                  finalPrice = matchingRows.reduce((total, matchingRow) => {
-                    let rowPrice = basePrice;
-
-                    if (matchingRow.inside) {
-                      rowPrice = basePrice;
-                    } else if (matchingRow.outside) {
-                      rowPrice =
-                        matchingRow.eventFunctionMenuAllocations
-                          ?.filter((a) => a.isOutside)
-                          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) ||
-                        0;
-                    } else if (matchingRow.chefLabour) {
-                      const chefCost =
-                        matchingRow.eventFunctionMenuAllocations
-                          ?.filter((a) => a.isChefLabour)
-                          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) ||
-                        0;
-
-                      rowPrice = basePrice + chefCost;
-                    }
-
-                    return total + rowPrice;
-                  }, 0);
-                }
-
-                return {
-                  ...summaryItem,
-                  originalTotalPrice: basePrice,
-                  totalPrice: finalPrice,
-                  totalChefPrice,
-                  totalOutSidePrice,
-                };
-              }) || [],
-          })) || [];
-
-        setOrderSummaryGroups(summaryGroups);
-      }
-
-      const updatedRowsPromises = transformedRows.map(async (row) => {
-        try {
-          const res = await SelectedItemNameMenuAllocation(
-            row.eventFunctionId,
-            row.menuItemId,
-            row.personCount,
-            row.oldPersonCount
-          );
-
-          if (res?.data?.success) {
-            const apiData = res.data.data;
-            const rawMaterials =
-              apiData["MenuItem RawMaterial Details"] ||
-              apiData.menuItemRawMaterials ||
-              [];
-
-            return {
-              ...row,
-              menuItemRawMaterials: rawMaterials,
-            };
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching raw materials for item ${row.menuItemId}:`,
-            error,
-          );
-        }
-        return row;
-      });
-
-      const updatedRows = await Promise.all(updatedRowsPromises);
-      setRows(updatedRows);
-      setInitialRows(JSON.parse(JSON.stringify(updatedRows)));
-
-      const personSnapshot = {};
-      updatedRows.forEach(r => {
-        personSnapshot[r.key] = r.personCount;
-      });
-      lastSavedPersonRef.current = personSnapshot;
-
-      isInitialLoadRef.current = false;
-    } catch (error) {
-      console.error("Error fetching menu allocation:", error);
-      setRows([]);
-      setOrderSummaryGroups([]);
-      setAllMenuData([]);
-    } finally {
-      setMenuLoading(false);
-      setTableLoading(false);
-    }
-  };
-
-  const getValidFunctionId = (functionItem) => {
-    if (!functionItem) return null;
-
-    if (functionItem.id === -1) {
-      return eventData?.eventFunctions?.[0]?.id || null;
-    }
-
-    return functionItem.id;
-  };
-
+  // ============= FETCH GODOWNS (ONCE) =============
   useEffect(() => {
-    if (eventData?.eventFunctions?.length > 0) {
-      setActiveFunction(allFunctionTab);
-      fetchMenuAllocation(-1);
-    }
-  }, [eventData?.eventFunctions]);
+    const fetchGodowns = async () => {
+      try {
+        setPlaceLoading(true);
+        const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    if (isInitialLoadRef.current) return;
-  
-    if (rows.length === 0) return;
-  
-    if (rows.some(r => r.personCount === 0)) return;
-  
-    const hasPersonChanged = rows.some(
-      r => lastSavedPersonRef.current[r.key] !== r.personCount
-    );
-  
-    if (!hasPersonChanged) return;
-  
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-  
-    saveTimeoutRef.current = setTimeout(() => {
-      handleMainSave();
-    }, 1000);
-  
-    return () => clearTimeout(saveTimeoutRef.current);
-  }, [rows]);
-  
-  
-  
+        if (!userId || userId === "undefined" || userId === "null") {
+          console.warn("No valid userId found, skipping godown fetch");
+          return;
+        }
 
-  const totalPax = useMemo(() => {
-    if (activeFunction?.id === -1) {
-      return "";
-    }
-    return activeFunction?.pax || 0;
-  }, [activeFunction, eventData?.eventFunctions]);
+        const res = await GETallGodown(userId);
 
-  const checkForChanges = (currentRows, originalRows) => {
+        if (res?.data?.data?.length) {
+          const godownOptions = res.data.data.map((g) => ({
+            value: g.nameEnglish,
+            label: g.nameEnglish,
+            id: g.id,
+          }));
+
+          setPlaceOptions([{ value: "venue", label: "At venue", id: "venue" }, ...godownOptions]);
+        }
+      } catch (err) {
+        console.error("Error fetching godowns:", err);
+      } finally {
+        setPlaceLoading(false);
+      }
+    };
+
+    fetchGodowns();
+  }, []);
+
+  // ============= CHECK FOR CHANGES =============
+  const checkForChanges = useCallback((currentRows, originalRows) => {
     if (currentRows.length !== originalRows.length) return true;
 
     return currentRows.some((row, index) => {
@@ -1433,28 +872,248 @@ const EventMenuAllocationPage = ({ mode }) => {
         );
       });
     });
-  };
+  }, []);
 
-  const updateRow = (updated) => {
+  // ============= FETCH MENU ALLOCATION =============
+  const fetchMenuAllocation = useCallback(async (eventFunctionId) => {
+    try {
+      setMenuLoading(true);
+      setTableLoading(true);
+
+      const isAllFunctions = eventFunctionId === -1;
+      let allMenuDataResponse = [];
+
+      const menudata = await GetMenuAllocation(eventId, isAllFunctions ? -1 : eventFunctionId);
+
+      if (menudata?.data?.success && menudata.data.data["Menu Allocation Details"]?.length > 0) {
+        allMenuDataResponse = menudata.data.data["Menu Allocation Details"];
+        setAllMenuData(allMenuDataResponse);
+      }
+
+      if (allMenuDataResponse.length === 0) {
+        setRows([]);
+        setOrderSummaryGroups([]);
+        setAllMenuData([]);
+        return;
+      }
+
+      const mergedMenuAllocation = allMenuDataResponse.flatMap((d) => d.menuAllocation || []);
+
+      const transformedRows = mergedMenuAllocation.map((item) => ({
+        key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
+        id: item.id,
+        categoryName: getLocalizedValue(item, "menuCategoryName", ""),
+        categoryNameEn: item.menuCategoryName,
+        categoryNameGu: item.menuCategoryNameGujarati,
+        categoryNameHi: item.menuCategoryNameHindi,
+        itemName: getLocalizedValue(item, "menuItemName", ""),
+        itemNameEn: item.menuItemName,
+        itemNameGu: item.menuItemNameGujarati,
+        itemNameHi: item.menuItemNameHindi,
+        chefLabour: item.chefLabour || false,
+        inside: item.inside || false,
+        outside: item.outside || false,
+        personCount: item.personCount || 0,
+        oldPersonCount: item.oldPersonCount || 0,
+        place: item.place || "venue",
+        instructions: item.instructions || "",
+        eventId: item.eventId,
+        eventFunctionId: item.eventFunctionId,
+        menuCategoryId: item.menuCategoryId,
+        menuItemId: item.menuItemId,
+        eventFunctionMenuAllocations:
+          item.eventFunctionMenuAllocations?.map((alloc) => {
+            const isChefLabour = item.chefLabour && !item.outside && !item.inside;
+            const isOutside = item.outside;
+            const isInside = item.inside;
+
+            let allocationTotal = 0;
+
+            if (isChefLabour) {
+              allocationTotal =
+                (Number(alloc.counterPrice) || 0) * (Number(alloc.counterQuantity) || 0) +
+                (Number(alloc.helperPrice) || 0) * (Number(alloc.helperQuantity) || 0);
+            } else {
+              allocationTotal = (Number(alloc.price) || 0) * (Number(alloc.quantity) || 0);
+            }
+
+            return {
+              id: alloc.id || null,
+              partyId: alloc.partyId,
+              partyName: alloc.partyName,
+              menuAllocationId: item.id,
+              price: Number(alloc.price) || 0,
+              quantity: Number(alloc.quantity) || 0,
+              unitId: alloc.unitId ?? null,
+              unitName: alloc.unitName ?? null,
+              serviceType: alloc.serviceType || "",
+              counterQuantity: alloc.counterQuantity || 0,
+              helperQuantity: alloc.helperQuantity || 0,
+              counterPrice: alloc.counterPrice || 0,
+              helperPrice: alloc.helperPrice || 0,
+              totalPrice: allocationTotal,
+              isOutside,
+              isChefLabour,
+              isInside,
+              number: alloc.number ?? null,
+              remarks: alloc.remarks ?? null,
+              pax: alloc.pax ?? null,
+            };
+          }) || [],
+        menuItemRawMaterials: [],
+      }));
+
+      setRows(transformedRows);
+
+      if (isAllFunctions) {
+        setOrderSummaryGroups([]);
+      } else {
+        const allSelectedItems = allMenuDataResponse.flatMap((detail) => detail?.selectedItemDetails || []);
+        const totalChefPrice = allMenuDataResponse[0].totalChefPrice;
+        const totalOutSidePrice = allMenuDataResponse[0].totalOutSidePrice;
+
+        const categoryMap = new Map();
+
+        allSelectedItems.forEach((category) => {
+          const categoryId = category.menuCategoryId;
+
+          if (!categoryMap.has(categoryId)) {
+            categoryMap.set(categoryId, {
+              categoryId: category.menuCategoryId,
+              categoryName: category.menuCategoryName,
+              itemsMap: new Map(),
+            });
+          }
+
+          const existingCategory = categoryMap.get(categoryId);
+
+          category.selectedMenuPreparationItems?.forEach((item) => {
+            if (!existingCategory.itemsMap.has(item.menuItemId)) {
+              existingCategory.itemsMap.set(item.menuItemId, item);
+            }
+          });
+        });
+
+        const summaryGroups =
+          Array.from(categoryMap.values())?.map((category) => ({
+            categoryId: category.categoryId,
+            categoryName: category.categoryName,
+            totalChefPrice,
+            totalOutSidePrice,
+            items:
+              Array.from(category.itemsMap.values())?.map((summaryItem) => {
+                const matchingRows = transformedRows.filter((r) => r.menuItemId === summaryItem.menuItemId);
+
+                const basePrice = Number(summaryItem.totalPrice) || 0;
+                let finalPrice = basePrice;
+
+                if (matchingRows.length > 0) {
+                  finalPrice = matchingRows.reduce((total, matchingRow) => {
+                    let rowPrice = basePrice;
+
+                    if (matchingRow.inside) {
+                      rowPrice = basePrice;
+                    } else if (matchingRow.outside) {
+                      rowPrice =
+                        matchingRow.eventFunctionMenuAllocations
+                          ?.filter((a) => a.isOutside)
+                          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+                    } else if (matchingRow.chefLabour) {
+                      const chefCost =
+                        matchingRow.eventFunctionMenuAllocations
+                          ?.filter((a) => a.isChefLabour)
+                          .reduce((sum, a) => sum + (a.totalPrice || 0), 0) || 0;
+
+                      rowPrice = basePrice + chefCost;
+                    }
+
+                    return total + rowPrice;
+                  }, 0);
+                }
+
+                return {
+                  ...summaryItem,
+                  originalTotalPrice: basePrice,
+                  totalPrice: finalPrice,
+                  totalChefPrice,
+                  totalOutSidePrice,
+                };
+              }) || [],
+          })) || [];
+
+        setOrderSummaryGroups(summaryGroups);
+      }
+
+      // ✅ OPTIMIZATION: Removed individual SelectedItemNameMenuAllocation API calls
+      // Raw materials will be fetched only when user clicks on an item
+
+      setInitialRows(JSON.parse(JSON.stringify(transformedRows)));
+
+      const personSnapshot = {};
+      transformedRows.forEach((r) => {
+        personSnapshot[r.key] = r.personCount;
+      });
+      lastSavedPersonRef.current = personSnapshot;
+
+      isInitialLoadRef.current = false;
+    } catch (error) {
+      console.error("Error fetching menu allocation:", error);
+      setRows([]);
+      setOrderSummaryGroups([]);
+      setAllMenuData([]);
+    } finally {
+      setMenuLoading(false);
+      setTableLoading(false);
+    }
+  }, [eventId]);
+
+  // ============= INITIALIZE ACTIVE FUNCTION =============
+  useEffect(() => {
+    if (eventData?.eventFunctions?.length > 0) {
+      setActiveFunction(allFunctionTab);
+      fetchMenuAllocation(-1);
+    }
+  }, [eventData?.eventFunctions, allFunctionTab, fetchMenuAllocation]);
+
+  // ============= AUTO-SAVE ON PERSON COUNT CHANGE =============
+  useEffect(() => {
+    if (isInitialLoadRef.current) return;
+    if (rows.length === 0) return;
+    if (rows.some((r) => r.personCount === 0)) return;
+
+    const hasPersonChanged = rows.some((r) => lastSavedPersonRef.current[r.key] !== r.personCount);
+
+    if (!hasPersonChanged) return;
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      handleMainSave();
+    }, 1000);
+
+    return () => clearTimeout(saveTimeoutRef.current);
+  }, [rows]);
+
+  // ============= UPDATE ROW =============
+  const updateRow = useCallback((updated) => {
     setRows((prevRows) => {
-      const updatedRows = prevRows.map((x) =>
-        x.key === updated.key ? updated : x
-      );
-  
-      updateOrderSummaryPrices(updated.menuItemId, updatedRows);
+      const updatedRows = prevRows.map((x) => (x.key === updated.key ? updated : x));
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-  
       return updatedRows;
     });
-  };
+  }, [checkForChanges, initialRows]);
 
-  const handleFunctionChange = (functionItem) => {
+  // ============= HANDLE FUNCTION CHANGE =============
+  const handleFunctionChange = useCallback((functionItem) => {
     setActiveFunction(functionItem);
     const functionId = functionItem?.id;
     fetchMenuAllocation(functionId);
-  };
+  }, [fetchMenuAllocation]);
 
-  const handleAdjustPerson = () => {
+  // ============= HANDLE ADJUST PERSON =============
+  const handleAdjustPerson = useCallback(() => {
     const adjustment = Number(percentage);
     if (isNaN(adjustment) || adjustment === 0) return;
 
@@ -1465,13 +1124,13 @@ const EventMenuAllocationPage = ({ mode }) => {
       }));
 
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-
       return updatedRows;
     });
 
     setPercentage("");
-  };
+  }, [percentage, checkForChanges, initialRows]);
 
+  // ============= FILTERED ROWS WITH CALLBACKS =============
   const filtered = useMemo(() => {
     const filteredRows = rows.filter((r) => {
       if (!searchTerm) return true;
@@ -1484,7 +1143,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     return filteredRows.map((r) => ({
       ...r,
-
       openChefSidebar: () => {
         setOpen(false);
         setIsChefModal(false);
@@ -1526,28 +1184,123 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventFunctionId: getEventFunctionId(activeFunction),
         });
       },
-      onPaxBlur: () => {
-        if (personSaveTimeoutRef.current) {
-          clearTimeout(personSaveTimeoutRef.current);
-        }
-      
-        personSaveTimeoutRef.current = setTimeout(() => {
-          handleMainSave();
-        }, 1000); 
-      },
-      
     }));
-  }, [
-    rows,
-    eventId,
-    activeFunction,
-    searchTerm,
-    currentLang,
-    placeOptions,
-    placeLoading,
-  ]); // Add currentLang as dependency
+  }, [rows, eventId, activeFunction, searchTerm, currentLang, getEventFunctionId]);
 
-  const handleInsideSave = (saveData) => {
+  // ============= HANDLE ORDER SUMMARY ITEM CLICK =============
+  const handleOrderSummaryItemClick = useCallback(async (item, group, clickedFunctionId) => {
+    try {
+      let eventFunctionId;
+
+      if (isAllFunctions && clickedFunctionId) {
+        eventFunctionId = clickedFunctionId;
+      } else {
+        eventFunctionId = getEventFunctionId(activeFunction);
+      }
+
+      // ✅ Validate eventFunctionId
+      if (!eventFunctionId || eventFunctionId === undefined) {
+        console.error("Invalid eventFunctionId");
+        message.error("Unable to determine function. Please try again.");
+        return;
+      }
+
+      const menuItemId = item.menuItemId || item.id;
+
+      // ✅ Validate menuItemId
+      if (!menuItemId || menuItemId === undefined) {
+        console.error("Invalid menuItemId");
+        message.error("Unable to determine menu item. Please try again.");
+        return;
+      }
+
+      const matchingRow = rows.find(
+        (r) => r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId
+      );
+
+      if (matchingRow?.outside) {
+        return;
+      }
+
+      // ✅ Get pax values with proper fallback
+      let oldPax = 0;
+      let newPax = 0;
+
+      if (matchingRow) {
+        oldPax = matchingRow.oldPersonCount || 0;
+        newPax = matchingRow.personCount || 0;
+      } else {
+        // Fallback: Get pax from function data
+        if (isAllFunctions && eventData?.eventFunctions) {
+          const functionData = eventData.eventFunctions.find(f => f.id === eventFunctionId);
+          newPax = functionData?.pax || 0;
+        } else {
+          newPax = activeFunction?.pax || 0;
+        }
+        oldPax = newPax;
+      }
+
+      // ✅ Ensure pax values are valid numbers
+      oldPax = Number(oldPax) || 0;
+      newPax = Number(newPax) || 0;
+
+      let allocationType = "inside";
+      if (matchingRow?.chefLabour) {
+        allocationType = "chef";
+      } else if (matchingRow?.outside) {
+        allocationType = "outsource";
+      } else if (matchingRow?.inside) {
+        allocationType = "inside";
+      }
+
+      setSelectedRow({
+        "MenuItem RawMaterial Details": [],
+        menuItemName: item.menuItemName || "-",
+        menuItemId: menuItemId,
+        eventFunctionId: eventFunctionId,
+        eventId: eventId,
+        allocationType: allocationType,
+      });
+
+      setIsCategoryModal(true);
+      setMenuLoading(true);
+
+      console.log('🔍 API Call params:', { 
+        eventFunctionId, 
+        menuItemId, 
+        newPax, 
+        oldPax 
+      });
+
+      // ✅ API call with validated parameters
+      const res = await SelectedItemNameMenuAllocation(eventFunctionId, menuItemId, newPax, oldPax);
+
+      if (res?.data?.success) {
+        const apiData = res.data.data;
+
+        const rawMaterials =
+          apiData["MenuItem RawMaterial Details"] || apiData.menuItemRawMaterials || [];
+
+        setSelectedRow({
+          ...apiData,
+          "MenuItem RawMaterial Details": rawMaterials,
+          menuItemName: item.menuItemName || apiData.menuItemName || "-",
+          menuItemId: menuItemId,
+          eventFunctionId: eventFunctionId,
+          eventId: eventId,
+          allocationType: allocationType,
+        });
+      }
+    } catch (error) {
+      console.error("Error opening category sidebar:", error);
+      message.error("Failed to load item details. Please try again.");
+    } finally {
+      setMenuLoading(false);
+    }
+  }, [activeFunction, eventData, eventId, getEventFunctionId, isAllFunctions, rows]);
+
+  // ============= SAVE HANDLERS =============
+  const handleInsideSave = useCallback((saveData) => {
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-inside`]: saveData,
@@ -1555,19 +1308,12 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setRows((prevRows) => {
       const updatedRows = prevRows.map((r) => {
-        if (
-          r.menuItemId === saveData.menuItemId &&
-          r.menuCategoryId === saveData.menuCategoryId
-        ) {
+        if (r.menuItemId === saveData.menuItemId && r.menuCategoryId === saveData.menuCategoryId) {
           return {
             ...r,
             eventFunctionMenuAllocations: [
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isChefLabour === true,
-              ),
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isOutside === true,
-              ),
+              ...(r.eventFunctionMenuAllocations || []).filter((a) => a.isChefLabour === true),
+              ...(r.eventFunctionMenuAllocations || []).filter((a) => a.isOutside === true),
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isInside: true,
@@ -1580,132 +1326,14 @@ const EventMenuAllocationPage = ({ mode }) => {
         return r;
       });
 
-      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-
       return updatedRows;
     });
 
     setIsInsideModal(false);
-  };
+  }, [checkForChanges, initialRows]);
 
-  const updateOrderSummaryPrices = (
-    menuItemId,
-    currentRows = rows,
-    specificFunctionId = null,
-  ) => {
-    setOrderSummaryGroups((prevGroups) =>
-      prevGroups.map((group) => ({
-        ...group,
-        items: group.items.map((item) => {
-          if (item.menuItemId !== menuItemId) return item;
-
-          const matchingRows = currentRows.filter(
-            (row) =>
-              row.menuItemId === menuItemId &&
-              (specificFunctionId
-                ? row.eventFunctionId === specificFunctionId
-                : true),
-          );
-
-          if (matchingRows.length === 0) return item;
-
-          const totalPrice = matchingRows.reduce((total, matchingRow) => {
-            const basePrice = item.originalTotalPrice || 0;
-
-            if (matchingRow.inside) {
-              return total + basePrice;
-            }
-
-            if (matchingRow.outside) {
-              const additionalCost =
-                matchingRow.eventFunctionMenuAllocations
-                  ?.filter((a) => a.isOutside)
-                  .reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0,
-                  ) || 0;
-              return total + additionalCost;
-            }
-
-            if (matchingRow.chefLabour) {
-              const chefLabourCost =
-                matchingRow.eventFunctionMenuAllocations
-                  ?.filter((a) => a.isChefLabour)
-                  .reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0,
-                  ) || 0;
-              return total + (basePrice + chefLabourCost);
-            }
-
-            return total + basePrice;
-          }, 0);
-
-          return { ...item, totalPrice };
-        }),
-      })),
-    );
-  };
-
-  const calculateAllFunctionsPrices = () => {
-    if (!enrichedGroupedByFunction) return;
-
-    setOrderSummaryGroups((prevGroups) =>
-      prevGroups.map((group) => ({
-        ...group,
-        items: group.items.map((item) => {
-          const matchingRows = rows.filter(
-            (row) => row.menuItemId === item.menuItemId,
-          );
-
-          if (matchingRows.length === 0) return item;
-
-          const totalPrice = matchingRows.reduce((total, matchingRow) => {
-            const basePrice = item.originalTotalPrice || 0;
-
-            if (matchingRow.inside) {
-              return total + basePrice;
-            }
-
-            if (matchingRow.outside) {
-              const additionalCost =
-                matchingRow.eventFunctionMenuAllocations
-                  ?.filter((a) => a.isOutside)
-                  .reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0,
-                  ) || 0;
-              return total + additionalCost;
-            }
-
-            if (matchingRow.chefLabour) {
-              const chefLabourCost =
-                matchingRow.eventFunctionMenuAllocations
-                  ?.filter((a) => a.isChefLabour)
-                  .reduce(
-                    (sum, allocation) => sum + (allocation.totalPrice || 0),
-                    0,
-                  ) || 0;
-              return total + (basePrice + chefLabourCost);
-            }
-
-            return total + basePrice;
-          }, 0);
-
-          return { ...item, totalPrice };
-        }),
-      })),
-    );
-  };
-
-  useEffect(() => {
-    if (isAllFunctions && rows.length > 0) {
-      calculateAllFunctionsPrices();
-    }
-  }, [rows, isAllFunctions]);
-
-  const handleOutsideSave = (saveData) => {
+  const handleOutsideSave = useCallback((saveData) => {
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-outside`]: saveData,
@@ -1713,19 +1341,12 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setRows((prevRows) => {
       const updatedRows = prevRows.map((r) => {
-        if (
-          r.menuItemId === saveData.menuItemId &&
-          r.menuCategoryId === saveData.menuCategoryId
-        ) {
+        if (r.menuItemId === saveData.menuItemId && r.menuCategoryId === saveData.menuCategoryId) {
           return {
             ...r,
             eventFunctionMenuAllocations: [
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isChefLabour === true,
-              ),
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isInside === true,
-              ),
+              ...(r.eventFunctionMenuAllocations || []).filter((a) => a.isChefLabour === true),
+              ...(r.eventFunctionMenuAllocations || []).filter((a) => a.isInside === true),
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isOutside: true,
@@ -1738,16 +1359,14 @@ const EventMenuAllocationPage = ({ mode }) => {
         return r;
       });
 
-      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-
       return updatedRows;
     });
 
     setOpen(false);
-  };
+  }, [checkForChanges, initialRows]);
 
-  const handleChefLabourSave = (saveData) => {
+  const handleChefLabourSave = useCallback((saveData) => {
     setAllocationData((prev) => ({
       ...prev,
       [`${saveData.menuItemId}-${saveData.menuCategoryId}-chef`]: saveData,
@@ -1755,19 +1374,12 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setRows((prevRows) => {
       const updatedRows = prevRows.map((r) => {
-        if (
-          r.menuItemId === saveData.menuItemId &&
-          r.menuCategoryId === saveData.menuCategoryId
-        ) {
+        if (r.menuItemId === saveData.menuItemId && r.menuCategoryId === saveData.menuCategoryId) {
           return {
             ...r,
             eventFunctionMenuAllocations: [
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isOutside === true,
-              ),
-              ...(r.eventFunctionMenuAllocations || []).filter(
-                (a) => a.isInside === true,
-              ),
+              ...(r.eventFunctionMenuAllocations || []).filter((a) => a.isOutside === true),
+              ...(r.eventFunctionMenuAllocations || []).filter((a) => a.isInside === true),
               ...saveData.allocations.map((alloc) => ({
                 ...alloc,
                 isChefLabour: true,
@@ -1780,16 +1392,14 @@ const EventMenuAllocationPage = ({ mode }) => {
         return r;
       });
 
-      updateOrderSummaryPrices(saveData.menuItemId, updatedRows);
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-
       return updatedRows;
     });
 
     setIsChefModal(false);
-  };
+  }, [checkForChanges, initialRows]);
 
-  const handleCategorySave = async (saveData) => {
+  const handleCategorySave = useCallback(async (saveData) => {
     setAllocationData((prev) => {
       const updated = {
         ...prev,
@@ -1821,19 +1431,14 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setIsCategoryModal(false);
 
-    // ✅ NEW: Refresh all data if shouldRefresh flag is true
     if (saveData.shouldRefresh) {
       const currentActiveFunctionId = activeFunction?.id;
 
       if (currentActiveFunctionId) {
-        // Show loading indicator
         setTableLoading(true);
 
         try {
-          // Refresh the menu allocation data
           await fetchMenuAllocation(currentActiveFunctionId);
-
-          // Optional: Show success message
           console.log("Data refreshed successfully after category save");
         } catch (error) {
           console.error("Error refreshing data after category save:", error);
@@ -1848,64 +1453,19 @@ const EventMenuAllocationPage = ({ mode }) => {
         }
       }
     }
-  };
+  }, [activeFunction, checkForChanges, fetchMenuAllocation, initialRows]);
 
-  // ✅ NEW: Fetch godown data once on component mount
-  useEffect(() => {
-    const fetchGodowns = async () => {
-      try {
-        setPlaceLoading(true);
-
-        // Get userId from localStorage
-        const userId = localStorage.getItem("userId");
-
-        // Validate userId
-        if (!userId || userId === "undefined" || userId === "null") {
-          console.warn("No valid userId found, skipping godown fetch");
-          return;
-        }
-
-        // Pass userId to the API call
-        const res = await GETallGodown(userId);
-
-        if (res?.data?.data?.length) {
-          const godownOptions = res.data.data.map((g) => ({
-            value: g.nameEnglish,
-            label: g.nameEnglish,
-            id: g.id,
-          }));
-
-          setPlaceOptions([
-            { value: "venue", label: "At venue", id: "venue" },
-            ...godownOptions,
-          ]);
-        }
-      } catch (err) {
-        console.error("Error fetching godowns:", err);
-      } finally {
-        setPlaceLoading(false);
-      }
-    };
-
-    fetchGodowns();
-  }, []);
-  if (loading) {
-    return (
-      <Container>
-        <div className="flex items-center justify-center h-64">
-          <Spin size="large" />
-        </div>
-      </Container>
-    );
-  }
-
-  const handleMainSave = async () => {
+  // ============= MAIN SAVE =============
+  const handleMainSave = useCallback(async () => {
     try {
       let Id = localStorage.getItem("userId");
 
       const validEventId = Number(eventId);
-      const validEventFunctionId = getValidFunctionId(activeFunction);
-      const hasInvalidPerson = rows.some(r => r.personCount === 0);
+      const validEventFunctionId = activeFunction?.id === -1 
+        ? eventData?.eventFunctions?.[0]?.id 
+        : activeFunction?.id;
+
+      const hasInvalidPerson = rows.some((r) => r.personCount === 0);
       if (hasInvalidPerson) {
         Swal.fire({
           icon: "error",
@@ -1914,7 +1474,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
         return;
       }
-      const currentActiveFunctionId = activeFunction?.id;
+
       if (!validEventId || !validEventFunctionId) {
         Swal.fire({
           title: "Error!",
@@ -2036,18 +1596,18 @@ const EventMenuAllocationPage = ({ mode }) => {
       const res = await MenuAllocationSave(payload);
 
       if (res?.data?.success === true) {
-      
         Swal.fire({
           title: "Saved Successfully!",
           text: "Menu Allocation details have been saved.",
           icon: "success",
           confirmButtonColor: "#3085d6",
         });
-       
-      
+
+        const currentActiveFunctionId = activeFunction?.id;
         await fetchMenuAllocation(currentActiveFunctionId);
+
         const personSnapshot = {};
-        rows.forEach(r => {
+        rows.forEach((r) => {
           personSnapshot[r.key] = r.personCount;
         });
         lastSavedPersonRef.current = personSnapshot;
@@ -2056,10 +1616,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else {
         Swal.fire({
           title: "Save Failed!",
-          text:
-            res?.data?.msg ||
-            res?.data?.message ||
-            "Failed to save menu allocation details.",
+          text: res?.data?.msg || res?.data?.message || "Failed to save menu allocation details.",
           icon: "error",
           confirmButtonColor: "#d33",
         });
@@ -2075,37 +1632,38 @@ const EventMenuAllocationPage = ({ mode }) => {
         confirmButtonColor: "#d33",
       });
     }
-  };
-  function openSelectMenureport() {
+  }, [activeFunction, allocationData, eventData, eventId, fetchMenuAllocation, rows]);
+
+  // ============= SUMMARY MODALS =============
+  const openSelectMenureport = useCallback(() => {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
-  }
+  }, [eventId]);
 
-  const openSummaryItemModalchefoutside = async () => {
+  const openSummaryItemModalchefoutside = useCallback(async () => {
     const functionId = getEventFunctionId(activeFunction);
     const res = await MenuAllocationTypeSummary(functionId, eventId, "Chef");
     setchefsummary(res.data.data["Menu Allocation Details"] || []);
     setIsModalOpen(true);
-  };
+  }, [activeFunction, eventId, getEventFunctionId]);
 
-  const openSummaryItemModalOustsideAgency = async () => {
+  const openSummaryItemModalOustsideAgency = useCallback(async () => {
     const functionId = getEventFunctionId(activeFunction);
     const res = await MenuAllocationTypeSummary(functionId, eventId, "Outside");
     setoutsidesummary(res.data.data["Menu Allocation Details"] || []);
     setIsOutsideAgencyModalOpen(true);
-  };
+  }, [activeFunction, eventId, getEventFunctionId]);
 
-  const openSummaryItemModalInHouseCook = async () => {
+  const openSummaryItemModalInHouseCook = useCallback(async () => {
     const functionId = getEventFunctionId(activeFunction);
     const res = await MenuAllocationTypeSummary(functionId, eventId, "Inside");
     setinsidesummary(res?.data?.data["Menu Allocation Details"] || []);
     setIsInHouseCookModalOpen(true);
-  };
+  }, [activeFunction, eventId, getEventFunctionId]);
 
-  const handleSyncRawMaterial = async () => {
+  const handleSyncRawMaterial = useCallback(async () => {
     try {
       const eventFunctionId = activeFunction?.id || -1;
-      console.log(eventFunctionId);
 
       if (!eventFunctionId) {
         Swal.fire({
@@ -2164,68 +1722,53 @@ const EventMenuAllocationPage = ({ mode }) => {
         confirmButtonColor: "#d33",
       });
     }
-  };
+  }, [activeFunction, eventId, fetchMenuAllocation]);
+
+  if (loading) {
+    return (
+      <Container>
+        <div className="flex items-center justify-center h-64">
+          <Spin size="large" />
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Fragment>
       <Container>
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-6">
-            <h2 className="text-xl text-black font-semibold">
-              3. Menu Execution
-            </h2>
+            <h2 className="text-xl text-black font-semibold">3. Menu Execution</h2>
 
             <div className="flex gap-2">
               <button
-                onClick={() =>
-                  handleNavigateWithWarning(`/menu-preparation/${eventId}`)
-                }
+                onClick={() => handleNavigateWithWarning(`/menu-preparation/${eventId}`)}
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
               >
-                <i
-                  className="ki-filled ki-menu "
-                  style={{ color: "white" }}
-                ></i>{" "}
-                2. Menu Planning
+                <i className="ki-filled ki-menu " style={{ color: "white" }}></i> 2. Menu Planning
               </button>
 
               <button
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
-                onClick={() =>
-                  handleNavigateWithWarning(
-                    `/raw-material-allocation/${eventId}`,
-                  )
-                }
+                onClick={() => handleNavigateWithWarning(`/raw-material-allocation/${eventId}`)}
               >
-                <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}
-                4. Raw Material Distribution
+                <i className="ki-filled ki-gift" style={{ color: "white" }}></i> 4. Raw Material Distribution
               </button>
 
               <button
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
-                onClick={() =>
-                  handleNavigateWithWarning(
-                    `/labour-and-other-management/${eventId}`,
-                  )
-                }
+                onClick={() => handleNavigateWithWarning(`/labour-and-other-management/${eventId}`)}
               >
-                <i
-                  className="ki-filled ki-gift hover:!text-gray-400"
-                  style={{ color: "white" }}
-                ></i>{" "}
-                5. Agency Distribution
+                <i className="ki-filled ki-gift hover:!text-gray-400" style={{ color: "white" }}></i> 5. Agency
+                Distribution
               </button>
               <button
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
-                onClick={() =>
-                  handleNavigateWithWarning(`/dish-costing/${eventId}`)
-                }
+                onClick={() => handleNavigateWithWarning(`/dish-costing/${eventId}`)}
               >
-                <i
-                  className="ki-filled ki-grid hover:!text-gray-400"
-                  style={{ color: "white" }}
-                ></i>{" "}
-                6. Per Dish-costng
+                <i className="ki-filled ki-grid hover:!text-gray-400" style={{ color: "white" }}></i> 6. Per
+                Dish-costng
               </button>
             </div>
           </div>
@@ -2233,19 +1776,13 @@ const EventMenuAllocationPage = ({ mode }) => {
 
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-            {/* ROW 1 */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
                 <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
-                    defaultMessage="Event ID:"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_ID" defaultMessage="Event ID:" />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {eventData?.eventNo || "-"}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{eventData?.eventNo || "-"}</span>
               </div>
             </div>
 
@@ -2253,14 +1790,9 @@ const EventMenuAllocationPage = ({ mode }) => {
               <i className="ki-filled ki-user text-success text-lg"></i>
               <div className="flex flex-col">
                 <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
-                    defaultMessage="Party Name:"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.PARTY_NAME" defaultMessage="Party Name:" />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getPartyName(eventData?.party)}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{getPartyName(eventData?.party)}</span>
               </div>
             </div>
 
@@ -2268,14 +1800,9 @@ const EventMenuAllocationPage = ({ mode }) => {
               <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
               <div className="flex flex-col">
                 <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
-                    defaultMessage="Event Name:"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_NAME" defaultMessage="Event Name:" />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getEventTypeName(eventData?.eventType)}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{getEventTypeName(eventData?.eventType)}</span>
               </div>
             </div>
 
@@ -2283,37 +1810,24 @@ const EventMenuAllocationPage = ({ mode }) => {
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
                 <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
-                    defaultMessage="Event Date & Time:"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME" defaultMessage="Event Date & Time:" />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {eventData?.eventStartDateTime || ""}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{eventData?.eventStartDateTime || ""}</span>
               </div>
             </div>
 
-            {/* FORCE NEW ROW */}
             <div className="w-full h-0"></div>
 
-            {/* ROW 2 LEFT — Event Venue */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
                 <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
-                    defaultMessage="Event Venue:"
-                  />
+                  <FormattedMessage id="EVENT_MENU_ALLOCATION.EVENT_VENUE" defaultMessage="Event Venue:" />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getVenueName(eventData?.venue)}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{getVenueName(eventData?.venue)}</span>
               </div>
             </div>
 
-            {/* ROW 2 RIGHT — Buttons */}
             <div className="ml-auto flex items-center gap-2">
               <button
                 className="btn btn-sm btn-primary"
@@ -2324,11 +1838,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
               </button>
 
-              <button
-                className="btn btn-sm btn-primary"
-                title="Sync Raw Material"
-                onClick={handleSyncRawMaterial}
-              >
+              <button className="btn btn-sm btn-primary" title="Sync Raw Material" onClick={handleSyncRawMaterial}>
                 <FormattedMessage
                   id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL"
                   defaultMessage="Sync Raw Material"
@@ -2344,10 +1854,7 @@ const EventMenuAllocationPage = ({ mode }) => {
               <TopTabs
                 value={activeFunction}
                 onChange={handleFunctionChange}
-                functions={[
-                  allFunctionTab,
-                  ...(eventData?.eventFunctions || []),
-                ]}
+                functions={[allFunctionTab, ...(eventData?.eventFunctions || [])]}
               />
             </div>
 
@@ -2359,28 +1866,20 @@ const EventMenuAllocationPage = ({ mode }) => {
                 <div className="flex flex-row gap-4 items-end">
                   <div className="flex flex-col">
                     <span className="text-sm text-gray-600">
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.DATE_TIME"
-                        defaultMessage="Date & Time"
-                      />
+                      <FormattedMessage id="EVENT_MENU_ALLOCATION.DATE_TIME" defaultMessage="Date & Time" />
                     </span>
                     <Input
                       className="p-1 w-[200px] text-black"
                       type="text"
                       readOnly
                       value={
-                        activeFunction?.id === -1
-                          ? ""
-                          : activeFunction?.functionStartDateTime || "-"
+                        activeFunction?.id === -1 ? "" : activeFunction?.functionStartDateTime || "-"
                       }
                     />
                   </div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-gray-600">
-                      <FormattedMessage
-                        id="COMMON.PERSON"
-                        defaultMessage="Person"
-                      />
+                      <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />
                     </span>
                     <Input
                       className="p-1 w-[70px] text-black text-center"
@@ -2402,15 +1901,8 @@ const EventMenuAllocationPage = ({ mode }) => {
                     className="p-1 pl-2 w-28"
                   />
                   <Tooltip title="It will increase or decrease the number of persons by the entered number.">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      title="Adjust Person"
-                      onClick={handleAdjustPerson}
-                    >
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
-                        defaultMessage="Adjust Person"
-                      />
+                    <button className="btn btn-sm btn-primary" title="Adjust Person" onClick={handleAdjustPerson}>
+                      <FormattedMessage id="EVENT_MENU_ALLOCATION.ADJUST_PERSON" defaultMessage="Adjust Person" />
                     </button>
                   </Tooltip>
                 </div>
@@ -2438,50 +1930,35 @@ const EventMenuAllocationPage = ({ mode }) => {
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Agency Allocation"
                   >
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.AGENCY"
-                      defaultMessage="Agency Allocation"
-                    />
+                    <FormattedMessage id="EVENT_MENU_ALLOCATION.AGENCY" defaultMessage="Agency Allocation" />
                   </button>
                   <button
                     onClick={openSummaryItemModalchefoutside}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Chef Labour"
                   >
-                    <FormattedMessage
-                      id="COMMON.CHEF_LABOUR"
-                      defaultMessage="Chef Labour"
-                    />
+                    <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" />
                   </button>
                   <button
                     onClick={openSummaryItemModalOustsideAgency}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Outsource Agency"
                   >
-                    <FormattedMessage
-                      id="COMMON.OUTSIDE"
-                      defaultMessage="Outsource Agency"
-                    />
+                    <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource Agency" />
                   </button>
                   <button
                     onClick={openSummaryItemModalInHouseCook}
                     className="btn btn-primary text-white text-sm px-3 py-2 rounded-md transition"
                     title="Inside Kitchen"
                   >
-                    <FormattedMessage
-                      id="COMMON.INSIDE"
-                      defaultMessage="Inside Kitchen"
-                    />
+                    <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside Kitchen" />
                   </button>
                   <button
                     onClick={openSelectMenureport}
                     className="bg-[#05B723] text-white text-sm px-3 py-2 rounded-md transition"
                     title="Report"
                   >
-                    <FormattedMessage
-                      id="EVENT_MENU_ALLOCATION.REPORT"
-                      defaultMessage="Report"
-                    />
+                    <FormattedMessage id="EVENT_MENU_ALLOCATION.REPORT" defaultMessage="Report" />
                   </button>
                 </div>
               </div>
@@ -2497,14 +1974,11 @@ const EventMenuAllocationPage = ({ mode }) => {
               ) : isAllFunctions && enrichedGroupedByFunction ? (
                 enrichedGroupedByFunction.map((functionGroup, idx) => {
                   const functionRows = filtered.filter(
-                    (row) =>
-                      row.eventFunctionId === functionGroup.eventFunctionId,
+                    (row) => row.eventFunctionId === functionGroup.eventFunctionId
                   );
 
                   return (
-                    <div
-                      key={`function-${functionGroup.eventFunctionId}-${idx}`}
-                    >
+                    <div key={`function-${functionGroup.eventFunctionId}-${idx}`}>
                       <FunctionSectionLabel
                         functionName={functionGroup.functionName}
                         functionDateTime={functionGroup.functionDateTime}
@@ -2520,7 +1994,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                             key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
                             row={row}
                             onChange={updateRow}
-                           
                           />
                         ))
                       )}
@@ -2530,22 +2003,17 @@ const EventMenuAllocationPage = ({ mode }) => {
               ) : (
                 (() => {
                   const currentFunctionRows = filtered.filter(
-                    (row) =>
-                      row.eventFunctionId ===
-                      getEventFunctionId(activeFunction),
+                    (row) => row.eventFunctionId === getEventFunctionId(activeFunction)
                   );
 
                   return currentFunctionRows.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
-                      No menu items available for this function
-                    </div>
+                    <div className="p-8 text-center text-gray-500">No menu items available for this function</div>
                   ) : (
                     currentFunctionRows.map((row, index) => (
                       <TableRow
                         key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                         row={row}
                         onChange={updateRow}
-                   
                       />
                     ))
                   );
@@ -2628,15 +2096,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           onSave={handleCategorySave}
           allocationType={selectedRow?.allocationType}
         />
-        <WhatsappSidebarMenu
-          open={iswhatsAppSidebar}
-          onClose={() => setIsWhatsAppSidebar(false)}
-        />
-        <MenuReport
-          isModalOpen={isMenuReport}
-          setIsModalOpen={setIsMenuReport}
-          eventId={menuReportEventId}
-        />
+        <WhatsappSidebarMenu open={iswhatsAppSidebar} onClose={() => setIsWhatsAppSidebar(false)} />
+        <MenuReport isModalOpen={isMenuReport} setIsModalOpen={setIsMenuReport} eventId={menuReportEventId} />
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
