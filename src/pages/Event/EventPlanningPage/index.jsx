@@ -202,9 +202,11 @@ const EventPlanningPage = ({ mode }) => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchEventData();
   }, [eventId]);
+
   useEffect(() => {
     if (!eventData || !selectedFunction) return;
 
@@ -216,7 +218,6 @@ const EventPlanningPage = ({ mode }) => {
       setDefaultRate(func.rate || "");
     }
   }, [selectedFunction, eventData]);
-
   const loadSavedMenuPrep = useCallback(async () => {
     if (!selectedFunction) return;
     const userIdLocal = localStorage.getItem("userId");
@@ -270,6 +271,13 @@ const EventPlanningPage = ({ mode }) => {
             (f) => Number(f.menuItemId) === Number(it.menuItemId),
           );
 
+          // ✅ FIX: Properly map all language fields instead of using normalizeItemNotes
+          const mappedItemNotes = {
+            english: it.itemNotes || "",
+            hindi: it.itemNotesHindi || "",
+            gujarati: it.itemNotesGujarati || "",
+          };
+
           return {
             id: Number(it.menuItemId),
             nameEnglish: it.menuItemName || "",
@@ -282,7 +290,7 @@ const EventPlanningPage = ({ mode }) => {
             menuCategoryNameGujarati: catNameGujarati,
             catId: Number(cat.menuCategoryId || 0),
             itemSlogan: it.itemSlogan || "",
-            itemNotes: normalizeItemNotes(it.itemNotes),
+            itemNotes: mappedItemNotes, // ✅ Use properly mapped notes
 
             // Package metadata
             isPackageItem: data?.menuPreparation?.isPackage || false,
@@ -299,6 +307,11 @@ const EventPlanningPage = ({ mode }) => {
       });
 
       const menuPrepId = data?.menuPreparation?.id || 0;
+
+      // 🔍 Console log to verify final structure
+      Object.keys(categories).forEach((catName) => {
+        categories[catName].forEach((item) => {});
+      });
 
       setSelectedByFunction((prev) => ({
         ...prev,
@@ -363,7 +376,9 @@ const EventPlanningPage = ({ mode }) => {
       }
 
       if (order.length > 0) setHasExistingData(true);
-    } catch (err) {}
+    } catch (err) {
+      console.error("❌ Error loading menu prep:", err);
+    }
   }, [selectedFunction]);
 
   useEffect(() => {
@@ -930,22 +945,19 @@ const EventPlanningPage = ({ mode }) => {
   const openCategoryNotesModal = (categoryName) => {
     const bucket = selectedByFunction[selectedFunction] || {};
     const note = bucket.categoryNotes?.[categoryName];
-  
+
     const hasEnglish = note?.english?.trim();
-  
+
     setCategoryNotes({
       notesEnglish: note?.english || "",
       notesHindi: hasEnglish ? note?.hindi || "" : "",
       notesGujarati: hasEnglish ? note?.gujarati || "" : "",
       slogan: bucket?.categorySlogans?.[categoryName] || "",
     });
-  
+
     setCurrentCategoryForNotes(categoryName);
     setShowCategoryNoteModal(true);
   };
-  
-  
-  
 
   const handleNoteSave = (updatedSlogan) => {
     if (!selectedFunction || !currentItemForNotes) return;
@@ -984,13 +996,6 @@ const EventPlanningPage = ({ mode }) => {
     notesGujarati,
     slogan,
   }) => {
-    console.log("🟢 Received in handleCategoryNoteSave:", {
-      notesEnglish,
-      notesHindi,
-      notesGujarati,
-      slogan,
-      categoryName: currentCategoryForNotes,
-    });
     if (!selectedFunction || !currentCategoryForNotes) return;
     setIsDirty(true);
     setSelectedByFunction((prev) => {

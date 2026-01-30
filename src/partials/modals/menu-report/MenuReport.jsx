@@ -47,6 +47,9 @@ const MenuReport = ({
   const [options, setOptions] = useState({});
   const [showNamePlateUI, setShowNamePlateUI] = useState(false);
   const [isDropdownStatus, setisDropdownStatus] = useState();
+  const [showAgencyDropdown, setShowAgencyDropdown] = useState(false);
+  const [showItemDropdown, setShowItemDropdown] = useState(false);
+
   const [isDateStatus, setisDateStatus] = useState();
 
   // Filter states
@@ -77,12 +80,17 @@ const MenuReport = ({
 
         setReportType(config.type);
 
-        if (config.isAgency === 1 && config.isItem === 1)  {
+        if (config.isAgency === 1 && config.isItem === 1) {
           setisDropdownStatus(1);
         }
+
+        setShowAgencyDropdown(config.isAgency === 1);
+        setShowItemDropdown(config.isItem === 1);
+
         if (config.isDate === 1) {
           setisDateStatus(1);
         }
+
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
           categoryInstruction: config.isCategoryInstruction === 0,
@@ -132,43 +140,76 @@ const MenuReport = ({
     fetchConfig();
   }, [isModalOpen, mappingId, moduleId]);
 
-  /* ---------------- FETCH AGENCIES & ITEMS ---------------- */
+  /* ---------------- FETCH AGENCIES (INITIAL LOAD) ---------------- */
   useEffect(() => {
     if (!isModalOpen || isDropdownStatus !== 1) return;
 
-    const fetchFilters = async () => {
+    const fetchAgencies = async () => {
       setLoadingFilters(true);
       try {
-        // Fetch agencies
+        // ✅ Fetch agencies with empty partyIds initially
         const agencyRes = await GetAgenciesForReportFilter(
           eventFunctionId,
           eventId,
+          [], // Start with no filter
         );
+
+        console.log("🏢 Agencies fetched:", agencyRes);
 
         if (agencyRes?.data?.success && agencyRes?.data?.data) {
           setAgencies(agencyRes.data.data);
-        }
-
-        // Fetch items
-        const itemsRes = await GetSelectedItemsForReportFilter(
-          eventFunctionId,
-          eventId,
-        );
-        console.log("items", itemsRes);
-
-        if (itemsRes?.data?.success && itemsRes?.data?.data) {
-          setItems(itemsRes.data.data);
+        } else {
+          setAgencies([]);
         }
       } catch (err) {
-        console.error("Filter fetch error", err);
-        errorMsgPopup("Failed to load filter options");
+        console.error("Agency fetch error", err);
+        errorMsgPopup("Failed to load agencies");
+        setAgencies([]);
       } finally {
         setLoadingFilters(false);
       }
     };
 
-    fetchFilters();
+    fetchAgencies();
   }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId]);
+
+  /* ---------------- FETCH ITEMS (WHEN AGENCY CHANGES) ---------------- */
+  useEffect(() => {
+    if (!isModalOpen || isDropdownStatus !== 1 || selectedAgency.length === 0) {
+      setItems([]);
+      setSelectedItems([]);
+      return;
+    }
+
+    const fetchItemsByAgency = async () => {
+      setLoadingFilters(true);
+      try {
+        console.log("📦 Fetching items for agencies:", selectedAgency);
+
+        const itemsRes = await GetSelectedItemsForReportFilter(
+          eventFunctionId,
+          eventId,
+          selectedAgency, // ✅ partyIds passed here
+        );
+
+        console.log("📦 Items fetched:", itemsRes);
+
+        if (itemsRes?.data?.success && itemsRes?.data?.data) {
+          setItems(itemsRes.data.data);
+        } else {
+          setItems([]);
+        }
+      } catch (err) {
+        console.error("Items fetch error", err);
+        errorMsgPopup("Failed to load items");
+        setItems([]);
+      } finally {
+        setLoadingFilters(false);
+      }
+    };
+
+    fetchItemsByAgency();
+  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, selectedAgency]);
 
   const formatAdminDate = (dateString) => {
     if (!dateString) return null;
@@ -282,6 +323,8 @@ const MenuReport = ({
         endDate: formatAdminDate(adminEndDate),
       }),
     };
+
+    console.log("📤 Report payload:", payload);
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
       errorMsgPopup("Missing required data");
@@ -416,13 +459,11 @@ const MenuReport = ({
               ))}
             </div>
           </div>
-          {(isDateStatus === 1 || isDropdownStatus === 1) && (
+          {(isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
             <div className=" p-5 rounded-xl border-2 ">
               <div className="grid grid-cols-2 gap-4">
-            
- 
                 {/* Dropdowns */}
-                {isDropdownStatus === 1 && (
+                {showAgencyDropdown && (
                   <>
                     <div className="relative">
                       <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
@@ -452,38 +493,41 @@ const MenuReport = ({
                         allowClear
                       />
                     </div>
- 
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        <AppstoreOutlined className="mr-1" />
-                        Items
-                      </label>
-                      <Select
-                        mode="multiple"
-                        value={selectedItems}
-                        onChange={setSelectedItems}
-                        placeholder="Select items..."
-                        className="w-full custom-select"
-                        size="large"
-                        loading={loadingFilters}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={items.map((item) => ({
-                          value: item.id,
-                          label: item.nameEnglish,
-                        }))}
-                        maxTagCount="responsive"
-                        allowClear
-                        style={{
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div>
+
+                    {showItemDropdown && (
+                      <div className="relative">
+                        <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                          <AppstoreOutlined className="mr-1" />
+                          Items
+                        </label>
+                        <Select
+                          mode="multiple"
+                          value={selectedItems}
+                          onChange={setSelectedItems}
+                          placeholder="Select items..."
+                          className="w-full custom-select"
+                          size="large"
+                          loading={loadingFilters}
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          options={items.map((item) => ({
+                            value: item.id,
+                            label: item.nameEnglish,
+                          }))}
+                          maxTagCount="responsive"
+                          allowClear
+                          disabled={selectedAgency.length === 0}
+                          style={{
+                            borderRadius: "8px",
+                          }}
+                        />
+                      </div>
+                    )}
                   </>
                 )}
               </div>
