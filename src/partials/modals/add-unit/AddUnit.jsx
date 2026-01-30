@@ -37,12 +37,11 @@ const RangeTable = ({ ranges, onRangeChange, onRangeRemove }) => {
           {ranges.map((range, index) => {
             const prevMax =
               index > 0 ? parseFloat(ranges[index - 1].maxValue) : null;
-            const currMin = parseFloat(range.minValue);
-            const validationError =
-              prevMax !== null && !isNaN(currMin) && currMin <= prevMax
-                ? `Min must be greater than the ${index} record's Max (${prevMax}).`
-                : "";
 
+            const currMin = parseFloat(range.minValue);
+
+            const validationError =
+              prevMax !== null && !isNaN(currMin) && currMin < prevMax;
             return (
               <tr key={index} className="border-t align-top">
                 <td className="py-2 px-3">{index + 1}</td>
@@ -123,7 +122,7 @@ const AddUnit = ({
     nameEnglish: Yup.string().required("Name is required"),
     symbolEnglish: Yup.string().required("Symbol is required"),
     decimalLimit: Yup.string().required(
-      "Decimal Limit For Quantity is required"
+      "Decimal Limit For Quantity is required",
     ),
   });
 
@@ -157,7 +156,7 @@ const AddUnit = ({
       ranges: [{ minValue: "", maxValue: "", roundOffValue: "" }],
       stepValue: "",
     }),
-    []
+    [],
   );
 
   const formik = useFormik({
@@ -206,7 +205,7 @@ const AddUnit = ({
           return Swal.fire(
             "Error",
             res.data.msg || "Something went wrong",
-            "error"
+            "error",
           );
 
         Swal.fire(
@@ -214,7 +213,7 @@ const AddUnit = ({
           selectedUnit
             ? "Unit updated successfully"
             : "Unit added successfully",
-          "success"
+          "success",
         );
         refreshData();
         setIsModalOpen(false);
@@ -222,7 +221,7 @@ const AddUnit = ({
         Swal.fire(
           "Error",
           error.response?.data?.msg || "Something went wrong",
-          "error"
+          "error",
         );
       }
     },
@@ -240,7 +239,7 @@ const AddUnit = ({
     return unitOptions.filter(
       (u) =>
         u.isParentUnit === true &&
-        (!selectedUnit || u.id !== selectedUnit.unitId)
+        (!selectedUnit || u.id !== selectedUnit.unitId),
     );
   }, [unitOptions, selectedUnit]);
 
@@ -305,7 +304,7 @@ const AddUnit = ({
       const newRanges = formik.values.ranges.filter((_, i) => i !== index);
       formik.setFieldValue("ranges", newRanges);
     },
-    [formik.values.ranges]
+    [formik.values.ranges],
   );
 
   const addRangeRow = () =>
