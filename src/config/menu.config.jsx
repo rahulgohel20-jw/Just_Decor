@@ -298,7 +298,7 @@ export const allMenuItems = [
     title: (
       <FormattedMessage
         id="COMMON.ADMIN_MODULE_REPORT"
-        defaultMessage="Admin Module Report"
+        defaultMessage="Report"
       />
     ),
     icon: " ki-filled ki-document text-primary",
