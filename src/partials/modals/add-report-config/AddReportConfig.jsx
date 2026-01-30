@@ -19,12 +19,12 @@ const defaultOptions = {
   itemSlogan: false,
   PartyDetails: false,
   WithQuantity: false,
-  isDropDown:false,
-  isWithPrice:false,
+  isDropDown: false,
+  isWithPrice: false,
   size1: "A4",
   size2: "",
- isAgency: false,
- isItem: false,
+  isAgency: false,
+  isItem: false,
 };
 
 const optionLabels = {
@@ -43,7 +43,7 @@ const optionLabels = {
   isDropDown: "Is DropDown",
   isWithPrice: "Is With Price ",
   isAgency: "Is Agency",
-  isItem : "Is Item"
+  isItem: "Is Item",
 };
 
 const AddReportConfig = ({
@@ -157,7 +157,7 @@ const AddReportConfig = ({
             isDropDown: !!data.isDropDown,
             isWithPrice: !!data.isWithPrice,
             isAgency: !!data.isAgency,
-            isItem : !!data.isAgency,
+            isItem: !!data.isItem,
           });
         }
       } catch (error) {
@@ -241,9 +241,9 @@ const AddReportConfig = ({
       isItemSlogan: booleanToNumber(options.itemSlogan),
       isPartyDetails: booleanToNumber(options.PartyDetails),
       isWithQty: booleanToNumber(options.WithQuantity),
-      isDropDown:  booleanToNumber(options.isDropDown),
-      isWithPrice:  booleanToNumber(options.isWithPrice),
-      isAgency:  booleanToNumber(options.isAgency),
+      isDropDown: booleanToNumber(options.isDropDown),
+      isWithPrice: booleanToNumber(options.isWithPrice),
+      isAgency: booleanToNumber(options.isAgency),
       isItem: booleanToNumber(options.isItem),
       size1: options.size1,
       size2: options.size2,

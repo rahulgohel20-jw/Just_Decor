@@ -12,11 +12,10 @@ const CategoryList = ({
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentLanguage, setCurrentLanguage] = useState(
-    localStorage.getItem("lang") || "en"
+    localStorage.getItem("lang") || "en",
   );
   const userId = localStorage.getItem("userId");
 
-  // Listen for language changes
   useEffect(() => {
     const handleLanguageChange = (e) => {
       const newLang =
@@ -123,19 +122,19 @@ const CategoryList = ({
       .filter(Boolean);
 
     const remaining = cats.filter(
-      (c) => c.id !== 0 && !savedCategoriesOrder.includes(getDisplayName(c))
+      (c) => c.id !== 0 && !savedCategoriesOrder.includes(getDisplayName(c)),
     );
 
     const packageCats = remaining.filter((c) =>
-      packageCategories.includes(getDisplayName(c))
+      packageCategories.includes(getDisplayName(c)),
     );
 
     const normalCats = remaining.filter(
-      (c) => !packageCategories.includes(getDisplayName(c))
+      (c) => !packageCategories.includes(getDisplayName(c)),
     );
 
     return [allCat, ...savedOrderedCats, ...packageCats, ...normalCats].filter(
-      Boolean
+      Boolean,
     );
   }, [
     categories,

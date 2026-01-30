@@ -46,12 +46,6 @@ const CounterNameplate = ({
 
   useEffect(() => {
     if (isModalOpen && eventId && eventFunctionId && userId) {
-      console.warn("Cannot fetch NamePlate: missing eventId or userId", {
-        eventId,
-        eventFunctionId,
-        currentlang,
-      });
-
       fetchItemdata();
     }
   }, [isModalOpen, eventId, eventFunctionId, currentlang]);
@@ -68,7 +62,6 @@ const CounterNameplate = ({
     );
     try {
       const res = data?.data?.data?.data || [];
-      console.log("response", res);
 
       const formattedCounters = res
         .sort((a, b) => a.sequence - b.sequence)
@@ -176,6 +169,8 @@ const CounterNameplate = ({
         namePlateRequests: counters.map((item, index) => ({
           id: item.id || -1,
           menuItemId: item.menuItemId,
+          isStandyChecked: 0,
+          isTableMenuChecked: 0,
           isChecked: item.isChecked,
           itemCount: item.copies,
           itemNameEnglish: item.itemNameEnglish,
@@ -189,6 +184,7 @@ const CounterNameplate = ({
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
       }
+      await fetchItemdata();
 
       Swal.close();
 
@@ -323,11 +319,7 @@ const CounterNameplate = ({
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         className={`flex items-center justify-between gap-3 p-3 mb-3 rounded-xl border
-                        ${
-                          item.copies === 0
-                            ? "bg-gray-50 text-gray-400"
-                            : "bg-blue-50 border-blue-200"
-                        }`}
+                        ${item.copies === 0}`}
                       >
                         {/* Drag */}
                         <div {...provided.dragHandleProps}>
