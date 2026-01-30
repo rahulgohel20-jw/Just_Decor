@@ -93,9 +93,9 @@ const MenuReport = ({
 
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
-          categoryInstruction: config.isCategoryInstruction === 0,
+          categoryInstruction: config.isCategoryInstruction === 1,
           categoryImage: config.isCategoryImage === 0,
-          itemSlogan: config.isItemSlogan === 1,
+          itemSlogan: config.isItemSlogan === 0,
           itemInstruction: config.isItemInstruction === 1,
           CompanyInfo: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 1,
