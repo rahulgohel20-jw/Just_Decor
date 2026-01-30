@@ -25,6 +25,7 @@ import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
+import { message } from "antd";
 
 // ============= LANGUAGE HELPER FUNCTIONS =============
 /**
@@ -624,8 +625,10 @@ const TableHeader = () => (
 
 const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
   const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
+  const [hasError, setHasError] = useState(false);
   useEffect(() => {
     setLocalPersonCount(row.personCount);
+    setHasError(false);
   }, [row.personCount]);
   const handleCheckboxChange = (type, checked) => {
     const updated = {
@@ -639,12 +642,27 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
   };
   const handlePersonCountChange = (e) => {
     setLocalPersonCount(Number(e.target.value) || 0);
+    setHasError(false);
+
   };
 
   const handlePersonCountBlur = () => {
-    if (localPersonCount !== row.personCount) {
-      onChange({ ...row, personCount: localPersonCount });
-      row.onPaxBlur && row.onPaxBlur(); 
+    const value = Number(localPersonCount);
+
+    if (value === 0) {
+      setHasError(true);
+      message.error("Value cannot be zero");
+      return; 
+    }
+
+    if (isNaN(value) || value < 0) {
+      setHasError(true);
+      message.error("Invalid person value");
+      return;
+    }
+
+    if (value !== row.personCount) {
+      onChange({ ...row, personCount: value });
     }
   };
   
@@ -723,6 +741,7 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
           value={localPersonCount}
           onChange={handlePersonCountChange}
           onBlur={handlePersonCountBlur}
+          status={hasError ? "error" : ""}
           className="w-16 p-1 text-center"
         />
       </div>
@@ -823,6 +842,8 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
+ const lastSavedPersonRef = useRef({});
+ const isInitialLoadRef = useRef(true);
 
 
   
@@ -1303,6 +1324,15 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       const updatedRows = await Promise.all(updatedRowsPromises);
       setRows(updatedRows);
+      setInitialRows(JSON.parse(JSON.stringify(updatedRows)));
+
+      const personSnapshot = {};
+      updatedRows.forEach(r => {
+        personSnapshot[r.key] = r.personCount;
+      });
+      lastSavedPersonRef.current = personSnapshot;
+
+      isInitialLoadRef.current = false;
     } catch (error) {
       console.error("Error fetching menu allocation:", error);
       setRows([]);
@@ -1332,11 +1362,31 @@ const EventMenuAllocationPage = ({ mode }) => {
   }, [eventData?.eventFunctions]);
 
   useEffect(() => {
-    if (rows.length > 0 && initialRows.length === 0) {
-      setInitialRows(JSON.parse(JSON.stringify(rows)));
-      setHasUnsavedChanges(false);
+    if (isInitialLoadRef.current) return;
+  
+    if (rows.length === 0) return;
+  
+    if (rows.some(r => r.personCount === 0)) return;
+  
+    const hasPersonChanged = rows.some(
+      r => lastSavedPersonRef.current[r.key] !== r.personCount
+    );
+  
+    if (!hasPersonChanged) return;
+  
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
+  
+    saveTimeoutRef.current = setTimeout(() => {
+      handleMainSave();
+    }, 1000);
+  
+    return () => clearTimeout(saveTimeoutRef.current);
   }, [rows]);
+  
+  
+  
 
   const totalPax = useMemo(() => {
     if (activeFunction?.id === -1) {
@@ -1855,7 +1905,15 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       const validEventId = Number(eventId);
       const validEventFunctionId = getValidFunctionId(activeFunction);
-
+      const hasInvalidPerson = rows.some(r => r.personCount === 0);
+      if (hasInvalidPerson) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Person Count",
+          text: "Person value cannot be zero. Please fix it before saving.",
+        });
+        return;
+      }
       const currentActiveFunctionId = activeFunction?.id;
       if (!validEventId || !validEventFunctionId) {
         Swal.fire({
@@ -1978,14 +2036,21 @@ const EventMenuAllocationPage = ({ mode }) => {
       const res = await MenuAllocationSave(payload);
 
       if (res?.data?.success === true) {
+      
         Swal.fire({
           title: "Saved Successfully!",
           text: "Menu Allocation details have been saved.",
           icon: "success",
           confirmButtonColor: "#3085d6",
         });
-
+       
+      
         await fetchMenuAllocation(currentActiveFunctionId);
+        const personSnapshot = {};
+        rows.forEach(r => {
+          personSnapshot[r.key] = r.personCount;
+        });
+        lastSavedPersonRef.current = personSnapshot;
         setHasUnsavedChanges(false);
         setInitialRows(JSON.parse(JSON.stringify(rows)));
       } else {

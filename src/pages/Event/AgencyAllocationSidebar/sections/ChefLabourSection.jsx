@@ -4,22 +4,42 @@ import ChefLabourTable from "../components/ChefLabourTable";
 import { MenuAllocationSave } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-export default function ChefLabourSection({ data, onDataUpdate, close }) {
+export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunctions }) {
   const [selectedItems, setSelectedItems] = useState({});
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
-      // Extract the menuAllocation array from the first data item
-      const allocations = data[0]?.menuAllocation || [];
-
-      setMenuItems(allocations);
+      if (isAllFunctions) {
+        // For all functions, flatten all menuAllocation arrays from all functions
+        const allMenuItems = data.flatMap((functionData, functionIndex) => {
+          const allocations = functionData?.menuAllocation || [];
+          
+          // Add function metadata to each menu item
+          return allocations.map(allocation => ({
+            ...allocation,
+            _functionIndex: functionIndex,
+            _functionId: functionData.eventFunction?.id,
+            _functionName: functionData.eventFunction?.function?.nameEnglish,
+            _functionPax: functionData.eventFunction?.pax,
+            eventFunctionId: functionData.eventFunction?.id,
+            eventFunctionName: functionData.eventFunction?.function?.nameEnglish,
+          }));
+        });
+        
+        setMenuItems(allMenuItems);
+        console.log("📊 All Functions - Total items:", allMenuItems.length);
+      } else {
+        // For single function, use existing logic
+        const allocations = data[0]?.menuAllocation || [];
+        setMenuItems(allocations);
+      }
     } else {
       setMenuItems([]);
       console.warn("⚠️ Invalid data structure:", data);
     }
-  }, [data]);
+  }, [data, isAllFunctions]);
 
   const selectedCount = useMemo(() => {
     return Object.values(selectedItems).filter(Boolean).length;
@@ -39,7 +59,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
       // Validation
       if (!partyId || !pax) {
         Swal.fire({
-          title: "Success",
+          title: "Warning",
           text: "Vendor and pax are required",
           icon: "warning",
         });
@@ -48,7 +68,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
 
       if (!serviceType) {
         Swal.fire({
-          title: "Success",
+          title: "Warning",
           text: "Please select a service type (Counter Wise or Plate Wise)",
           icon: "warning",
         });
@@ -58,7 +78,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
       const hasSelectedItems = Object.values(selectedItems).some(Boolean);
       if (!hasSelectedItems) {
         Swal.fire({
-          title: "Success",
+          title: "Warning",
           text: "Please select at least one item to allocate",
           icon: "warning",
         });
@@ -122,7 +142,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
         text: `Allocated to ${allocatedCount} selected item(s) successfully`,
         icon: "success",
         timer: 2000,
-        buttons: false,
+        showConfirmButton: false,
       });
       return true;
     },
@@ -165,7 +185,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
 
       menuAllocationOrders:
         menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
-          id: 0,
+          id: allocation.id || 0,
           partyId: allocation.partyId || 0,
           number: "",
           serviceType: allocation.serviceType || "",
@@ -198,7 +218,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
             res?.data?.message || "Chef labour allocation saved successfully",
           icon: "success",
           timer: 2000,
-          buttons: false,
+          showConfirmButton: false,
         });
 
         close?.();
@@ -241,6 +261,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close }) {
           onUpdate={handleMenuItemUpdate}
           selectedItems={selectedItems}
           onItemSelect={handleItemSelect}
+          isAllFunctions={isAllFunctions}
         />
       </div>
       <div className="flex justify-end gap-3 px-6 py-4 border-t bg-white">
