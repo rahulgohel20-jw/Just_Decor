@@ -8,11 +8,12 @@ export default function ChefLabourTable({
   onUpdate,
   selectedItems,
   onItemSelect,
+  isAllFunctions,
 }) {
-  
   const [vendors, setVendors] = useState([]);
   const [loadingVendors, setLoadingVendors] = useState(false);
   const [unit, setUnit] = useState([]);
+
   useEffect(() => {
     fetchVendor();
     fetchUnit();
@@ -23,7 +24,7 @@ export default function ChefLabourTable({
       const data = await GetUnitData(localStorage.getItem("userId"));
       const unitData = data?.data?.data["Unit Details"] || [];
       setUnit(unitData);
-    } catch {
+    } catch (error) {
       console.log("error ", error);
     }
   };
@@ -141,6 +142,7 @@ export default function ChefLabourTable({
           <colgroup>
             <col className="w-[44px]" />
             <col className="w-[60px]" />
+            {isAllFunctions && <col className="w-[150px]" />}
             <col className="w-[200px]" />
             <col className="w-[120px]" />
             <col className="w-[220px]" />
@@ -162,6 +164,7 @@ export default function ChefLabourTable({
                 />
               </th>
               <th className="p-3 text-left">No.</th>
+              {isAllFunctions && <th className="p-3 text-left">Function</th>}
               <th className="p-3 text-left">Item Name</th>
               <th className="p-3 text-left">Pax</th>
               <th className="p-3 text-left">Contact Name</th>
@@ -176,7 +179,7 @@ export default function ChefLabourTable({
             </tr>
 
             <tr className="text-gray-600 text-xs font-semibold bg-gray-50">
-              <th colSpan={6}></th>
+              <th colSpan={isAllFunctions ? 7 : 6}></th>
               <th className="p-3 text-center border-l">Labour/Qty</th>
               <th className="p-3 text-center">Helper/Unit</th>
               <th className="p-3 text-center border-l">Labour/Price</th>
@@ -236,6 +239,23 @@ export default function ChefLabourTable({
                           />
                         </td>
                         <td className="p-3">{allocationIndex + 1}</td>
+                        
+                        {/* Show function name if viewing all functions */}
+                        {isAllFunctions && (
+                          <td className="p-3">
+                            <div className="text-xs">
+                              <div className="font-medium text-gray-900">
+                                {menuItem._functionName || "-"}
+                              </div>
+                              {menuItem._functionPax && (
+                                <div className="text-gray-500">
+                                  PAX: {menuItem._functionPax}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        )}
+                        
                         <td className="p-3 font-medium text-gray-900">
                           {menuItem.menuItemName || "-"}
                         </td>

@@ -8,6 +8,7 @@ export default function InHouseCookTable({
   onUpdate,
   selectedItems,
   onItemSelect,
+  isAllFunctions,
 }) {
   const [vendors, setVendors] = useState([]);
   const [loadingVendors, setLoadingVendors] = useState(false);
@@ -40,6 +41,7 @@ export default function InHouseCookTable({
 
     onUpdate(menuIndex, updatedMenuItem);
   };
+
   const handleAllocationChange = (menuIndex, allocationIndex, field, value) => {
     const menuItem = menuItems[menuIndex];
     const updatedAllocations = [...menuItem.eventFunctionMenuAllocations];
@@ -122,6 +124,7 @@ export default function InHouseCookTable({
           <colgroup>
             <col className="w-[44px]" />
             <col className="w-[60px]" />
+            {isAllFunctions && <col className="w-[150px]" />}
             <col className="w-[200px]" />
             <col className="w-[100px]" />
             <col className="w-[220px]" />
@@ -140,6 +143,7 @@ export default function InHouseCookTable({
                 />
               </th>
               <th className="p-3 text-left">No.</th>
+              {isAllFunctions && <th className="p-3 text-left">Function</th>}
               <th className="p-3 text-left">Item Name</th>
               <th className="p-3 text-left">Pax</th>
               <th className="p-3 text-left">Contact Name</th>
@@ -185,6 +189,23 @@ export default function InHouseCookTable({
                             />
                           </td>
                           <td className="p-3">{serialNumber}</td>
+                          
+                          {/* Show function name if viewing all functions */}
+                          {isAllFunctions && (
+                            <td className="p-3">
+                              <div className="text-xs">
+                                <div className="font-medium text-gray-900">
+                                  {menuItem._functionName || "-"}
+                                </div>
+                                {menuItem._functionPax && (
+                                  <div className="text-gray-500">
+                                    PAX: {menuItem._functionPax}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          )}
+
                           <td className="p-3 font-medium text-gray-900">
                             {menuItem.menuItemName || "-"}
                           </td>
@@ -231,20 +252,6 @@ export default function InHouseCookTable({
                               ))}
                             </BaseSelect>
                           </td>
-                          {/* <td className="p-2">
-                            <BaseInput
-                              placeholder="0"
-                              value={allocation.number || ""}
-                              onChange={(e) =>
-                                handleAllocationChange(
-                                  menuIndex,
-                                  allocationIndex,
-                                  "number",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </td> */}
                           <td className="p-2">
                             <BaseInput
                               type="number"
