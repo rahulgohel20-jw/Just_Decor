@@ -51,27 +51,36 @@ const InvoiceFooter = ({
     }
   }, [rows]);
 
-  // Calculate all amounts when values change
+  // Calculate all amounts when values change - CORRECTED LOGIC with manual round off
   useEffect(() => {
-    const cgstAmount = (subTotal * Number(cgst)) / 100;
-    const sgstAmount = (subTotal * Number(sgst)) / 100;
-    const igstAmount = (subTotal * Number(igst)) / 100;
-    const discountAmount = Number(discount);
-    const roundOffAmount = Number(roundOff);
+    // Step 1: Calculate Subtotal (already done in previous useEffect)
 
-    // Total before discount and roundoff
-    const beforeDiscount = subTotal + cgstAmount + sgstAmount + igstAmount;
+    // Step 2: Apply Discount
+    const discountAmount = Number(discount) || 0;
 
-    // Total amount after discount but before roundoff
-    const afterDiscount = beforeDiscount - discountAmount;
+    // Step 3: Calculate Taxable Amount (Subtotal - Discount)
+    const taxableAmount = subTotal - discountAmount;
 
-    // Grand total after roundoff
-    const finalTotal = afterDiscount + roundOffAmount;
+    // Step 4: Calculate Tax Amounts on Taxable Amount (not on subtotal)
+    const cgstAmount = (taxableAmount * Number(cgst)) / 100;
+    const sgstAmount = (taxableAmount * Number(sgst)) / 100;
+    const igstAmount = (taxableAmount * Number(igst)) / 100;
 
+    // Step 5: Calculate Total Amount (Taxable Amount + All Taxes)
+    const totalBeforeRounding =
+      taxableAmount + cgstAmount + sgstAmount + igstAmount;
+
+    // Step 6: Apply Manual Round Off
+    const roundOffAmount = Number(roundOff) || 0;
+
+    // Step 7: Calculate Grand Total (Total Amount + Round Off)
+    const finalTotal = totalBeforeRounding + roundOffAmount;
+
+    // Update all state values
     setCgstAmnt(cgstAmount);
     setSgstAmnt(sgstAmount);
     setIgstAmnt(igstAmount);
-    setTotalAmount(afterDiscount);
+    setTotalAmount(totalBeforeRounding);
     setGrandTotal(finalTotal);
   }, [subTotal, cgst, sgst, igst, discount, roundOff]);
 
@@ -151,6 +160,9 @@ const InvoiceFooter = ({
     setRoundOff(isNaN(numValue) ? 0 : numValue);
   };
 
+  // Calculate taxable amount for display
+  const taxableAmount = subTotal - (Number(discount) || 0);
+
   return (
     <>
       <div className="grid md:grid-cols-2 gap-3 mb-5">
@@ -160,7 +172,7 @@ const InvoiceFooter = ({
           </h4>
           <TextArea
             placeholder="Thanks for your Business..."
-            autoSize={{ minRows: 9 }}
+            autoSize={{ minRows: 18 }}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
@@ -181,59 +193,8 @@ const InvoiceFooter = ({
               <span className="font-semibold">₹{subTotal.toFixed(2)}</span>
             </div>
 
-            {/* CGST */}
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-900">CGST (%)</span>
-                <Input
-                  className="w-20 text-right"
-                  type="number"
-                  value={cgst}
-                  onChange={handleCgstChange}
-                  min={0}
-                  max={100}
-                  step="0.01"
-                />
-              </div>
-              <span className="font-semibold">₹{cgstAmnt.toFixed(2)}</span>
-            </div>
-
-            {/* SGST */}
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-900">SGST (%)</span>
-                <Input
-                  className="w-20 text-right"
-                  type="number"
-                  value={sgst}
-                  onChange={handleSgstChange}
-                  min={0}
-                  max={100}
-                  step="0.01"
-                />
-              </div>
-              <span className="font-semibold">₹{sgstAmnt.toFixed(2)}</span>
-            </div>
-
-            {/* IGST */}
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-900">IGST (%)</span>
-                <Input
-                  className="w-20 text-right"
-                  type="number"
-                  value={igst}
-                  onChange={handleIgstChange}
-                  min={0}
-                  max={100}
-                  step="0.01"
-                />
-              </div>
-              <span className="font-semibold">₹{igstAmnt.toFixed(2)}</span>
-            </div>
-
             {/* Discount */}
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-2 pb-2 border-b">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-900">
                   <FormattedMessage
@@ -242,12 +203,13 @@ const InvoiceFooter = ({
                   />
                 </span>
                 <Input
-                  className="w-20 text-right"
+                  className="w-24 text-right"
                   type="number"
                   value={discount}
                   onChange={handleDiscountChange}
                   min={0}
                   step="0.01"
+                  prefix="₹"
                 />
               </div>
               <span className="font-semibold text-red-600">
@@ -255,10 +217,94 @@ const InvoiceFooter = ({
               </span>
             </div>
 
-            {/* Round Off */}
+            {/* Taxable Amount */}
+            <div className="flex justify-between items-center mb-2 pb-2 border-b bg-blue-50 px-2 py-1 rounded">
+              <span className="text-sm font-semibold text-gray-900">
+                <FormattedMessage
+                  id="COMMON.TAXABLE_AMOUNT"
+                  defaultMessage="Taxable Amount"
+                />
+              </span>
+              <span className="font-bold text-blue-700">
+                ₹{taxableAmount.toFixed(2)}
+              </span>
+            </div>
+
+            {/* CGST - Calculated on taxable amount */}
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-900">
+                <span className="text-sm text-gray-700">CGST</span>
+                <Input
+                  className="w-20 text-right"
+                  type="number"
+                  value={cgst}
+                  onChange={handleCgstChange}
+                  min={0}
+                  max={100}
+                  step="0.01"
+                  suffix="%"
+                />
+              </div>
+              <span className="font-semibold text-gray-700">
+                ₹{cgstAmnt.toFixed(2)}
+              </span>
+            </div>
+
+            {/* SGST - Calculated on taxable amount */}
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">SGST</span>
+                <Input
+                  className="w-20 text-right"
+                  type="number"
+                  value={sgst}
+                  onChange={handleSgstChange}
+                  min={0}
+                  max={100}
+                  step="0.01"
+                  suffix="%"
+                />
+              </div>
+              <span className="font-semibold text-gray-700">
+                ₹{sgstAmnt.toFixed(2)}
+              </span>
+            </div>
+
+            {/* IGST - Calculated on taxable amount */}
+            <div className="flex justify-between items-center mb-2 pb-2 border-b">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">IGST</span>
+                <Input
+                  className="w-20 text-right"
+                  type="number"
+                  value={igst}
+                  onChange={handleIgstChange}
+                  min={0}
+                  max={100}
+                  step="0.01"
+                  suffix="%"
+                />
+              </div>
+              <span className="font-semibold text-gray-700">
+                ₹{igstAmnt.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Total Amount (before round off) */}
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-900">
+                <FormattedMessage
+                  id="COMMON.TOTAL_AMOUNT"
+                  defaultMessage="Total Amount"
+                />
+              </span>
+              <span className="font-semibold">₹{totalAmount.toFixed(2)}</span>
+            </div>
+
+            {/* Round Off - Manual input, adds to grand total */}
+            <div className="flex justify-between items-center mb-2 pb-2 border-b">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">
                   <FormattedMessage
                     id="COMMON.ROUND_OFF"
                     defaultMessage="Round Off"
@@ -270,22 +316,25 @@ const InvoiceFooter = ({
                   value={roundOff}
                   onChange={handleRoundOffChange}
                   step="0.01"
+                  prefix="₹"
                 />
               </div>
-              <span className="font-semibold">
-                ₹{Number(roundOff).toFixed(2)}
+              <span
+                className={`font-semibold ${roundOff >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {roundOff >= 0 ? "+" : ""}₹{Number(roundOff).toFixed(2)}
               </span>
             </div>
 
             {/* Grand Total */}
-            <div className="flex justify-between border-t pt-2 font-semibold">
+            <div className="flex justify-between pt-2 font-semibold">
               <span className="text-base text-primary">
                 <FormattedMessage
                   id="COMMON.GRAND_TOTAL"
                   defaultMessage="Grand Total"
                 />
               </span>
-              <span className="text-base text-primary">
+              <span className="text-lg text-primary font-bold">
                 ₹{grandTotal.toFixed(2)}
               </span>
             </div>
