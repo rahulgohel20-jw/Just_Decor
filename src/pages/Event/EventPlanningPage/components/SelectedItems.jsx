@@ -46,6 +46,62 @@ const SelectedItems = ({
   };
 
   useEffect(() => {
+    // Initialize itemInstructions from loaded itemNotes
+    const instructions = {};
+
+    Object.keys(categories).forEach((catName) => {
+      const items = categories[catName] || [];
+      items.forEach((item) => {
+        if (item.itemNotes) {
+          // Get the current language
+          const lang = localStorage.getItem("lang") || "en";
+
+          // Set the instruction based on language
+          if (lang === "hi") {
+            instructions[item.id] =
+              item.itemNotes.hindi || item.itemNotes.english || "";
+          } else if (lang === "gu") {
+            instructions[item.id] =
+              item.itemNotes.gujarati || item.itemNotes.english || "";
+          } else {
+            instructions[item.id] = item.itemNotes.english || "";
+          }
+        }
+      });
+    });
+
+    setItemInstructions(instructions);
+  }, [categories, currentLanguage]);
+
+  // OPTIONAL: If you want to auto-expand items that have notes
+  // (otherwise users need to click "Show instructions")
+  useEffect(() => {
+    const openItems = {};
+
+    Object.keys(categories).forEach((catName) => {
+      const items = categories[catName] || [];
+      items.forEach((item) => {
+        if (item.itemNotes) {
+          const lang = localStorage.getItem("lang") || "en";
+          const noteText =
+            lang === "hi"
+              ? item.itemNotes.hindi || item.itemNotes.english || ""
+              : lang === "gu"
+                ? item.itemNotes.gujarati || item.itemNotes.english || ""
+                : item.itemNotes.english || "";
+
+          // Auto-open if notes exist
+          if (noteText.trim()) {
+            openItems[item.id] = true;
+          }
+        }
+      });
+    });
+
+    setManuallyOpenItems((prev) => ({ ...prev, ...openItems }));
+  }, [categories, currentLanguage]);
+
+  useEffect(() => {
     setManuallyOpenItems({});
     setAutoOpenItemId(null);
     previousItemIdsRef.current = new Set();
