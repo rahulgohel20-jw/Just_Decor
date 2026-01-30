@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react"; // ✅ Add useRef
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import ChefLabourSection from "./sections/ChefLabourSection";
 import OutsideAgencySection from "./sections/OutsideAgencySection";
 import InHouseCookSection from "./sections/InHouseCookSection";
@@ -33,9 +33,25 @@ export default function AgencyAllocationSidebar({
     allocationDataRef.current = allocationData;
   }, [allocationData]);
 
-  const eventFunctionData = useMemo(() => {
-    if (!allocationData?.[0]?.eventFunction) return null;
+  // Check if viewing all functions
+  const isAllFunctions = eventFunctionId === -1;
 
+  // Get event function data - handle both single and multiple functions
+  const eventFunctionData = useMemo(() => {
+    if (!allocationData || allocationData.length === 0) return null;
+
+    if (isAllFunctions) {
+      // For all functions, show combined info
+      return {
+        eventFunctionName: "All Functions",
+        functionStartDateTime: "-",
+        functionEndDateTime: "-",
+        pax: null,
+        totalFunctions: allocationData.length,
+      };
+    }
+
+    // For single function
     const {
       function: func,
       functionStartDateTime,
@@ -48,7 +64,7 @@ export default function AgencyAllocationSidebar({
       functionEndDateTime: functionEndDateTime || "-",
       pax: allocationData[0].eventFunction.pax,
     };
-  }, [allocationData]);
+  }, [allocationData, isAllFunctions]);
 
   const handleVendorRefresh = useCallback(() => {
     console.log("🔄 Refreshing vendor list only...");
@@ -57,8 +73,8 @@ export default function AgencyAllocationSidebar({
 
   const fetchAllocationData = useCallback(
     async (selectedTab, preserveSelections = false) => {
-      if (!eventId || !eventFunctionId) {
-        console.warn(" Missing required IDs:", { eventId, eventFunctionId });
+      if (!eventId || eventFunctionId === undefined || eventFunctionId === null) {
+        console.warn("⚠️ Missing required IDs:", { eventId, eventFunctionId });
         return;
       }
 
@@ -67,18 +83,24 @@ export default function AgencyAllocationSidebar({
 
         let currentSelections = {};
         if (preserveSelections && allocationDataRef.current) {
-          allocationDataRef.current.forEach((category) => {
-            const categoryKey = category.menuCategoryId;
-            currentSelections[categoryKey] = {};
+          allocationDataRef.current.forEach((functionData) => {
+            const functionKey = functionData.eventFunction?.id || "all";
+            currentSelections[functionKey] = {};
 
-            category.menuAllocationItems?.forEach((item) => {
-              if (item.isSelected) {
-                currentSelections[categoryKey][item.menuItemId] = {
-                  isSelected: true,
-                  selectedContactId: item.selectedContactId,
-                  selectedContactName: item.selectedContactName,
-                };
-              }
+            functionData.menuAllocation?.forEach((category) => {
+              const categoryKey = category.menuCategoryId;
+              currentSelections[functionKey][categoryKey] = {};
+
+              category.eventFunctionMenuAllocations?.forEach((item, idx) => {
+                const itemKey = `${category.id}-${idx}`;
+                if (item.isSelected) {
+                  currentSelections[functionKey][categoryKey][itemKey] = {
+                    isSelected: true,
+                    selectedContactId: item.partyId,
+                    selectedContactName: item.partyName,
+                  };
+                }
+              });
             });
           });
 
@@ -101,28 +123,33 @@ export default function AgencyAllocationSidebar({
 
         // ✅ Restore selections if we have preserved data
         if (preserveSelections && Object.keys(currentSelections).length > 0) {
-          const restoredData = details.map((category) => {
-            const categoryKey = category.menuCategoryId;
-            const savedSelections = currentSelections[categoryKey] || {};
+          const restoredData = details.map((functionData) => {
+            const functionKey = functionData.eventFunction?.id || "all";
+            const savedFunctionSelections = currentSelections[functionKey] || {};
 
             return {
-              ...category,
-              menuAllocationItems: category.menuAllocationItems?.map((item) => {
-                const savedItem = savedSelections[item.menuItemId];
-                if (savedItem) {
-                  console.log(
-                    "🟢 Restoring item:",
-                    item.menuItemName,
-                    savedItem,
-                  );
-                  return {
-                    ...item,
-                    isSelected: savedItem.isSelected,
-                    selectedContactId: savedItem.selectedContactId,
-                    selectedContactName: savedItem.selectedContactName,
-                  };
-                }
-                return item;
+              ...functionData,
+              menuAllocation: functionData.menuAllocation?.map((category) => {
+                const categoryKey = category.menuCategoryId;
+                const savedCategorySelections = savedFunctionSelections[categoryKey] || {};
+
+                return {
+                  ...category,
+                  eventFunctionMenuAllocations: category.eventFunctionMenuAllocations?.map((item, idx) => {
+                    const itemKey = `${category.id}-${idx}`;
+                    const savedItem = savedCategorySelections[itemKey];
+                    if (savedItem) {
+                      console.log("🟢 Restoring item:", category.menuItemName, savedItem);
+                      return {
+                        ...item,
+                        isSelected: savedItem.isSelected,
+                        partyId: savedItem.selectedContactId,
+                        partyName: savedItem.selectedContactName,
+                      };
+                    }
+                    return item;
+                  }),
+                };
               }),
             };
           });
@@ -150,7 +177,7 @@ export default function AgencyAllocationSidebar({
     }
   }, [open, fetchAllocationData]);
 
-  // ✅ Handle tab change with optimistic update
+  // ✅ Handle tab change
   const handleTabClick = useCallback(
     (selectedTab) => {
       if (selectedTab === tab) return;
@@ -184,21 +211,34 @@ export default function AgencyAllocationSidebar({
 
     switch (tab) {
       case "chef":
-        return <ChefLabourSection data={allocationData} close={onClose} />;
+        return (
+          <ChefLabourSection
+            data={allocationData}
+            close={onClose}
+            isAllFunctions={isAllFunctions}
+          />
+        );
       case "outside":
         return (
           <OutsideAgencySection
             data={allocationData}
             close={onClose}
             vendorRefreshTrigger={vendorRefreshTrigger}
+            isAllFunctions={isAllFunctions}
           />
         );
       case "inside":
-        return <InHouseCookSection data={allocationData} close={onClose} />;
+        return (
+          <InHouseCookSection
+            data={allocationData}
+            close={onClose}
+            isAllFunctions={isAllFunctions}
+          />
+        );
       default:
         return null;
     }
-  }, [tab, loading, allocationData, onClose, vendorRefreshTrigger]);
+  }, [tab, loading, allocationData, onClose, vendorRefreshTrigger, isAllFunctions]);
 
   return (
     <AnimatePresence>
@@ -244,44 +284,51 @@ export default function AgencyAllocationSidebar({
                   <p className="font-semibold text-gray-900">
                     {eventFunctionData?.eventFunctionName || "-"}
                   </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-500">Date & Time</p>
-                  <p className="font-semibold text-gray-900">
-                    {eventFunctionData?.functionStartDateTime || "-"}
-                  </p>
-                </div>
-
-                {eventFunctionData?.pax && (
-                  <div>
-                    <p className="text-sm text-gray-500">PAX</p>
-                    <p className="font-semibold text-gray-900">
-                      {eventFunctionData.pax}
+                  {isAllFunctions && eventFunctionData?.totalFunctions && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {eventFunctionData.totalFunctions} function(s)
                     </p>
-                  </div>
+                  )}
+                </div>
+
+                {!isAllFunctions && (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-500">Date & Time</p>
+                      <p className="font-semibold text-gray-900">
+                        {eventFunctionData?.functionStartDateTime || "-"}
+                      </p>
+                    </div>
+
+                    {eventFunctionData?.pax && (
+                      <div>
+                        <p className="text-sm text-gray-500">PAX</p>
+                        <p className="font-semibold text-gray-900">
+                          {eventFunctionData.pax}
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
-              {eventFunctionData?.pax && (
-                <button
-                  onClick={() => {
-                    let typeId = null;
+              <button
+                onClick={() => {
+                  let typeId = null;
 
-                    if (tab === "chef") typeId = 5;
-                    if (tab === "outside") typeId = 6;
-                    if (tab === "inside") typeId = 7;
+                  if (tab === "chef") typeId = 5;
+                  if (tab === "outside") typeId = 6;
+                  if (tab === "inside") typeId = 7;
 
-                    setConcatId(typeId);
-                    setContactTypeId(typeId);
-                    setIsMemberModalOpen(true);
-                  }}
-                  className="flex items-center gap-1 p-2 rounded-lg bg-[#005BA8] text-md text-white font-semibold "
-                >
-                  <span>Add Vendor</span>
-                  <Plus className="w-5 h-5  text-white rounded-full" />
-                </button>
-              )}
+                  setConcatId(typeId);
+                  setContactTypeId(typeId);
+                  setIsMemberModalOpen(true);
+                }}
+                className="flex items-center gap-1 p-2 rounded-lg bg-[#005BA8] text-md text-white font-semibold "
+              >
+                <span>Add Vendor</span>
+                <Plus className="w-5 h-5  text-white rounded-full" />
+              </button>
             </div>
 
             {/* Tabs */}

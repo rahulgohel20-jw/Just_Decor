@@ -9,6 +9,7 @@ export default function OutsideAgencyTable({
   selectedItems,
   onItemSelect,
   vendorRefreshTrigger = 0,
+  isAllFunctions,
 }) {
   const [localMenuItems, setLocalMenuItems] = useState(menuItems);
   const [vendors, setVendors] = useState([]);
@@ -122,12 +123,21 @@ export default function OutsideAgencyTable({
     );
   }
 
-  const allSelected = localMenuItems?.every((menuItem, menuIndex) =>
-    menuItem.eventFunctionMenuAllocations?.every((_, allocationIndex) => {
-      const itemKey = `${menuIndex}-${allocationIndex}`;
-      return selectedItems[itemKey];
-    }),
-  );
+  const allSelected =
+    Array.isArray(localMenuItems) &&
+    localMenuItems.length > 0 &&
+    localMenuItems.every((menuItem, menuIndex) => {
+      const allocations = menuItem?.eventFunctionMenuAllocations;
+
+      if (!Array.isArray(allocations) || allocations.length === 0) {
+        return false;
+      }
+
+      return allocations.every((_, allocationIndex) => {
+        const itemKey = `${menuIndex}-${allocationIndex}`;
+        return selectedItems[itemKey] === true;
+      });
+    });
 
   return (
     <div className="mt-3 px-6 pb-6 overflow-x-auto">
@@ -136,6 +146,7 @@ export default function OutsideAgencyTable({
           <colgroup>
             <col className="w-[44px]" />
             <col className="w-[60px]" />
+            {isAllFunctions && <col className="w-[150px]" />}
             <col className="w-[160px]" />
             <col className="w-[200px]" />
             <col className="w-[160px]" />
@@ -155,6 +166,7 @@ export default function OutsideAgencyTable({
                 />
               </th>
               <th className="p-3 text-left">No.</th>
+              {isAllFunctions && <th className="p-3 text-left">Function</th>}
               <th className="p-3 text-left">Item Name</th>
               <th className="p-3 text-left">Contact Name</th>
               <th className="p-3 text-left">Pax</th>
@@ -188,7 +200,9 @@ export default function OutsideAgencyTable({
                   return (
                     <tr
                       key={itemKey}
-                      className="border-b hover:bg-gray-50 align-middle"
+                      className={`border-b hover:bg-gray-50 align-middle ${
+                        selectedItems[itemKey] ? "bg-blue-50" : ""
+                      }`}
                     >
                       <td className="p-3 text-center">
                         <input
@@ -204,6 +218,23 @@ export default function OutsideAgencyTable({
                         />
                       </td>
                       <td className="p-3">{rowNumber}</td>
+                      
+                      {/* Show function name if viewing all functions */}
+                      {isAllFunctions && (
+                        <td className="p-3">
+                          <div className="text-xs">
+                            <div className="font-medium text-gray-900">
+                              {menuItem._functionName || "-"}
+                            </div>
+                            {menuItem._functionPax && (
+                              <div className="text-gray-500">
+                                PAX: {menuItem._functionPax}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      )}
+
                       <td className="p-3">
                         <span className="text-gray-700">
                           {menuItem.menuItemName || menuItem.menuName || "N/A"}
@@ -222,7 +253,9 @@ export default function OutsideAgencyTable({
                           }
                           disabled={loadingVendors}
                         >
-                          <option value="">Select contact</option>
+                          <option value="">
+                            {loadingVendors ? "Loading..." : "Select contact"}
+                          </option>
 
                           {allocation.partyId &&
                             !vendors.some(
