@@ -1017,7 +1017,10 @@
   "GST.ADD_OPTIONAL": "GST અને સરનામું ઉમેરો (વૈકલ્પિક)",
   "GST.GSTIN": "GSTIN",
   "ADDRESS.BILLING": "બિલિંગ સરનામું",
-  "ADDRESS.SAME_AS_BILLING": "શિપિંગ સરનામું બિલિંગ જેવું જ છે?"
+  "ADDRESS.SAME_AS_BILLING": "શિપિંગ સરનામું બિલિંગ જેવું જ છે?",
+  "COMMON.ADMIN_MODULE_REPORT": "એડમિન મોડ્યુલ રિપોર્ટ",
+    "COMMON.CHANGESIDEARRAWMATIRAL": "क्रॉकरी कॉन्फ़िगरेशन"
+
 
 
 
