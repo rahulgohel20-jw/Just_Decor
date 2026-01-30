@@ -127,7 +127,6 @@ export default function AgencyAllocationSidebar({
             };
           });
 
-          console.log("🟣 Restored data:", restoredData);
           setAllocationData(restoredData);
         } else {
           setAllocationData(details);
