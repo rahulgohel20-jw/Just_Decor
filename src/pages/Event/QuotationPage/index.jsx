@@ -124,7 +124,7 @@ const QuotationPage = () => {
 
   const formatAmount = (value) => {
     const num = Number(value) || 0;
-    return num % 1 === 0 ? num.toString() : num;
+    return num % 1 === 0 ? num.toString() : num.toFixed(2);
   };
 
   const FetchGetQuotation = () => {
@@ -287,6 +287,7 @@ const QuotationPage = () => {
         console.log("Error fetching quotation:", error);
       });
   };
+
   const calculateTotals = () => {
     const subtotal = quotationData.functions.reduce((sum, func) => {
       const total = parseFloat(func.totalPrice) || 0;
@@ -297,23 +298,38 @@ const QuotationPage = () => {
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
         ?.amount || 0,
     );
+
+    // Amount after discount - this is the taxable amount
+    const amountAfterDiscount = subtotal - discountAmount;
+
+    const cgstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "CGST",
+    );
+    const sgstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "SGST",
+    );
+    const igstDetail = quotationData.taxDetails.find(
+      (tax) => tax.label === "IGST",
+    );
+
+    const cgstPercentage = parseFloat(cgstDetail?.percentage || 0);
+    const sgstPercentage = parseFloat(sgstDetail?.percentage || 0);
+    const igstPercentage = parseFloat(igstDetail?.percentage || 0);
+
+    // Calculate tax amounts on the discounted amount
+    const cgstAmount = (amountAfterDiscount * cgstPercentage) / 100;
+    const sgstAmount = (amountAfterDiscount * sgstPercentage) / 100;
+    const igstAmount = (amountAfterDiscount * igstPercentage) / 100;
+
     const roundOffAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Round Off")
         ?.amount || 0,
     );
-    const cgstAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount || 0,
-    );
-    const sgstAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount || 0,
-    );
-    const igstAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "IGST")?.amount || 0,
-    );
 
     const totalTaxAmount = cgstAmount + sgstAmount + igstAmount;
-    const grandTotal =
-      subtotal - discountAmount + totalTaxAmount + roundOffAmount;
+
+    // Grand Total: Subtotal - Discount + Taxes + Round Off
+    const grandTotal = amountAfterDiscount + totalTaxAmount + roundOffAmount;
 
     const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
       const val = parseFloat(p.amount) || 0;
@@ -324,6 +340,8 @@ const QuotationPage = () => {
 
     return {
       subtotal: formatAmount(subtotal),
+      discountAmount: formatAmount(discountAmount),
+      amountAfterDiscount: formatAmount(amountAfterDiscount),
       cgstAmount: formatAmount(cgstAmount),
       sgstAmount: formatAmount(sgstAmount),
       igstAmount: formatAmount(igstAmount),
@@ -389,13 +407,13 @@ const QuotationPage = () => {
 
       const total = persons * rate;
       newFunctions[index].totalPrice =
-        total % 1 === 0 ? total.toString() : total;
+        total % 1 === 0 ? total.toString() : total.toFixed(2);
     }
 
     if (field === "totalPrice") {
       const total = parseFloat(value) || 0;
       newFunctions[index].totalPrice =
-        total % 1 === 0 ? total.toString() : total;
+        total % 1 === 0 ? total.toString() : total.toFixed(2);
     }
 
     setQuotationData((prev) => ({
@@ -422,6 +440,10 @@ const QuotationPage = () => {
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
         ?.amount || 0,
     );
+
+    // Amount after discount - this is the taxable amount
+    const amountAfterDiscount = subtotal - discount;
+
     const roundOff = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Round Off")
         ?.amount || 0,
@@ -440,15 +462,16 @@ const QuotationPage = () => {
     const sgstPercentage = parseFloat(sgstDetail?.percentage || 0);
     const igstPercentage = parseFloat(igstDetail?.percentage || 0);
 
-    const cgstAmnt = parseFloat(cgstDetail?.amount || 0);
-    const sgstAmnt = parseFloat(sgstDetail?.amount || 0);
-    const igstAmnt = parseFloat(igstDetail?.amount || 0);
+    // Calculate taxes on the discounted amount
+    const cgstAmnt = (amountAfterDiscount * cgstPercentage) / 100;
+    const sgstAmnt = (amountAfterDiscount * sgstPercentage) / 100;
+    const igstAmnt = (amountAfterDiscount * igstPercentage) / 100;
 
     const totalAmount =
-      subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
+      amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
 
     const grandTotal =
-      subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
+      amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
     const payments = (quotationData.advancePayments || []).map((p) => ({
       advancePayment: parseFloat(p.amount) || 0,
       advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
@@ -770,6 +793,13 @@ const QuotationPage = () => {
       return sum + total;
     }, 0);
 
+    // Get discount amount to calculate taxable amount
+    const discountAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "Discount")
+        ?.amount || 0,
+    );
+    const taxableAmount = subtotal - discountAmount;
+
     if (
       field === "percentage" &&
       (newTaxDetails[index].label === "CGST" ||
@@ -778,20 +808,22 @@ const QuotationPage = () => {
     ) {
       newTaxDetails[index].percentage = value;
       const percentage = parseFloat(value) || 0;
-      const calculatedAmount = (subtotal * percentage) / 100;
+      // Calculate tax on taxable amount (after discount)
+      const calculatedAmount = (taxableAmount * percentage) / 100;
       newTaxDetails[index].amount = calculatedAmount;
     } else if (field === "amount") {
       newTaxDetails[index].amount = value;
 
       if (
-        subtotal > 0 &&
+        taxableAmount > 0 &&
         (newTaxDetails[index].label === "CGST" ||
           newTaxDetails[index].label === "SGST" ||
           newTaxDetails[index].label === "IGST")
       ) {
         const enteredAmount = parseFloat(value) || 0;
-        const percentage = (enteredAmount / subtotal) * 100;
-        newTaxDetails[index].percentage = percentage;
+        // Calculate percentage based on taxable amount
+        const percentage = (enteredAmount / taxableAmount) * 100;
+        newTaxDetails[index].percentage = percentage.toFixed(2);
       } else if (
         newTaxDetails[index].label === "CGST" ||
         newTaxDetails[index].label === "SGST" ||
@@ -1414,8 +1446,8 @@ const QuotationPage = () => {
                 <div className="flex items-center justify-end border-t border-gray-200 py-3 gap-2">
                   <div className="text-xl font-bold text-primary px-2">
                     <FormattedMessage
-                      id="COMMON.TOTAL"
-                      defaultMessage="Total"
+                      id="COMMON.SUBTOTAL"
+                      defaultMessage="Subtotal"
                     />
                   </div>
                   <div className="w-[220px] text-base font-semibold text-gray-900 px-2">
@@ -1423,75 +1455,141 @@ const QuotationPage = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 font-bold p-4">
-                  {quotationData.taxDetails.map((tax, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-end gap-6 py-1"
-                    >
-                      <div className="text-base flex place-content-start font-normal text-gray-700">
-                        {tax.label}
-                      </div>
-                      <div className="flex items-center input text-base text-gray-900 w-[200px]">
-                        {tax.label === "CGST" ||
-                        tax.label === "SGST" ||
-                        tax.label === "IGST" ? (
-                          <>
-                            <input
-                              className="h-full text-gray-900 w-[0px]"
-                              value={tax.percentage}
-                              type="number"
-                              min="0"
-                              placeholder="0"
-                              onChange={(e) =>
-                                handleTaxChange(
-                                  idx,
-                                  "percentage",
-                                  e.target.value,
-                                )
-                              }
-                            />
-                            <span className="text-gray-500">%</span>
-                            <span className="ml-3">
-                              &#8377;{" "}
-                              {tax.label === "CGST"
-                                ? totals.cgstAmount
-                                : tax.label === "SGST"
-                                  ? totals.sgstAmount
-                                  : tax.label === "IGST"
-                                    ? totals.igstAmount
-                                    : tax.amount}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            {tax.label === "Round Off" ? (
-                              <input
-                                className="h-full text-gray-900 w-[80px]"
-                                value={tax.amount}
-                                type="number"
-                                onChange={(e) =>
-                                  handleTaxChange(idx, "amount", e.target.value)
-                                }
-                                placeholder="0"
-                              />
-                            ) : (
-                              <input
-                                className="h-full text-gray-900 w-[80px]"
-                                value={tax.amount}
-                                type="number"
-                                min="0"
-                                onChange={(e) =>
-                                  handleTaxChange(idx, "amount", e.target.value)
-                                }
-                                placeholder="0"
-                              />
-                            )}
-                          </>
-                        )}
-                      </div>
+                {/* Discount Row */}
+                <div className="flex items-center justify-end border-t border-gray-200 py-3 gap-2 ">
+                  <div className="text-lg font-semibold text-red-600 px-2">
+                    <FormattedMessage
+                      id="COMMON.DISCOUNT"
+                      defaultMessage="Discount"
+                    />
+                  </div>
+                  <div className="w-[220px] flex items-center justify-end px-2">
+                    <div className="flex items-center input text-base text-gray-900 w-[200px]">
+                      <span className="text-gray-500 ml-1">&#8377;</span>
+                      <input
+                        className="h-full text-gray-900 w-[140px] ml-1"
+                        value={
+                          quotationData.taxDetails.find(
+                            (tax) => tax.label === "Discount",
+                          )?.amount || ""
+                        }
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        onChange={(e) => {
+                          const discountIdx =
+                            quotationData.taxDetails.findIndex(
+                              (tax) => tax.label === "Discount",
+                            );
+                          handleTaxChange(
+                            discountIdx,
+                            "amount",
+                            e.target.value,
+                          );
+                        }}
+                      />
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Taxable Amount Row */}
+                <div className="flex items-center justify-end border-t border-b-2 border-gray-300 py-3 gap-2 bg-blue-50">
+                  <div className="text-lg font-bold text-blue-700 px-2">
+                    <FormattedMessage
+                      id="COMMON.TAXABLE_AMOUNT"
+                      defaultMessage="Taxable Amount"
+                    />
+                  </div>
+                  <div className="w-[220px] text-base font-bold text-blue-700 px-2">
+                    &#8377; {totals.amountAfterDiscount}
+                  </div>
+                </div>
+
+                <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 font-bold p-4">
+                  {quotationData.taxDetails
+                    .filter((tax) => tax.label !== "Discount")
+                    .map((tax) => {
+                      // Find the original index in the full taxDetails array
+                      const originalIdx = quotationData.taxDetails.findIndex(
+                        (t) => t.label === tax.label,
+                      );
+                      return (
+                        <div
+                          key={tax.label}
+                          className="flex items-center justify-end gap-6 py-1"
+                        >
+                          <div className="text-base flex place-content-start font-normal text-gray-700">
+                            {tax.label}
+                          </div>
+                          <div className="flex items-center input text-base text-gray-900 w-[200px]">
+                            {tax.label === "CGST" ||
+                            tax.label === "SGST" ||
+                            tax.label === "IGST" ? (
+                              <>
+                                <input
+                                  className="h-full text-gray-900 w-[60px]"
+                                  value={tax.percentage}
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  onChange={(e) =>
+                                    handleTaxChange(
+                                      originalIdx,
+                                      "percentage",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                                <span className="text-gray-500">%</span>
+                                <span className="ml-3">
+                                  &#8377;{" "}
+                                  {tax.label === "CGST"
+                                    ? totals.cgstAmount
+                                    : tax.label === "SGST"
+                                      ? totals.sgstAmount
+                                      : tax.label === "IGST"
+                                        ? totals.igstAmount
+                                        : tax.amount}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                {tax.label === "Round Off" ? (
+                                  <input
+                                    className="h-full text-gray-900 w-[80px]"
+                                    value={tax.amount}
+                                    type="number"
+                                    onChange={(e) =>
+                                      handleTaxChange(
+                                        originalIdx,
+                                        "amount",
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="0"
+                                  />
+                                ) : (
+                                  <input
+                                    className="h-full text-gray-900 w-[80px]"
+                                    value={tax.amount}
+                                    type="number"
+                                    min="0"
+                                    onChange={(e) =>
+                                      handleTaxChange(
+                                        originalIdx,
+                                        "amount",
+                                        e.target.value,
+                                      )
+                                    }
+                                    placeholder="0"
+                                  />
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
 
                 <div className="flex items-center justify-end py-5  gap-2">
