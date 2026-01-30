@@ -173,7 +173,6 @@ export default function SelectMenureport({
           userId,
           activeTab,
         );
-        console.log(res);
 
         let dynamicTemplates = [];
 
@@ -251,15 +250,6 @@ export default function SelectMenureport({
   }, [eventData, setEventFunctionId, isSelectMenureport]);
 
   const handleGenerateReport = (template) => {
-    console.log("=== HANDLE GENERATE REPORT CALLED ===");
-    console.log("Template details:", {
-      name: template.name,
-      isNamePlate: template.isNamePlate,
-      namePlateType: template.namePlateType,
-      isNamePlateTheme: isNamePlateTheme,
-      templateId: template.id,
-    });
-
     setSelectedCard(template.id);
     setSelectedTemplateId(template.id);
     setSelectedTemplateName(template.name);
@@ -272,7 +262,6 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Counter Name Plate"
     ) {
-      console.log("✅ MATCHED: Counter Name Plate - Opening CounterNameplate");
       setIsModalOpen(true);
       return;
     }
@@ -284,12 +273,6 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Table Menu"
     ) {
-      console.log(
-        "✅ MATCHED: Table Menu (Backend) - Opening MainStandyMenuReport (Frontend Workaround)",
-      );
-      console.log(
-        "This opens: MainStandyMenuReport component for 'Name Plate Test'",
-      );
       setOpenNamePlate(true); // Opens MainStandyMenuReport
       return;
     }
@@ -301,24 +284,12 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
-      console.log(
-        "✅ MATCHED: Main Standy (Backend) - Opening NamePlateReport (Frontend Workaround)",
-      );
-      console.log(
-        "This opens: NamePlateReport component for 'Table Menu Report'",
-      );
-
       setOpenNamePlateTest(true); // Opens NamePlateReport
       return;
     }
 
     // Default: Normal menu report
-    console.log("⚠️ NO MATCH - Opening default MenuReport");
-    console.log("Conditions check:", {
-      isNamePlateTheme,
-      "template.isNamePlate": template.isNamePlate,
-      "template.namePlateType": template.namePlateType,
-    });
+
     setIsMenuReportOpen(true);
   };
   // ✅ COSTING REPORT

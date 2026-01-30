@@ -221,7 +221,7 @@ export default function NamePlateReport({
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
       }
-
+      await fetchItemData();
       Swal.close();
 
       if (printAfterSave) {

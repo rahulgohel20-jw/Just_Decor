@@ -6,8 +6,6 @@ import { GetRawmaterialItemByRecipe } from "@/services/apiServices";
 const ShowMenuItems = ({ isOpen, onClose, item }) => {
   const [rawMaterials, setRawMaterials] = useState([]);
 
-  console.log("ShowMenuItems rendered for item:", item);
-
   useEffect(() => {
     const menuItemId = item?.menuItemId; // this is correct
     if (menuItemId) {
