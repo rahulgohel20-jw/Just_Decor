@@ -124,7 +124,7 @@ const QuotationPage = () => {
 
   const formatAmount = (value) => {
     const num = Number(value) || 0;
-    return num % 1 === 0 ? num.toString() : num.toFixed(2);
+    return num % 1 === 0 ? num.toString() : num;
   };
 
   const FetchGetQuotation = () => {
@@ -287,7 +287,6 @@ const QuotationPage = () => {
         console.log("Error fetching quotation:", error);
       });
   };
-
   const calculateTotals = () => {
     const subtotal = quotationData.functions.reduce((sum, func) => {
       const total = parseFloat(func.totalPrice) || 0;
@@ -298,38 +297,23 @@ const QuotationPage = () => {
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
         ?.amount || 0,
     );
-
-    // Amount after discount - this is the taxable amount
-    const amountAfterDiscount = subtotal - discountAmount;
-
-    const cgstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "CGST",
-    );
-    const sgstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "SGST",
-    );
-    const igstDetail = quotationData.taxDetails.find(
-      (tax) => tax.label === "IGST",
-    );
-
-    const cgstPercentage = parseFloat(cgstDetail?.percentage || 0);
-    const sgstPercentage = parseFloat(sgstDetail?.percentage || 0);
-    const igstPercentage = parseFloat(igstDetail?.percentage || 0);
-
-    // Calculate tax amounts on the discounted amount
-    const cgstAmount = (amountAfterDiscount * cgstPercentage) / 100;
-    const sgstAmount = (amountAfterDiscount * sgstPercentage) / 100;
-    const igstAmount = (amountAfterDiscount * igstPercentage) / 100;
-
     const roundOffAmount = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Round Off")
         ?.amount || 0,
     );
+    const cgstAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "CGST")?.amount || 0,
+    );
+    const sgstAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "SGST")?.amount || 0,
+    );
+    const igstAmount = parseFloat(
+      quotationData.taxDetails.find((tax) => tax.label === "IGST")?.amount || 0,
+    );
 
     const totalTaxAmount = cgstAmount + sgstAmount + igstAmount;
-
-    // Grand Total: Subtotal - Discount + Taxes + Round Off
-    const grandTotal = amountAfterDiscount + totalTaxAmount + roundOffAmount;
+    const grandTotal =
+      subtotal - discountAmount + totalTaxAmount + roundOffAmount;
 
     const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
       const val = parseFloat(p.amount) || 0;
@@ -340,8 +324,6 @@ const QuotationPage = () => {
 
     return {
       subtotal: formatAmount(subtotal),
-      discountAmount: formatAmount(discountAmount),
-      amountAfterDiscount: formatAmount(amountAfterDiscount),
       cgstAmount: formatAmount(cgstAmount),
       sgstAmount: formatAmount(sgstAmount),
       igstAmount: formatAmount(igstAmount),
@@ -407,13 +389,13 @@ const QuotationPage = () => {
 
       const total = persons * rate;
       newFunctions[index].totalPrice =
-        total % 1 === 0 ? total.toString() : total.toFixed(2);
+        total % 1 === 0 ? total.toString() : total;
     }
 
     if (field === "totalPrice") {
       const total = parseFloat(value) || 0;
       newFunctions[index].totalPrice =
-        total % 1 === 0 ? total.toString() : total.toFixed(2);
+        total % 1 === 0 ? total.toString() : total;
     }
 
     setQuotationData((prev) => ({
@@ -440,10 +422,6 @@ const QuotationPage = () => {
       quotationData.taxDetails.find((tax) => tax.label === "Discount")
         ?.amount || 0,
     );
-
-    // Amount after discount - this is the taxable amount
-    const amountAfterDiscount = subtotal - discount;
-
     const roundOff = parseFloat(
       quotationData.taxDetails.find((tax) => tax.label === "Round Off")
         ?.amount || 0,
@@ -462,16 +440,15 @@ const QuotationPage = () => {
     const sgstPercentage = parseFloat(sgstDetail?.percentage || 0);
     const igstPercentage = parseFloat(igstDetail?.percentage || 0);
 
-    // Calculate taxes on the discounted amount
-    const cgstAmnt = (amountAfterDiscount * cgstPercentage) / 100;
-    const sgstAmnt = (amountAfterDiscount * sgstPercentage) / 100;
-    const igstAmnt = (amountAfterDiscount * igstPercentage) / 100;
+    const cgstAmnt = parseFloat(cgstDetail?.amount || 0);
+    const sgstAmnt = parseFloat(sgstDetail?.amount || 0);
+    const igstAmnt = parseFloat(igstDetail?.amount || 0);
 
     const totalAmount =
-      amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
+      subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
 
     const grandTotal =
-      amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
+      subtotal - discount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
     const payments = (quotationData.advancePayments || []).map((p) => ({
       advancePayment: parseFloat(p.amount) || 0,
       advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
@@ -793,13 +770,6 @@ const QuotationPage = () => {
       return sum + total;
     }, 0);
 
-    // Get discount amount to calculate taxable amount
-    const discountAmount = parseFloat(
-      quotationData.taxDetails.find((tax) => tax.label === "Discount")
-        ?.amount || 0,
-    );
-    const taxableAmount = subtotal - discountAmount;
-
     if (
       field === "percentage" &&
       (newTaxDetails[index].label === "CGST" ||
@@ -808,22 +778,20 @@ const QuotationPage = () => {
     ) {
       newTaxDetails[index].percentage = value;
       const percentage = parseFloat(value) || 0;
-      // Calculate tax on taxable amount (after discount)
-      const calculatedAmount = (taxableAmount * percentage) / 100;
+      const calculatedAmount = (subtotal * percentage) / 100;
       newTaxDetails[index].amount = calculatedAmount;
     } else if (field === "amount") {
       newTaxDetails[index].amount = value;
 
       if (
-        taxableAmount > 0 &&
+        subtotal > 0 &&
         (newTaxDetails[index].label === "CGST" ||
           newTaxDetails[index].label === "SGST" ||
           newTaxDetails[index].label === "IGST")
       ) {
         const enteredAmount = parseFloat(value) || 0;
-        // Calculate percentage based on taxable amount
-        const percentage = (enteredAmount / taxableAmount) * 100;
-        newTaxDetails[index].percentage = percentage.toFixed(2);
+        const percentage = (enteredAmount / subtotal) * 100;
+        newTaxDetails[index].percentage = percentage;
       } else if (
         newTaxDetails[index].label === "CGST" ||
         newTaxDetails[index].label === "SGST" ||
@@ -1470,7 +1438,7 @@ const QuotationPage = () => {
                         tax.label === "IGST" ? (
                           <>
                             <input
-                              className="h-full text-gray-900 w-[60px]"
+                              className="h-full text-gray-900 w-[0px]"
                               value={tax.percentage}
                               type="number"
                               min="0"
