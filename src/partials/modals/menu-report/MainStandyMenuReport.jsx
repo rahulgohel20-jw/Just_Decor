@@ -196,7 +196,7 @@ const MainStandyMenuReport = ({
         eventFunctionId,
         userId,
         isCounterItem: 0,
-        isStandyItem: 1, // ✅ MAIN STANDY
+        isStandyItem: 1,
         isTableMenuItem: 0,
 
         namePlateRequests: counters.map((item, index) => ({
@@ -220,6 +220,8 @@ const MainStandyMenuReport = ({
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
       }
+
+      await fetchItemdata();
 
       Swal.close();
 
