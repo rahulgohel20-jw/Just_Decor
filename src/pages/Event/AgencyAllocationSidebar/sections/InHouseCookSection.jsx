@@ -162,6 +162,7 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
       menuCategoryId: menuItem.menuCategoryId || 0,
       menuItemId: menuItem.menuItemId || 0,
       personCount: menuItem.personCount || 0,
+      oldPersonCount: menuItem.oldPersonCount || 0,
       place: menuItem.place || "",
       userId,
 
