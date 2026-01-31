@@ -42,6 +42,7 @@ export default function SidebarModal({
   functionDateTime,
   onSave,
   personCount,
+  HasUnsavedChanges,
 }) {
   const [menuAllocations, setMenuAllocations] = useState([]);
   const [contactNames, setContactNames] = useState([]);
@@ -110,7 +111,7 @@ export default function SidebarModal({
             (contact) => ({
               id: contact.id,
               partyName: contact.nameEnglish,
-            })
+            }),
           );
 
           setContactNames(formattedContacts);
@@ -226,6 +227,7 @@ export default function SidebarModal({
     if (onSave) {
       onSave(saveData);
     }
+    HasUnsavedChanges = true;
 
     onClose();
   };
