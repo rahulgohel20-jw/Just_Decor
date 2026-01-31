@@ -44,6 +44,7 @@ export default function SelectMenureport({
   const [openNamePlate, setOpenNamePlate] = useState(false);
   const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
   const [isCostingReportOpen, setIsCostingReportOpen] = useState(false);
+  const [agencyType, setAgencyType] = useState(null);
 
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -255,6 +256,19 @@ export default function SelectMenureport({
     setSelectedTemplateName(template.name);
     setmappingId(template.mappingId);
     setSelectedModuleId(activeTab);
+
+    const selectedTab = tabs.find((tab) => tab.key === activeTab);
+    let type = null;
+
+    if (selectedTab?.nameEnglish === "Chef Agency Theme") {
+      type = "chef";
+    } else if (selectedTab?.nameEnglish === "Outside Agency Theme") {
+      type = "outside";
+    } else if (selectedTab?.nameEnglish === "Labour Agency Theme") {
+      type = "labour";
+    }
+
+    setAgencyType(type);
 
     // Counter Name Plate
     if (
@@ -598,6 +612,7 @@ export default function SelectMenureport({
         selectedTemplateName={selectedTemplateName}
         PartyNumber={PartyNumber}
         isNamePlateTheme={isNamePlateTheme}
+        agencyType={agencyType}
       />
 
       <CounterNameplate
