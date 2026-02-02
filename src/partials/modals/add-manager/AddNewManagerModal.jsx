@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FormattedMessage } from "react-intl";
+import { Select } from "antd";
 
 import {
   Fetchmanager,
@@ -35,6 +36,7 @@ export default function AddNewManagerModal({
   const [cities, setCities] = useState([]);
   const [leadData, setLeadData] = useState({});
   const [partyId, setPartyId] = useState(null);
+  const { Option } = Select;
 
   const userId = Number(localStorage.getItem("userId"));
 
@@ -144,7 +146,7 @@ export default function AddNewManagerModal({
     const selectedManagerId = e.target.value;
 
     const selectedManager = managers.find(
-      (m) => String(m.value) === String(selectedManagerId)
+      (m) => String(m.value) === String(selectedManagerId),
     );
 
     setForm((prev) => ({
@@ -335,37 +337,30 @@ export default function AddNewManagerModal({
                         defaultMessage="Manager Name"
                       />
                     </label>
-                    <select
-                      name="manager"
-                      value={form.manager}
-                      onChange={handleManagerChange}
-                      className="input mt-1 w-full appearance-none pr-10 bg-white border border-gray-300 rounded-lg px-3 py-2"
+
+                    <Select
+                      className="w-full mt-1"
+                      placeholder="Select a manager"
+                      value={form.manager || undefined}
+                      showSearch
+                      optionFilterProp="children"
+                      onChange={(value) =>
+                        handleManagerChange({
+                          target: { name: "manager", value },
+                        })
+                      }
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
                     >
-                      <option value="">
-                        <FormattedMessage
-                          id="COMMON.SELECT_MANAGER"
-                          defaultMessage="Select a manager"
-                        />
-                      </option>
                       {managers.map((mgr) => (
-                        <option key={mgr.value} value={mgr.value}>
+                        <Option key={mgr.value} value={mgr.value}>
                           {mgr.label}
-                        </option>
+                        </Option>
                       ))}
-                    </select>
-                    <svg
-                      className="w-5 h-5 mt-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                    </Select>
                   </div>
 
                   <div>

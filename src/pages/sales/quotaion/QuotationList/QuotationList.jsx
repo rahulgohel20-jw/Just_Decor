@@ -58,13 +58,13 @@ export default function QuotationViewPage() {
           ]}
         />
       </div>
-      <div className="p-4 flex">
-        <QuotationList onEventSelect={setSelectedEventId} />
+      <div className="p-2 sm:p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
+        <div className="w-full lg:w-auto lg:flex-shrink-0 overflow-x-auto lg:overflow-x-visible">
+          <QuotationList onEventSelect={setSelectedEventId} />
+        </div>
 
-        <div className="p-4 flex flex-col gap-4 items-center w-full">
-          <div>
-            <QuotationDetail Eventid={selectedEventId} />
-          </div>
+        <div className="w-[470px] lg:flex-1 min-w-0">
+          <QuotationDetail Eventid={selectedEventId} />
         </div>
       </div>
     </>

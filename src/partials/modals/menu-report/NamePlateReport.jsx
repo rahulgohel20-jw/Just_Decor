@@ -464,15 +464,15 @@ export default function NamePlateReport({
 
       {/* Footer Buttons */}
       <div className="flex flex-wrap justify-end gap-3 px-6 py-4 border-t bg-gray-50">
-        <button
+        {/* <button
           onClick={() => handleSave()}
           className="px-4 py-2 rounded-lg border text-gray-600 font-semibold hover:bg-gray-100"
         >
           Save
-        </button>
-        <button className="btn btn-primary" onClick={handlePrint}>
+        </button> */}
+        {/* <button className="btn btn-primary" onClick={handlePrint}>
           Print
-        </button>
+        </button> */}
         <button
           className="btn btn-primary flex items-center gap-2"
           onClick={() => handleSave({ printAfterSave: true })}

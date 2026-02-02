@@ -1,4 +1,3 @@
-// ExpenseTabs.jsx
 export default function ExpenseTabs({ activeTab, setActiveTab }) {
   const tabs = ["manager", "supplier", "customer"];
 
