@@ -56,7 +56,7 @@ export default function Log() {
 
         // Sort logs in descending order (newest first)
         const sortedLogs = formattedLogs.sort(
-          (a, b) => new Date(b.createAt) - new Date(a.createAt)
+          (a, b) => new Date(b.createAt) - new Date(a.createAt),
         );
 
         setLogs(sortedLogs);
@@ -94,9 +94,10 @@ export default function Log() {
 
   return (
     <Container>
-      <div className="bg-white rounded-md border border-gray-200 shadow-sm">
+      <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-x-auto">
         {/* Timeline section */}
-        <div className="relative pl-9 py-6">
+        <div className="relative pl-4 md:pl-9 py-6">
+          {" "}
           {loading ? (
             <div className="flex justify-center items-center py-10">
               <Spin size="large" />
@@ -115,9 +116,9 @@ export default function Log() {
 
                 {/* Circle icon */}
                 <div
-                  className={`relative flex items-center justify-center w-7 h-7 rounded-full border-2 border-dotted bg-white ${getEventColor(
+                  className={`relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-dotted bg-white ${getEventColor(
                     log.eventType,
-                    log.highlight
+                    log.highlight,
                   )}`}
                 >
                   {typeof getEventIcon(log.eventType) === "string" ? (
@@ -133,10 +134,11 @@ export default function Log() {
                 </div>
 
                 {/* Log details */}
-                <div className="ml-6">
+                <div className="ml-3 sm:ml-4 md:ml-6 flex-1">
+                  {" "}
                   <div className="mb-1">
                     <span
-                      className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                      className={`inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold ${
                         log.eventType === "login"
                           ? "bg-green-100 text-green-700"
                           : log.eventType === "logout"
@@ -150,7 +152,7 @@ export default function Log() {
                     </span>
                   </div>
                   <p
-                    className={`text-sm ${
+                    className={`text-xs sm:text-sm ${
                       log.highlight
                         ? "text-red-600 font-medium"
                         : "text-gray-700"
@@ -159,12 +161,15 @@ export default function Log() {
                     {log.description}
                   </p>
                   {log.ipAddress && (
-                    <p className="text-sm font-semibold text-green-700 mt-1">
+                    <p className="text-xs sm:text-sm font-semibold text-green-700 mt-1 break-all">
+                      {" "}
                       IP Address: {log.ipAddress}
                     </p>
                   )}
                   {log.user && (
-                    <p className="text-sm text-gray-800">User: {log.user}</p>
+                    <p className="text-xs sm:text-sm text-gray-800 break-words">
+                      User: {log.user}
+                    </p>
                   )}
                 </div>
               </div>

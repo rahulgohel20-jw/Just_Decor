@@ -219,8 +219,8 @@ const EventViewModal = ({
         className="calendar-event-modal "
         width={1100}
       >
-        <div className="p-2 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="col-span-1 flex flex-col gap-6 mb-1">
+        <div className="p-2 grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="col-span-1 lg:col-span-1 flex flex-col gap-4 md:gap-6 mb-1">
             <div className="bg-white p-4 rounded-xl shadow">
               <p className="text-gray-600 font-larger">
                 <FormattedMessage
@@ -320,7 +320,7 @@ const EventViewModal = ({
             </div>
           </div>
 
-          <div className="col-span-3 grid grid-cols-3 gap-4">
+          <div className="col-span-1 lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
             {[
               {
                 label: (
@@ -434,13 +434,13 @@ const EventViewModal = ({
               <div
                 key={idx}
                 onClick={item.onClick}
-                className="bg-white p-6 rounded-xl shadow flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition"
+                className="bg-white p-4 md:p-6 rounded-xl shadow flex flex-col items-center justify-center cursor-pointer hover:shadow-md transition min-h-[120px]"
               >
                 <div className="text-blue-600 text-3xl mb-2">
                   <img
                     src={toAbsoluteUrl(item.icon)}
                     alt={item.label}
-                    className="w-10 h-10"
+                    className="w-8 h-8 md:w-10 md:h-10"
                   />
                 </div>
                 <p className="font-large text-gray font-bold text-center">
@@ -452,9 +452,9 @@ const EventViewModal = ({
         </div>
 
         {/* Bottom Buttons */}
-        <div className="flex justify-center gap-6 mt-3">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-6 mt-3 px-2">
           <Link to={`/edit-event/${safeEventId}`}>
-            <button className="bg-primary text-white w-[300px] h-12 rounded-md font-medium">
+            <button className="bg-primary text-white w-full sm:w-[250px] md:w-[300px] h-12 rounded-md font-medium">
               <i className="ki-filled ki-notepad-edit me-1"></i>
               <FormattedMessage
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
@@ -463,7 +463,7 @@ const EventViewModal = ({
             </button>
           </Link>
           <button
-            className="bg-success text-white w-[300px] h-12 rounded-md font-medium"
+            className="bg-success text-white w-full sm:w-[250px] md:w-[300px] h-12 rounded-md font-medium"
             onClick={() => navigate(`/edit-event/${safeEventId}/copy`)}
           >
             <i className="ki-filled ki-copy me-1"></i>{" "}
@@ -473,7 +473,7 @@ const EventViewModal = ({
             />
           </button>
           <button
-            className="bg-danger text-white w-[300px] h-12 rounded-md font-medium"
+            className="bg-danger text-white w-full sm:w-[250px] md:w-[300px] h-12 rounded-md font-medium"
             onClick={DeleteEvent}
           >
             <i className="ki-filled ki-trash me-1"></i>{" "}

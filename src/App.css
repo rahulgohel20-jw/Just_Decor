@@ -64,3 +64,34 @@ html {
 .read-the-docs {
   color: #888;
 }
+
+/* Custom scrollbar styles */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Hide scrollbar on desktop */
+@media (min-width: 1024px) {
+  .lg\:scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lg\:scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

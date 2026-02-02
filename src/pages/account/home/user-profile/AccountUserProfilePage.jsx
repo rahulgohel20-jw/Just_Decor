@@ -373,8 +373,8 @@ const AccountUserProfilePage = () => {
           {/* Main Section */}
           <section className="col-span-12 lg:col-span-8">
             <div className="rounded-2xl bg-white shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-              <div className="flex items-center justify-between px-8 pt-6">
-                <div className="flex gap-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-8 pt-6 gap-4">
+                <div className="flex gap-4 sm:gap-8 overflow-x-auto w-full sm:w-auto">
                   {TABS.map((t) => {
                     const active = t.key === activeTab;
                     return (
@@ -423,7 +423,7 @@ const AccountUserProfilePage = () => {
                   ))}
               </div>
 
-              <div className="p-8">{content}</div>
+              <div className="p-3">{content}</div>
             </div>
           </section>
         </div>
