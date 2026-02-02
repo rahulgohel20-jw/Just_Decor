@@ -77,7 +77,8 @@ const CustomerMaster = () => {
 
         const filtered = allCustomers.filter(
           (cust) =>
-            cust.contact?.contactType?.nameEnglish?.toLowerCase() === "customer"
+            cust.contact?.contactType?.nameEnglish?.toLowerCase() ===
+            "customer",
         );
 
         const formatted = filtered.map((cust, index) => ({
@@ -262,7 +263,7 @@ const CustomerMaster = () => {
           columns={columns(
             handleEditCustomer,
             DeleteCustomer,
-            handleViewCustomer
+            handleViewCustomer,
           )}
           data={tableData}
           paginationSize={10}

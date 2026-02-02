@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GetAllCustomer, AddExpensemanagement } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage } from "react-intl";
+import { Select } from "antd";
 
 export default function AddSupplierCustomerModal({
   open,
@@ -22,10 +23,14 @@ export default function AddSupplierCustomerModal({
     remarks: "",
     gst: "",
     address: "",
+    image: null, // ✅ ADD THIS
   });
 
   const userId = Number(localStorage.getItem("userId"));
 
+  const handleFile = (e) => {
+    setForm({ ...form, image: e.target.files[0] });
+  };
   const [showGST, setShowGST] = useState(false);
   useEffect(() => {
     setForm((prev) => ({ ...prev, type }));
@@ -98,7 +103,12 @@ export default function AddSupplierCustomerModal({
   const handleSubmit = async () => {
     try {
       if (!selectedParty || !form.amount) {
-        console.warn("Party or amount missing");
+        Swal.fire({
+          icon: "warning",
+          title: "Validation Error",
+          text: "Please select a party and enter an amount",
+          confirmButtonColor: "#3085d6",
+        });
         return;
       }
 
@@ -110,34 +120,42 @@ export default function AddSupplierCustomerModal({
         return `${day}/${month}/${year}`;
       };
 
-      const payload = {
-        amount: Number(form.amount),
-        date: formatDate(),
-        description: form.remarks,
-        remark: form.remarks,
-        paymentType: form.paymentType,
-        mobileNo: form.mobile,
-        userId: userId,
-        roleId: form.roleId || 0,
+      const formData = new FormData(); // ✅ CHANGED FROM payload object
 
-        gstin: form.gst || "",
-        buildingAddress: form.billFlat || "",
-        area: form.billArea || "",
-        city: form.billCity || "",
-        state: form.billState || "",
-        pincode: form.billPincode || "",
-        countryCode: "+91",
+      // BASIC
+      formData.append("amount", Number(form.amount || 0));
+      formData.append("date", formatDate());
+      formData.append("description", form.remarks || "");
+      formData.append("remark", form.remarks || "");
+      formData.append("paymentType", form.paymentType || "");
+      formData.append("mobileNo", form.mobile || "");
+      formData.append("name", form.name || "");
+      formData.append("expenseId", -1);
+      formData.append("partyId", Number(selectedParty));
 
-        expenseId: -1,
-        eventId: Number(eventId),
+      // ADDRESS
+      formData.append("buildingAddress", form.billFlat || "");
+      formData.append("area", form.billArea || "");
+      formData.append("city", form.billCity || "");
+      formData.append("state", form.billState || "");
+      formData.append("pincode", form.billPincode || "");
+      formData.append("countryCode", form.countryCode || "+91");
 
-        partyId: Number(selectedParty),
-        userType: form.type.toUpperCase(), // SUPPLIER / CUSTOMER
-      };
+      // META
+      formData.append("userId", userId);
+      formData.append("roleId", form.roleId || 0);
+      formData.append("eventId", Number(eventId));
+      formData.append("userType", form.type.toUpperCase());
+      formData.append("gstin", form.gst || "");
 
-      const res = await AddExpensemanagement(payload);
+      // FILE  ✅ NEW
+      if (form.image) {
+        formData.append("file", form.image);
+        formData.append("document", "");
+      }
 
-      // ✅ Show success alert
+      const res = await AddExpensemanagement(formData); // ✅ PASS formData instead of payload
+
       await Swal.fire({
         title: "Success!",
         text: `${form.type} expense added successfully`,
@@ -146,18 +164,19 @@ export default function AddSupplierCustomerModal({
         showConfirmButton: false,
       });
 
-      // ✅ Refresh parent table
-      onClose(res?.data?.data || null); // pass data back to parent (ExpenseDetails)
+      onClose(res?.data?.data || null);
     } catch (err) {
       console.error("Failed to add supplier/customer expense", err);
       Swal.fire({
         title: "Error!",
-        text: "Failed to add expense. Please try again.",
+        text:
+          err?.response?.data?.message ||
+          "Failed to add expense. Please try again.",
         icon: "error",
+        confirmButtonColor: "#d33",
       });
     }
   };
-
   return (
     <AnimatePresence>
       {open && (
@@ -207,7 +226,7 @@ export default function AddSupplierCustomerModal({
               </div>
 
               <div className="overflow-y-auto p-6 space-y-6">
-                <div className="ps-3">
+                {/* <div className="ps-3">
                   {" "}
                   <FormattedMessage id="CONTACT.TYPE" defaultMessage="Type" />
                 </div>
@@ -229,7 +248,7 @@ export default function AddSupplierCustomerModal({
                       {t}
                     </button>
                   ))}
-                </div>
+                </div> */}
 
                 <div>
                   <label className="text-sm font-medium text-gray-600">
@@ -237,25 +256,23 @@ export default function AddSupplierCustomerModal({
                     {form.type}
                   </label>
 
-                  <select
-                    value={selectedParty}
-                    onChange={handlePartySelect}
-                    className="input mt-1 w-full"
-                  >
-                    <option value="">
-                      <FormattedMessage
-                        id="CONTACT.SELECT_PLACEHOLDER"
-                        defaultMessage={`Select ${form.type}`}
-                      />
-                    </option>
-
-                    {partyList.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nameEnglish}
-                        {p.mobileno ? ` (${p.mobileno})` : ""}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    className="w-full mt-1"
+                    showSearch
+                    placeholder={`Select ${form.type}`}
+                    value={selectedParty || undefined}
+                    optionFilterProp="label"
+                    onChange={(value) =>
+                      handlePartySelect({ target: { value } })
+                    }
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                    options={partyList.map((p) => ({
+                      value: p.id,
+                      label: `${p.nameEnglish}${p.mobileno ? ` (${p.mobileno})` : ""}`,
+                    }))}
+                  />
                 </div>
 
                 <div>

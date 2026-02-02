@@ -9,6 +9,8 @@ import AddSupplierCustomerModal from "@/partials/modals/add-supplier-customer-mo
 import AddExpenseModal from "../../../partials/modals/add-Expense-Modal/AddExpenseModal";
 import ViewExpenseDetailsModal from "@/partials/modals/view-expense-modal/ViewExpenseDetailsModal";
 import Swal from "sweetalert2";
+import { FormattedMessage } from "react-intl";
+
 import NoData from "../../../components/Nodata";
 import {
   GETExpenseBYUserType,
@@ -185,8 +187,7 @@ export default function ExpenseDetails() {
 
     if (result.isConfirmed) {
       try {
-        await DeleteByExpenseID(expenseId); // call API
-        // Remove from local state to immediately update UI
+        await DeleteByExpenseID(expenseId);
         setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
 
         Swal.fire({
@@ -219,8 +220,8 @@ export default function ExpenseDetails() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen p-4 md:p-6 lg:p-8 flex flex-col">
+      <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col">
         {/* Error Banner */}
         {error && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
@@ -246,52 +247,139 @@ export default function ExpenseDetails() {
           </div>
         )}
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">{getTitle()}</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 lg:mb-8">
+          {getTitle()}
+        </h1>
+
+        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
+          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                    defaultMessage="Event ID:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventNo || "-"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-user text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                    defaultMessage="Party Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.party?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                    defaultMessage="Event Name:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventType?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                    defaultMessage="Event Date & Time:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.eventStartDateTime || ""}
+                </span>
+              </div>
+            </div>
+            <div className="w-full h-0"></div>
+            <div className="flex items-center gap-3">
+              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  <FormattedMessage
+                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                    defaultMessage="Event Venue:"
+                  />
+                </span>
+                <span className="text-sm font-medium text-gray-900">
+                  {eventData?.venue?.nameEnglish || "-"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Dashboard Cards */}
         <div className="bg-gray-100 rounded-lg shadow-lg p-6 mb-8">
-          <DashboardCards activeTab={activeTab} totals={totals} />
+          <DashboardCards
+            activeTab={activeTab}
+            totals={totals}
+            eventData={eventData}
+          />
         </div>
 
         {/* Expense Table */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 flex flex-col flex-1 min-h-0">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
+            <h2 className="text-base md:text-lg font-semibold text-gray-900">
               Recent Expense Reports
             </h2>
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-64"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full sm:w-64"
               />
             </div>
           </div>
 
           <ExpenseTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : expenses.length === 0 ? (
-            <NoData
-              text={`No ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} expenses found`}
-            />
-          ) : (
-            <ExpenseTable
-              activeTab={activeTab}
-              data={expenses}
-              onAddExpense={(managerName, expenseId) => {
-                setSelectedManager(managerName);
-                setSelectedExpenseId(expenseId);
-                setOpenExpenseModal(true);
-              }}
-              onView={handleView}
-              onDelete={handleDeleteExpense}
-            />
-          )}
+
+          <div className="flex-1 overflow-auto">
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : expenses.length === 0 ? (
+              <NoData
+                text={`No ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} expenses found`}
+              />
+            ) : (
+              <ExpenseTable
+                activeTab={activeTab}
+                data={expenses}
+                onAddExpense={(managerName, expenseId) => {
+                  setSelectedManager(managerName);
+                  setSelectedExpenseId(expenseId);
+                  setOpenExpenseModal(true);
+                }}
+                onView={handleView}
+                onDelete={handleDeleteExpense}
+              />
+            )}
+          </div>
+
+          {/* Responsive Footer - Only shown when no data */}
         </div>
 
         {/* Add Button */}
@@ -306,10 +394,11 @@ export default function ExpenseDetails() {
               setOpenSupplierModal(true);
             }
           }}
-          className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-3xl flex items-center gap-2 shadow-lg"
+          className="fixed bottom-4 right-4 md:bottom-8 md:right-8 bg-primary hover:bg-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-3xl flex items-center gap-2 shadow-lg text-sm md:text-base z-50"
         >
-          <Plus className="w-5 h-5" />
-          {getAddButtonText()}
+          <Plus className="w-4 h-4 md:w-5 md:h-5" />
+          <span className="hidden sm:inline">{getAddButtonText()}</span>
+          <span className="sm:hidden">Add</span>
         </button>
 
         {/* Modals */}
@@ -344,6 +433,8 @@ export default function ExpenseDetails() {
           }}
           expenseId={selectedExpenseId}
           eventId={eventId}
+          userId={userId}
+          userType={activeTab.toUpperCase()}
         />
       </div>
     </div>

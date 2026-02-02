@@ -25,7 +25,7 @@ const formatDateDisplay = (dateString) => {
   if (!dateString) return "N/A";
   const d = new Date(dateString);
   return `${String(d.getDate()).padStart(2, "0")}/${String(
-    d.getMonth() + 1
+    d.getMonth() + 1,
   ).padStart(2, "0")}/${d.getFullYear()}`;
 };
 
@@ -76,7 +76,7 @@ const QuotationDashboard = () => {
       response = await GetAllQuotationByFilter(
         formatDateAPI(endDate),
         formatDateAPI(startDate),
-        userId
+        userId,
       );
     }
 
@@ -148,23 +148,21 @@ const QuotationDashboard = () => {
       </style>
 
       <Container>
-        <div className="mb-3">
-                    <h1 className="test-xl text-gray-900">
-
-        
-                  <FormattedMessage
-                    id="SALES.QUOTATION_OVERVIEW"
-                    defaultMessage="Quotation Overview"
-                  />
-                </h1>
+        <div className="mb-3 md:mb-4">
+          <h1 className="text-xl md:text-xl lg:text-2xl  text-gray-900">
+            <FormattedMessage
+              id="SALES.QUOTATION_OVERVIEW"
+              defaultMessage="Quotation Overview"
+            />
+          </h1>
         </div>
 
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="filItems relative">
-              <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+        <div className="filters flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 md:gap-3 w-full md:w-auto">
+            <div className="filItems relative w-full sm:w-auto">
+              <i className="ki-filled ki-magnifier leading-none text-sm md:text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
               <input
-                className="input pl-8"
+                className="input pl-8 w-full sm:w-64 text-sm md:text-base"
                 placeholder="Search Quotation"
                 type="text"
                 value={searchText}
@@ -173,9 +171,9 @@ const QuotationDashboard = () => {
             </div>
 
             {/* FILTER SELECT */}
-            <div className="filItems relative">
+            <div className="filItems relative w-full sm:w-auto">
               <select
-                className="select pe-7.5"
+                className="select pe-7.5 w-full sm:w-auto text-sm md:text-base"
                 value={selectedMonth}
                 onChange={(e) => {
                   const v = e.target.value;
@@ -192,10 +190,10 @@ const QuotationDashboard = () => {
 
             {/* CUSTOM DATE */}
             {selectedMonth === "3" && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 <input
                   type="date"
-                  className="input"
+                  className="input w-full sm:w-auto text-sm md:text-base"
                   value={customRange.start}
                   onChange={(e) =>
                     setCustomRange((p) => ({ ...p, start: e.target.value }))
@@ -203,14 +201,14 @@ const QuotationDashboard = () => {
                 />
                 <input
                   type="date"
-                  className="input"
+                  className="input w-full sm:w-auto text-sm md:text-base"
                   value={customRange.end}
                   onChange={(e) =>
                     setCustomRange((p) => ({ ...p, end: e.target.value }))
                   }
                 />
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary w-full sm:w-auto text-sm md:text-base"
                   onClick={() => fetchQuotations("3")}
                 >
                   Apply
@@ -220,13 +218,13 @@ const QuotationDashboard = () => {
           </div>
 
           {/* DOWNLOAD BUTTON */}
-          <button className="btn btn-primary">
+          {/* <button className="btn btn-primary">
             <Download style={{ width: 18, height: 18 }} /> Download
-          </button>
+          </button> */}
         </div>
 
         {/* STAT CARDS */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4">
           {[
             {
               label: "Total Outstanding Receivable",
@@ -241,18 +239,20 @@ const QuotationDashboard = () => {
               value: totals.total,
             },
           ].map((s, i) => (
-            <div key={i} className="card p-4 user-access-bg">
+            <div key={i} className="card p-3 md:p-4 user-access-bg">
               <div className="flex flex-col items-center gap-2">
                 <CommonHexagonBadge
                   stroke="stroke-primary"
                   fill="fill-light"
-                  size="size-[50px]"
+                  size="size-[40px] md:size-[50px]"
                   badge={
-                    <i className="ki-filled ki-wallet text-xl text-primary"></i>
+                    <i className="ki-filled ki-wallet text-lg md:text-xl text-primary"></i>
                   }
                 />
-                <p className="form-info text-gray-700 text-center">{s.label}</p>
-                <h3 className="text-xl font-semibold text-primary">
+                <p className="form-info text-gray-700 text-center text-xs md:text-sm">
+                  {s.label}
+                </p>
+                <h3 className="text-lg md:text-xl font-semibold text-primary">
                   ₹ {s.value}
                 </h3>
               </div>

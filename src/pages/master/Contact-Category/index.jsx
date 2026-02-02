@@ -94,7 +94,7 @@ const ContactCategoryMaster = () => {
                 sr_no: index + 1,
                 contact_name: cust[nameField] || cust.nameEnglish || "-",
                 contactid: cust.id,
-              })
+              }),
             );
             setTableData(formatted);
           } else {
