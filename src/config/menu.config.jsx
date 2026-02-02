@@ -28,6 +28,7 @@ export const allMenuItems = [
         title: (
           <FormattedMessage id="COMMON.CALENDAR" defaultMessage="Calendar" />
         ),
+        pageName: "Calendar",
         path: "/calendar",
       },
       {
@@ -37,6 +38,7 @@ export const allMenuItems = [
             defaultMessage="Event List"
           />
         ),
+        pageName: "Event List",
         path: "/event",
       },
     ],

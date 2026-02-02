@@ -210,89 +210,91 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
           </div>,
         ]}
       >
-        <div className="flex flex-col gap-y-3 max-h-[500px] overflow-auto">
-          {/* ROLE SELECT */}
-          <div className="flex flex-col">
-            <label className="form-label">Department</label>
+          <div className="max-h-[60vh] overflow-y-auto px-2">
+          <div className="flex flex-col gap-y-3">
+            {/* ROLE SELECT */}
+            <div className="flex flex-col">
+              <label className="form-label">Department</label>
 
-            <div className="relative input flex items-center">
-              <i className="ki-filled ki-user"></i>
+              <div className="relative input flex items-center">
+                <i className="ki-filled ki-user"></i>
 
-              <select
-                className="h-full w-full bg-transparent outline-none pr-10"
-                name="role_name"
-                value={formData.role_name || ""}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Department</option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.name}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
+                <select
+                  className="h-full w-full bg-transparent outline-none pr-10"
+                  name="role_name"
+                  value={formData.role_name || ""}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Department</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.name}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
 
-              <button
-                type="button"
-                onClick={() => setOpenAddRoleModal(true)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center"
-              >
-                <i className="ki-filled ki-plus text-xs"></i>
-              </button>
-            </div>
-          </div>
-
-          {/* RIGHTS TABLE */}
-          <div className="border rounded-lg overflow-hidden">
-            {modules.map((module) => (
-              <div key={module.moduleId} className="mb-4">
-                
-                {/* MODULE HEADER */}
-                <div className="bg-gray-200 px-4 py-2 font-bold text-primary">
-                  {module.moduleName}
-                </div>
-
-                {/* PAGES TABLE */}
-                <table className="min-w-full table-auto">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="p-3 text-left">Page Name</th>
-                      <th className="p-3 text-center">View</th>
-                      <th className="p-3 text-center">Edit</th>
-                      <th className="p-3 text-center">Delete</th>
-                      <th className="p-3 text-center">Add</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {module.userRightsPages.map((page) => (
-                      <tr key={page.pageId} className="border-t">
-                        <td className="p-3">{page.pagename}</td>
-
-                        {["view", "edit", "delete", "add"].map((action) => (
-                          <td key={action} className="text-center">
-                            <Checkbox
-                              checked={rights[page.pageId]?.[action] || false}
-                              onChange={(e) =>
-                                handleCheckboxChange(
-                                  module.moduleId, 
-                                  page.pageId,
-                                  action,
-                                  e.target.checked
-                                )
-                              }
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <button
+                  type="button"
+                  onClick={() => setOpenAddRoleModal(true)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center"
+                >
+                  <i className="ki-filled ki-plus text-xs"></i>
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
 
-        </div>
+            {/* RIGHTS TABLE */}
+            <div className="border rounded-lg overflow-hidden">
+              {modules.map((module) => (
+                <div key={module.moduleId} className="mb-4">
+                  
+                  {/* MODULE HEADER */}
+                  <div className="bg-gray-200 px-4 py-2 font-bold text-primary">
+                    {module.moduleName}
+                  </div>
+
+                  {/* PAGES TABLE */}
+                  <table className="min-w-full table-auto">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="p-3 text-left">Page Name</th>
+                        <th className="p-3 text-center">View</th>
+                        <th className="p-3 text-center">Edit</th>
+                        <th className="p-3 text-center">Delete</th>
+                        <th className="p-3 text-center">Add</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {module.userRightsPages.map((page) => (
+                        <tr key={page.pageId} className="border-t">
+                          <td className="p-3">{page.pagename}</td>
+
+                          {["view", "edit", "delete", "add"].map((action) => (
+                            <td key={action} className="text-center">
+                              <Checkbox
+                                checked={rights[page.pageId]?.[action] || false}
+                                onChange={(e) =>
+                                  handleCheckboxChange(
+                                    module.moduleId, 
+                                    page.pageId,
+                                    action,
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
+
+          </div>
+          </div>
 
         {/* ADD ROLE MODAL */}
         <AddRoleModal
