@@ -65,9 +65,7 @@ const Demo1LayoutProvider = ({ children }) => {
     }
   }, [loading, MENU_SIDEBAR, secondaryMenu]);
 
-  // Sets the primary and secondary menu configurations
-  setMenuConfig("primary", MENU_SIDEBAR);
-  setMenuConfig("secondary", secondaryMenu);
+
   const { getLayout, updateLayout, setCurrentLayout } = useLayout(); // Layout management methods
 
   // Merges the default layout with the current one
