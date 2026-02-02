@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState,useEffect  } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FetchAllUser } from "@/services/apiServices";
+import { useAuthStore } from "@/store/useAuthStore";
+import { normalizeRights } from "@/utils/normalizeRights";
 import clsx from "clsx";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -9,7 +11,6 @@ import { useAuthContext } from "@/auth";
 import { useLayout } from "@/providers";
 import { Alert } from "@/components";
 import PlanExpire from "../../../partials/modals/planExpire/PlanExpire";
-import { Hand, Handshake } from "lucide-react";
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email("Wrong email format")
@@ -37,7 +38,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState(null);
   const { currentLayout } = useLayout();
-
+  const setAuth = useAuthStore((state) => state.setAuth);
   const formik = useFormik({
     initialValues,
     validationSchema: loginSchema,
@@ -56,6 +57,8 @@ const Login = () => {
         const userResponse = await FetchAllUser(userId);
 
         const userData = userResponse?.data?.data;
+        console.log(userData);
+        
 
         if (
           !userData ||
@@ -69,11 +72,27 @@ const Login = () => {
         window.history.replaceState(null, "", "/auth/login");
 
         const userDetails = userData["User Details"][0];
-
+        console.log(userDetails);
+        
+        const rawRights = userDetails?.userRights || [];
         const roleId = Number(userDetails?.userBasicDetails?.role?.id);
         const userPlan = userDetails?.userPlan?.plan ?? null;
         const plan = userDetails?.plan ?? null;
         const isApprove = userDetails?.isApprove;
+        console.log(rawRights);
+        
+        const normalizedRights = normalizeRights(rawRights);
+        console.log(normalizedRights);
+        
+        setAuth(
+          {
+            id: userId,
+            roleId,
+          },
+          auth?.token,
+          normalizedRights
+        );
+
 
         if (roleId === 1) {
           // 🧑‍💼 Super Admin
@@ -132,13 +151,13 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  useState(() => {
+  useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     if (rememberedEmail) {
       formik.setFieldValue("email", rememberedEmail);
       formik.setFieldValue("remember", true);
     }
-  });
+  }, []);
 
   return (
     <div className="card max-w-[700px] ">

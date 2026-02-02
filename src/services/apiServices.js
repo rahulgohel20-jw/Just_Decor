@@ -247,7 +247,7 @@ export const RawMaterialName = (Id, name) => {
   );
 };
 
-export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid,newpax,oldPax) => {
+export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid, newpax, oldPax) => {
   return GET(
     `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}&newPax=${newpax}&oldPax=${oldPax}`
   );
@@ -1473,8 +1473,8 @@ export const DeleteCoupon = (id) => {
   return DELETE(`/coupenmaster/delete?id=${id}`);
 };
 
-export const GetAgenciesForReportFilter = (event_func_id, event_id) => {
-  return GET(`/menupreparation/getagencybyeventandeventfunctionid?eventFunctionId=${event_func_id}&eventId=${event_id}`);
+export const GetAgenciesForReportFilter = (event_func_id, event_id, type) => {
+  return GET(`/menupreparation/getagencybyeventandeventfunctionid?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`);
 };
 
 
@@ -1489,9 +1489,9 @@ export const GetSelectedItemsForReportFilter = (
 
   return GET(
     `/menupreparation/getselectedmenuitembyeventandeventfunctionid` +
-      `?eventFunctionId=${event_func_id}` +
-      `&eventId=${event_id}` +
-      (partyQuery ? `&${partyQuery}` : "")
+    `?eventFunctionId=${event_func_id}` +
+    `&eventId=${event_id}` +
+    (partyQuery ? `&${partyQuery}` : "")
   );
 };
 
@@ -1526,11 +1526,11 @@ export const UpdateModuleRights = (id, data) => {
 };
 
 // Add or Update
-   export const AddorUpdatebankdetails = (userId, data) => {
-     return POST(`bankdetails/add`, data);
-   };
+export const AddorUpdatebankdetails = (userId, data) => {
+  return POST(`bankdetails/add`, data);
+};
 
-   // Get by User ID
-   export const GetbankdetailsbyuserId = (userId) => {
-     return GET(`bankdetails/getbyuserid?userId=${userId}`);
-   };
+// Get by User ID
+export const GetbankdetailsbyuserId = (userId) => {
+  return GET(`bankdetails/getbyuserid?userId=${userId}`);
+};

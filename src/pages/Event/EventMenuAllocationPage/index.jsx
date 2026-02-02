@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState,useRef } from "react";
+import { Fragment, useEffect, useMemo, useState, useRef } from "react";
 import { Container } from "@/components/container";
 import SidebarChefModal from "../../../components/sidebarchefmodal/SidebarChefModal";
 import Swal from "sweetalert2";
@@ -623,7 +623,7 @@ const TableHeader = () => (
   </div>
 );
 
-const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
+const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
   const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
   const [hasError, setHasError] = useState(false);
   useEffect(() => {
@@ -643,7 +643,6 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
   const handlePersonCountChange = (e) => {
     setLocalPersonCount(Number(e.target.value) || 0);
     setHasError(false);
-
   };
 
   const handlePersonCountBlur = () => {
@@ -652,7 +651,7 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
     if (value === 0) {
       setHasError(true);
       message.error("Value cannot be zero");
-      return; 
+      return;
     }
 
     if (isNaN(value) || value < 0) {
@@ -665,8 +664,6 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
       onChange({ ...row, personCount: value });
     }
   };
-  
-  
 
   return (
     <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
@@ -735,7 +732,7 @@ const TableRow = ({ row, onChange, disabled ,onPaxBlur }) => {
       </div>
 
       <div className="col-span-1 flex justify-center">
-      <Input
+        <Input
           min={0}
           type="text"
           value={localPersonCount}
@@ -842,11 +839,9 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
- const lastSavedPersonRef = useRef({});
- const isInitialLoadRef = useRef(true);
+  const lastSavedPersonRef = useRef({});
+  const isInitialLoadRef = useRef(true);
 
-
-  
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
     const handleStorageChange = () => {
@@ -1011,28 +1006,28 @@ const EventMenuAllocationPage = ({ mode }) => {
   ) => {
     try {
       let eventFunctionId;
-  
+
       if (isAllFunctions && clickedFunctionId) {
         eventFunctionId = clickedFunctionId;
       } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
-  
+
       const menuItemId = item.menuItemId || item.id;
-  
+
       const matchingRow = rows.find(
         (r) =>
           r.menuItemId === menuItemId && r.eventFunctionId === eventFunctionId,
       );
-  
+
       if (matchingRow?.outside) {
         return;
       }
-  
+
       // Calculate oldPax and newPax
       const oldPax = matchingRow?.oldPersonCount || 0;
       const newPax = matchingRow?.personCount || 0;
-  
+
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
         allocationType = "chef";
@@ -1041,7 +1036,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else if (matchingRow?.inside) {
         allocationType = "inside";
       }
-  
+
       setSelectedRow({
         "MenuItem RawMaterial Details": [],
         menuItemName: item.menuItemName || "-",
@@ -1050,27 +1045,26 @@ const EventMenuAllocationPage = ({ mode }) => {
         eventId: eventId,
         allocationType: allocationType,
       });
-  
+
       setIsCategoryModal(true);
       setMenuLoading(true);
 
-  
       // Pass oldPax and newPax to the API
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
         newPax,
-        oldPax
+        oldPax,
       );
-  
+
       if (res?.data?.success) {
         const apiData = res.data.data;
-  
+
         const rawMaterials =
           apiData["MenuItem RawMaterial Details"] ||
           apiData.menuItemRawMaterials ||
           [];
-  
+
         setSelectedRow({
           ...apiData,
           "MenuItem RawMaterial Details": rawMaterials,
@@ -1148,7 +1142,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         inside: item.inside || false,
         outside: item.outside || false,
         personCount: item.personCount || 0,
-        oldPersonCount:item.oldPersonCount || 0,
+        oldPersonCount: item.oldPersonCount || 0,
         place: item.place || "venue",
         instructions: item.instructions || "",
         eventId: item.eventId,
@@ -1298,7 +1292,7 @@ const EventMenuAllocationPage = ({ mode }) => {
             row.eventFunctionId,
             row.menuItemId,
             row.personCount,
-            row.oldPersonCount
+            row.oldPersonCount,
           );
 
           if (res?.data?.success) {
@@ -1327,7 +1321,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       setInitialRows(JSON.parse(JSON.stringify(updatedRows)));
 
       const personSnapshot = {};
-      updatedRows.forEach(r => {
+      updatedRows.forEach((r) => {
         personSnapshot[r.key] = r.personCount;
       });
       lastSavedPersonRef.current = personSnapshot;
@@ -1363,30 +1357,27 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   useEffect(() => {
     if (isInitialLoadRef.current) return;
-  
+
     if (rows.length === 0) return;
-  
-    if (rows.some(r => r.personCount === 0)) return;
-  
+
+    if (rows.some((r) => r.personCount === 0)) return;
+
     const hasPersonChanged = rows.some(
-      r => lastSavedPersonRef.current[r.key] !== r.personCount
+      (r) => lastSavedPersonRef.current[r.key] !== r.personCount,
     );
-  
+
     if (!hasPersonChanged) return;
-  
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
-  
+
     saveTimeoutRef.current = setTimeout(() => {
       handleMainSave();
     }, 1000);
-  
+
     return () => clearTimeout(saveTimeoutRef.current);
   }, [rows]);
-  
-  
-  
 
   const totalPax = useMemo(() => {
     if (activeFunction?.id === -1) {
@@ -1438,12 +1429,12 @@ const EventMenuAllocationPage = ({ mode }) => {
   const updateRow = (updated) => {
     setRows((prevRows) => {
       const updatedRows = prevRows.map((x) =>
-        x.key === updated.key ? updated : x
+        x.key === updated.key ? updated : x,
       );
-  
+
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
-  
+
       return updatedRows;
     });
   };
@@ -1530,12 +1521,11 @@ const EventMenuAllocationPage = ({ mode }) => {
         if (personSaveTimeoutRef.current) {
           clearTimeout(personSaveTimeoutRef.current);
         }
-      
+
         personSaveTimeoutRef.current = setTimeout(() => {
           handleMainSave();
-        }, 1000); 
+        }, 1000);
       },
-      
     }));
   }, [
     rows,
@@ -1905,7 +1895,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       const validEventId = Number(eventId);
       const validEventFunctionId = getValidFunctionId(activeFunction);
-      const hasInvalidPerson = rows.some(r => r.personCount === 0);
+      const hasInvalidPerson = rows.some((r) => r.personCount === 0);
       if (hasInvalidPerson) {
         Swal.fire({
           icon: "error",
@@ -1998,8 +1988,7 @@ const EventMenuAllocationPage = ({ mode }) => {
             ? allocationData[`${r.menuItemId}-category`].rawMaterials
             : r.menuItemRawMaterials || [];
 
-            console.log(rawMaterialsSource,'data');
-            
+        console.log(rawMaterialsSource, "data");
 
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
           dateTime: rm.dateTime || "",
@@ -2010,7 +1999,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           partyId: rm.partyId || rm.party_id || rm.party?.id || 0,
           place: rm.place || "",
           newPax: r.personCount,
-       oldPax: r.oldPersonCount,
+          oldPax: r.oldPersonCount,
           rate: rm.rate || 0,
           rawMaterialId: rm.rawMaterialId || 0,
           rawmaterial_rate: rm.rawmaterial_rate || 0,
@@ -2041,18 +2030,16 @@ const EventMenuAllocationPage = ({ mode }) => {
       const res = await MenuAllocationSave(payload);
 
       if (res?.data?.success === true) {
-      
         Swal.fire({
           title: "Saved Successfully!",
           text: "Menu Allocation details have been saved.",
           icon: "success",
           confirmButtonColor: "#3085d6",
         });
-       
-      
+
         await fetchMenuAllocation(currentActiveFunctionId);
         const personSnapshot = {};
-        rows.forEach(r => {
+        rows.forEach((r) => {
           personSnapshot[r.key] = r.personCount;
         });
         lastSavedPersonRef.current = personSnapshot;
@@ -2525,7 +2512,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                             key={`${row.menuItemId}-${row.menuCategoryId}-${row.eventFunctionId}-${rowIdx}`}
                             row={row}
                             onChange={updateRow}
-                           
                           />
                         ))
                       )}
@@ -2550,7 +2536,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                         key={`${row.menuItemId}-${row.menuCategoryId}-${index}`}
                         row={row}
                         onChange={updateRow}
-                   
                       />
                     ))
                   );
@@ -2598,6 +2583,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           functionDateTime={activeFunction?.functionStartDateTime}
           onSave={handleOutsideSave}
           personCount={selectedRow?.personCount}
+          HasUnsavedChanges={hasUnsavedChanges}
         />
         <SidebarChefModal
           open={isChefModal}
