@@ -367,7 +367,7 @@ export default function AdminModuleReport() {
                   {/* Module Header - Collapsible */}
                   <div
                     onClick={() => toggleSection(module.id)}
-                    className="p-6 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
+                    className="p-6 mb-2 lg:mb-0 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <i
@@ -397,7 +397,7 @@ export default function AdminModuleReport() {
                           .map((template) => (
                             <div
                               key={template.id}
-                              className={`border shadow-lg p-4 rounded-lg flex justify-between items-center ${
+                              className={`border shadow-lg p-4 rounded-lg flex flex-col sm:flex-row gap-3 justify-between items-center ${
                                 selectedCard === template.id
                                   ? "border-primary bg-blue-50"
                                   : "border-gray-300"

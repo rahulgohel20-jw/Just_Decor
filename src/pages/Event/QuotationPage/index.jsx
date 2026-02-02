@@ -43,6 +43,101 @@ const QuotationPage = () => {
 
   const intl = useIntl();
 
+  const responsiveStyles = `
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    /* Event Details Card */
+    .event-header-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .event-header-actions > div {
+      width: 100%;
+    }
+    
+    /* Function Table */
+    .function-table-header {
+      display: none !important;
+    }
+    
+    .function-row {
+      flex-direction: column !important;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1rem !important;
+      margin-bottom: 1rem;
+      background: white;
+    }
+    
+    .function-cell {
+      width: 100% !important;
+      padding: 0.5rem 0 !important;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .function-cell:last-child {
+      border-bottom: none;
+    }
+    
+    .mobile-field-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+    }
+    
+    /* Summary Section */
+    .summary-row {
+      padding: 0.75rem 1rem !important;
+    }
+    
+    .summary-label,
+    .summary-value {
+      font-size: 0.875rem !important;
+    }
+    
+    /* Tax Details */
+    .tax-row {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 0.5rem;
+    }
+    
+    .tax-input-group {
+      width: 100% !important;
+    }
+    
+    /* Payment Details */
+    .payment-card {
+      padding: 0.75rem !important;
+    }
+    
+    /* Buttons */
+    .btn-group-mobile {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .btn-group-mobile button {
+      width: 100%;
+    }
+  }
+  
+  @media (min-width: 769px) {
+    .mobile-field-label {
+      display: none;
+    }
+    
+    .function-row {
+      display: flex !important;
+      flex-direction: row !important;
+    }
+  }
+`;
+
   const [quotationData, setQuotationData] = useState({
     eventName: "",
     partyName: "",
@@ -941,62 +1036,72 @@ const QuotationPage = () => {
 
           {/* Event Details */}
           <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-            <div className="flex items-center justify-between p-4 gap-3">
-              <div className="flex flex-col gap-2.5">
-                <p className="text-lg font-semibold text-gray-900">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 gap-4">
+              {/* Left side - Event Details */}
+              <div className="flex flex-col gap-3 w-full lg:w-auto">
+                <p className="text-base lg:text-lg font-semibold text-gray-900">
                   <FormattedMessage
                     id="COMMON.EVENT_NAME"
                     defaultMessage="Event Name: "
                   />
                   {quotationData.eventName}
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-user text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
+
+                {/* Grid - Responsive */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                  {/* Party Name */}
+                  <div className="flex items-center gap-2">
+                    <i className="ki-filled ki-user text-success text-lg"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
                           id="COMMON.PARTY_NAME"
                           defaultMessage="Party Name:"
                         />
                       </span>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 truncate">
                         {quotationData.partyName}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-geolocation-home text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
+
+                  {/* Venue */}
+                  <div className="flex items-center gap-2">
+                    <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
                           id="COMMON.VENUE_NAME"
                           defaultMessage="Venue Name:"
                         />
                       </span>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 truncate">
                         {quotationData.venueName}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
+
+                  {/* Event Date */}
+                  <div className="flex items-center gap-2">
+                    <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
                           id="COMMON.EVENT_DATE"
                           defaultMessage="Event Date:"
                         />
                       </span>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 truncate">
                         {quotationData.estimateDate}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-phone text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
+
+                  {/* Mobile */}
+                  <div className="flex items-center gap-2">
+                    <i className="ki-filled ki-phone text-success text-lg"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
                           id="COMMON.MOBILE_NUMBER"
                           defaultMessage="Mobile Number:"
@@ -1007,30 +1112,29 @@ const QuotationPage = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
+
+                  {/* Quotation Date */}
+                  <div className="flex items-center gap-2">
+                    <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
                           id="COMMON.QUOTATION_DATE"
                           defaultMessage="Quotation Date:"
                         />
                       </span>
-
                       <div className="flex items-center gap-2">
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">
                               {quotationData.QuotationDate}
                             </span>
-
                             <button
                               type="button"
                               className="text-primary hover:text-primary-dark"
                               onClick={() => setIsQuotationDateEditing(true)}
-                              title="Edit Quotation Date"
                             >
-                              <i className="ki-filled ki-pencil"></i>
+                              <i className="ki-filled ki-pencil text-sm"></i>
                             </button>
                           </>
                         ) : (
@@ -1042,17 +1146,15 @@ const QuotationPage = () => {
                                 setQuotationDate(e.target.value);
                                 setIsEdited(true);
                               }}
-                              className="border rounded px-2 py-1 text-sm"
+                              className="input text-sm py-1 px-2"
                               autoFocus
                             />
-
                             <button
                               type="button"
-                              className="text-success hover:text-success-dark"
+                              className="text-success"
                               onClick={() => setIsQuotationDateEditing(false)}
-                              title="Done"
                             >
-                              <i className="ki-filled ki-check"></i>
+                              <i className="ki-filled ki-check text-sm"></i>
                             </button>
                           </>
                         )}
@@ -1060,79 +1162,77 @@ const QuotationPage = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-[80px]">
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-user text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-sm">
-                        <FormattedMessage
-                          id="COMMON.BILLING_NAME"
-                          defaultMessage="Billing Name:"
-                        />
-                      </span>
-                      <input
-                        className="input text-sm font-medium text-gray-900 w-[260px]"
-                        type="text"
-                        value={billingName || quotationData.billingname}
-                        onChange={(e) => {
-                          setBillingName(e.target.value);
-                          setIsEdited(true);
-                        }}
+
+                {/* Billing Details - Responsive Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+                  {/* Billing Name */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-gray-700">
+                      <FormattedMessage
+                        id="COMMON.BILLING_NAME"
+                        defaultMessage="Billing Name:"
                       />
-                    </div>
+                    </label>
+                    <input
+                      className="input text-sm"
+                      type="text"
+                      value={billingName || quotationData.billingname}
+                      onChange={(e) => {
+                        setBillingName(e.target.value);
+                        setIsEdited(true);
+                      }}
+                    />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">
-                        <FormattedMessage
-                          id="COMMON.GST_NUMBER"
-                          defaultMessage="GST Number:"
-                        />
-                      </span>
-                      <input
-                        className="input text-sm font-medium text-gray-900 w-[270px]"
-                        type="text"
-                        value={gstNumber || quotationData.gstnumber}
-                        onChange={(e) => {
-                          setGstNumber(e.target.value);
-                          setIsEdited(true);
-                        }}
+
+                  {/* GST Number */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-gray-700">
+                      <FormattedMessage
+                        id="COMMON.GST_NUMBER"
+                        defaultMessage="GST Number:"
                       />
-                    </div>
+                    </label>
+                    <input
+                      className="input text-sm"
+                      type="text"
+                      value={gstNumber || quotationData.gstnumber}
+                      onChange={(e) => {
+                        setGstNumber(e.target.value);
+                        setIsEdited(true);
+                      }}
+                    />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="ki-filled ki-calendar-tick text-success"></i>
-                    <div className="flex flex-col">
-                      <span className="text-xs">
-                        <FormattedMessage
-                          id="COMMON.DUE_DATE"
-                          defaultMessage="Due Date:"
-                        />
-                      </span>
-                      <DatePicker
-                        format="DD/MM/YYYY"
-                        className="input w-full"
-                        value={
-                          dueDate ||
-                          (quotationData.duedate
-                            ? dayjs(quotationData.duedate, "DD/MM/YYYY")
-                            : null)
-                        }
-                        onChange={(date) => {
-                          setDueDate(date);
-                          setIsEdited(true);
-                        }}
+
+                  {/* Due Date */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-gray-700">
+                      <FormattedMessage
+                        id="COMMON.DUE_DATE"
+                        defaultMessage="Due Date:"
                       />
-                    </div>
+                    </label>
+                    <DatePicker
+                      format="DD/MM/YYYY"
+                      className="input w-full"
+                      value={
+                        dueDate ||
+                        (quotationData.duedate
+                          ? dayjs(quotationData.duedate, "DD/MM/YYYY")
+                          : null)
+                      }
+                      onChange={(date) => {
+                        setDueDate(date);
+                        setIsEdited(true);
+                      }}
+                    />
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-row items-end gap-2 mt-[-30px]">
+              {/* Right side - Print Button */}
+              <div className="w-full lg:w-auto lg:self-start">
                 <button
-                  className="btn btn-sm btn-primary"
-                  title="Save & Open PDF"
+                  className="btn btn-primary w-full lg:w-auto"
                   onClick={handleSaveAndOpenPdf}
                   disabled={loadingPdf}
                 >
@@ -1161,7 +1261,6 @@ const QuotationPage = () => {
                         <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
                         <rect x="6" y="14" width="12" height="8" rx="1" />
                       </svg>
-
                       <FormattedMessage
                         id="COMMON.SHARE"
                         defaultMessage="Print"
@@ -1176,31 +1275,30 @@ const QuotationPage = () => {
           {/* Functions */}
           <div className="card min-w-full mb-9">
             <div className="flex flex-col flex-1">
+              {/* Header */}
               <div className="rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg">
-                <div className="flex flex-wrap justify-between items-center gap-5 p-4 relative">
-                  <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-6"></i>
-                  <input
-                    className="input pl-8 w-[300px]"
-                    placeholder={intl.formatMessage({
-                      id: "COMMON.SEARCH_FUNCTION",
-                      defaultMessage: "Search function...",
-                    })}
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 p-4">
+                  {/* Search */}
+                  <div className="relative w-full sm:w-auto">
+                    <i className="ki-filled ki-magnifier absolute left-3 top-1/2 -translate-y-1/2 text-primary"></i>
+                    <input
+                      className="input pl-10 w-full sm:w-[300px]"
+                      placeholder={intl.formatMessage({
+                        id: "COMMON.SEARCH_FUNCTION",
+                        defaultMessage: "Search function...",
+                      })}
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
 
+                  {/* Add Button */}
                   <button
-                    className="btn btn-sm btn-primary"
-                    title={
-                      <FormattedMessage
-                        id="COMMON.ADD_FUNCTION"
-                        defaultMessage="Add Function"
-                      />
-                    }
+                    className="btn btn-primary w-full sm:w-auto"
                     onClick={handleAddFunction}
                   >
-                    <i className="ki-filled ki-plus"></i>{" "}
+                    <i className="ki-filled ki-plus"></i>
                     <FormattedMessage
                       id="COMMON.ADD_FUNCTION"
                       defaultMessage="Add Function"
@@ -1209,222 +1307,224 @@ const QuotationPage = () => {
                 </div>
               </div>
 
-              <div className="responsive-table-container">
-                <div className="responsive-table">
-                  <div className="flex items-center justify-between bg-gray-100 font-bold border-y border-gray-200 py-3 px-2">
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-16 flex-shrink-0">
-                      <FormattedMessage id="COMMON.NO" defaultMessage="No." />
-                    </div>
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
-                      <FormattedMessage
-                        id="COMMON.FUNCTION"
-                        defaultMessage="Function"
-                      />
-                    </div>
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-48 flex-shrink-0">
-                      <FormattedMessage
-                        id="COMMON.DATE"
-                        defaultMessage="Date"
-                      />
-                    </div>
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-                      <FormattedMessage
-                        id="COMMON.PERSON"
-                        defaultMessage="Person"
-                      />
-                    </div>
-
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-                      <FormattedMessage
-                        id="COMMON.RATE"
-                        defaultMessage="Rate"
-                      />
-                    </div>
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-32 flex-shrink-0">
-                      <FormattedMessage
-                        id="COMMON.TOTAL_PRICE"
-                        defaultMessage="Total Price"
-                      />
-                    </div>
-                    <div className="text-sm font-semibold text-gray-900 px-2 w-24 flex-shrink-0 text-center">
-                      <FormattedMessage
-                        id="COMMON.ACTIONS"
-                        defaultMessage="Action"
-                      />
-                    </div>
-                  </div>
-
-                  {quotationData.functions.map((fn, index) => (
-                    <div
-                      key={fn.id}
-                      className="flex items-center justify-between border-b border-gray-200 py-3 px-2"
-                    >
-                      <div className="text-sm font-medium text-gray-700 px-2 w-16 flex-shrink-0">
-                        {index + 1}
-                      </div>
-                      <div className="text-sm font-medium text-gray-700 px-2 w-48 flex-shrink-0">
-                        <input
-                          className="input w-full"
-                          value={fn.name}
-                          onChange={(e) =>
-                            handleFunctionChange(index, "name", e.target.value)
-                          }
-                          placeholder={intl.formatMessage({
-                            id: "COMMON.FUNCTION",
-                            defaultMessage: "Function",
-                          })}
-                          type="text"
-                          readOnly={fn.isFromQuotationItems}
-                        />
-                      </div>
-                      <div className="text-sm font-medium text-gray-700 px-2 w-48 flex-shrink-0">
-                        <DatePicker
-                          showTime={{ use12Hours: true, format: "hh:mm A" }}
-                          format="DD/MM/YYYY hh:mm A"
-                          value={fn.date}
-                          onChange={(date) =>
-                            handleFunctionChange(index, "date", date)
-                          }
-                          placeholder={intl.formatMessage({
-                            id: "COMMON.SELECT_DATE_TIME",
-                            defaultMessage: "Select date & time",
-                          })}
-                          disabled={fn.isFromQuotationItems}
-                          className={`input w-full ${classes.customDatePicker}`}
-                        />
-                      </div>
-                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
-                        <input
-                          className="input w-full"
-                          value={fn.persons}
-                          onChange={(e) =>
-                            handleFunctionChange(
-                              index,
-                              "persons",
-                              e.target.value,
-                            )
-                          }
-                          placeholder={intl.formatMessage({
-                            id: "COMMON.PAX",
-                            defaultMessage: "Pax",
-                          })}
-                          type="number"
-                          min="0"
-                          readOnly={fn.isFromQuotationItems}
-                        />
-                      </div>
-
-                      {/* /* <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
-                        {fn.isNewFunction ? (
-                          Show just a dash or "N/A" for new functions
-                          <div className="input w-full bg-gray-100 flex items-center justify-center cursor-not-allowed">
-                            -
-                          </div>
-                        ) : (
-                          <input
-                            className={`input w-full ${fn.isNewFunction ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                            value={fn.extra}
-                            onChange={(e) =>
-                              handleFunctionChange(
-                                index,
-                                "extra",
-                                e.target.value,
-                              )
-                            }
-                            placeholder={intl.formatMessage({
-                              id: "COMMON.EXTRA",
-                              defaultMessage: "Extra",
-                            })}
-                            type="number"
-                            disabled={fn.isNewFunction}
-                            readOnly={fn.isNewFunction}
-                          />
-                        )}
-                      </div> */}
-                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
-                        <input
-                          className="input w-full"
-                          value={fn.rate}
-                          onChange={(e) =>
-                            handleFunctionChange(index, "rate", e.target.value)
-                          }
-                          placeholder={intl.formatMessage({
-                            id: "COMMON.RATE",
-                            defaultMessage: "Rate",
-                          })}
-                          type="number"
-                          min="0"
-                          step="0"
-                        />
-                      </div>
-                      <div className="text-sm font-medium text-gray-700 px-2 w-32 flex-shrink-0">
-                        <input
-                          className="input w-full"
-                          value={fn.totalPrice}
-                          onChange={(e) =>
-                            handleFunctionChange(
-                              index,
-                              "totalPrice",
-                              e.target.value,
-                            )
-                          }
-                          placeholder={intl.formatMessage({
-                            id: "COMMON.TOTAL_PRICE",
-                            defaultMessage: "Total Price",
-                          })}
-                          type="number"
-                          min="0"
-                          step="0"
-                          readOnly={fn.isFromQuotationItems}
-                        />
-                      </div>
-                      <div className="text-sm font-medium text-gray-700 px-2 w-24 flex-shrink-0 text-center">
-                        <Tooltip
-                          title={
-                            fn.isFromQuotationItems
-                              ? "Cannot delete function from quotation items"
-                              : "Delete item"
-                          }
-                        >
-                          <Popconfirm
-                            title="Are you sure to delete this item?"
-                            onConfirm={() => handleDeleteFunction(fn.id, index)}
-                            okText="Yes"
-                            cancelText="No"
-                            disabled={fn.isFromQuotationItems}
-                          >
-                            <button
-                              disabled={fn.isFromQuotationItems}
-                              className={`btn btn-sm btn-icon btn-clear btn-danger ${
-                                fn.isFromQuotationItems
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
-                              }`}
-                            >
-                              <KeenIcon icon="trash" />
-                            </button>
-                          </Popconfirm>
-                        </Tooltip>
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className="relative py-4 mb-9">
-                    <div className="absolute left-0 right-0 -bottom-4 text-center">
-                      <button
-                        className="btn btn-sm btn-success rounded-full"
-                        title="Add Item"
-                        onClick={handleAddFunction}
-                      >
-                        <i className="ki-filled ki-plus"></i>{" "}
-                        <FormattedMessage
-                          id="COMMON.ADD_FUNCTION"
-                          defaultMessage="Add Function"
-                        />
-                      </button>
-                    </div>
-                  </div>
+              {/* Table Header - Desktop Only */}
+              <div className="hidden md:flex items-center justify-between bg-gray-100 font-bold border-y border-gray-200 py-3 px-4">
+                <div className="text-sm font-semibold text-gray-900 w-12">
+                  <FormattedMessage id="COMMON.NO" defaultMessage="No." />
                 </div>
+                <div className="text-sm font-semibold text-gray-900 flex-1 px-2">
+                  <FormattedMessage
+                    id="COMMON.FUNCTION"
+                    defaultMessage="Function"
+                  />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 flex-1 px-2">
+                  <FormattedMessage id="COMMON.DATE" defaultMessage="Date" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 w-24 px-2">
+                  <FormattedMessage
+                    id="COMMON.PERSON"
+                    defaultMessage="Person"
+                  />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 w-24 px-2">
+                  <FormattedMessage id="COMMON.RATE" defaultMessage="Rate" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 w-28 px-2">
+                  <FormattedMessage
+                    id="COMMON.TOTAL_PRICE"
+                    defaultMessage="Total Price"
+                  />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 w-16 text-center">
+                  <FormattedMessage
+                    id="COMMON.ACTIONS"
+                    defaultMessage="Action"
+                  />
+                </div>
+              </div>
+
+              {/* Function Rows - Responsive */}
+              <div className="divide-y divide-gray-200">
+                {quotationData.functions.map((fn, index) => (
+                  <div
+                    key={fn.id}
+                    className="flex flex-col md:flex-row md:items-center md:justify-between p-4 gap-3 md:gap-0 hover:bg-gray-50 transition-colors"
+                  >
+                    {/* Number */}
+                    <div className="hidden md:block w-12 text-sm font-medium text-gray-700">
+                      {index + 1}
+                    </div>
+                    <div className="md:hidden text-xs font-bold text-gray-500 mb-2">
+                      Function #{index + 1}
+                    </div>
+
+                    {/* Function Name */}
+                    <div className="flex-1 md:px-2">
+                      <label className="mobile-field-label md:hidden">
+                        <FormattedMessage
+                          id="COMMON.FUNCTION"
+                          defaultMessage="Function"
+                        />
+                      </label>
+                      <input
+                        className="input w-full text-sm"
+                        value={fn.name}
+                        onChange={(e) =>
+                          handleFunctionChange(index, "name", e.target.value)
+                        }
+                        placeholder={intl.formatMessage({
+                          id: "COMMON.FUNCTION",
+                          defaultMessage: "Function",
+                        })}
+                        readOnly={fn.isFromQuotationItems}
+                      />
+                    </div>
+
+                    {/* Date */}
+                    <div className="flex-1 md:px-2">
+                      <label className="mobile-field-label md:hidden">
+                        <FormattedMessage
+                          id="COMMON.DATE"
+                          defaultMessage="Date"
+                        />
+                      </label>
+                      <DatePicker
+                        showTime={{ use12Hours: true, format: "hh:mm A" }}
+                        format="DD/MM/YYYY hh:mm A"
+                        value={fn.date}
+                        onChange={(date) =>
+                          handleFunctionChange(index, "date", date)
+                        }
+                        placeholder={intl.formatMessage({
+                          id: "COMMON.SELECT_DATE_TIME",
+                          defaultMessage: "Select date & time",
+                        })}
+                        disabled={fn.isFromQuotationItems}
+                        className="input w-full"
+                      />
+                    </div>
+
+                    {/* Persons */}
+                    <div className="w-full md:w-24 md:px-2">
+                      <label className="mobile-field-label md:hidden">
+                        <FormattedMessage
+                          id="COMMON.PERSON"
+                          defaultMessage="Person"
+                        />
+                      </label>
+                      <input
+                        className="input w-full text-sm"
+                        value={fn.persons}
+                        onChange={(e) =>
+                          handleFunctionChange(index, "persons", e.target.value)
+                        }
+                        placeholder={intl.formatMessage({
+                          id: "COMMON.PAX",
+                          defaultMessage: "Pax",
+                        })}
+                        type="number"
+                        min="0"
+                        readOnly={fn.isFromQuotationItems}
+                      />
+                    </div>
+
+                    {/* Rate */}
+                    <div className="w-full md:w-24 md:px-2">
+                      <label className="mobile-field-label md:hidden">
+                        <FormattedMessage
+                          id="COMMON.RATE"
+                          defaultMessage="Rate"
+                        />
+                      </label>
+                      <input
+                        className="input w-full text-sm"
+                        value={fn.rate}
+                        onChange={(e) =>
+                          handleFunctionChange(index, "rate", e.target.value)
+                        }
+                        placeholder={intl.formatMessage({
+                          id: "COMMON.RATE",
+                          defaultMessage: "Rate",
+                        })}
+                        type="number"
+                        min="0"
+                      />
+                    </div>
+
+                    {/* Total Price */}
+                    <div className="w-full md:w-28 md:px-2">
+                      <label className="mobile-field-label md:hidden">
+                        <FormattedMessage
+                          id="COMMON.TOTAL_PRICE"
+                          defaultMessage="Total Price"
+                        />
+                      </label>
+                      <input
+                        className="input w-full text-sm font-semibold"
+                        value={fn.totalPrice}
+                        onChange={(e) =>
+                          handleFunctionChange(
+                            index,
+                            "totalPrice",
+                            e.target.value,
+                          )
+                        }
+                        placeholder={intl.formatMessage({
+                          id: "COMMON.TOTAL_PRICE",
+                          defaultMessage: "Total Price",
+                        })}
+                        type="number"
+                        min="0"
+                        readOnly={fn.isFromQuotationItems}
+                      />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="w-full md:w-16 flex justify-end md:justify-center">
+                      <Tooltip
+                        title={
+                          fn.isFromQuotationItems
+                            ? "Cannot delete function from quotation items"
+                            : "Delete item"
+                        }
+                      >
+                        <Popconfirm
+                          title="Are you sure to delete this item?"
+                          onConfirm={() => handleDeleteFunction(fn.id, index)}
+                          okText="Yes"
+                          cancelText="No"
+                          disabled={fn.isFromQuotationItems}
+                        >
+                          <button
+                            disabled={fn.isFromQuotationItems}
+                            className={`btn btn-sm btn-icon btn-danger ${
+                              fn.isFromQuotationItems
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            <KeenIcon icon="trash" />
+                          </button>
+                        </Popconfirm>
+                      </Tooltip>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Function Button */}
+              <div className="p-4 flex justify-center">
+                <button
+                  className="btn btn-success rounded-full"
+                  onClick={handleAddFunction}
+                >
+                  <i className="ki-filled ki-plus"></i>
+                  <FormattedMessage
+                    id="COMMON.ADD_FUNCTION"
+                    defaultMessage="Add Function"
+                  />
+                </button>
               </div>
             </div>
           </div>
@@ -1443,14 +1543,14 @@ const QuotationPage = () => {
 
               <div className="flex flex-col w-full">
                 {/* Subtotal Row */}
-                <div className="flex items-center justify-end border-t border-gray-200 py-3 gap-2">
-                  <div className="text-xl font-bold text-primary px-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end border-t border-gray-200 py-3 gap-2 px-4">
+                  <div className="text-lg sm:text-xl font-bold text-primary">
                     <FormattedMessage
                       id="COMMON.SUBTOTAL"
                       defaultMessage="Subtotal"
                     />
                   </div>
-                  <div className="w-[220px] text-base font-semibold text-gray-900 px-2">
+                  <div className="text-base sm:text-lg font-semibold text-gray-900 sm:w-[220px] text-right">
                     &#8377; {totals.subtotal}
                   </div>
                 </div>
@@ -1606,7 +1706,7 @@ const QuotationPage = () => {
 
                 {/* Single Advance Payment Section */}
                 <div className="flex flex-col border-y border-gray-200 border-dashed bg-gray-50 p-4">
-                  <div className="flex items-center justify-between pb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 gap-3">
                     <div className="text-base font-semibold text-gray-900">
                       <FormattedMessage
                         id="COMMON.PAYMENT_DETAILS"
@@ -1615,11 +1715,10 @@ const QuotationPage = () => {
                     </div>
                     <button
                       type="button"
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-primary w-full sm:w-auto"
                       onClick={handleAddAdvancePayment}
-                      title="Add Payment"
                     >
-                      <i className="ki-filled ki-plus"></i>{" "}
+                      <i className="ki-filled ki-plus"></i>
                       <FormattedMessage
                         id="COMMON.ADD_ADVANCE_PAYMENT"
                         defaultMessage="Add Advance Payment"
@@ -1788,27 +1887,30 @@ const QuotationPage = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 px-4">
+                <div className="flex flex-col gap-4 py-5 px-4">
                   <textarea
                     rows={5}
-                    className="input w-full sm:w-[500px] p-3"
+                    className="input w-full p-3"
                     placeholder={intl.formatMessage({
                       id: "COMMON.ADD_NOTES",
                       defaultMessage: "Add notes",
                     })}
                     value={quotationData.notes}
                     onChange={handleNotesChange}
-                    type="text"
                   />
-                  <button
-                    className="btn btn-success w-full sm:w-auto"
-                    title="Save"
-                    onClick={handleSaveNotes}
-                    disabled={!isEdited}
-                  >
-                    <i className="ki-filled ki-save-2"></i>{" "}
-                    <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
-                  </button>
+                  <div className="flex justify-end">
+                    <button
+                      className="btn btn-success w-full sm:w-auto"
+                      onClick={handleSaveNotes}
+                      disabled={!isEdited}
+                    >
+                      <i className="ki-filled ki-save-2"></i>
+                      <FormattedMessage
+                        id="COMMON.SAVE"
+                        defaultMessage="Save"
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1826,27 +1928,30 @@ const QuotationPage = () => {
         open={isPdfModalVisible}
         onCancel={() => {
           setIsPdfModalVisible(false);
-          // Cleanup blob URL
           if (pdfUrl) {
             URL.revokeObjectURL(pdfUrl);
             setPdfUrl("");
           }
         }}
-        width="60%"
+        width="95%" // Changed from 60% to 95% for mobile
+        style={{ top: 20, maxWidth: "1200px" }} // Added maxWidth for desktop
         footer={[
-          <div className="flex justify-end gap-2">
+          <div
+            key="footer"
+            className="flex flex-col sm:flex-row justify-end gap-2"
+          >
             <button
               onClick={() => handleWhatsAppShare(pdfUrl)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center gap-2"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
               </svg>
-              Share on WhatsApp
+              <span className="hidden sm:inline">Share on WhatsApp</span>
+              <span className="sm:hidden">WhatsApp</span>
             </button>
             <button
-              key="close"
-              className="btn btn-sm btn-light"
+              className="btn btn-light w-full sm:w-auto"
               onClick={() => {
                 setIsPdfModalVisible(false);
                 if (pdfUrl) {
@@ -1857,12 +1962,12 @@ const QuotationPage = () => {
             >
               <FormattedMessage id="COMMON.CLOSE" defaultMessage="Close" />
             </button>
-            ,
           </div>,
         ]}
-        style={{ top: 20 }}
       >
-        <div style={{ height: "80vh" }}>
+        <div style={{ height: "70vh" }}>
+          {" "}
+          {/* Reduced from 80vh for mobile */}
           {pdfUrl && (
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer
