@@ -248,3 +248,231 @@ html {
   border: 1px solid var(--tw-gray-400);
   color: var(--tw-gray-900);
 } */
+
+/* UPDATED: Mobile Calendar with All View Buttons */
+
+/* Mobile Calendar Optimizations - UPDATED */
+@media (max-width: 640px) {
+  /* Ensure calendar fits on mobile screens */
+  .fullCalendarCommon {
+    font-size: 14px;
+  }
+
+  /* Toolbar Layout for Mobile */
+  .fc-header-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  /* View buttons - make them fit nicely */
+  .fc-button-group {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 3px !important;
+  }
+
+  .fc-button-group .fc-button {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    font-size: 0.65rem !important;
+    padding: 6px 4px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Title styling for mobile */
+  .fc-toolbar-title {
+    font-size: 14px !important;
+    text-align: center !important;
+    margin: 4px 0 !important;
+  }
+
+  /* Navigation buttons */
+  .fc-toolbar-chunk:last-child {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .fc-toolbar-chunk:last-child .fc-button {
+    min-width: 60px !important;
+  }
+
+  /* Make event titles more readable on mobile */
+  .fc-event-title {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Adjust day cell height for mobile */
+  .fc-daygrid-day-frame {
+    min-height: 80px !important;
+  }
+
+  /* Better touch targets for mobile */
+  .fc-button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve list view on mobile */
+  .fc-list-event {
+    padding: 8px 4px !important;
+  }
+
+  .fc-list-event-title a {
+    word-break: break-word;
+  }
+
+  /* Hide overflow text on mobile */
+  .fc-event-main {
+    overflow: hidden;
+  }
+
+  /* Adjust modal/tooltip z-index for mobile */
+  .tippy-box {
+    max-width: calc(100vw - 20px) !important;
+  }
+
+  /* Prevent button text wrapping */
+  .fc-button {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Extra Small Devices (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  .fc-button-group .fc-button {
+    font-size: 0.6rem !important;
+    padding: 4px 2px !important;
+  }
+
+  .fc-toolbar-title {
+    font-size: 13px !important;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 10px !important;
+  }
+}
+
+/* Tablet Optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .fullCalendarCommon {
+    font-size: 13px;
+  }
+
+  .fc-daygrid-day-frame {
+    min-height: 100px !important;
+  }
+
+  /* Reset toolbar to horizontal on tablet */
+  .fc-header-toolbar {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
+
+  .fc-toolbar-chunk:nth-child(1) {
+    order: 1;
+  }
+
+  .fc-toolbar-chunk:nth-child(2) {
+    order: 2;
+    flex: 1;
+  }
+
+  .fc-toolbar-chunk:nth-child(3) {
+    order: 3;
+  }
+
+  /* Better button spacing on tablets */
+  .fc-button-group {
+    gap: 4px;
+    width: auto !important;
+  }
+
+  .fc-button-group .fc-button {
+    flex: none !important;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Better touch targets */
+  .fc-daygrid-day {
+    cursor: pointer;
+  }
+
+  .fc-event {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* Larger touch area for buttons */
+  .fc-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover states on touch devices */
+  .fc-daygrid-day-frame:hover {
+    box-shadow: none !important;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-width: 896px) and (orientation: landscape) {
+  .fc-header-toolbar {
+    padding: 4px 0 !important;
+  }
+
+  .fc-daygrid-day-frame {
+    min-height: 60px !important;
+  }
+
+  /* Keep view buttons in one row on landscape */
+  .fc-button-group .fc-button {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+.calendar-wrapper {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Ensure tooltips don't overflow on mobile */
+@media (max-width: 640px) {
+  .tippy-content {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .tippy-content p {
+    margin-bottom: 4px !important;
+    font-size: 11px !important;
+  }
+
+  .tippy-content strong {
+    font-size: 12px !important;
+  }
+}
+
+/* Active button state visibility */
+.fc-button-active {
+  font-weight: 600 !important;
+}
+
+/* Ensure view buttons are always visible and clickable */
+.fc-button-group {
+  overflow: visible !important;
+}
+
+.fc-button {
+  position: relative !important;
+  z-index: 1 !important;
+}

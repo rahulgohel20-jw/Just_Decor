@@ -81,7 +81,7 @@ const CalendarPage = () => {
 
       const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
         2,
-        "0"
+        "0",
       )}`;
 
       let [hours, minutes] = timePart.split(":");
@@ -135,11 +135,11 @@ const CalendarPage = () => {
             .map((item, index) => {
               try {
                 const { date: startDate, time12 } = splitDateTime(
-                  item.eventStartDateTime
+                  item.eventStartDateTime,
                 );
 
                 const { date: endDate } = splitDateTime(
-                  item.eventEndDateTime || item.eventStartDateTime
+                  item.eventEndDateTime || item.eventStartDateTime,
                 );
 
                 const color = getStatusColor(item.status, item.isRMenu);
@@ -172,12 +172,12 @@ const CalendarPage = () => {
                 console.error(
                   `Error processing event item ${index}:`,
                   item,
-                  error
+                  error,
                 );
                 return null;
               }
             })
-            .filter((item) => item !== null)
+            .filter((item) => item !== null),
         );
 
         setEvents(res.data);
@@ -202,65 +202,119 @@ const CalendarPage = () => {
   return (
     <Fragment>
       <Container>
-        {/* Filters - Fully Responsive */}
-        <div className="filters flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-          {/* Status Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="filItems text-xs sm:text-sm font-medium bg-info rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
-              {intl.formatMessage({
-                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
-                defaultMessage: "Inquiry",
-              })}
-            </span>
-
-            <span className="filItems text-xs sm:text-sm font-medium bg-[#E75480] rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
-              {intl.formatMessage({
-                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU",
-                defaultMessage: "Remaining Menu",
-              })}
-            </span>
-
-            <span className="filItems text-xs sm:text-sm font-medium bg-success rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
-              {intl.formatMessage({
-                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
-                defaultMessage: "Confirm",
-              })}
-            </span>
-
-            <span className="filItems text-xs sm:text-sm font-medium bg-danger rounded px-2 sm:px-3 py-1 text-white whitespace-nowrap">
-              {intl.formatMessage({
-                id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
-                defaultMessage: "Cancel",
-              })}
-            </span>
+        {/* Status Legend - Improved Mobile Layout */}
+        <div className="calendar-status-legend mb-4">
+          {/* Mobile: 2x2 Grid */}
+          <div className="grid grid-cols-2 gap-2 md:hidden">
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+              <span
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: "#17a2b8" }}
+              ></span>
+              <span className="text-xs font-medium text-gray-700">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
+                  defaultMessage: "Inquiry",
+                })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+              <span className="w-3 h-3 rounded-full bg-[#E75480]"></span>
+              <span className="text-xs font-medium text-gray-700">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU",
+                  defaultMessage: "Remaining Menu",
+                })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+              <span
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: "rgba(40, 167, 69, 1)" }}
+              ></span>
+              <span className="text-xs font-medium text-gray-700">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
+                  defaultMessage: "Confirm",
+                })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+              <span
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: "rgba(191, 34, 37, 1)" }}
+              ></span>
+              <span className="text-xs font-medium text-gray-700">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
+                  defaultMessage: "Cancel",
+                })}
+              </span>
+            </div>
           </div>
 
-          {/* Add Event Button - Full width on mobile */}
+          {/* Desktop: Horizontal Pills with Create Button */}
+          <div className="hidden md:flex md:items-center md:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium bg-info rounded-lg px-4 py-2 text-white">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_INQUIRY",
+                  defaultMessage: "Inquiry",
+                })}
+              </span>
+              <span className="text-sm font-medium bg-[#E75480] rounded-lg px-4 py-2 text-white">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CONFIRM_WITHOUT_MENU",
+                  defaultMessage: "Remaining Menu",
+                })}
+              </span>
+              <span className="text-sm font-medium bg-success rounded-lg px-4 py-2 text-white">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_COMPLETED",
+                  defaultMessage: "Confirm",
+                })}
+              </span>
+              <span className="text-sm font-medium bg-danger rounded-lg px-4 py-2 text-white">
+                {intl.formatMessage({
+                  id: "USER.DASHBOARD.DASHBOARD_CALENDAR_FILTER_CANCEL",
+                  defaultMessage: "Cancel",
+                })}
+              </span>
+            </div>
+
+            <button
+              className="btn btn-primary text-sm py-2.5 px-6 flex items-center gap-2 rounded-lg"
+              onClick={() => navigate("/add-event")}
+            >
+              <i className="ki-filled ki-plus text-lg"></i>
+              <span>
+                <FormattedMessage
+                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON_SHORT"
+                  defaultMessage="Add Event"
+                />
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Create Event Button - Mobile Full Width */}
+        <div className="md:hidden mb-4">
           <button
-            className="btn btn-primary w-full sm:w-auto text-sm sm:text-base py-2 sm:py-2.5 px-4 flex items-center justify-center gap-2 whitespace-nowrap"
-            title="Add Event"
-            onClick={() => {
-              navigate("/add-event");
-            }}
+            className="btn btn-primary w-full py-3 px-4 flex items-center justify-center gap-2 rounded-lg text-base font-semibold"
+            onClick={() => navigate("/add-event")}
           >
-            <i className="ki-filled ki-plus text-base sm:text-lg"></i>
-            <span className=" inline xs:hidden">
+            <i className="ki-filled ki-plus text-xl"></i>
+            <span>
               <FormattedMessage
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON"
                 defaultMessage="Create New Event"
               />
             </span>
-            <span className="hidden xs:inline">
-              <FormattedMessage
-                id="USER.DASHBOARD.DASHBOARD_CALENDAR_ADD_EVENT_BUTTON_SHORT"
-                defaultMessage="Add Event"
-              />
-            </span>
           </button>
         </div>
 
-        {/* Calendar Component - Responsive Container */}
-        <div className="calendar-wrapper w-full overflow-x-auto">
+        {/* Calendar Component - Clean Container */}
+        <div className="calendar-container bg-white rounded-lg shadow-sm  md:p-4">
           <CalendarComponent
             data={data}
             openEvent={openEvent}
