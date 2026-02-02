@@ -290,24 +290,23 @@ const MainStandyMenuReport = ({
       width={1000}
       footer={
         <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
-          <button
+          {/* <button
             className="btn btn-light flex items-center gap-2"
             onClick={() => handleSave()}
           >
             <Save size={16} /> Save
-          </button>
+          </button> */}
 
           <div className="flex gap-3">
-            <button className="btn btn-primary" onClick={callPrintApi}>
+            {/* <button className="btn btn-primary" onClick={callPrintApi}>
               Print
-            </button>
+            </button> */}
             <button
               className="btn btn-primary flex items-center gap-2"
               onClick={() => handleSave({ printAfterSave: true })}
             >
               <Printer size={16} /> Save & Print
             </button>
-            <button className="btn btn-primary">Two Language PDF</button>
           </div>
         </div>
       }
