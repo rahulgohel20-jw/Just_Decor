@@ -35,6 +35,7 @@ const MenuReport = ({
   isNamePlateTheme,
   startDate: adminStartDate,
   endDate: adminEndDate,
+  agencyType,
 }) => {
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
@@ -151,7 +152,8 @@ const MenuReport = ({
         const agencyRes = await GetAgenciesForReportFilter(
           eventFunctionId,
           eventId,
-          [], // Start with no filter
+
+          agencyType,
         );
 
         console.log("🏢 Agencies fetched:", agencyRes);
@@ -171,7 +173,7 @@ const MenuReport = ({
     };
 
     fetchAgencies();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId]);
+  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, agencyType]);
 
   /* ---------------- FETCH ITEMS (WHEN AGENCY CHANGES) ---------------- */
   useEffect(() => {
