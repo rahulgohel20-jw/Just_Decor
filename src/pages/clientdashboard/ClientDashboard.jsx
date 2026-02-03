@@ -7,7 +7,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constant";
 import { Search, RefreshCcw, Phone } from "lucide-react";
 import { invoicecolumns } from "./invoiceconstant";
-import { itemcolumns, } from "./itemconstant";
+import { itemcolumns } from "./itemconstant";
 import { toAbsoluteUrl } from "@/utils/Assets";
 import VideoTutorial from "@/components/videoTutorial/VideoTutorial";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -151,7 +151,7 @@ const ClientDashboard = () => {
       res = await GetClientdashboardpiechart1(
         range.startDate,
 
-        userId
+        userId,
       );
       setExpensesChartData(res?.data?.data);
       setSelectedExpensePeriod(period);
@@ -161,7 +161,7 @@ const ClientDashboard = () => {
       res = await GetClientdashboardpiechart3(
         range.startDate,
 
-        userId
+        userId,
       );
       setQuotationChartData(res?.data?.data);
       setSelectedQuotationPeriod(period);
@@ -171,7 +171,7 @@ const ClientDashboard = () => {
       res = await GetClientdashboardpiechart2(
         range.startDate,
 
-        userId
+        userId,
       );
 
       setInvoiceChartData(res?.data?.data);
@@ -201,7 +201,7 @@ const ClientDashboard = () => {
         eventDate: cust.eventStartDateTime,
         Venue: cust.venueName,
         status: cust.status,
-      }))
+      })),
     );
     setIsLoadingEvents(false);
   };
@@ -224,7 +224,7 @@ const ClientDashboard = () => {
         eventDate: cust.event.eventStartDateTime,
         Venue: cust.event.venue.nameEnglish,
         BalanceDue: cust.remainingAmount,
-      }))
+      })),
     );
   };
 
@@ -248,7 +248,7 @@ const ClientDashboard = () => {
           quantity: item?.qtyCurrent,
           selling: item?.statusDirection,
           amount: item?.statusValue,
-        }))
+        })),
       );
     } catch (error) {
       console.log("Error fetching most selling items:", error);
@@ -484,7 +484,7 @@ const ClientDashboard = () => {
             <div className="w-16 h-16 flex items-center justify-center bg-[#A78BFA] rounded-full shadow-md">
               <img
                 src={toAbsoluteUrl(
-                  `/media/brand-logos/total_receivable_amt.svg`
+                  `/media/brand-logos/total_receivable_amt.svg`,
                 )}
                 alt="Total Events"
                 className="w-8 h-8"
@@ -509,7 +509,7 @@ const ClientDashboard = () => {
             <div className="w-16 h-16 flex items-center justify-center bg-[#cccccc] rounded-full shadow-md">
               <img
                 src={toAbsoluteUrl(
-                  `/media/brand-logos/total_receivable_amt.svg`
+                  `/media/brand-logos/total_receivable_amt.svg`,
                 )}
                 alt="Total Events"
                 className="w-8 h-8"
@@ -519,7 +519,10 @@ const ClientDashboard = () => {
         </div>
 
         {/* ---------------- UPGRADED PIE CHARTS ---------------- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+        <div
+          div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+        >
           {[
             {
               title: (
@@ -611,7 +614,7 @@ const ClientDashboard = () => {
           <div className="flex flex-col gap-3 mb-4">
             <h2 className="text-base font-semibold text-gray-800">Events</h2>
 
-            <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
               <input
                 type="text"
                 placeholder="Search Client / Event..."
@@ -671,11 +674,13 @@ const ClientDashboard = () => {
               Loading Events...
             </div>
           ) : (
-            <TableComponent
-              columns={columns}
-              data={filteredEvents}
-              paginationSize={10}
-            />
+            <div className="overflow-x-auto">
+              <TableComponent
+                columns={columns}
+                data={filteredEvents}
+                paginationSize={10}
+              />
+            </div>
           )}
         </div>
 
@@ -756,7 +761,7 @@ const ClientDashboard = () => {
                 />
               </h2>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-1.5 w-full md:w-64 shadow-sm">
                   <Search className="text-blue-500 w-4 h-4 mr-2" />
                   <input
@@ -825,7 +830,7 @@ const ClientDashboard = () => {
                 data={itemData.filter(
                   (d) =>
                     d.item?.toLowerCase().includes(itemSearch.toLowerCase()) ||
-                    d.quantity?.toString().includes(itemSearch)
+                    d.quantity?.toString().includes(itemSearch),
                 )}
                 paginationSize={10}
               />
@@ -908,7 +913,7 @@ const ClientDashboard = () => {
           </div>
         </div>
 
-        <div className="fixed right-0 bottom-6 transform-translate-y-1/2 z-[200]">
+        <div className="fixed right-0 bottom-4 sm:bottom-6 transform-translate-y-1/2 z-[200]">
           <button
             onClick={() => setOpenTutorial((prev) => !prev)}
             className="bg-[#005AA7] text-white rounded-l-xl shadow-xl 

@@ -20,10 +20,6 @@ const useStyles = makeStyles({
           },
         },
       },
-      // fc-dayGridMonth-view
-      "& .fc-dayGridMonth-view": {},
-      // fc-dayGridWeek-view
-      "& .fc-dayGridWeek-view": {},
       "& .fc-daygrid-day": {
         "& .fc-daygrid-day-events": {
           "& .fc-event": {
@@ -87,11 +83,10 @@ const useStyles = makeStyles({
           color: "var(--tw-light)",
           borderColor: "var(--tw-primary)",
           backgroundColor: "var(--tw-primary)",
-          "&:not(:disabled):active:focus,&:hover, &:focus, &:active, &.active":
-            {
-              boxShadow: "var(--tw-primary-box-shadow)",
-              backgroundColor: "var(--tw-primary-active)",
-            },
+          "&:not(:disabled):active:focus,&:hover, &:focus, &:active, &.active": {
+            boxShadow: "var(--tw-primary-box-shadow)",
+            backgroundColor: "var(--tw-primary-active)",
+          },
         },
       },
       "& .fc-next-button, & .fc-prev-button": {
@@ -113,32 +108,30 @@ const useStyles = makeStyles({
           },
         },
       },
-      "& .fc-dayGridMonth-button, & .fc-dayGridWeek-button, & .fc-timeGridDay-button, & .fc-listWeek-button":
-        {
-          "&.fc-button": {
-            display: "inline-flex",
-            alignItems: "center",
-            cursor: "pointer",
-            gap: "0.375rem",
-            fontWeight: "500",
-            outline: "none",
-            color: "var(--tw-gray-700)",
-            borderColor: "var(--tw-gray-300)",
-            backgroundColor: "var(--tw-light) !important",
-            "&:hover, &:focus, &:active": {
-              borderColor: "var(--tw-gray-300) !important",
-              backgroundColor: "var(--tw-light-active)",
-              boxShadow: "var(--tw-default-box-shadow) !important",
-              color: "var(--tw-gray-800)",
-            },
-            "&:not(:disabled).active, &:not(:disabled).fc-button-active, &.fc-button-active:hover":
-              {
-                borderColor: "var(--tw-primary) !important",
-                backgroundColor: "var(--tw-primary) !important",
-                color: "var(--tw-light)",
-              },
+      "& .fc-dayGridMonth-button, & .fc-dayGridWeek-button, & .fc-timeGridDay-button, & .fc-listWeek-button": {
+        "&.fc-button": {
+          display: "inline-flex",
+          alignItems: "center",
+          cursor: "pointer",
+          gap: "0.375rem",
+          fontWeight: "500",
+          outline: "none",
+          color: "var(--tw-gray-700)",
+          borderColor: "var(--tw-gray-300)",
+          backgroundColor: "var(--tw-light) !important",
+          "&:hover, &:focus, &:active": {
+            borderColor: "var(--tw-gray-300) !important",
+            backgroundColor: "var(--tw-light-active)",
+            boxShadow: "var(--tw-default-box-shadow) !important",
+            color: "var(--tw-gray-800)",
+          },
+          "&:not(:disabled).active, &:not(:disabled).fc-button-active, &.fc-button-active:hover": {
+            borderColor: "var(--tw-primary) !important",
+            backgroundColor: "var(--tw-primary) !important",
+            color: "var(--tw-light)",
           },
         },
+      },
       "& .fc-header-toolbar": {
         marginBottom: "10px",
         "& .fc-toolbar-chunk": {
@@ -146,19 +139,6 @@ const useStyles = makeStyles({
             color: "var(--tw-gray-900)",
             fontSize: "18px",
             fontWeight: "600",
-          },
-          "&:nth-child(1)": {
-            display: "flex",
-            "& .fc-button-group": {},
-            "& .fc-button": {
-              "& .fc-button-primary": {},
-            },
-          },
-          "&:nth-child(2)": {
-            display: "flex",
-          },
-          "&:nth-child(3)": {
-            display: "flex",
           },
         },
       },
@@ -176,15 +156,9 @@ const useStyles = makeStyles({
                 textTransform: "uppercase",
               },
             },
-            "& > tbody": {},
           },
-          // fc-dayGridMonth-view
-          "&.fc-dayGridMonth-view": {},
-          // fc-fc-dayGridWeek-view
-          "&.fc-fc-dayGridWeek-view": {},
         },
       },
-      // fc-listWeek-view
       "& .fc-listWeek-view": {
         "& .fc-list-table": {
           "& .fc-list-day": {
@@ -203,9 +177,6 @@ const useStyles = makeStyles({
               fontWeight: "500",
               color: "var(--tw-gray-700)",
             },
-            "& .fc-list-event-graphic": {
-              "& > span": {},
-            },
             "& .fc-list-event-title": {
               "& > a": {
                 fontSize: "13px",
@@ -218,5 +189,130 @@ const useStyles = makeStyles({
       },
     },
   },
+
+  // Mobile Specific Styles
+  "@media (max-width: 767px)": {
+    fullCalendar: {
+      "& .fc-media-screen": {
+        "& .fc-header-toolbar": {
+          marginBottom: "8px",
+          "& .fc-toolbar-chunk": {
+            "&:nth-child(1)": {
+              // Hide view buttons on mobile
+              display: "none !important",
+            },
+            "&:nth-child(2)": {
+              // Title
+              width: "100%",
+              justifyContent: "center",
+              "& .fc-toolbar-title": {
+                fontSize: "16px !important",
+                textAlign: "center",
+              },
+            },
+            "&:nth-child(3)": {
+              // Navigation buttons
+              display: "flex",
+              gap: "6px",
+              "& .fc-today-button": {
+                display: "none !important", // Hide default today button
+              },
+              "& .fc-button": {
+                minWidth: "60px",
+                height: "36px !important",
+                fontSize: "0.75rem !important",
+              },
+            },
+          },
+        },
+        "& .fc-daygrid-day-number": {
+          fontSize: "12px !important",
+          padding: "4px !important",
+        },
+        "& .fc-col-header-cell-cushion": {
+          fontSize: "11px !important",
+          padding: "3px !important",
+        },
+        "& .fc-daygrid-day": {
+          "& .fc-daygrid-day-events": {
+            "& .fc-event": {
+              "&.fc-event-start": {
+                height: "auto !important",
+                minHeight: "16px",
+                "& .fc-event-main": {
+                  "& .fc-event-main-frame": {
+                    "& .fc-event-title-container": {
+                      "& .fc-event-title": {
+                        fontSize: "10px !important",
+                        lineHeight: "1.2",
+                        padding: "2px 3px !important",
+                        height: "auto !important",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "&.fc-day-today": {
+            "& .fc-daygrid-day-top": {
+              "& .fc-daygrid-day-number": {
+                width: "22px !important",
+                height: "22px !important",
+                fontSize: "11px !important",
+                top: "2px",
+                right: "2px",
+              },
+            },
+          },
+        },
+        // List view mobile
+        "& .fc-listWeek-view": {
+          "& .fc-list-table": {
+            fontSize: "12px",
+            "& .fc-list-day": {
+              "& .fc-list-day-cushion > a": {
+                fontSize: "12px !important",
+              },
+            },
+            "& .fc-list-event": {
+              "& .fc-list-event-time, & .fc-list-event-title > a": {
+                fontSize: "11px !important",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // Tablet Specific Styles
+  "@media (min-width: 768px) and (max-width: 1024px)": {
+    fullCalendar: {
+      "& .fc-media-screen": {
+        "& .fc-header-toolbar": {
+          "& .fc-toolbar-chunk": {
+            "&:nth-child(2)": {
+              "& .fc-toolbar-title": {
+                fontSize: "17px !important",
+              },
+            },
+          },
+        },
+        "& .fc-button": {
+          fontSize: "0.75rem !important",
+          paddingInline: "0.8em !important",
+        },
+        "& .fc-daygrid-day": {
+          "& .fc-daygrid-day-events": {
+            "& .fc-event .fc-event-title": {
+              fontSize: "11px !important",
+            },
+          },
+        },
+      },
+    },
+  },
 });
+
 export default useStyles;

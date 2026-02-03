@@ -1,12 +1,40 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User } from "lucide-react";
-import { GetExpenseItemsByExpenseAndEvent } from "@/services/apiServices";
+import {
+  GetExpenseItemsByExpenseAndEvent,
+  GETExpenseBYUserType,
+} from "@/services/apiServices";
 
-const ViewExpenseDetailsModal = ({ open, onClose, expenseId, eventId }) => {
+const ViewExpenseDetailsModal = ({
+  open,
+  onClose,
+  expenseId,
+  eventId,
+  userId,
+  userType,
+}) => {
   const [data, setData] = useState([]);
   const [expense, setExpense] = useState({});
   const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    if (!open || !eventId || !userId || !userType || !expenseId) return;
+
+    setLoading(true);
+
+    GETExpenseBYUserType({ eventId, userId, userType })
+      .then((res) => {
+        const list = res?.data?.data?.data || [];
+
+        const selectedExpense = list.find((e) => e.expenseId === expenseId);
+
+        setExpense(selectedExpense || {});
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [open, eventId, userId, userType, expenseId]);
 
   useEffect(() => {
     if (!open || !expenseId || !eventId) return;
@@ -28,14 +56,17 @@ const ViewExpenseDetailsModal = ({ open, onClose, expenseId, eventId }) => {
 
   if (!open) return null;
 
-  const managerFullName = `${expense.managerFirstname ?? "-"} ${expense.managerLastname ?? ""}`;
-  const roleName = expense.roleName ?? "-";
-  const mobileNo = expense.mobileNo ?? "-";
-  const totalAmount = expense.amount ?? 0;
-  const totalPaymentType = expense.paymentType ?? "-";
+  const managerFullName = expense
+    ? `${expense.managerFirstname ?? "-"} ${expense.managerLastname ?? ""}`
+    : "-";
+
+  const roleName = expense?.roleName ?? "-";
+  const mobileNo = expense?.mobileNo ?? "-";
+  const totalAmount = expense?.amount ?? 0;
+  const totalPaymentType = expense?.paymentType ?? "-";
 
   // Map all expense items for table
-  const items = data.map((item) => ({
+  const tableItems = items.map((item) => ({
     item: item.itemName || "N/A",
     date: item.itemPurchaseDate || "N/A",
     price: item.amount ? `Rs. ${item.amount}` : "N/A",
@@ -127,7 +158,7 @@ const ViewExpenseDetailsModal = ({ open, onClose, expenseId, eventId }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((item, index) => (
+                    {tableItems.map((item, index) => (
                       <tr key={index} className="border-b">
                         <td className="py-3">{item.item}</td>
                         <td>{item.date}</td>

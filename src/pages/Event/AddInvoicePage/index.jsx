@@ -60,6 +60,73 @@ const AddInvoicePage = () => {
     grandTotal: 0,
   });
 
+  const responsiveStyles = `
+  /* Mobile-first responsive styles for Invoice */
+  @media (max-width: 768px) {
+    /* Event Header */
+    .event-info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .event-info-item {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 0.25rem;
+    }
+    
+    /* Billing Grid */
+    .billing-grid {
+      grid-template-columns: 1fr !important;
+    }
+    
+    .billing-section {
+      border-right: none !important;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    /* Mobile Labels */
+    .mobile-field-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+    }
+    
+    /* Edit Actions */
+    .edit-actions {
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+    
+    /* Buttons */
+    .action-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .action-buttons button {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    /* Modal */
+    .ant-modal {
+      max-width: 95vw !important;
+      margin: 0 auto;
+    }
+  }
+  
+  @media (min-width: 769px) {
+    .mobile-field-label {
+      display: none;
+    }
+  }
+`;
+
   const [rows, setRows] = useState([
     {
       key: 1,
@@ -751,6 +818,7 @@ Thanks!`;
 
   return (
     <Fragment>
+      <style>{responsiveStyles}</style>
       <Container>
         <div className="gap-2 mb-3">
           <Breadcrumbs
@@ -770,188 +838,171 @@ Thanks!`;
         <div className="flex flex-col bg-gray-100 rounded mb-7">
           <div className="flex flex-col bg-white rounded ">
             <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-              <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-                <div className="flex flex-col gap-2.5">
-                  <p className="text-lg font-semibold text-gray-900">
+              <div className="flex flex-col p-4 gap-4">
+                {/* Event Name - Full Width */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <p className="text-base lg:text-lg font-semibold text-gray-900">
                     <FormattedMessage
                       id="INVOICE.EVENT_NAME"
                       defaultMessage="Event Name"
-                    />{" "}
-                    :{invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
+                    />
+                    : {invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
                   </p>
-                  <div className="flex items-center gap-14">
-                    <div className="flex items-center gap-6">
-                      <i className="ki-filled ki-user text-success text-lg"></i>
-                      <div className="flex flex-col">
-                        <span className="text-sm">
-                          <span className="text-sm">
-                            <FormattedMessage
-                              id="INVOICE.PARTY_NAME"
-                              defaultMessage="Party name"
-                            />
-                            :
-                          </span>
-                        </span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {invoiceData?.event?.party?.nameEnglish || "N/A"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
-                      <div className="flex flex-col">
-                        <span className="text-sm">
-                          <span className="text-sm">
-                            <FormattedMessage
-                              id="INVOICE.VENUE_NAME"
-                              defaultMessage="Venue name"
-                            />
-                            :
-                          </span>
-                        </span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {invoiceData?.event?.venue.nameEnglish || "N/A"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-                      <div className="flex flex-col">
-                        <span className="text-xs">
-                          <span className="text-xs">
-                            <FormattedMessage
-                              id="INVOICE.INVOICE_DATE"
-                              defaultMessage="Invoice Date"
-                            />
-                            :
-                          </span>
-                        </span>
 
-                        <div className="flex items-center gap-2">
-                          {!isEditing ? (
-                            <>
-                              <span className="text-sm font-medium text-gray-900">
-                                {formatDate(invoiceDate)}
-                              </span>
-
-                              <button
-                                type="button"
-                                className="text-primary hover:text-primary-dark"
-                                onClick={() => setIsEditing(true)}
-                                title={
-                                  <FormattedMessage
-                                    id="COMMON.EDIT"
-                                    defaultMessage="Edit"
-                                  />
-                                }
-                              >
-                                <i className="ki-filled ki-pencil"></i>
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <input
-                                type="date"
-                                value={invoiceDate}
-                                onChange={(e) => {
-                                  setInvoiceDate(e.target.value);
-                                  setIsEdited(true);
-                                }}
-                                className="border rounded px-2 py-1 text-sm"
-                                autoFocus
-                              />
-
-                              <button
-                                type="button"
-                                className="text-success hover:text-success-dark"
-                                onClick={() => setIsEditing(false)}
-                                title={
-                                  <FormattedMessage
-                                    id="COMMON.DONE"
-                                    defaultMessage="Done"
-                                  />
-                                }
-                              >
-                                <i className="ki-filled ki-check"></i>
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-                      <div className="flex flex-col">
-                        <span className="text-sm">
+                  {/* Action Buttons - Responsive */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:self-start">
+                    <button
+                      className="btn btn-primary w-full sm:w-auto"
+                      onClick={handleSaveAndPrint}
+                      disabled={loadingPdf}
+                    >
+                      {loadingPdf ? (
+                        <>
+                          <i className="ki-filled ki-loading animate-spin"></i>
                           <FormattedMessage
-                            id="INVOICE.EVENT_DATE"
-                            defaultMessage="Event Date"
+                            id="COMMON.LOADING"
+                            defaultMessage="Loading..."
                           />
-                          :
-                        </span>
-
-                        <span className="text-sm font-medium text-gray-900">
-                          {formatDate(invoiceData?.event?.inquiryDate)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-                      <div className="flex flex-col">
-                        <span className="text-sm">
+                        </>
+                      ) : (
+                        <>
+                          <i className="ki-filled ki-printer"></i>
                           <FormattedMessage
-                            id="INVOICE.DUE_DATE"
-                            defaultMessage="Due Date"
+                            id="COMMON.PRINT"
+                            defaultMessage="Print"
                           />
-                          :
-                        </span>
-
-                        <DatePicker
-                          format="DD/MM/YYYY"
-                          className="input w-full"
-                          value={dueDate}
-                          placeholder="Select due date"
-                          onChange={(date) => {
-                            setDueDate(date);
-                            setIsEdited(true);
-                          }}
-                        />
-                      </div>
-                    </div>
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                <div className="flex flex-row items-end gap-2">
-                  <button
-                    className="btn btn-sm btn-primary"
-                    onClick={handleSaveAndPrint}
-                    disabled={loadingPdf}
-                  >
-                    {loadingPdf ? (
-                      <>
-                        <i className="ki-filled ki-loading animate-spin"></i>
+                {/* Event Info Grid - Responsive */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                  {/* Party Name */}
+                  <div className="flex items-start gap-3">
+                    <i className="ki-filled ki-user text-success text-lg flex-shrink-0 mt-1"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
-                          id="COMMON.LOADING"
-                          defaultMessage="Loading..."
+                          id="INVOICE.PARTY_NAME"
+                          defaultMessage="Party name"
                         />
-                      </>
-                    ) : (
-                      <>
-                        <i className="ki-filled ki-printer"></i>
+                        :
+                      </span>
+                      <span className="text-sm font-medium text-gray-900 truncate">
+                        {invoiceData?.event?.party?.nameEnglish || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Venue Name */}
+                  <div className="flex items-start gap-3">
+                    <i className="ki-filled ki-geolocation-home text-success text-lg flex-shrink-0 mt-1"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
                         <FormattedMessage
-                          id="COMMON.PRINT"
-                          defaultMessage="Print"
+                          id="INVOICE.VENUE_NAME"
+                          defaultMessage="Venue name"
                         />
-                      </>
-                    )}
-                  </button>
-                  {/* <button className="btn btn-sm btn-primary">
-                    <i className="ki-filled ki-exit-right-corner"></i>{" "}
-                    <FormattedMessage
-                      id="COMMON.SHARE"
-                      defaultMessage="Share"
-                    />
-                  </button> */}
+                        :
+                      </span>
+                      <span className="text-sm font-medium text-gray-900 truncate">
+                        {invoiceData?.event?.venue.nameEnglish || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Invoice Date */}
+                  <div className="flex items-start gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success text-lg flex-shrink-0 mt-1"></i>
+                    <div className="flex flex-col min-w-0 w-full">
+                      <span className="text-xs text-gray-600">
+                        <FormattedMessage
+                          id="INVOICE.INVOICE_DATE"
+                          defaultMessage="Invoice Date"
+                        />
+                        :
+                      </span>
+                      <div className="flex items-center gap-2 w-full">
+                        {!isEditing ? (
+                          <>
+                            <span className="text-sm font-medium text-gray-900">
+                              {formatDate(invoiceDate)}
+                            </span>
+                            <button
+                              type="button"
+                              className="text-primary hover:text-primary-dark"
+                              onClick={() => setIsEditing(true)}
+                            >
+                              <i className="ki-filled ki-pencil text-sm"></i>
+                            </button>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2 w-full">
+                            <input
+                              type="date"
+                              value={invoiceDate}
+                              onChange={(e) => {
+                                setInvoiceDate(e.target.value);
+                                setIsEdited(true);
+                              }}
+                              className="input text-sm py-1 px-2 flex-1"
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              className="text-success hover:text-success-dark"
+                              onClick={() => setIsEditing(false)}
+                            >
+                              <i className="ki-filled ki-check text-sm"></i>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Event Date */}
+                  <div className="flex items-start gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success text-lg flex-shrink-0 mt-1"></i>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs text-gray-600">
+                        <FormattedMessage
+                          id="INVOICE.EVENT_DATE"
+                          defaultMessage="Event Date"
+                        />
+                        :
+                      </span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {formatDate(invoiceData?.event?.inquiryDate)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Due Date */}
+                  <div className="flex items-start gap-3">
+                    <i className="ki-filled ki-calendar-tick text-success text-lg flex-shrink-0 mt-1"></i>
+                    <div className="flex flex-col min-w-0 w-full">
+                      <span className="text-xs text-gray-600">
+                        <FormattedMessage
+                          id="INVOICE.DUE_DATE"
+                          defaultMessage="Due Date"
+                        />
+                        :
+                      </span>
+                      <DatePicker
+                        format="DD/MM/YYYY"
+                        className="input w-full text-sm"
+                        value={dueDate}
+                        placeholder="Select due date"
+                        onChange={(date) => {
+                          setDueDate(date);
+                          setIsEdited(true);
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1104,18 +1155,31 @@ Thanks!`;
               </div>
 
               {/* GST Section */}
-              <div className="grid md:grid-cols-2 border-t">
-                <div className="border-r p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">
-                      <FormattedMessage
-                        id="INVOICE.BILLING_NAME"
-                        defaultMessage="Billing Name"
-                      />
-                    </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 border-t">
+                {/* Billing Name */}
+                <div className="p-4 border-b md:border-b-0 md:border-r">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-900">
+                        <FormattedMessage
+                          id="INVOICE.BILLING_NAME"
+                          defaultMessage="Billing Name"
+                        />
+                      </span>
+                      {!editStates.billingName && (
+                        <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
+                          <button
+                            className="text-primary hover:text-primary-dark p-1"
+                            onClick={() => toggleEdit("billingName")}
+                          >
+                            <EditOutlined />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
 
                     {editStates.billingName ? (
-                      <>
+                      <div className="flex items-center gap-2">
                         <Input
                           value={tempValues.billingname}
                           onChange={(e) =>
@@ -1128,49 +1192,58 @@ Thanks!`;
                           className="flex-1"
                         />
                         <Tooltip title={<FormattedMessage id="COMMON.SAVE" />}>
-                          <CheckOutlined
-                            className="text-green-600 cursor-pointer"
+                          <button
+                            className="text-green-600 hover:text-green-700 p-1"
                             onClick={() => saveChanges("billingName")}
-                          />
+                          >
+                            <CheckOutlined />
+                          </button>
                         </Tooltip>
                         <Tooltip
                           title={<FormattedMessage id="COMMON.CANCEL" />}
                         >
-                          <CloseOutlined
-                            className="text-red-600 cursor-pointer"
+                          <button
+                            className="text-red-600 hover:text-red-700 p-1"
                             onClick={() => cancelChanges("billingName")}
-                          />
+                          >
+                            <CloseOutlined />
+                          </button>
                         </Tooltip>
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <span className="text-gray-700">
-                          {invoiceData?.billingname || (
-                            <FormattedMessage id="COMMON.NA" />
-                          )}
-                        </span>
-                        <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
-                          <EditOutlined
-                            className="text-primary cursor-pointer"
-                            onClick={() => toggleEdit("billingName")}
-                          />
-                        </Tooltip>
-                      </>
+                      <span className="text-sm text-gray-700">
+                        {invoiceData?.billingname || (
+                          <FormattedMessage id="COMMON.NA" />
+                        )}
+                      </span>
                     )}
                   </div>
                 </div>
 
+                {/* GST Number */}
                 <div className="p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">
-                      <FormattedMessage
-                        id="INVOICE.GST_NUMBER"
-                        defaultMessage="GST Number"
-                      />
-                    </span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-900">
+                        <FormattedMessage
+                          id="INVOICE.GST_NUMBER"
+                          defaultMessage="GST Number"
+                        />
+                      </span>
+                      {!editStates.gstNumber && (
+                        <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
+                          <button
+                            className="text-primary hover:text-primary-dark p-1"
+                            onClick={() => toggleEdit("gstNumber")}
+                          >
+                            <EditOutlined />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
 
                     {editStates.gstNumber ? (
-                      <>
+                      <div className="flex items-center gap-2">
                         <Input
                           value={tempValues.gstnumber}
                           onChange={(e) =>
@@ -1183,34 +1256,30 @@ Thanks!`;
                           className="flex-1"
                         />
                         <Tooltip title={<FormattedMessage id="COMMON.SAVE" />}>
-                          <CheckOutlined
-                            className="text-green-600 cursor-pointer"
+                          <button
+                            className="text-green-600 hover:text-green-700 p-1"
                             onClick={() => saveChanges("gstNumber")}
-                          />
+                          >
+                            <CheckOutlined />
+                          </button>
                         </Tooltip>
                         <Tooltip
                           title={<FormattedMessage id="COMMON.CANCEL" />}
                         >
-                          <CloseOutlined
-                            className="text-red-600 cursor-pointer"
+                          <button
+                            className="text-red-600 hover:text-red-700 p-1"
                             onClick={() => cancelChanges("gstNumber")}
-                          />
+                          >
+                            <CloseOutlined />
+                          </button>
                         </Tooltip>
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <span className="text-gray-700">
-                          {invoiceData?.gstnumber || (
-                            <FormattedMessage id="COMMON.NA" />
-                          )}
-                        </span>
-                        <Tooltip title={<FormattedMessage id="COMMON.EDIT" />}>
-                          <EditOutlined
-                            className="text-primary cursor-pointer"
-                            onClick={() => toggleEdit("gstNumber")}
-                          />
-                        </Tooltip>
-                      </>
+                      <span className="text-sm text-gray-700">
+                        {invoiceData?.gstnumber || (
+                          <FormattedMessage id="COMMON.NA" />
+                        )}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -1253,20 +1322,25 @@ Thanks!`;
             setPdfUrl("");
           }
         }}
-        width="60%"
+        width="95%"
+        style={{ top: 20, maxWidth: "1200px" }}
         footer={[
-          <div className="flex justify-end gap-2" key="footer">
+          <div
+            key="footer"
+            className="flex flex-col sm:flex-row justify-end gap-2"
+          >
             <button
               onClick={() => handleWhatsAppShare(pdfUrl)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center gap-2"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
               </svg>
-              Share on WhatsApp
+              <span className="hidden sm:inline">Share on WhatsApp</span>
+              <span className="sm:hidden">WhatsApp</span>
             </button>
             <button
-              className="btn btn-sm btn-light"
+              className="btn btn-light w-full sm:w-auto"
               onClick={() => {
                 setIsPdfModalVisible(false);
                 if (pdfUrl) {
@@ -1279,9 +1353,8 @@ Thanks!`;
             </button>
           </div>,
         ]}
-        style={{ top: 20 }}
       >
-        <div style={{ height: "80vh" }}>
+        <div style={{ height: "70vh" }}>
           {pdfUrl && (
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer

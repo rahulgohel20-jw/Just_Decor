@@ -233,20 +233,20 @@ const CounterNameplate = ({
       title="Counter Name Plate Report"
       width={1000}
       footer=<div className="flex justify-between items-center px-6 py-4 border-t bg-white">
-        <button
+        {/* <button
           className="btn btn-light flex items-center gap-2"
           onClick={() => handleSave()}
         >
           <Save size={16} /> Save
-        </button>
+        </button> */}
 
         <div className="flex gap-3">
-          <button
+          {/* <button
             className="btn btn-primary"
             onClick={() => callPrintApi({ twoLanugage: 0 })}
           >
             Print
-          </button>
+          </button> */}
           <button
             className="btn btn-primary flex items-center gap-2"
             onClick={() => handleSave({ printAfterSave: true, twoLanugage: 0 })}

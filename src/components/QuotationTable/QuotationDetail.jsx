@@ -282,24 +282,28 @@ Thanks!`;
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-lg w-full mx-auto border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg w-full mx-auto border border-gray-100 overflow-hidden">
+        {" "}
         {/* Header */}
-        <div className="flex justify-between items-start p-6 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 border-b border-gray-100 gap-4">
+          {" "}
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-[#005BA8]">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#005BA8]">
+              {" "}
               <FormattedMessage
                 id="QUOTATION.TITLE"
                 defaultMessage={`Quotation - ${invoiceInfo.quotationNumber}`}
               />
             </h2>
-            <p className="text-gray-500 text-sm break-words">
+            <p className="text-gray-500 text-xs sm:text-sm break-words">
+              {" "}
               {invoiceInfo.Address}
             </p>
           </div>
-
-          <div className="flex flex-row items-end gap-2">
+          <div className="flex flex-row items-end gap-2 w-full sm:w-auto">
+            {" "}
             <button
-              className="btn btn-sm btn-primary"
+              className="btn btn-sm btn-primary flex-1 sm:flex-initial text-xs sm:text-sm"
               onClick={handleGenerateReport}
               disabled={loadingPdf}
             >
@@ -320,7 +324,7 @@ Thanks!`;
             </button>
             <Button
               icon={<SettingOutlined />}
-              className="font-semibold border-[#005BA8] text-[#005BA8] hover:bg-[#005BA8] hover:text-white transition-all whitespace-nowrap"
+              className="font-semibold border-[#005BA8] text-[#005BA8] hover:bg-[#005BA8] hover:text-white transition-all whitespace-nowrap flex-1 sm:flex-initial text-xs sm:text-sm"
               onClick={() => navigate(`/quotation/${Eventid || EventId}`)}
             >
               <FormattedMessage
@@ -330,9 +334,9 @@ Thanks!`;
             </Button>
           </div>
         </div>
-
         {/* Invoice Details */}
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm border-b border-gray-100">
+        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 text-xs sm:text-sm border-b border-gray-100">
+          {" "}
           <div className="md:border-r border-gray-200 md:pr-6">
             <p className="flex justify-between mb-1 gap-4">
               <span className="text-gray-500 flex-shrink-0">
@@ -380,7 +384,6 @@ Thanks!`;
               </span>
             </p>
           </div>
-
           <div>
             <p className="flex justify-between mb-1 gap-4">
               <span className="text-gray-500 flex-shrink-0">
@@ -406,10 +409,9 @@ Thanks!`;
             </p>
           </div>
         </div>
-
         {/* Items Table */}
-        <div className="mt-6 overflow-x-auto">
-          <h4 className="p-4 font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
+        <div className="mt-4 sm:mt-6 overflow-x-auto">
+          <h4 className="p-3 sm:p-4 text-sm sm:text-base font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
             <FormattedMessage
               id="FUNCTION.DETAILS"
               defaultMessage="Function Details"
@@ -422,9 +424,9 @@ Thanks!`;
             className="!border-0 [&_.ant-table-thead>tr>th]:bg-[#F8FAFC] [&_.ant-table-thead>tr>th]:text-[#005BA8]"
           />
         </div>
-
         {/* Footer / Totals */}
-        <div className="grid grid-cols-1 lg:grid-cols-2">
+        <div className="p-4 sm:p-6 text-xs sm:text-sm text-gray-700">
+          {" "}
           {/* Left Side */}
           <div className="p-6 text-sm text-gray-700">
             <p>
@@ -458,9 +460,9 @@ Thanks!`;
               />
             </p>
           </div>
-
           {/* Right Side */}
-          <div className="flex flex-col justify-between p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-sm">
+          <div className="flex flex-col justify-between p-4 sm:p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-xs sm:text-sm">
+            {" "}
             <div>
               <div className="flex justify-between mb-1 gap-4">
                 <span className="text-gray-500 flex-shrink-0">

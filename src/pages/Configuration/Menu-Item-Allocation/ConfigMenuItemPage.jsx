@@ -22,9 +22,9 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [lastAssignedType, setLastAssignedType] = useState("");
 
-  const [selectedType, setSelectedType] = useState(""); // From Type
+  const [selectedType, setSelectedType] = useState("");
   const [vendorList, setVendorList] = useState([]);
-  const [toType, setToType] = useState(""); // To Type - determines which table to show
+  const [toType, setToType] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
 
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -58,7 +58,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           categoriesData.map((cat) => ({
             id: cat.id,
             name: cat.nameEnglish?.trim(),
-          }))
+          })),
         );
       } catch (error) {
         console.error("❌ Error fetching menu categories:", error);
@@ -91,15 +91,15 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           filteredVendors = vendors.filter(
             (v) =>
               v.contact?.contactType?.id === 2 ||
-              v.contact?.contactType?.id === 5
+              v.contact?.contactType?.id === 5,
           );
         } else if (toType === "Outside") {
           filteredVendors = vendors.filter(
-            (v) => v.contact?.contactType?.id === 6
+            (v) => v.contact?.contactType?.id === 6,
           );
         } else if (toType === "Inside") {
           filteredVendors = vendors.filter(
-            (v) => v.contact?.contactType?.id === 7
+            (v) => v.contact?.contactType?.id === 7,
           );
         }
 
@@ -139,7 +139,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
         const response = await Getmenuitemsusingcatidconfig(
           [fromCategory],
           userId,
-          selectedType
+          selectedType,
         );
 
         const apiData = response?.data?.darta || [];
@@ -306,7 +306,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
           type: toType || selectedType, // fallback to FROM TYPE
           partyId: selectedItem || 0,
           userId,
-        })
+        }),
       )
       .filter(Boolean);
 
@@ -356,7 +356,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       const response = await Getmenuitemsusingcatidconfig(
         [fromCategory],
         userId,
-        selectedType
+        selectedType,
       );
 
       const apiData = response?.data?.darta || [];
@@ -463,7 +463,7 @@ const MenuAllocation = ({ chefLabourList = [], agencyList = [] }) => {
       <div className="space-y-6">
         <div className="w-full border rounded-lg bg-white p-4">
           <div className="w-full rounded-lg">
-            <div className="grid grid-cols-2 gap-6 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {/* LEFT BOX — From Category + From Type */}
               <div className="w-full border rounded-lg bg-white p-4">
                 <div className="grid grid-cols-1 gap-4">
