@@ -425,10 +425,9 @@ Thanks!`;
           />
         </div>
         {/* Footer / Totals */}
-        <div className="p-4 sm:p-6 text-xs sm:text-sm text-gray-700">
-          {" "}
-          {/* Left Side */}
-          <div className="p-6 text-sm text-gray-700">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* Left */}
+          <div className="p-4 sm:p-6 text-xs sm:text-sm text-gray-700 min-w-0">
             <p>
               <strong>
                 <FormattedMessage
@@ -437,7 +436,7 @@ Thanks!`;
                 />
               </strong>{" "}
               <br />
-              <p>Indian Rupee: {numberToIndianWords(totalAmount)}</p>
+              <p>Indian Rupee : {numberToIndianWords(totalAmount)}</p>
             </p>
             <p className="mt-4">
               <strong>
@@ -460,63 +459,51 @@ Thanks!`;
               />
             </p>
           </div>
-          {/* Right Side */}
-          <div className="flex flex-col justify-between p-4 sm:p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-xs sm:text-sm">
-            {" "}
+
+          {/* Right */}
+          <div className="flex flex-col justify-between p-6 lg:border-l border-t lg:border-t-0 border-gray-100 text-sm">
             <div>
               <div className="flex justify-between mb-1 gap-4">
-                <span className="text-gray-500 flex-shrink-0">
+                <span className="text-gray-500">
                   <FormattedMessage
                     id="INVOICE.SUB_TOTAL"
                     defaultMessage="Sub Total"
                   />
                 </span>
-                <span className="text-right">₹ {subTotal}</span>
+                <span>₹ {subTotal}</span>
               </div>
               <div className="flex justify-between mb-1 gap-4">
-                <span className="text-gray-500 flex-shrink-0">
-                  <FormattedMessage
-                    id="INVOICE.CGST"
-                    defaultMessage="CGST"
-                    values={{ percent: gstInfo.cgst }}
-                  />
+                <span className="text-gray-500">
+                  <FormattedMessage id="INVOICE.CGST" defaultMessage="CGST" />
                 </span>
-                <span className="text-right">₹{gstInfo.cgstAmnt}</span>
+                <span>₹ {gstInfo.cgstAmnt}</span>
               </div>
               <div className="flex justify-between mb-1 gap-4">
-                <span className="text-gray-500 flex-shrink-0">
-                  <FormattedMessage
-                    id="INVOICE.SGST"
-                    defaultMessage="SGST"
-                    values={{ percent: gstInfo.sgst }}
-                  />
+                <span className="text-gray-500">
+                  <FormattedMessage id="INVOICE.SGST" defaultMessage="SGST" />
                 </span>
-                <span className="text-right">₹{gstInfo.sgstAmnt}</span>
+                <span>₹ {gstInfo.sgstAmnt}</span>
               </div>
               <div className="flex justify-between mb-1 gap-4">
-                <span className="text-gray-500 flex-shrink-0">
-                  <FormattedMessage
-                    id="INVOICE.IGST"
-                    defaultMessage="IGST"
-                    values={{ percent: gstInfo.igst }}
-                  />
+                <span className="text-gray-500">
+                  <FormattedMessage id="INVOICE.IGST" defaultMessage="IGST" />
                 </span>
-                <span className="text-right">₹{gstInfo.igstAmnt}</span>
+                <span>₹ {gstInfo.igstAmnt}</span>
               </div>
               <div className="flex justify-between mb-1 gap-4">
-                <span className="text-gray-500 flex-shrink-0">
+                <span className="text-gray-500">
                   <FormattedMessage
                     id="INVOICE.DISCOUNT"
                     defaultMessage="Discount"
                   />
                 </span>
-                <span className="text-right">₹{invoiceInfo.discount}</span>
+                <span>₹ {invoiceInfo.discount}</span>
               </div>
               <div className="flex justify-between font-bold text-[#005BA8] text-base gap-4">
-                <span className="flex-shrink-0">
+                <span>
                   <FormattedMessage id="INVOICE.TOTAL" defaultMessage="Total" />
                 </span>
-                <span className="text-right">₹ {totalAmount}</span>
+                <span>₹ {totalAmount}</span>
               </div>
             </div>
           </div>
