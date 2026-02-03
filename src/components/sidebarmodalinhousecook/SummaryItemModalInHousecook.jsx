@@ -27,7 +27,8 @@ export default function SummaryItemModalInHousecook({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  let eventFunctionid = eventFunctionId || -1;
+  // Use the actual eventFunctionId passed to the component
+  const isShowingAllFunctions = eventFunctionId === -1;
 
   useEffect(() => {
     if (!open) return;
@@ -45,8 +46,9 @@ export default function SummaryItemModalInHousecook({
       setLoading(true);
       setError(null);
       try {
+        // Use the actual eventFunctionId prop directly
         const response = await GetOutsideSummary(
-          eventFunctionid,
+          eventFunctionId,
           eventId,
           type
         );
@@ -56,7 +58,7 @@ export default function SummaryItemModalInHousecook({
           response.data.data["Menu Allocation Details"];
 
         if (menuAllocationDetails && menuAllocationDetails.length > 0) {
-          setApiData(menuAllocationDetails[0]);
+          setApiData(menuAllocationDetails);
         }
       } catch (error) {
         console.error("Error fetching summary data:", error);
@@ -67,7 +69,7 @@ export default function SummaryItemModalInHousecook({
     };
 
     fetchData();
-  }, [open, eventFunctionid, eventId, type]);
+  }, [open, eventFunctionId, eventId, type]);
 
   // Toggle individual row expansion
   const toggleRowExpansion = (index) => {
@@ -77,13 +79,36 @@ export default function SummaryItemModalInHousecook({
     }));
   };
 
-  // Use apiData if available, otherwise fall back to insidesummary prop
-  const menuDetails = apiData || insidesummary;
-  const eventFunction = menuDetails?.eventFunction || {};
-  const functionName = eventFunction?.function?.nameEnglish || "N/A";
-  const functionStartDateTime = eventFunction?.functionStartDateTime || "N/A";
-  const functionEndDateTime = eventFunction?.functionEndDateTime || "N/A";
-  const agencyData = menuDetails?.agencyResponse || [];
+  // Prepare data based on whether showing all functions or single function
+  const displayData = apiData
+    ? isShowingAllFunctions
+      ? // Flatten all functions into single array
+        apiData.flatMap((functionData) =>
+          functionData.agencyResponse.map((contact) => ({
+            ...contact,
+            functionName:
+              functionData.eventFunction?.function?.nameEnglish || "N/A",
+            functionStartDateTime:
+              functionData.eventFunction?.functionStartDateTime || "N/A",
+            functionEndDateTime:
+              functionData.eventFunction?.functionEndDateTime || "N/A",
+          }))
+        )
+      : // For single function, just use the first function's agency response
+        apiData[0]?.agencyResponse || []
+    : [];
+
+  // Get function info for single function view
+  const singleFunctionInfo = !isShowingAllFunctions && apiData?.[0]
+    ? {
+        functionName:
+          apiData[0].eventFunction?.function?.nameEnglish || "N/A",
+        functionStartDateTime:
+          apiData[0].eventFunction?.functionStartDateTime || "N/A",
+        functionEndDateTime:
+          apiData[0].eventFunction?.functionEndDateTime || "N/A",
+      }
+    : null;
 
   return (
     <AnimatePresence>
@@ -111,6 +136,7 @@ export default function SummaryItemModalInHousecook({
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
                     Summary Item - InHouse Cook
+                    {isShowingAllFunctions && " (All Functions)"}
                   </h2>
                   <button
                     onClick={onClose}
@@ -149,34 +175,48 @@ export default function SummaryItemModalInHousecook({
 
                   {!loading && !error && (
                     <>
-                      <div className="flex items-center gap-6 ">
-                        <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
-                          {functionName}
-                        </button>
+                      {/* Show function info for single function view */}
+                      {!isShowingAllFunctions && singleFunctionInfo && (
+                        <div className="flex items-center gap-6 ">
+                          <button className="btn btn-sm btn-primary w-[100px] flex justify-center mt-3">
+                            {singleFunctionInfo.functionName}
+                          </button>
 
-                        <div className="flex flex-col mb-4 ">
-                          <div className="text-[12px]  text-gray-600">
-                            <FormattedMessage
-                              id="SIDEBAR_MODAL.DATE_TIME"
-                              defaultMessage="Date and Time"
-                            />
-                          </div>
-                          <div>
-                            <input
-                              className="input"
-                              type="text"
-                              value={`${functionStartDateTime} `}
-                              readOnly
-                            />
+                          <div className="flex flex-col mb-4 ">
+                            <div className="text-[12px]  text-gray-600">
+                              <FormattedMessage
+                                id="SIDEBAR_MODAL.DATE_TIME"
+                                defaultMessage="Date and Time"
+                              />
+                            </div>
+                            <div>
+                              <input
+                                className="input"
+                                type="text"
+                                value={`${singleFunctionInfo.functionStartDateTime} `}
+                                readOnly
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-                        <div className="grid grid-cols-6 gap-12 mb-3 pb-2 border-b border-gray-300">
+                        <div
+                          className={`grid ${
+                            isShowingAllFunctions
+                              ? "grid-cols-7"
+                              : "grid-cols-6"
+                          } gap-12 mb-3 pb-2 border-b border-gray-300`}
+                        >
                           <div className="text-sm font-semibold text-gray-700 ps-3">
                             #
                           </div>
+                          {isShowingAllFunctions && (
+                            <div className="text-sm font-semibold text-gray-700">
+                              Function
+                            </div>
+                          )}
                           <div className="text-sm font-semibold text-gray-700 ">
                             Contact Name
                           </div>
@@ -194,13 +234,24 @@ export default function SummaryItemModalInHousecook({
                           </div>
                         </div>
 
-                        {agencyData.length > 0 ? (
-                          agencyData.map((contact, index) => (
+                        {displayData.length > 0 ? (
+                          displayData.map((contact, index) => (
                             <div key={index}>
-                              <div className="grid grid-cols-6 mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm">
+                              <div
+                                className={`grid ${
+                                  isShowingAllFunctions
+                                    ? "grid-cols-7"
+                                    : "grid-cols-6"
+                                } mt-3 gap-6 items-center bg-white p-3 rounded-lg shadow-sm`}
+                              >
                                 <div className="text-sm text-gray-800">
                                   {index + 1}
                                 </div>
+                                {isShowingAllFunctions && (
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {contact.functionName}
+                                  </div>
+                                )}
                                 <div className="text-sm font-medium text-gray-900">
                                   {contact.contactName || "N/A"}
                                 </div>

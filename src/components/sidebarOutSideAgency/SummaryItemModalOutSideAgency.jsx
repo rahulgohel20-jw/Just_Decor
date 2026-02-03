@@ -42,7 +42,8 @@ export default function SummaryItemModalOutsideAgency({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  let eventFunctionid = eventFunctionId || -1;
+  // Use the actual eventFunctionId passed to the component
+  const isShowingAllFunctions = eventFunctionId === -1;
 
   useEffect(() => {
     if (!open) return;
@@ -60,8 +61,9 @@ export default function SummaryItemModalOutsideAgency({
       setLoading(true);
       setError(null);
       try {
+        // Use the actual eventFunctionId prop directly
         const response = await GetOutsideSummary(
-          eventFunctionid,
+          eventFunctionId,
           eventId,
           type
         );
@@ -71,7 +73,7 @@ export default function SummaryItemModalOutsideAgency({
           response.data.data["Menu Allocation Details"];
 
         if (menuAllocationDetails && menuAllocationDetails.length > 0) {
-          setApiData(menuAllocationDetails[0]);
+          setApiData(menuAllocationDetails);
         }
       } catch (error) {
         console.error("Error fetching summary data:", error);
@@ -82,16 +84,36 @@ export default function SummaryItemModalOutsideAgency({
     };
 
     fetchData();
-  }, [open, eventFunctionid, eventId, type]);
+  }, [open, eventFunctionId, eventId, type]);
 
-  // Use apiData if available, otherwise fall back to outsidesummary prop
-  const menuDetails = apiData || outsidesummary;
-  const eventFunction = menuDetails?.eventFunction || {};
-  const agencyResponses = menuDetails?.agencyResponse || [];
+  // Prepare data based on whether showing all functions or single function
+  const displayData = apiData
+    ? isShowingAllFunctions
+      ? // Flatten all functions into single array
+        apiData.flatMap((functionData) =>
+          functionData.agencyResponse.map((agency) => ({
+            ...agency,
+            functionName:
+              functionData.eventFunction?.function?.nameEnglish || "N/A",
+            functionDateTime:
+              functionData.eventFunction?.functionStartDateTime || "N/A",
+            venue: functionData.eventFunction?.function_venue || "N/A",
+          }))
+        )
+      : // For single function, just use the first function's agency response
+        apiData[0]?.agencyResponse || []
+    : [];
 
-  const functionName = eventFunction?.function?.nameEnglish || "N/A";
-  const functionDateTime = eventFunction?.functionStartDateTime || "N/A";
-  const venue = eventFunction?.function_venue || "N/A";
+  // Get function info for single function view
+  const singleFunctionInfo = !isShowingAllFunctions && apiData?.[0]
+    ? {
+        functionName:
+          apiData[0].eventFunction?.function?.nameEnglish || "N/A",
+        functionDateTime:
+          apiData[0].eventFunction?.functionStartDateTime || "N/A",
+        venue: apiData[0].eventFunction?.function_venue || "N/A",
+      }
+    : null;
 
   const toggleItems = (index) => {
     setExpandedItems((prev) => ({
@@ -127,6 +149,7 @@ export default function SummaryItemModalOutsideAgency({
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
                     Summary Item - Outside Agency
+                    {isShowingAllFunctions && " (All Functions)"}
                   </h2>
                   <button
                     onClick={onClose}
@@ -166,38 +189,51 @@ export default function SummaryItemModalOutsideAgency({
 
                   {!loading && !error && (
                     <>
-                      {/* Function Name and Date */}
-                      <div className="flex items-center gap-6 mb-6">
-                        <div className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold">
-                          {functionName}
-                        </div>
+                      {/* Show function info for single function view */}
+                      {!isShowingAllFunctions && singleFunctionInfo && (
+                        <div className="flex items-center gap-6 mb-6">
+                          <div className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold">
+                            {singleFunctionInfo.functionName}
+                          </div>
 
-                        <div className="flex flex-col">
-                          <div className="text-xs text-gray-600 mb-1">
-                            Date and Time
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600 mb-1">
+                              Date and Time
+                            </div>
+                            <div className="text-sm font-medium text-gray-800 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                              {singleFunctionInfo.functionDateTime}
+                            </div>
                           </div>
-                          <div className="text-sm font-medium text-gray-800 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-                            {functionDateTime}
-                          </div>
-                        </div>
 
-                        <div className="flex flex-col">
-                          <div className="text-xs text-gray-600 mb-1">
-                            Venue
-                          </div>
-                          <div className="text-sm font-medium text-gray-800 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-                            {venue}
+                          <div className="flex flex-col">
+                            <div className="text-xs text-gray-600 mb-1">
+                              Venue
+                            </div>
+                            <div className="text-sm font-medium text-gray-800 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                              {singleFunctionInfo.venue}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Summary Table */}
                       <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
                         {/* Table Header */}
-                        <div className="grid grid-cols-6 gap-4 mb-3 pb-3 border-b border-gray-300">
+                        <div
+                          className={`grid ${
+                            isShowingAllFunctions
+                              ? "grid-cols-7"
+                              : "grid-cols-6"
+                          } gap-4 mb-3 pb-3 border-b border-gray-300`}
+                        >
                           <div className="text-sm font-semibold text-gray-700">
                             #
                           </div>
+                          {isShowingAllFunctions && (
+                            <div className="text-sm font-semibold text-gray-700">
+                              Function
+                            </div>
+                          )}
                           <div className="text-sm font-semibold text-gray-700">
                             Contact Name
                           </div>
@@ -216,17 +252,28 @@ export default function SummaryItemModalOutsideAgency({
                         </div>
 
                         {/* Table Rows */}
-                        {agencyResponses.length === 0 ? (
+                        {displayData.length === 0 ? (
                           <div className="text-center py-8 text-gray-500">
                             No data available
                           </div>
                         ) : (
-                          agencyResponses.map((agency, index) => (
+                          displayData.map((agency, index) => (
                             <div key={index}>
-                              <div className="grid grid-cols-6 gap-4 items-center bg-white p-4 rounded-lg shadow-sm mb-3">
+                              <div
+                                className={`grid ${
+                                  isShowingAllFunctions
+                                    ? "grid-cols-7"
+                                    : "grid-cols-6"
+                                } gap-4 items-center bg-white p-4 rounded-lg shadow-sm mb-3`}
+                              >
                                 <div className="text-sm text-gray-800 font-medium">
                                   {index + 1}
                                 </div>
+                                {isShowingAllFunctions && (
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {agency.functionName}
+                                  </div>
+                                )}
                                 <div className="flex flex-col">
                                   <div className="text-sm font-semibold text-gray-900">
                                     {agency.contactName || "N/A"}
