@@ -111,7 +111,7 @@ const MenuReport = ({
             label: config.size2,
             enabled: Boolean(config.size2 === 0),
           },
-          isWithPrice: config.isWithPrice === 1,
+          isWithPrice: config.isWithPrice === 0,
         });
 
         setVisibleOptions(
