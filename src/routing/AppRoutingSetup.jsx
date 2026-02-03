@@ -214,6 +214,7 @@ import CouponMaster from "../pages/super-admin/master/Coupon-master";
 import { CrockeryConfiguration } from "../pages/Configuration/CrockeryConfiguration/CrockeryConfiguration";
 import AllReports from "../pages/Event/AllReportsPage/AllReports";
 import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleReport";
+import RecivedPayments from "../pages/payments/RecivedPayments";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -254,6 +255,12 @@ const AppRoutingSetup = () => {
             path="/edit-event/:eventId"
             element={<CreateEventPage mode="edit" />}
           />
+
+          <Route
+            path="/Payments"
+            element={< RecivedPayments  />}
+          />
+         
           <Route
             path="/edit-event/:eventId/copy"
             element={<CreateEventPage mode="copy" />}
