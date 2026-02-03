@@ -130,8 +130,7 @@ export default function CategorySidebarModal({
         itemId: item.id || 0,
         name: item.rawMaterialName || "",
         menuItemName: item.menuItemName || "-",
-        newPax:item.newPax,
-        oldPax:item.oldPax,
+    
         agency: item.partyName || "",
         dateTime: parseDateToObject(item.dateTime), 
         weight: item.weight || "",
@@ -337,8 +336,7 @@ export default function CategorySidebarModal({
           eventId: eventId || 0,
           eventFunctionId: eventFunctionId || 0,
           menuItemId: item.menuItemId || 0,
-          newPax:item.newPax,
-          oldPax:item.oldPax,
+      
           rawMaterialId: item.rawMaterialId || 0,
           partyId: partyId,
           unitId: unitId,

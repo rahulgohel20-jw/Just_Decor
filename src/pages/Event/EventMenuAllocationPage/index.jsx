@@ -1024,9 +1024,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         return;
       }
 
-      // Calculate oldPax and newPax
-      const oldPax = matchingRow?.oldPersonCount || 0;
-      const newPax = matchingRow?.personCount || 0;
 
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
@@ -1049,12 +1046,11 @@ const EventMenuAllocationPage = ({ mode }) => {
       setIsCategoryModal(true);
       setMenuLoading(true);
 
-      // Pass oldPax and newPax to the API
+  
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
-        newPax,
-        oldPax,
+     
       );
 
       if (res?.data?.success) {
@@ -1142,7 +1138,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         inside: item.inside || false,
         outside: item.outside || false,
         personCount: item.personCount || 0,
-        oldPersonCount: item.oldPersonCount || 0,
         place: item.place || "venue",
         instructions: item.instructions || "",
         eventId: item.eventId,
@@ -1291,8 +1286,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           const res = await SelectedItemNameMenuAllocation(
             row.eventFunctionId,
             row.menuItemId,
-            row.personCount,
-            row.oldPersonCount,
           );
 
           if (res?.data?.success) {
@@ -1998,8 +1991,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuItemId: rm.menuItemId || r.menuItemId || 0,
           partyId: rm.partyId || rm.party_id || rm.party?.id || 0,
           place: rm.place || "",
-          newPax: r.personCount,
-          oldPax: r.oldPersonCount,
           rate: rm.rate || 0,
           rawMaterialId: rm.rawMaterialId || 0,
           rawmaterial_rate: rm.rawmaterial_rate || 0,
@@ -2020,7 +2011,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuItemId: r.menuItemId || 0,
           menuItemRawMaterials,
           outside: r.outside || false,
-          oldPersonCount: r.oldPersonCount || 0,
           personCount: r.personCount || 0,
           place: r.place || "venue",
           userId: Number(Id) || 0,
