@@ -70,6 +70,7 @@ const QuotationPage = () => {
     grandTotal: "0",
     advancePayments: [
       {
+        id: 0,
         amount: "0",
         date: dayjs(),
         description: "",
@@ -246,6 +247,7 @@ const QuotationPage = () => {
               quotationInfo.eventFunctionQuotationPayments &&
               Array.isArray(quotationInfo.eventFunctionQuotationPayments)
                 ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
+                  id: p.id || 0,
                     amount: p.advancePayment || 0,
                     date:
                       p.advancePaymentDate &&
@@ -259,6 +261,7 @@ const QuotationPage = () => {
                   }))
                 : [
                     {
+                      id: p.id || 0,
                       amount: quotationInfo.advancePayment || 0,
                       date:
                         quotationInfo.advancePaymentDate &&
@@ -473,6 +476,7 @@ const QuotationPage = () => {
     const grandTotal =
       amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
     const payments = (quotationData.advancePayments || []).map((p) => ({
+      id: p.id || 0,
       advancePayment: parseFloat(p.amount) || 0,
       advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
       advancePaymentNotes: p.description || "",
@@ -489,9 +493,6 @@ const QuotationPage = () => {
     const remainingAmount = Math.max(0, totalAmount - sumAdvance);
 
     // Format quotation date for payload
-    console.log("=== QUOTATION DATE DEBUG ===");
-    console.log("quotationDate (from state):", quotationDate);
-    console.log("quotationData.QuotationDate:", quotationData.QuotationDate);
 
     let formattedQuotationDate;
 
@@ -578,13 +579,7 @@ const QuotationPage = () => {
       quotationdate: formattedQuotationDate,
     };
 
-    console.log("=== BUILD PAYLOAD ===");
-    console.log("Full Payload:", payload);
-    console.log("quotationdate:", payload.quotationdate);
-    console.log("duedate:", payload.duedate);
-    console.log("billingname:", payload.billingname);
-    console.log("gstnumber:", payload.gstnumber);
-    console.log("=== END BUILD PAYLOAD ===\n");
+
 
     return payload;
   };
@@ -762,7 +757,7 @@ const QuotationPage = () => {
       ...prev,
       advancePayments: [
         ...prev.advancePayments,
-        { amount: "0", date: dayjs(), description: "" },
+        { id: 0, amount: "0", date: dayjs(), description: "" },
       ],
     }));
   };
