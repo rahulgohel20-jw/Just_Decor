@@ -43,7 +43,9 @@ const CounterNameplate = ({
   let userId = localStorage.getItem("userId");
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
-
+  const [numberOfColumns, setNumberOfColumns] = useState(1);
+  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState(10);
+  
   useEffect(() => {
     if (isModalOpen && eventId && eventFunctionId && userId) {
       fetchItemdata();
@@ -160,6 +162,7 @@ const CounterNameplate = ({
       const payload = {
         categoryFontSize: 0,
         itemFontSize: 0,
+      
         eventFunctionId: Number(eventFunctionId),
         eventId: Number(eventId),
         userId: Number(userId),
@@ -202,6 +205,8 @@ const CounterNameplate = ({
   const callPrintApi = async ({ twoLanugage = 0 } = {}) => {
     try {
       const formData = new FormData();
+      formData.append("numberOfColumns", numberOfColumns);
+      formData.append("numberOfItemsPerPage", numberOfItemsPerPage);
       formData.append("adminTemplateModuleId", selectedTemplateId);
       formData.append("eventFunctionId", eventFunctionId);
       formData.append("eventId", eventId);
@@ -232,7 +237,8 @@ const CounterNameplate = ({
       onClose={() => setIsModalOpen(false)}
       title="Counter Name Plate Report"
       width={1000}
-      footer=<div className="flex justify-between items-center px-6 py-4 border-t bg-white">
+      footer={
+      <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
         {/* <button
           className="btn btn-light flex items-center gap-2"
           onClick={() => handleSave()}
@@ -261,7 +267,7 @@ const CounterNameplate = ({
             Two Language PDF
           </button>
         </div>
-      </div>
+      </div>}
     >
       <div className="max-h-[420px] overflow-y-auto pr-2">
         {/* Language Selector */}
@@ -303,6 +309,51 @@ const CounterNameplate = ({
             </button>
           </div>
         </div>
+
+        {/* Agency & Items Dropdowns */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+{/* Agency */}
+<div>
+  <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-1">
+     Column 
+  </label>
+
+  <select
+  value={numberOfColumns}
+  onChange={(e) => setNumberOfColumns(Number(e.target.value))}
+  className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-white
+             focus:outline-none focus:ring-2 focus:ring-primary"
+>
+  <option value={1}>1 Column</option>
+  <option value={2}>2 Column</option>
+</select>
+
+</div>
+
+{/* Items */}
+<div>
+  <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-1">
+     Items
+  </label>
+
+  <select
+  value={numberOfItemsPerPage}
+  onChange={(e) => setNumberOfItemsPerPage(Number(e.target.value))}
+  className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50
+             focus:outline-none focus:ring-2 focus:ring-primary"
+>
+  <option value={10}>10</option>
+  <option value={12}>12</option>
+  <option value={14}>14</option>
+  <option value={16}>16</option>
+  <option value={18}>18</option>
+</select>
+
+</div>
+
+</div>
+
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="counters">

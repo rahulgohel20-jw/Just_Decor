@@ -45,6 +45,8 @@ const SuperReportConfig = () => {
         WithPrice:item.isWithPrice,
         isAgency:item.isAgency,
         isItem:item.isItem,
+        isItemColumn:item.isItemColumn,
+        isItemPage:item.isItemPage
       }));
 
       setTableData(mapped);
