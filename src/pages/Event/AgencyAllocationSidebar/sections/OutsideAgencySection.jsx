@@ -166,6 +166,7 @@ export default function OutsideAgencySection({
       personCount: menuItem.personCount || 0,
       oldPersonCount: menuItem.oldPersonCount || 0,
       place: menuItem.place || "",
+      menuItemRawMaterials: [],
       userId,
 
       menuAllocationOrders:
