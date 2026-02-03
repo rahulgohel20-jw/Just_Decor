@@ -247,9 +247,9 @@ export const RawMaterialName = (Id, name) => {
   );
 };
 
-export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid, newpax, oldPax) => {
+export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid) => {
   return GET(
-    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}&newPax=${newpax}&oldPax=${oldPax}`
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
   );
 };
 
