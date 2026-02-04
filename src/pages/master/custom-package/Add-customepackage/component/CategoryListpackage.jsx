@@ -21,7 +21,7 @@ function CategoryListpackage({
 
   const filteredCategories = useMemo(() => {
     return displayCategories.filter((cat) =>
-      cat.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase())
+      cat.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [displayCategories, searchQuery]);
 
@@ -52,7 +52,8 @@ function CategoryListpackage({
   };
 
   return (
-    <div className="w-72 bg-white border border-gray-200 flex flex-col h-full">
+    <div className="w-full md:w-72 bg-white border border-gray-200 flex flex-col h-full">
+      {" "}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
@@ -76,7 +77,6 @@ function CategoryListpackage({
           </button>
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto">
         {filteredCategories.map((cat, index) => (
           <div

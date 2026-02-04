@@ -37,6 +37,8 @@ function AddCustomPackage() {
   const [debounceTimer, setDebounceTimer] = useState(null);
   const debounceRef = useRef(null);
   const [menuRefreshKey, setMenuRefreshKey] = useState(0);
+  // ADD this with your other useState declarations:
+  const [activeMobileTab, setActiveMobileTab] = useState(0);
 
   const [notesModal, setNotesModal] = useState({
     isOpen: false,
@@ -88,8 +90,8 @@ function AddCustomPackage() {
                 itemsNotes: newNotes.itemsNotes || "",
                 itemSlogan: newNotes.itemSlogan || "",
               }
-            : item
-        )
+            : item,
+        ),
       );
     }
 
@@ -141,7 +143,7 @@ function AddCustomPackage() {
 
         // Sort by menuSortOrder to maintain order
         const sortedDetails = [...packageData.customPackageDetails].sort(
-          (a, b) => a.menuSortOrder - b.menuSortOrder
+          (a, b) => a.menuSortOrder - b.menuSortOrder,
         );
         setCategoryOrder(sortedDetails.map((d) => String(d.menuId)));
 
@@ -155,7 +157,7 @@ function AddCustomPackage() {
 
           // Sort items by itemSortOrder
           const sortedItems = [...detail.customPackageMenuItemDetails].sort(
-            (a, b) => a.itemSortOrder - b.itemSortOrder
+            (a, b) => a.itemSortOrder - b.itemSortOrder,
           );
 
           // Fetch full item details for each menu item
@@ -166,11 +168,11 @@ function AddCustomPackage() {
                 1,
                 100,
                 localStorage.getItem("userId") || 1,
-                detail.menuId
+                detail.menuId,
               );
 
               const fullItem = itemResponse.data?.data?.items?.find(
-                (i) => i.id === item.menuItemId
+                (i) => i.id === item.menuItemId,
               );
 
               if (fullItem) {
@@ -287,7 +289,7 @@ function AddCustomPackage() {
 
   const handleToggleItem = (item) => {
     const existingIndex = selectedItems.findIndex(
-      (selectedItem) => selectedItem.id === item.id
+      (selectedItem) => selectedItem.id === item.id,
     );
 
     if (existingIndex !== -1) {
@@ -619,8 +621,31 @@ function AddCustomPackage() {
         )}
       </div>
 
+      <div className="flex md:hidden border-b border-gray-200 bg-white sticky top-0 z-10">
+        {["Categories", "Menu", "Selected"].map((tab, i) => (
+          <button
+            key={tab}
+            onClick={() => setActiveMobileTab(i)}
+            className={`flex-1 py-3 text-sm font-medium transition
+              ${
+                activeMobileTab === i
+                  ? "border-b-2 border-blue-600 text-blue-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+          >
+            {tab}
+            {tab === "Selected" && selectedItems.length > 0 && (
+              <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-600 text-white rounded-full">
+                {selectedItems.length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className="h-screen flex flex-col p-4">
-        <div className="flex-1 flex overflow-hidden">
+        {/* ===== DESKTOP: 3 panels side by side ===== */}
+        <div className="flex-1 hidden md:flex overflow-hidden">
           <CategoryListpackage
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
@@ -649,13 +674,59 @@ function AddCustomPackage() {
             categoryItemCounts={categoryItemCounts}
             onReorder={handleReorder}
             onOpenNotes={handleOpenNotes}
-            categoryOrder={categoryOrder} // ADD THIS
-            onReorderCategories={handleReorderCategories} // ADD THIS
-            onOpenCategoryNotes={handleOpenCategoryNotes} // FOR CATEGORY NOTES
+            categoryOrder={categoryOrder}
+            onReorderCategories={handleReorderCategories}
+            onOpenCategoryNotes={handleOpenCategoryNotes}
           />
         </div>
 
-        <div className="bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+        {/* ===== MOBILE: one panel at a time based on tab ===== */}
+        <div className="flex-1 md:hidden overflow-hidden">
+          {activeMobileTab === 0 && (
+            <CategoryListpackage
+              selectedCategory={selectedCategory}
+              onSelectCategory={(val) => {
+                setSelectedCategory(val);
+                setActiveMobileTab(1); // auto switch to Menu tab
+              }}
+              categories={categories}
+              setCategories={setCategories}
+              categoryItemCounts={categoryItemCounts}
+              onCategoryItemCountChange={handleCategoryItemCountChange}
+              onReorderCategories={handleReorderCategories}
+              onAddCategory={() => setIsAddCategoryModalOpen(true)}
+            />
+          )}
+
+          {activeMobileTab === 1 && (
+            <MenuItemGridPackage
+              key={menuRefreshKey}
+              selectedCategory={selectedCategory}
+              onToggleItem={handleToggleItem}
+              selectedItemIds={selectedItemIds}
+              Getmenuitemsusingcatid={Getmenuitemsusingcatid}
+              onAddMenuItem={() => setIsAddItemModalOpen(true)}
+            />
+          )}
+
+          {activeMobileTab === 2 && (
+            <SelectedItemPackage
+              selectedItems={selectedItems}
+              onRemoveItem={handleRemoveItem}
+              onUpdateRate={handleUpdateRate}
+              categoryMap={categoryMap}
+              categoryItemCounts={categoryItemCounts}
+              onReorder={handleReorder}
+              onOpenNotes={handleOpenNotes}
+              categoryOrder={categoryOrder}
+              onReorderCategories={handleReorderCategories}
+              onOpenCategoryNotes={handleOpenCategoryNotes}
+            />
+          )}
+        </div>
+
+        {/* ===== Bottom Buttons ===== */}
+        <div className="bg-white border-t border-gray-200 px-4 md:px-6 py-4 flex justify-end gap-3">
           <button
             onClick={handleCancel}
             className="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-100"

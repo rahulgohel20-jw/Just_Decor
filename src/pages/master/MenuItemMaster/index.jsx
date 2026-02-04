@@ -1,12 +1,11 @@
 import { Fragment, useState, useEffect, useRef } from "react";
 import { Tabs, Form } from "antd";
 import { Container } from "@/components/container";
-import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
+import { FormattedMessage } from "react-intl";
 import MenuDetailsForm from "./components/MenuDetailsForm";
 import AllocationConfig from "./components/AllocationConfig";
 import { useLocation } from "react-router-dom";
 import { Tooltip } from "antd";
-
 const MenuItemMaster = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("details");
@@ -47,16 +46,20 @@ const MenuItemMaster = () => {
   return (
     <Fragment>
       <Container>
-        <div className="pb-2">
-          <Breadcrumbs
-            items={[
-              {
-                title: isEdit
-                  ? "Edit Menu Item"
-                  : "Create Menu Item And Recipe",
-              },
-            ]}
-          />
+        <div className="pb-2 mb-3">
+          <h1 className="text-xl text-gray-900">
+            {isEdit ? (
+              <FormattedMessage
+                id="MENU.EDIT_ITEM"
+                defaultMessage="Edit Menu Item"
+              />
+            ) : (
+              <FormattedMessage
+                id="MENU.CREATE_ITEM"
+                defaultMessage="Create Menu Item & Recipe"
+              />
+            )}
+          </h1>
         </div>
 
         <Tabs

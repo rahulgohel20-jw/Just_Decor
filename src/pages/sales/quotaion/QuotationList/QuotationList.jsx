@@ -44,19 +44,10 @@ export default function QuotationViewPage() {
 
   return (
     <>
-      <div className="gap-2 mb-3 pl-8">
-        <Breadcrumbs
-          items={[
-            {
-              title: (
-                <FormattedMessage
-                  id="QUOTATION.TITLE"
-                  defaultMessage="Quotation"
-                />
-              ),
-            },
-          ]}
-        />
+      <div className="gap-2 mb-3 pl-4 sm:pl-8">
+        <h2 className="text-xl sm:text-2xl font-medium text-black">
+          <FormattedMessage id="QUOTATION.TITLE" defaultMessage="Quotation" />
+        </h2>
       </div>
       <div className="p-2 sm:p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
         <div className="w-full lg:w-auto lg:flex-shrink-0 overflow-x-auto lg:overflow-x-visible">
