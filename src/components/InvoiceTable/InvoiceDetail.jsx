@@ -230,7 +230,7 @@ Thanks!`;
           ? new Date(event.eventStartDateTime).toLocaleDateString("en-GB")
           : "-",
         gstNumber: invoice?.gstnumber || party?.gst || "NA",
-        address: invoice?.billingaddress || party?.addressEnglish || "-",
+        address: invoice?.shipaddress || party?.addressEnglish || "-",
         notes: invoice?.notes || "",
         discount: invoice?.discount || 0,
         terms: invoice?.terms || "Due on Receipt",
@@ -274,25 +274,31 @@ Thanks!`;
 
   return (
     <>
+    <div className="relative">
+      {/* Badge Container */}
+      <div className="absolute top-0 left-0 z-10 overflow-hidden w-32 h-32">
+        <div 
+          className="absolute top-0 left-0 bg-[#0066CC] text-white text-center font-bold text-sm py-1 shadow-lg"
+          style={{
+            width: '150px',
+            transform: 'rotate(-45deg) translate(-72px, 20px)',
+            transformOrigin: 'top left',
+            boxShadow: '0 3px 10px rgba(0, 0, 0, 0.3)'
+          }}
+        >
+        DRAFT
+        </div>
+      </div>
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg w-full mx-auto border border-gray-100 overflow-hidden min-w-0">
-        {" "}
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 border-b border-gray-100 gap-4">
-          {" "}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-4 border-b border-gray-100 gap-4 mt-16">
           <div className="flex-1">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#005BA8]">
-              {" "}
-              <FormattedMessage
-                id="INVOICE.TITLE"
-                defaultMessage={`Invoice - ${invoiceInfo?.invoiceCode}`}
-              />
-            </h2>
             <p className="text-gray-500 text-xs sm:text-sm break-words">
-              {" "}
               {invoiceInfo.address}
             </p>
           </div>
-          <div className="flex flex-row items-end gap-2 w-full sm:w-auto">
+          {/* <div className="flex flex-row items-end gap-2 w-full sm:w-auto">
             {" "}
             <button
               className="btn btn-sm btn-primary flex-1 sm:flex-initial text-xs sm:text-sm"
@@ -332,23 +338,13 @@ Thanks!`;
                 defaultMessage="Customize"
               />
             </Button>
-          </div>
+          </div> */}
         </div>
         {/* Invoice Info */}
-        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 text-xs sm:text-sm border-b border-gray-100">
+        <div className="p-4 sm:p-4 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 text-xs sm:text-sm border-t border-gray-300">
           {" "}
-          <div className="md:border-r border-gray-200 md:pr-6">
-            <p className="flex justify-between mb-1 gap-4">
-              <span className="text-gray-500">
-                <FormattedMessage
-                  id="INVOICE.BILLING_NAME"
-                  defaultMessage="Billing Name"
-                />
-              </span>
-              <span className="font-medium text-right">
-                {invoiceInfo.billingName}
-              </span>
-            </p>
+          <div className="md:border-r border-gray-300 md:pr-6">
+           
             <p className="flex justify-between mb-1 gap-4">
               <span className="text-gray-500">
                 <FormattedMessage
@@ -408,8 +404,22 @@ Thanks!`;
             </p>
           </div>
         </div>
+        <div className="overflow-x-auto">
+          <h4 className="p-3 sm:p-4 text-sm sm:text-base font-semibold text-[#005BA8] bg-[#EAF4FB] border-t border-gray-200">
+            <FormattedMessage
+              id="FUNCTION.DETAILS"
+              defaultMessage="Bill To"
+            />
+          </h4>
+          <p className="p-3 sm:p-4 text-sm sm:text-base font-semibold  border-b border-gray-200">
+            Name   :  {invoiceInfo.billingName}
+          </p>
+          <p className="p-3 sm:p-4 text-sm sm:text-base font-semibold  border-b border-gray-200">
+           Subject : 
+          </p>
+        </div>
         {/* Function Table */}
-        <div className="mt-4 sm:mt-6 overflow-x-auto">
+        <div className=" overflow-x-auto">
           <h4 className="p-3 sm:p-4 text-sm sm:text-base font-semibold text-[#005BA8] bg-[#EAF4FB] border-b border-gray-200">
             <FormattedMessage
               id="FUNCTION.DETAILS"
@@ -420,13 +430,13 @@ Thanks!`;
             columns={columns}
             dataSource={functionData}
             pagination={false}
-            className="!border-0 [&_.ant-table-thead>tr>th]:bg-[#F8FAFC] [&_.ant-table-thead>tr>th]:text-[#005BA8]"
+            className="p-2 !border-0 [&_.ant-table-thead>tr>th]:bg-[#F8FAFC] [&_.ant-table-thead>tr>th]:text-[#005BA8]"
           />
         </div>
         {/* Totals */}
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* Left */}
-          <div className="p-4 sm:p-6 text-xs sm:text-sm text-gray-700 min-w-0">
+          <div className="p-3 sm:p-4 text-xs sm:text-sm text-gray-700 min-w-0">
             <p>
               <strong>
                 <FormattedMessage
@@ -489,7 +499,7 @@ Thanks!`;
                 </span>
                 <span>₹ {gstInfo.igstAmnt}</span>
               </div>
-              <div className="flex justify-between mb-1 gap-4">
+              <div className="flex justify-between mb-1 gap-4 mb-2">
                 <span className="text-gray-500">
                   <FormattedMessage
                     id="INVOICE.DISCOUNT"
@@ -498,7 +508,8 @@ Thanks!`;
                 </span>
                 <span>₹ {invoiceInfo.discount}</span>
               </div>
-              <div className="flex justify-between font-bold text-[#005BA8] text-base gap-4">
+              <hr />
+              <div className="mt-2 flex justify-between font-bold text-[#005BA8] text-base gap-4">
                 <span>
                   <FormattedMessage id="INVOICE.TOTAL" defaultMessage="Total" />
                 </span>
@@ -566,6 +577,7 @@ Thanks!`;
           )}
         </div>
       </Modal>
+      </div>
     </>
   );
 };

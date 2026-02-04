@@ -181,6 +181,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
       menuItemId: menuItem.menuItemId || 0,
       personCount: menuItem.personCount || 0,
       oldPersonCount: menuItem.oldPersonCount || 0,
+      menuItemRawMaterials: [],
       place: menuItem.place || "",
       userId,
 
@@ -199,7 +200,6 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
           totalPrice: allocation.totalPrice || 0,
           unitId: allocation.unitId || 0,
           remarks: "",
-          menuItemRawMaterials: [],
           isOutside: false,
         })) || [],
     }));

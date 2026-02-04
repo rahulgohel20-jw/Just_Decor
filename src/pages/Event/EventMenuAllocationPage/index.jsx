@@ -2632,7 +2632,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           chefsummary={chefsummary}
-          eventFunctionId={selectedRow?.eventFunctionId}
+          eventFunctionId={getEventFunctionId(activeFunction)}
           eventId={eventId}
           type={"chef"}
         />
@@ -2640,7 +2640,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isOutsideAgencyModalOpen}
           onClose={() => setIsOutsideAgencyModalOpen(false)}
           outsidesummary={outsidesummary}
-          eventFunctionId={selectedRow?.eventFunctionId}
+          eventFunctionId={getEventFunctionId(activeFunction)}
           eventId={eventId}
           type={"outside"}
         />
@@ -2648,7 +2648,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={isInHouseCookModalOpen}
           onClose={() => setIsInHouseCookModalOpen(false)}
           insidesummary={insidesummary}
-          eventFunctionId={selectedRow?.eventFunctionId}
+          eventFunctionId={getEventFunctionId(activeFunction)}
           eventId={eventId}
           type={"inside"}
         />

@@ -37,6 +37,7 @@ const MenuReport = ({
   endDate: adminEndDate,
   agencyType,
 }) => {
+  
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
 
@@ -80,8 +81,12 @@ const MenuReport = ({
         if (!config) return;
 
         setReportType(config.type);
-
-        if (config.isAgency === 1 && config.isItem === 1) {
+        console.log(agencyType);
+        
+        if (agencyType == null) {
+          setisDropdownStatus(0);
+        
+        } else if (config.isAgency === 1 && config.isItem === 1) {
           setisDropdownStatus(1);
         }
 
@@ -152,7 +157,6 @@ const MenuReport = ({
         const agencyRes = await GetAgenciesForReportFilter(
           eventFunctionId,
           eventId,
-
           agencyType,
         );
 
