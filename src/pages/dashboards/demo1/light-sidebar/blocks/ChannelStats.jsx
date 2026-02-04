@@ -109,11 +109,11 @@ const ChannelStats = () => {
             </div>
 
             {/* Text */}
-            <div className="flex-1">
-              <div className="text-lg font-semibold text-gray-900">
+            <div className="flex-1 ms-3 ">
+              <div className=" ps-2 text-lg font-semibold text-gray-900">
                 {item.value}
               </div>
-              <div className="text-sm text-gray-500">{item.label}</div>
+              <div className="ps-2 text-sm text-gray-00">{item.label}</div>
             </div>
 
             {/* Growth */}

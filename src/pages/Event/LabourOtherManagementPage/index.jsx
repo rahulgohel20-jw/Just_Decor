@@ -118,6 +118,7 @@ const LabourOtherManagementPage = ({ mode }) => {
 
   const [expandedRows, setExpandedRows] = useState({});
   const [shiftRows, setShiftRows] = useState({});
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -933,7 +934,7 @@ const LabourOtherManagementPage = ({ mode }) => {
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
           <div className="flex justify-between items-center mb-4">
-            {/* LEFT: Page Title + 3 Custom Buttons */}
+            {/* LEFT: Page Title + Buttons */}
             <div className="flex items-center gap-6">
               <h2 className="text-xl text-black font-semibold">
                 <FormattedMessage
@@ -942,8 +943,8 @@ const LabourOtherManagementPage = ({ mode }) => {
                 />
               </h2>
 
-              {/* ONLY FOR THIS SCREEN */}
-              <div className="flex gap-2">
+              {/* DESKTOP & TABLET - Show all buttons */}
+              <div className="hidden md:flex gap-2">
                 <button
                   onClick={() => navigate(`/menu-preparation/${eventId}`)}
                   className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
@@ -987,24 +988,101 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="4. Raw Material Distribution"
                   />
                 </button>
+
                 <button
-                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                   onClick={() => navigate(`/dish-costing/${eventId}`)}
                 >
                   <i
-                    className="ki-filled ki-grid hover:!text-gray-400"
+                    className="ki-filled ki-grid"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  6. Per Dish-costng
+                  6. Per Dish-costing
                 </button>
+              </div>
+
+              {/* MOBILE ONLY - Dropdown */}
+              <div className="relative md:hidden">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu"
+                    style={{ color: "white" }}
+                  ></i>
+                  <span className="ml-2">Menu</span>
+                  <i
+                    className={`ki-filled ${isDropdownOpen ? "ki-up" : "ki-down"} ml-2`}
+                    style={{ color: "white" }}
+                  ></i>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                    <button
+                      onClick={() => {
+                        navigate(`/menu-preparation/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                    >
+                      <i className="ki-filled ki-menu text-primary"></i>
+                      <FormattedMessage
+                        id="MENU_PLANNING.BUTTON"
+                        defaultMessage="2. Menu Planning"
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/menu-allocation/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                    >
+                      <i className="ki-filled ki-menu text-primary"></i>
+                      <FormattedMessage
+                        id="MENU_EXECUTION.BUTTON"
+                        defaultMessage="3. Menu Execution"
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/raw-material-allocation/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                    >
+                      <i className="ki-filled ki-gift text-primary"></i>
+                      <FormattedMessage
+                        id="RAW_MATERIAL_DISTRIBUTION.BUTTON"
+                        defaultMessage="4. Raw Material Distribution"
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/dish-costing/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <i className="ki-filled ki-grid text-primary"></i>
+                      6. Per Dish-costing
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-
         {/* Event Info Card */}
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-between p-4 gap-3 md:gap-4 lg:gap-6">
+            {" "}
             {/* ROW 1 */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
@@ -1020,7 +1098,6 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-user text-success text-lg"></i>
               <div className="flex flex-col">
@@ -1035,7 +1112,6 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
               <div className="flex flex-col">
@@ -1050,7 +1126,6 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
@@ -1065,10 +1140,8 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             {/* FORCE NEW ROW */}
             <div className="w-full h-0"></div>
-
             {/* ROW 2 LEFT — Event Venue */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
@@ -1084,9 +1157,9 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             {/* ROW 2 RIGHT — Buttons */}
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200">
+            <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-gray-200 w-full md:w-auto">
+              {" "}
               {/* Report Button */}
               <button
                 onClick={handleSave}
@@ -1106,7 +1179,8 @@ const LabourOtherManagementPage = ({ mode }) => {
 
         {/* Function Tabs */}
         <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4 p-2">
-          <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden">
+          <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden overflow-x-auto max-w-full">
+            {" "}
             {eventData?.eventFunctions?.map((fn, index) => (
               <button
                 key={fn.id}
@@ -1129,7 +1203,8 @@ const LabourOtherManagementPage = ({ mode }) => {
         {/* Action Bar */}
         <div className="card mb-5">
           <div className="card-body p-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              {/* Person */}
               <div className="flex items-center gap-3">
                 <i className="ki-filled ki-users text-primary"></i>
                 <span className="text-2sm font-medium text-gray-700">
@@ -1143,10 +1218,11 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* Report + Search */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <button
                   onClick={openSelectMenureport}
-                  className="btn btn-success btn-sm h-10"
+                  className="btn btn-success btn-sm h-10 w-full sm:w-auto"
                 >
                   <i className="ki-filled ki-document"></i>
                   <FormattedMessage
@@ -1158,8 +1234,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                 <input
                   type="text"
                   placeholder="Search labour type..."
-                  className="input  h-10"
-                  style={{ width: "300px" }}
+                  className="input h-10 w-full sm:w-[300px]"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -1474,13 +1549,13 @@ const LabourTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="card shadow-sm rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+      {/* ===== TABLE HEADER — hidden on mobile, grid on md+ ===== */}
+      <div className="hidden md:block card shadow-sm rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
         <div className="p-4">
           <div className="grid grid-cols-12 gap-3 items-center">
             <div className="col-span-1 text-center font-semibold text-gray-700">
               #
             </div>
-
             <div className="col-span-3 font-semibold text-gray-700 flex items-center gap-2">
               Category
               <button
@@ -1491,7 +1566,6 @@ const LabourTable = ({
                 <Plus className="w-5 h-5 text-white bg-primary rounded-full p-0.5" />
               </button>
             </div>
-
             <div className="col-span-3 font-semibold text-gray-700 flex items-center gap-2">
               Vendors
               <button
@@ -1502,7 +1576,6 @@ const LabourTable = ({
                 <Plus className="w-5 h-5 text-white bg-primary rounded-full p-0.5" />
               </button>
             </div>
-
             <div className="col-span-1 text-center font-semibold text-gray-700">
               Total Qty
             </div>
@@ -1515,6 +1588,28 @@ const LabourTable = ({
           </div>
         </div>
       </div>
+
+      {/* ===== MOBILE ONLY — Plus buttons row ===== */}
+      <div className="flex md:hidden items-center justify-end gap-2 pb-1">
+        <button
+          onClick={onOpenAddLabourModal}
+          className="flex items-center gap-1 text-sm text-primary font-medium"
+          title="Add Category"
+        >
+          <Plus className="w-4 h-4 text-white bg-primary rounded-full p-0.5" />
+          Category
+        </button>
+        <button
+          onClick={onOpenAddVendor}
+          className="flex items-center gap-1 text-sm text-primary font-medium"
+          title="Add Vendor"
+        >
+          <Plus className="w-4 h-4 text-white bg-primary rounded-full p-0.5" />
+          Vendor
+        </button>
+      </div>
+
+      {/* ===== ROWS ===== */}
       {data.map((row, index) => {
         const isExpanded = expandedRows[row.id];
         const shifts = shiftRows[row.id] || [];
@@ -1525,16 +1620,42 @@ const LabourTable = ({
             key={row.id}
             className="card shadow-sm rounded-lg overflow-hidden border border-gray-200"
           >
-            {/* Parent Row */}
+            {/* ===== PARENT ROW ===== */}
             <div className="bg-white p-4">
-              <div className="grid grid-cols-12 gap-3 items-center">
-                {/* # */}
-                <div className="col-span-1 text-center font-medium">
-                  {index + 1}.
+              {/* MOBILE layout — card stack */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {/* Top: # + Actions */}
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-gray-700">
+                    {index + 1}.
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="p-2 hover:bg-red-100 rounded-full transition"
+                      onClick={() => onDelete(row.id)}
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                    </button>
+                    <button
+                      onClick={() => toggleRowExpansion(row.id)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition"
+                      title={isExpanded ? "Collapse" : "Expand"}
+                    >
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-gray-600" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-600" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Category */}
-                <div className="col-span-3">
+                <div>
+                  <span className="text-xs text-gray-500 mb-1 block">
+                    Category
+                  </span>
                   <Select
                     className="custom-select-sm w-full"
                     showSearch
@@ -1553,7 +1674,10 @@ const LabourTable = ({
                 </div>
 
                 {/* Vendors */}
-                <div className="col-span-3">
+                <div>
+                  <span className="text-xs text-gray-500 mb-1 block">
+                    Vendors
+                  </span>
                   <Select
                     className="custom-select-sm w-full"
                     onFocus={() => setActiveRowId(row.id)}
@@ -1571,7 +1695,74 @@ const LabourTable = ({
                   </Select>
                 </div>
 
-                {/* Total Qty */}
+                {/* Qty + Cost side by side */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <span className="text-xs text-gray-500 mb-1 block">
+                      Total Qty
+                    </span>
+                    <input
+                      type="text"
+                      className="input input-sm w-full text-center bg-gray-50"
+                      value={totalQty || "0"}
+                      readOnly
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-xs text-gray-500 mb-1 block">
+                      Est. Cost
+                    </span>
+                    <input
+                      type="text"
+                      className="input text-green-700 input-sm w-full text-center bg-gray-50"
+                      value={
+                        totalCost ? `₹ ${totalCost.toLocaleString()}` : "0"
+                      }
+                      readOnly
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DESKTOP layout — grid row (md+) */}
+              <div className="hidden md:grid grid-cols-12 gap-3 items-center">
+                <div className="col-span-1 text-center font-medium">
+                  {index + 1}.
+                </div>
+                <div className="col-span-3">
+                  <Select
+                    className="custom-select-sm w-full"
+                    showSearch
+                    onFocus={() => setActiveRowId(row.id)}
+                    placeholder="Select Category"
+                    value={row.labourType || undefined}
+                    onChange={(value) => onLabourTypeChange(row.id, value)}
+                    style={{ width: "100%" }}
+                  >
+                    {labourCategories.map((item) => (
+                      <Select.Option key={item.id} value={item.nameEnglish}>
+                        {item.nameEnglish}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="col-span-3">
+                  <Select
+                    className="custom-select-sm w-full"
+                    onFocus={() => setActiveRowId(row.id)}
+                    showSearch
+                    placeholder="Select Vendor"
+                    value={row.contact || undefined}
+                    onChange={(value) => onContactChange(row.id, value)}
+                    style={{ width: "100%" }}
+                  >
+                    {(filteredContacts[row.id] || []).map((c) => (
+                      <Select.Option key={c.id} value={c.nameEnglish}>
+                        {c.nameEnglish}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
                 <div className="col-span-1 text-center">
                   <input
                     type="text"
@@ -1580,8 +1771,6 @@ const LabourTable = ({
                     readOnly
                   />
                 </div>
-
-                {/* Estimated Cost */}
                 <div className="col-span-2">
                   <input
                     type="text"
@@ -1590,8 +1779,6 @@ const LabourTable = ({
                     readOnly
                   />
                 </div>
-
-                {/* Actions */}
                 <div className="col-span-2 flex items-center justify-center gap-2">
                   <button
                     className="p-2 hover:bg-red-100 rounded-full transition"
@@ -1614,11 +1801,12 @@ const LabourTable = ({
                 </div>
               </div>
             </div>
-            {/* Expanded Shift Rows */}{" "}
+
+            {/* ===== EXPANDED SHIFT ROWS ===== */}
             {isExpanded && (
               <div className="bg-gray-50 border-t border-gray-200">
-                {/* Header */}
-                <div className="grid grid-cols-12 gap-3 px-4 py-3 bg-gray-100 border-b border-gray-200">
+                {/* Shift Header — hidden on mobile */}
+                <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-gray-100 border-b border-gray-200">
                   <div className="col-span-1"></div>
                   <div className="col-span-3 flex items-center gap-2">
                     <span className="text-sm font-semibold text-gray-700">
@@ -1648,6 +1836,19 @@ const LabourTable = ({
                   </div>
                 </div>
 
+                {/* Mobile — Add Shift button with label */}
+                <div className="flex md:hidden items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Shifts
+                  </span>
+                  <button
+                    onClick={onOpenAddLabourShift}
+                    className="flex-shrink-0"
+                  >
+                    <Plus className="w-5 h-5 text-white bg-blue-600 rounded-full p-0.5" />
+                  </button>
+                </div>
+
                 {/* Shift Rows */}
                 {shifts.map((shift, shiftIndex) => (
                   <ShiftRow
@@ -1657,18 +1858,19 @@ const LabourTable = ({
                     parentRowId={row.id}
                     shiftOptions={shiftOptions}
                     eventData={eventData}
-                    onShiftChange={onShiftRowChange} // ✅ Use prop
-                    onDelete={onDeleteShiftRow} // ✅ Use prop
+                    onShiftChange={onShiftRowChange}
+                    onDelete={onDeleteShiftRow}
                     onViewDetails={onViewDetails}
                     onAddNotes={onAddNotes}
                     row={row}
                   />
                 ))}
+
                 {/* Add Shift Button */}
                 <div className="px-4 py-4 bg-white">
                   <button
                     onClick={() => onAddShiftToRow(row.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md  transition text-sm font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md transition text-sm font-medium"
                   >
                     <Plus className="w-4 h-4" />
                     Add Shift
@@ -1680,11 +1882,11 @@ const LabourTable = ({
         );
       })}
 
-      {/* Add Another Labor Category Button */}
-      <div className="flex justify-between items-center pt-4">
+      {/* ===== BOTTOM BUTTONS ===== */}
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 gap-3">
         <button
           onClick={onAddRow}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md  transition"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md transition"
         >
           <Plus className="w-4 h-4" />
           Add Another Labor Category
@@ -1732,137 +1934,257 @@ const ShiftRow = ({
   };
 
   return (
-    <div className="grid grid-cols-12 gap-3 px-4 py-3 bg-white border-b border-gray-200 items-center hover:bg-gray-50 transition">
-      {/* Empty space for # column */}
-      <div className="col-span-1"></div>
-
-      {/* Labour Shift - aligns with Category */}
-      <div className="col-span-3">
-        <select
-          className="select select-sm w-full bg-white border-gray-300"
-          value={shift.shift}
-          onChange={(e) => {
-            const selectedShiftName = e.target.value;
-            const selectedShift = shiftOptions.find(
-              (s) => s.name === selectedShiftName,
-            );
-
-            let finalDateTime = "";
-            if (eventData?.eventStartDateTime && selectedShift?.time) {
-              const [hour, minute] = selectedShift.time.split(":");
-              finalDateTime = dayjs(
-                eventData.eventStartDateTime,
-                "DD/MM/YYYY hh:mm A",
-              )
-                .hour(Number(hour))
-                .minute(Number(minute))
-                .second(0)
-                .format("DD/MM/YYYY hh:mm A");
-            }
-
-            onShiftChange(parentRowId, shift.id, "shift", selectedShiftName);
-            onShiftChange(parentRowId, shift.id, "dateTime", finalDateTime);
-          }}
-        >
-          <option value="">Select Shift</option>
-          {shiftOptions.map((s) => (
-            <option key={s.id} value={s.name}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Date & Time - aligns with Vendors */}
-      <div className="col-span-2">
-        <DatePicker
-          selected={getDateValue()}
-          onChange={(date) => {
-            const formattedDate = date
-              ? dayjs(date).format("DD/MM/YYYY hh:mm A")
-              : "";
-            onShiftChange(parentRowId, shift.id, "dateTime", formattedDate);
-          }}
-          showTimeSelect
-          timeFormat="hh:mm aa"
-          timeIntervals={15}
-          dateFormat="dd/MM/yyyy hh:mm aa"
-          className="input input-sm w-full"
-          placeholderText="Select date & time"
-        />
-      </div>
-
-      {/* Price */}
-      <div className="col-span-1">
-        <input
-          type="number"
-          className="input input-sm w-full text-center"
-          placeholder="0"
-          value={shift.price}
-          onChange={(e) =>
-            onShiftChange(parentRowId, shift.id, "price", e.target.value)
-          }
-        />
-      </div>
-
-      {/* Qty - This will be hidden, combined with Price column */}
-      <div className="col-span-1">
-        <input
-          type="number"
-          className="input input-sm w-full text-center"
-          placeholder="0"
-          value={shift.quantity}
-          onChange={(e) =>
-            onShiftChange(parentRowId, shift.id, "quantity", e.target.value)
-          }
-        />
-      </div>
-
-      {/* Total - aligns with Estimated Cost (col-span-2) */}
-      <div className="col-span-2">
-        <input
-          type="text"
-          className="input input-sm w-full text-center bg-gray-50"
-          value={shift.total ? `₹${shift.total.toLocaleString()}` : "₹0"}
-          readOnly
-        />
-      </div>
-
-      {/* Actions - aligns with parent Actions (col-span-2) */}
-      <div className="col-span-2 flex items-center justify-center gap-1">
-        {/* <button
-          className="p-2 hover:bg-gray-200 rounded-full transition"
-          onClick={() => onViewDetails({ ...row, ...shift })}
-          title="View Details"
-        >
-          <Eye className="w-4 h-4 text-green-600" />
-        </button> */}
-        <button
-          className="p-2 hover:bg-gray-200 rounded-full transition"
-          onClick={() => onAddNotes(row)}
-          title="Add Notes"
-        >
-          <FileText className="w-4 h-4 text-blue-600" />
-        </button>
-        <button
-          className="p-2 hover:bg-gray-200 rounded-full transition"
-          title="WhatsApp"
-        >
-          <svg
-            className="w-4 h-4 text-green-600"
-            fill="currentColor"
-            viewBox="0 0 24 24"
+    <div className="border-b border-gray-200 bg-white hover:bg-gray-50 transition">
+      {/* ===== MOBILE layout ===== */}
+      <div className="flex flex-col gap-3 p-4 md:hidden">
+        {/* Shift Select */}
+        <div>
+          <span className="text-xs text-gray-500 mb-1 block">Labour Shift</span>
+          <select
+            className="select select-sm w-full bg-white border-gray-300"
+            value={shift.shift}
+            onChange={(e) => {
+              const selectedShiftName = e.target.value;
+              const selectedShift = shiftOptions.find(
+                (s) => s.name === selectedShiftName,
+              );
+              let finalDateTime = "";
+              if (eventData?.eventStartDateTime && selectedShift?.time) {
+                const [hour, minute] = selectedShift.time.split(":");
+                finalDateTime = dayjs(
+                  eventData.eventStartDateTime,
+                  "DD/MM/YYYY hh:mm A",
+                )
+                  .hour(Number(hour))
+                  .minute(Number(minute))
+                  .second(0)
+                  .format("DD/MM/YYYY hh:mm A");
+              }
+              onShiftChange(parentRowId, shift.id, "shift", selectedShiftName);
+              onShiftChange(parentRowId, shift.id, "dateTime", finalDateTime);
+            }}
           >
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-          </svg>
-        </button>
-        <button
-          className="p-2 hover:bg-red-100 rounded-full transition"
-          onClick={() => onDelete(parentRowId, shift.id)}
-          title="Delete"
-        >
-          <Trash2 className="w-4 h-4 text-red-500" />
-        </button>
+            <option value="">Select Shift</option>
+            {shiftOptions.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date & Time */}
+        <div>
+          <span className="text-xs text-gray-500 mb-1 block">Date & Time</span>
+          <DatePicker
+            selected={getDateValue()}
+            onChange={(date) => {
+              const formattedDate = date
+                ? dayjs(date).format("DD/MM/YYYY hh:mm A")
+                : "";
+              onShiftChange(parentRowId, shift.id, "dateTime", formattedDate);
+            }}
+            showTimeSelect
+            timeFormat="hh:mm aa"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy hh:mm aa"
+            className="input input-sm w-full"
+            placeholderText="Select date & time"
+          />
+        </div>
+
+        {/* Price + Qty + Total — 3 equal columns */}
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <span className="text-xs text-gray-500 mb-1 block">Price</span>
+            <input
+              type="number"
+              className="input input-sm w-full text-center"
+              placeholder="0"
+              value={shift.price}
+              onChange={(e) =>
+                onShiftChange(parentRowId, shift.id, "price", e.target.value)
+              }
+            />
+          </div>
+          <div className="flex-1">
+            <span className="text-xs text-gray-500 mb-1 block">Qty</span>
+            <input
+              type="number"
+              className="input input-sm w-full text-center"
+              placeholder="0"
+              value={shift.quantity}
+              onChange={(e) =>
+                onShiftChange(parentRowId, shift.id, "quantity", e.target.value)
+              }
+            />
+          </div>
+          <div className="flex-1">
+            <span className="text-xs text-gray-500 mb-1 block">Total</span>
+            <input
+              type="text"
+              className="input input-sm w-full text-center bg-gray-50"
+              value={shift.total ? `₹${shift.total.toLocaleString()}` : "₹0"}
+              readOnly
+            />
+          </div>
+        </div>
+
+        {/* Actions — right aligned */}
+        <div className="flex items-center justify-end gap-1">
+          <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            onClick={() => onAddNotes(row)}
+            title="Add Notes"
+          >
+            <FileText className="w-4 h-4 text-blue-600" />
+          </button>
+          <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            title="WhatsApp"
+          >
+            <svg
+              className="w-4 h-4 text-green-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg>
+          </button>
+          <button
+            className="p-2 hover:bg-red-100 rounded-full transition"
+            onClick={() => onDelete(parentRowId, shift.id)}
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* ===== DESKTOP layout (md+) — exact same grid as before ===== */}
+      <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
+        {/* Empty spacer */}
+        <div className="col-span-1"></div>
+
+        {/* Labour Shift */}
+        <div className="col-span-3">
+          <select
+            className="select select-sm w-full bg-white border-gray-300"
+            value={shift.shift}
+            onChange={(e) => {
+              const selectedShiftName = e.target.value;
+              const selectedShift = shiftOptions.find(
+                (s) => s.name === selectedShiftName,
+              );
+              let finalDateTime = "";
+              if (eventData?.eventStartDateTime && selectedShift?.time) {
+                const [hour, minute] = selectedShift.time.split(":");
+                finalDateTime = dayjs(
+                  eventData.eventStartDateTime,
+                  "DD/MM/YYYY hh:mm A",
+                )
+                  .hour(Number(hour))
+                  .minute(Number(minute))
+                  .second(0)
+                  .format("DD/MM/YYYY hh:mm A");
+              }
+              onShiftChange(parentRowId, shift.id, "shift", selectedShiftName);
+              onShiftChange(parentRowId, shift.id, "dateTime", finalDateTime);
+            }}
+          >
+            <option value="">Select Shift</option>
+            {shiftOptions.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date & Time */}
+        <div className="col-span-2">
+          <DatePicker
+            selected={getDateValue()}
+            onChange={(date) => {
+              const formattedDate = date
+                ? dayjs(date).format("DD/MM/YYYY hh:mm A")
+                : "";
+              onShiftChange(parentRowId, shift.id, "dateTime", formattedDate);
+            }}
+            showTimeSelect
+            timeFormat="hh:mm aa"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy hh:mm aa"
+            className="input input-sm w-full"
+            placeholderText="Select date & time"
+          />
+        </div>
+
+        {/* Price */}
+        <div className="col-span-1">
+          <input
+            type="number"
+            className="input input-sm w-full text-center"
+            placeholder="0"
+            value={shift.price}
+            onChange={(e) =>
+              onShiftChange(parentRowId, shift.id, "price", e.target.value)
+            }
+          />
+        </div>
+
+        {/* Qty */}
+        <div className="col-span-1">
+          <input
+            type="number"
+            className="input input-sm w-full text-center"
+            placeholder="0"
+            value={shift.quantity}
+            onChange={(e) =>
+              onShiftChange(parentRowId, shift.id, "quantity", e.target.value)
+            }
+          />
+        </div>
+
+        {/* Total */}
+        <div className="col-span-2">
+          <input
+            type="text"
+            className="input input-sm w-full text-center bg-gray-50"
+            value={shift.total ? `₹${shift.total.toLocaleString()}` : "₹0"}
+            readOnly
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="col-span-2 flex items-center justify-center gap-1">
+          <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            onClick={() => onAddNotes(row)}
+            title="Add Notes"
+          >
+            <FileText className="w-4 h-4 text-blue-600" />
+          </button>
+          <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            title="WhatsApp"
+          >
+            <svg
+              className="w-4 h-4 text-green-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg>
+          </button>
+          <button
+            className="p-2 hover:bg-red-100 rounded-full transition"
+            onClick={() => onDelete(parentRowId, shift.id)}
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
       </div>
     </div>
   );

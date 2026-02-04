@@ -560,7 +560,7 @@ Thanks!`;
               <Viewer
                 fileUrl={pdfUrl}
                 plugins={[pdfPlugin]}
-                defaultScale={1.0}
+                // defaultScale={1.0}
               />
             </Worker>
           )}

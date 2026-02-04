@@ -31,6 +31,7 @@ const DishCostingPage = () => {
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
   const [allFunctionWiseCosting, setAllFunctionWiseCosting] = useState([]);
   const [agencySidebar, setAgencySidebar] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleTotalWiseClick = () => {
     setViewType("Total Wise");
@@ -227,8 +228,8 @@ const DishCostingPage = () => {
       <Container>
         {" "}
         {/* Breadcrumbs */}
-        <div className=" pb-2 mb-3">
-          <div className="flex items-center gap-6">
+        <div className="pb-2 mb-3">
+          <div className="flex items-center  gap-6">
             <h2 className="text-xl text-black font-semibold">
               <FormattedMessage
                 id="COMMON.DISH_COSTING"
@@ -236,8 +237,8 @@ const DishCostingPage = () => {
               />
             </h2>
 
-            {/* ONLY FOR THIS SCREEN */}
-            <div className="flex gap-2">
+            {/* DESKTOP & TABLET - Show all buttons */}
+            <div className="hidden md:flex gap-2">
               <button
                 onClick={() => navigate(`/menu-preparation/${eventId}`)}
                 className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
@@ -270,11 +271,99 @@ const DishCostingPage = () => {
                   defaultMessage="4. Raw Material Distribution"
                 />
               </button>
+              <button
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                onClick={() =>
+                  navigate(`/labour-and-other-management/${eventId}`)
+                }
+              >
+                <i className="ki-filled ki-gift" style={{ color: "white" }}></i>{" "}
+                <FormattedMessage
+                  id="LABOUR_AND_OTHER_MANAGEMENT.BUTTON"
+                  defaultMessage=" 5. Agency Distribution"
+                />
+              </button>
+            </div>
+
+            {/* MOBILE ONLY - Dropdown */}
+            <div className="relative md:hidden">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+              >
+                <i className="ki-filled ki-menu" style={{ color: "white" }}></i>
+                <span className="ml-2">Menu</span>
+                <i
+                  className={`ki-filled ${isDropdownOpen ? "ki-up" : "ki-down"} ml-2`}
+                  style={{ color: "white" }}
+                ></i>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                  <button
+                    onClick={() => {
+                      navigate(`/menu-preparation/${eventId}`);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                  >
+                    <i className="ki-filled ki-menu text-primary"></i>
+                    <FormattedMessage
+                      id="MENU_PLANNING.BUTTON"
+                      defaultMessage="2. Menu Planning"
+                    />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate(`/menu-allocation/${eventId}`);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                  >
+                    <i className="ki-filled ki-menu text-primary"></i>
+                    <FormattedMessage
+                      id="MENU_EXECUTION.BUTTON"
+                      defaultMessage="3. Menu Execution"
+                    />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate(`/raw-material-allocation/${eventId}`);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <i className="ki-filled ki-gift text-primary"></i>
+                    <FormattedMessage
+                      id="RAW_MATERIAL_DISTRIBUTION.BUTTON"
+                      defaultMessage="4. Raw Material Distribution"
+                    />
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate(`/labour-and-other-management/${eventId}`);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <i className="ki-filled ki-gift text-primary"></i>
+                    <FormattedMessage
+                      id="LABOUR_AND_OTHER_MANAGEMENT.BUTTON"
+                      defaultMessage="5. Labour and Other Management"
+                    />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-between p-4 gap-3 md:gap-4 lg:gap-6">
+            {" "}
             {/* ROW 1 */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
@@ -290,7 +379,6 @@ const DishCostingPage = () => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-user text-success text-lg"></i>
               <div className="flex flex-col">
@@ -305,7 +393,6 @@ const DishCostingPage = () => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
               <div className="flex flex-col">
@@ -320,7 +407,6 @@ const DishCostingPage = () => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
@@ -335,10 +421,8 @@ const DishCostingPage = () => {
                 </span>
               </div>
             </div>
-
             {/* FORCE NEW ROW */}
             <div className="w-full h-0"></div>
-
             {/* ROW 2 LEFT — Event Venue */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
@@ -354,9 +438,9 @@ const DishCostingPage = () => {
                 </span>
               </div>
             </div>
-
             {/* ROW 2 RIGHT — Buttons */}
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200">
+            <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-gray-200 w-full md:w-auto">
+              {" "}
               {/* Report Button */}
               <button
                 onClick={openSelectMenureport}
@@ -365,7 +449,6 @@ const DishCostingPage = () => {
               >
                 <i className="ki-filled ki-document "></i> Report
               </button>
-
               {/* Total Wise Button */}
               <div className="relative group">
                 <button
@@ -391,7 +474,6 @@ const DishCostingPage = () => {
                   <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
                 </div>
               </div>
-
               {/* Function Wise Button */}
               <div className="relative group">
                 <button
@@ -422,36 +504,38 @@ const DishCostingPage = () => {
         </div>
         {/* Tabs */}
         {viewType === "Function Wise" && (
-          <div className="w-[full] flex gap-2 my-5 overflow-x-auto">
-            {eventData?.eventFunctions?.length > 0 ? (
-              eventData.eventFunctions.map((func, index) => {
-                const funcName =
-                  func.function?.nameEnglish || `Function ${index + 1}`;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setFunctionType(funcName);
-                      setSelectedFunctionPax(func.pax || 0);
-                      setSelectedFunctionId(func.id);
-                    }}
-                    className={`flex-1 max-w-[200px] btn btn-sm p-5 whitespace-nowrap ${
-                      functionType === funcName ? "btn-primary" : "btn-light"
-                    }`}
-                  >
-                    {funcName}
-                  </button>
-                );
-              })
-            ) : (
-              <p className="text-gray-500 text-sm">No functions found</p>
-            )}
+          <div className="w-[full] overflow-x-auto pb-2 my-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="flex gap-2 min-w-min">
+              {eventData?.eventFunctions?.length > 0 ? (
+                eventData.eventFunctions.map((func, index) => {
+                  const funcName =
+                    func.function?.nameEnglish || `Function ${index + 1}`;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setFunctionType(funcName);
+                        setSelectedFunctionPax(func.pax || 0);
+                        setSelectedFunctionId(func.id);
+                      }}
+                      className={`flex-shrink-0 sm:w-auto sm:min-w-[50px] sm:max-w-[200px] btn btn-sm p-5 whitespace-nowrap ${
+                        functionType === funcName ? "btn-primary" : "btn-light"
+                      }`}
+                    >
+                      {funcName}
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="text-gray-500 text-sm">No functions found</p>
+              )}
+            </div>
           </div>
         )}
         {/* Date, Time, and Person Info */}
         <div className="card mb-5">
           <div className="card-body px-6 py-4">
-            <div className="flex items-center gap-10 flex-wrap">
+            <div className="flex items-center gap-10 flex-wrapflex items-center gap-4 md:gap-6 lg:gap-10 flex-wrap">
               {/* Event Date & Time */}
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center mt-1">
@@ -491,9 +575,9 @@ const DishCostingPage = () => {
           </div>
         </div>
         {/* Main Content Grid */}
-        <div className="grid grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Charges Breakdown - Left Side */}
-          <div className="col-span-4">
+          <div className="col-span-1 lg:col-span-4">
             <div className="card">
               <div className="card-body">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">
@@ -522,8 +606,9 @@ const DishCostingPage = () => {
           </div>
 
           {/* Right Side - Summary Cards */}
-          <div className="col-span-8">
-            <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="col-span-1 lg:col-span-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {" "}
               {/* Total Raw Material Charges */}
               <div
                 className="bg-white-50 rounded-lg p-5 border border-blue-100 relative cursor-pointer hover:shadow-lg transition-shadow"
@@ -542,7 +627,6 @@ const DishCostingPage = () => {
                   ₹ {totalRaw.toLocaleString()}
                 </div>
               </div>
-
               {/* Total Agency Charges */}
               <div
                 onClick={handeAgencySidebarCLick}
@@ -561,7 +645,6 @@ const DishCostingPage = () => {
                   ₹ {totalAgency.toLocaleString()}
                 </div>
               </div>
-
               {/* Total General Fix Charges
               <div className="bg-white-50 rounded-lg p-5 border border-purple-100 relative">
                 <div className="absolute top-4 right-4 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -580,7 +663,8 @@ const DishCostingPage = () => {
             </div>
 
             {/* Bottom Summary Cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {" "}
               {/* Grand Total */}
               <div className="bg-blue-100 border-s-[6px] rounded-lg p-5 border-2 border-blue-500">
                 <div className="text-base font-bold text-blue-600 mb-2">
@@ -593,7 +677,6 @@ const DishCostingPage = () => {
                   ₹ {grandTotalComputed.toLocaleString()}
                 </div>
               </div>
-
               {/* Dish Costing */}
               <div className="bg-green-100 border-s-[6px] rounded-lg p-5 border-2 border-green-500 relative">
                 <div className="text-base font-semibold text-green-600 mb-2">
