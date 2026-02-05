@@ -444,7 +444,7 @@ export default function AdminModuleReport() {
         )}
       </Container>
 
-      {/* MenuReport Modal */}
+      {/* MenuReport Modal - ✅ UPDATED: isAdminModuleReport set to true */}
       <MenuReport
         isModalOpen={isMenuReportOpen}
         setIsModalOpen={setIsMenuReportOpen}
@@ -459,6 +459,7 @@ export default function AdminModuleReport() {
         isNamePlateTheme={false}
         startDate={startDate}
         endDate={endDate}
+        isAdminModuleReport={true}
       />
     </Fragment>
   );

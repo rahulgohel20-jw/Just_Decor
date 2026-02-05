@@ -36,8 +36,8 @@ const MenuReport = ({
   startDate: adminStartDate,
   endDate: adminEndDate,
   agencyType,
+  isAdminModuleReport = false, // ✅ NEW PROP
 }) => {
-  
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
 
@@ -81,17 +81,17 @@ const MenuReport = ({
         if (!config) return;
 
         setReportType(config.type);
-        console.log(agencyType);
-        
-        if (agencyType == null) {
+
+        // ✅ UPDATED LOGIC: Hide agency/item dropdowns for Admin Module
+        if (isAdminModuleReport || agencyType == null) {
           setisDropdownStatus(0);
-        
+          setShowAgencyDropdown(false);
+          setShowItemDropdown(false);
         } else if (config.isAgency === 1 && config.isItem === 1) {
           setisDropdownStatus(1);
+          setShowAgencyDropdown(config.isAgency === 1);
+          setShowItemDropdown(config.isItem === 1);
         }
-
-        setShowAgencyDropdown(config.isAgency === 1);
-        setShowItemDropdown(config.isItem === 1);
 
         if (config.isDate === 1) {
           setisDateStatus(1);
@@ -144,11 +144,12 @@ const MenuReport = ({
     };
 
     fetchConfig();
-  }, [isModalOpen, mappingId, moduleId]);
+  }, [isModalOpen, mappingId, moduleId, isAdminModuleReport, agencyType]);
 
   /* ---------------- FETCH AGENCIES (INITIAL LOAD) ---------------- */
   useEffect(() => {
-    if (!isModalOpen || isDropdownStatus !== 1) return;
+    // ✅ Don't fetch agencies if this is Admin Module Report
+    if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
 
     const fetchAgencies = async () => {
       setLoadingFilters(true);
@@ -177,11 +178,23 @@ const MenuReport = ({
     };
 
     fetchAgencies();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, agencyType]);
+  }, [
+    isModalOpen,
+    isDropdownStatus,
+    eventFunctionId,
+    eventId,
+    agencyType,
+    isAdminModuleReport,
+  ]);
 
   /* ---------------- FETCH ITEMS (WHEN AGENCY CHANGES) ---------------- */
   useEffect(() => {
-    if (!isModalOpen || isDropdownStatus !== 1 || selectedAgency.length === 0) {
+    if (
+      !isModalOpen ||
+      isDropdownStatus !== 1 ||
+      selectedAgency.length === 0 ||
+      isAdminModuleReport
+    ) {
       setItems([]);
       setSelectedItems([]);
       return;
@@ -198,8 +211,6 @@ const MenuReport = ({
           selectedAgency, // ✅ partyIds passed here
         );
 
-        console.log("📦 Items fetched:", itemsRes);
-
         if (itemsRes?.data?.success && itemsRes?.data?.data) {
           setItems(itemsRes.data.data);
         } else {
@@ -215,7 +226,14 @@ const MenuReport = ({
     };
 
     fetchItemsByAgency();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, selectedAgency]);
+  }, [
+    isModalOpen,
+    isDropdownStatus,
+    eventFunctionId,
+    eventId,
+    selectedAgency,
+    isAdminModuleReport,
+  ]);
 
   const formatAdminDate = (dateString) => {
     if (!dateString) return null;
@@ -329,8 +347,6 @@ const MenuReport = ({
         endDate: formatAdminDate(adminEndDate),
       }),
     };
-
-    console.log("📤 Report payload:", payload);
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
       errorMsgPopup("Missing required data");
@@ -465,52 +481,25 @@ const MenuReport = ({
               ))}
             </div>
           </div>
-          {(isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
-            <div className=" p-5 rounded-xl border-2 ">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Dropdowns */}
-                {showAgencyDropdown && (
-                  <>
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        <TeamOutlined className="mr-1" />
-                        Agency
-                      </label>
-                      <Select
-                        mode="multiple"
-                        value={selectedAgency}
-                        onChange={setSelectedAgency}
-                        placeholder="Select agencies..."
-                        className="w-full custom-select"
-                        size="large"
-                        loading={loadingFilters}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={agencies.map((agency) => ({
-                          value: agency.id,
-                          label: agency.nameEnglish,
-                        }))}
-                        maxTagCount="responsive"
-                        allowClear
-                      />
-                    </div>
 
-                    {showItemDropdown && (
+          {/* ✅ UPDATED: Only show filter section if NOT admin module report */}
+          {!isAdminModuleReport &&
+            (isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
+              <div className=" p-5 rounded-xl border-2 ">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Dropdowns */}
+                  {showAgencyDropdown && (
+                    <>
                       <div className="relative">
                         <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                          <AppstoreOutlined className="mr-1" />
-                          Items
+                          <TeamOutlined className="mr-1" />
+                          Agency
                         </label>
                         <Select
                           mode="multiple"
-                          value={selectedItems}
-                          onChange={setSelectedItems}
-                          placeholder="Select items..."
+                          value={selectedAgency}
+                          onChange={setSelectedAgency}
+                          placeholder="Select agencies..."
                           className="w-full custom-select"
                           size="large"
                           loading={loadingFilters}
@@ -521,24 +510,54 @@ const MenuReport = ({
                               .toLowerCase()
                               .includes(input.toLowerCase())
                           }
-                          options={items.map((item) => ({
-                            value: item.id,
-                            label: item.nameEnglish,
+                          options={agencies.map((agency) => ({
+                            value: agency.id,
+                            label: agency.nameEnglish,
                           }))}
                           maxTagCount="responsive"
                           allowClear
-                          disabled={selectedAgency.length === 0}
-                          style={{
-                            borderRadius: "8px",
-                          }}
                         />
                       </div>
-                    )}
-                  </>
-                )}
+
+                      {showItemDropdown && (
+                        <div className="relative">
+                          <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                            <AppstoreOutlined className="mr-1" />
+                            Items
+                          </label>
+                          <Select
+                            mode="multiple"
+                            value={selectedItems}
+                            onChange={setSelectedItems}
+                            placeholder="Select items..."
+                            className="w-full custom-select"
+                            size="large"
+                            loading={loadingFilters}
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={items.map((item) => ({
+                              value: item.id,
+                              label: item.nameEnglish,
+                            }))}
+                            maxTagCount="responsive"
+                            allowClear
+                            disabled={selectedAgency.length === 0}
+                            style={{
+                              borderRadius: "8px",
+                            }}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Report Options */}
           {!isNamePlateTheme && (

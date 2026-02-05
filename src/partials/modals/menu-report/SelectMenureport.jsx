@@ -613,6 +613,7 @@ export default function SelectMenureport({
         PartyNumber={PartyNumber}
         isNamePlateTheme={isNamePlateTheme}
         agencyType={agencyType}
+        isAdminModuleReport={false}
       />
 
       <CounterNameplate
