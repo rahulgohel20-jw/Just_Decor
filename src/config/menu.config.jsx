@@ -395,10 +395,7 @@ export const allMenuItems = [
   },
   {
     title: (
-      <FormattedMessage
-        id="COMMON.CUSTOM_THEMES"
-        defaultMessage="Payments"
-      />
+      <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Payments" />
     ),
     icon: "ki-filled ki-color-swatch text-primary",
     path: "/Payments",

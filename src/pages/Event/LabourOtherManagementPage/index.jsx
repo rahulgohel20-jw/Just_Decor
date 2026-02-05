@@ -1,5 +1,7 @@
 import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
+import { toAbsoluteUrl } from "@/utils/Assets";
+
 import { Select } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -8,9 +10,9 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
 import AddExtraExpense from "@/partials/modals/add-extra-expense/AddExtraExpense";
-import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import AddContactCategory from "../../../partials/modals/add-contact-category/AddContactCategory";
 import { useExtraExpense } from "./hooks/useExtraExpense";
@@ -42,7 +44,6 @@ const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
 const SHIFTS = [];
 
-// Utility functions
 const parseDate = (date, fallbackDate) => {
   const parsed = dayjs(
     date,
@@ -92,7 +93,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [activeTab, setActiveTab] = useState(null); // Changed to null initially
+  const [activeTab, setActiveTab] = useState(null);
   const [activeCategory, setActiveCategory] = useState("Labour");
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -155,10 +156,7 @@ const LabourOtherManagementPage = ({ mode }) => {
     }));
 
     // Auto-expand when adding shift
-    setExpandedRows((prev) => ({
-      ...prev,
-      [parentRowId]: true,
-    }));
+    setExpandedRows({ [parentRowId]: true });
   };
 
   const deleteShiftRow = (parentRowId, shiftId) => {
@@ -218,7 +216,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   }, [userId, FetchLabourShift]);
 
   const handleOpenAddLabourShift = () => {
-    setSelectedcontactType(null); // or existing shift if editing
+    setSelectedcontactType(null);
     setIsContactModalOpen(true);
   };
 
@@ -228,17 +226,14 @@ const LabourOtherManagementPage = ({ mode }) => {
     const categoryId = rowCategoryMap[activeRowId];
     if (!categoryId) return;
 
-    // Refetch vendors for that category
     const res = await GetPartyMasterByCatId(categoryId, userId);
     const updatedContacts = res?.data?.data?.["Party Details"] || [];
 
-    // Update master contacts
     setAllContacts((prev) => ({
       ...prev,
       [categoryId]: updatedContacts,
     }));
 
-    // 🔥 Update dropdown ONLY for active row
     setFilteredContacts((prev) => {
       const updated = { ...prev };
       Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
@@ -429,10 +424,16 @@ const LabourOtherManagementPage = ({ mode }) => {
         });
 
         // ✅ Update all states
+        // ✅ Update all states
         setLabourData(formattedRows);
         setRowCategoryMap(categoryMap);
         setFilteredContacts(contactMap);
-        setShiftRows(newShiftRows); // ✅ Set the shift rows!
+        setShiftRows(newShiftRows);
+
+        // ✅ AUTO-EXPAND THE FIRST ROW (whether it has shifts or not)
+        if (formattedRows.length > 0) {
+          setExpandedRows({ [formattedRows[0].id]: true });
+        }
 
         // ✅ Auto-expand rows that have shifts
         // const expandedState = {};
@@ -515,7 +516,6 @@ const LabourOtherManagementPage = ({ mode }) => {
         (c) => c.nameEnglish === contactName,
       );
 
-      // ✅ Check for duplicate before updating
       const categoryId = rowCategoryMap[rowId];
       if (selectedContact && categoryId) {
         const isDuplicate = checkDuplicateVendor(
@@ -532,7 +532,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             confirmButtonColor: "#005BA8",
           });
 
-          // ✅ CLEAR THE CONTACT FIELD
           setLabourData((prev) =>
             prev.map((r) =>
               r.id === rowId ? { ...r, contact: "", contactId: null } : r,
@@ -559,9 +558,11 @@ const LabourOtherManagementPage = ({ mode }) => {
 
   const addLabourRow = useCallback(() => {
     setHasUnsavedChanges(true);
-    setLabourData((prev) => [...prev, createEmptyLabourRow()]);
-  }, []);
+    const newRow = createEmptyLabourRow();
+    setLabourData((prev) => [...prev, newRow]);
 
+    setExpandedRows({ [newRow.id]: true });
+  }, []);
   const deleteRow = useCallback((id) => {
     setHasUnsavedChanges(true);
     setLabourData((prev) => prev.filter((row) => row.id !== id));
@@ -1176,7 +1177,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             </div>
           </div>
         </div>
-
         {/* Function Tabs */}
         <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4 p-2">
           <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden overflow-x-auto max-w-full">
@@ -1199,66 +1199,81 @@ const LabourOtherManagementPage = ({ mode }) => {
             ))}
           </div>
         </div>
-
         {/* Action Bar */}
         <div className="card mb-5">
           <div className="card-body p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              {/* Person */}
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-users text-primary"></i>
-                <span className="text-2sm font-medium text-gray-700">
-                  <FormattedMessage
-                    id="COMMON.PERSON"
-                    defaultMessage="Person"
-                  />
-                </span>
-                <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
-                  {selectedFunctionPax || "-"}
-                </span>
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              {/* Categories */}
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`btn btn-md ${activeCategory === category ? "btn-primary" : "btn-light"}`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
 
-              {/* Report + Search */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <button
-                  onClick={openSelectMenureport}
-                  className="btn btn-success btn-sm h-10 w-full sm:w-auto"
-                >
-                  <i className="ki-filled ki-document"></i>
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.REPORT"
-                    defaultMessage="Report"
-                  />
-                </button>
+              {/* Right side: Person + Search + Buttons with space-between */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:flex-1 sm:justify-between">
+                {/* Person Count */}
+                <div className="flex items-center gap-3 whitespace-nowrap">
+                  <i className="ki-filled ki-users text-primary"></i>
+                  <span className="text-2sm font-medium text-gray-700">
+                    <FormattedMessage
+                      id="COMMON.PERSON"
+                      defaultMessage="Person"
+                    />
+                  </span>
+                  <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
+                    {selectedFunctionPax || "-"}
+                  </span>
+                </div>
 
-                <input
-                  type="text"
-                  placeholder="Search labour type..."
-                  className="input h-10 w-full sm:w-[300px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                {/* Search + Buttons */}
+                <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                  <input
+                    type="text"
+                    placeholder="Search labour type..."
+                    className="input h-10 w-full sm:w-[250px]"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={openSelectMenureport}
+                      className="btn btn-success btn-sm h-10 flex-1 sm:flex-initial"
+                    >
+                      <i className="ki-filled ki-document"></i>
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.REPORT"
+                        defaultMessage="Report"
+                      />
+                    </button>
+                    <button
+                      onClick={openSelectMenureport}
+                      className="btn btn-primary btn-sm h-10 flex-1 sm:flex-initial"
+                    >
+                      <img
+                        src={toAbsoluteUrl("/media/icons/payall.png")}
+                        className="size-6"
+                        alt=""
+                      />
+
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.REPORT"
+                        defaultMessage="Pay All Labour"
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
         {/* Category Tabs */}
-        <div className="card mb-5">
-          <div className="card-body p-3">
-            <div className="flex gap-2">
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`btn btn-md ${activeCategory === category ? "btn-primary" : "btn-light"}`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Labour Table */}
         {activeCategory === "Labour" && (
@@ -1301,7 +1316,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             onOpenAddLabourShift={handleOpenAddLabourShift}
           />
         )}
-
         {/* Modals */}
         <AddNotes
           isOpen={isNotesOpen}
@@ -1326,7 +1340,6 @@ const LabourOtherManagementPage = ({ mode }) => {
           }
           onSave={handleSaveNotes}
         />
-
         <LabourDetailSidebar
           isOpen={isLabourSidebarOpen}
           onClose={() => setIsLabourSidebarOpen(false)}
@@ -1334,7 +1347,6 @@ const LabourOtherManagementPage = ({ mode }) => {
           eventId={eventData?.id}
           contactId={selectedRow?.contactId || null}
         />
-
         {isExtraExpenseModalOpen && (
           <AddExtraExpense
             isOpen={isExtraExpenseModalOpen}
@@ -1348,7 +1360,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             refreshData={refetchExpenses}
           />
         )}
-
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
@@ -1374,7 +1385,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             }}
           />
         )}
-
         <AddContactName
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
@@ -1453,12 +1463,15 @@ const LabourTable = ({
   onOpenAddLabourShift,
 }) => {
   const toggleRowExpansion = (rowId) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [rowId]: !prev[rowId],
-    }));
+    setExpandedRows((prev) => {
+      // If clicking the same row that's open, close it
+      if (prev[rowId]) {
+        return {};
+      }
+      // Otherwise, close all and open only this one
+      return { [rowId]: true };
+    });
   };
-
   // Calculate totals for parent row
   const calculateRowTotals = (rowId) => {
     const shifts = shiftRows[rowId] || [];
