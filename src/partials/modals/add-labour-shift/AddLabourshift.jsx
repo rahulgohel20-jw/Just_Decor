@@ -182,65 +182,20 @@ const InputWithFormik = ({ label, name }) => (
   </div>
 );
 
+
 const TimePickerField = ({ name, label, value, setFieldValue }) => {
-  const [inputType, setInputType] = useState("text");
-  const inputRef = useRef(null);
-
-  const handleManualInput = (e) => {
-    let input = e.target.value.replace(/[^0-9:]/g, "");
-
-    // Auto-format as user types
-    if (input.length === 2 && !input.includes(":")) {
-      input = input + ":";
-    }
-
-    // Limit length to HH:mm format
-    if (input.length > 5) {
-      input = input.slice(0, 5);
-    }
-
-    setFieldValue(name, input);
-  };
-
-  const handleFocus = () => {
-    setInputType("time");
-  };
-
-  const handleBlur = () => {
-    setInputType("text");
-  };
-
-  const handleChange = (e) => {
-    if (inputType === "time") {
-      setFieldValue(name, e.target.value);
-    } else {
-      handleManualInput(e);
-    }
-  };
-
   return (
     <div className="mb-6">
       <label className="text-gray-700 mb-1 block">{label}:</label>
-      <Field name={name}>
-        {({ field }) => (
-          <input
-            {...field}
-            ref={inputRef}
-            type={inputType}
-            placeholder="HH:mm"
-            className="border border-gray-300 rounded-md p-2 w-40"
-            value={value}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onBeforeInput={(e) => {
-              if (inputType === "text" && !/[0-9:]/.test(e.data)) {
-                e.preventDefault();
-              }
-            }}
-          />
-        )}
-      </Field>
+
+      <Field
+        type="time"
+        name={name}
+        value={value}
+        onChange={(e) => setFieldValue(name, e.target.value)}
+        className="border border-gray-300 rounded-lg p-2 w-48"
+        placeholder="HH:mm"
+      />
 
       <ErrorMessage
         name={name}
@@ -250,5 +205,6 @@ const TimePickerField = ({ name, label, value, setFieldValue }) => {
     </div>
   );
 };
+
 
 export default AddLabourshift;

@@ -26,6 +26,8 @@ import { FormattedMessage, useIntl } from "react-intl";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 import { message } from "antd";
+import { toAbsoluteUrl } from "@/utils/Assets";
+import AllVendor from "./components/AllVendor";
 
 // ============= LANGUAGE HELPER FUNCTIONS =============
 /**
@@ -836,6 +838,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   ]);
   const [placeLoading, setPlaceLoading] = useState(false);
   const personSaveTimeoutRef = useRef(null);
+  const [allVendor,setAllVendor]=useState(false);
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
@@ -2297,6 +2300,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
             {/* ROW 2 RIGHT — Buttons */}
             <div className="ml-auto flex items-center gap-2">
+              
               <button
                 className="btn btn-sm btn-primary"
                 title="Save"
@@ -2315,6 +2319,19 @@ const EventMenuAllocationPage = ({ mode }) => {
                   id="EVENT_MENU_ALLOCATION.SYNC_RAW_MATERIAL"
                   defaultMessage="Sync Raw Material"
                 />
+              </button>
+
+              <button
+                className="btn btn-sm btn-success"
+                title="Pay Vendor"
+                onClick={() => setAllVendor(true)}
+              >
+                 <img
+                        src={toAbsoluteUrl("/media/icons/payall.png")}
+                        className="size-6"
+                        alt=""
+                      />
+                <FormattedMessage id="COMMON.SAVE" defaultMessage="Pay Vendor" />
               </button>
             </div>
           </div>
@@ -2664,6 +2681,10 @@ const EventMenuAllocationPage = ({ mode }) => {
           }}
           eventId={eventId}
           eventFunctionId={getEventFunctionId(activeFunction)}
+        />
+          <AllVendor
+          isOpen={allVendor}
+          onClose={() => setAllVendor(false)}
         />
       </Container>
     </Fragment>

@@ -52,6 +52,13 @@ const DishCostingPage = () => {
     setIsSelectMenuReport(true);
   }, [eventId]);
 
+  const handleRawMaterialClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handeAgencySidebarCLick = () => {
+    setAgencySidebar(true);
+  };
   const intl = useIntl();
   const isTotal = viewType === "Total Wise";
 
@@ -91,6 +98,7 @@ const DishCostingPage = () => {
         />
       ),
       value: totalRaw.toLocaleString(),
+      onClick: handleRawMaterialClick,
     },
     {
       label: (
@@ -100,6 +108,7 @@ const DishCostingPage = () => {
         />
       ),
       value: totalAgency.toLocaleString(),
+      onClick: handeAgencySidebarCLick,
     },
     // {
     //   label: (
@@ -112,13 +121,7 @@ const DishCostingPage = () => {
     // },
   ];
 
-  const handleRawMaterialClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handeAgencySidebarCLick = () => {
-    setAgencySidebar(true);
-  };
+ 
 
   useEffect(() => {
     if (
@@ -590,7 +593,9 @@ const DishCostingPage = () => {
                   {chargesData.map((charge, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between py-2 border-b border-gray-100"
+                      onClick={charge.onClick} 
+                      className="flex items-center justify-between py-2 border-b border-gray-100
+                                 cursor-pointer hover:bg-gray-50 transition"
                     >
                       <span className="text-sm text-gray-700">
                         {charge.label}

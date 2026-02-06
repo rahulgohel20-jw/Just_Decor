@@ -20,7 +20,7 @@ import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactN
 import AddLabourshift from "@/partials/modals/add-labour-shift/AddLabourshift";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import { FormattedMessage } from "react-intl";
-
+import AllLabour from "./component/AllLabour";
 import {
   Plus,
   ChevronDown,
@@ -110,13 +110,12 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
-
+  const [allLabour,setAllLabour]=useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [rowCategoryMap, setRowCategoryMap] = useState({});
-
   const [expandedRows, setExpandedRows] = useState({});
   const [shiftRows, setShiftRows] = useState({});
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -1253,7 +1252,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                       />
                     </button>
                     <button
-                      onClick={openSelectMenureport}
+                      onClick={() => setAllLabour(true)}
                       className="btn btn-primary btn-sm h-10 flex-1 sm:flex-initial"
                     >
                       <img
@@ -1367,7 +1366,7 @@ const LabourOtherManagementPage = ({ mode }) => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
-          setEventFunctionId={activeFunction?.id}
+          setEventFunctionId={-1}
           mode={mode}
         />
         {isAddLabourModalOpen && (
@@ -1404,6 +1403,10 @@ const LabourOtherManagementPage = ({ mode }) => {
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
+        />
+        <AllLabour
+          isOpen={allLabour}
+          onClose={() => setAllLabour(false)}
         />
       </Container>
       {isSaving && (

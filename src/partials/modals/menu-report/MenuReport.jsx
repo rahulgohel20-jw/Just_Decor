@@ -92,7 +92,15 @@ const MenuReport = ({
           setShowAgencyDropdown(config.isAgency === 1);
           setShowItemDropdown(config.isItem === 1);
         }
+        else if (config.isAgency === 1) {
+          setisDropdownStatus(1);
+          setShowAgencyDropdown(config.isAgency === 1);
+        
+        } else if (config.isItem === 1) {
+          setisDropdownStatus(1);
+          setShowItemDropdown(config.isItem === 1);
 
+        }
         if (config.isDate === 1) {
           setisDateStatus(1);
         }
@@ -148,6 +156,7 @@ const MenuReport = ({
 
   /* ---------------- FETCH AGENCIES (INITIAL LOAD) ---------------- */
   useEffect(() => {
+    
     // ✅ Don't fetch agencies if this is Admin Module Report
     if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
 
