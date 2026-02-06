@@ -369,6 +369,7 @@ const AddReportConfig = ({
             <option value="outside">Outside</option>
             <option value="inside">Inside</option>
             <option value="chef">Chef</option>
+            <option value="labor">Labour</option>
           </select>
         </div>
       </div>

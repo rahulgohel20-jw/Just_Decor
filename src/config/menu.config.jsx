@@ -397,8 +397,28 @@ export const allMenuItems = [
     title: (
       <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Payments" />
     ),
-    icon: "ki-filled ki-color-swatch text-primary",
-    path: "/Payments",
+    icon: "ki-filled ki-bank text-primary",
+    children: [
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Account Ledger"
+          />
+        ),
+        path: "/account",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Payments"
+          />
+        ),
+        path: "/Payments",
+      },
+     
+    ]
   },
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,

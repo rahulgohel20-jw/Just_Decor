@@ -102,6 +102,9 @@ export default function SelectMenureport({
       try {
         const res = await GettemplatebyuserId();
 
+        console.log(res);
+        
+
         if (res?.data?.success && res?.data?.data) {
           let modules = res.data.data.filter(
             (module) => module.isActive && !module.isDelete,
@@ -175,6 +178,9 @@ export default function SelectMenureport({
           activeTab,
         );
 
+        console.log(res);
+        
+
         let dynamicTemplates = [];
 
         if (
@@ -199,6 +205,7 @@ export default function SelectMenureport({
             isStatic: false,
             mappingId: item.templateMappingResponseDto?.id || item.id,
             namePlateType: item.templateMappingResponseDto?.namePlateType || "",
+            type:item.templateMappingResponseDto.nameEnglish || "",
           }));
         }
 
@@ -528,7 +535,21 @@ export default function SelectMenureport({
             </div>
           ) : templates.length > 0 ? (
             <div className="space-y-4">
-              {templates.map((template) => {
+              {templates .filter((template) => {
+                const selectedTab = tabs.find((tab) => tab.key === activeTab);
+                if (!selectedTab) return true;
+                const tabName = selectedTab.nameEnglish;
+                if (tabName === "Chef Agency Theme" && template.type === "Type 8") {
+                  return false;
+                }
+                if (tabName === "Outside Agency Theme" && template.type === "Type 3") {
+                  return false;
+                }
+                if (tabName === "Labour Agency Theme" && template.type === "Type 8") {
+                  return false;
+                }
+                return true;
+              }).map((template) => {
                 const isActive = selectedCard === template.id;
 
                 return (

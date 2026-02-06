@@ -215,6 +215,9 @@ import { CrockeryConfiguration } from "../pages/Configuration/CrockeryConfigurat
 import AllReports from "../pages/Event/AllReportsPage/AllReports";
 import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleReport";
 import RecivedPayments from "../pages/payments/RecivedPayments";
+import AccountLedger from "../pages/payments/AccountLedger";
+
+
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -260,6 +263,11 @@ const AppRoutingSetup = () => {
             path="/Payments"
             element={< RecivedPayments  />}
           />
+          <Route
+            path="/account"
+            element={< AccountLedger  />}
+          />
+
          
           <Route
             path="/edit-event/:eventId/copy"
