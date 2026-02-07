@@ -1143,7 +1143,7 @@ const RawMaterialAllocation = ({ mode }) => {
         </div>
 
         <div className="bg-white rounded-xl shadow border border-gray-200">
-          <div className="max-h-[380px] overflow-y-auto scrollbar-hide">
+          <div className="max-h-[380px] overflow-y-auto ">
             <table className="min-w-full table-fixed text-sm text-gray-700">
               {/* ===== TABLE HEADER ===== */}
               <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-1">

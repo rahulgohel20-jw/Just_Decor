@@ -51,7 +51,6 @@ export default function CategorySidebarModal({
 
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
-  
   let concatId = null;
   if (allocationType === "inside") {
     concatId = 7;
@@ -105,7 +104,7 @@ export default function CategorySidebarModal({
   const parseDateToObject = (value) => {
     if (!value) return null;
     if (value instanceof Date) return value;
-  
+
     const parsed = dayjs(value, "DD/MM/YYYY hh:mm A", true);
     return parsed.isValid() ? parsed.toDate() : null;
   };
@@ -121,8 +120,7 @@ export default function CategorySidebarModal({
     }
 
     const rawMaterialDetails = selectedRowData["MenuItem RawMaterial Details"];
-    console.log(rawMaterialDetails,"data");
-    
+    console.log(rawMaterialDetails, "data");
 
     if (rawMaterialDetails && rawMaterialDetails.length > 0) {
       const details = rawMaterialDetails.map((item, index) => ({
@@ -130,10 +128,10 @@ export default function CategorySidebarModal({
         itemId: item.id || 0,
         name: item.rawMaterialName || "",
         menuItemName: item.menuItemName || "-",
-    
+
         agency: item.partyName || "",
-        dateTime: parseDateToObject(item.dateTime), 
-        weight: item.weight || "",
+        dateTime: parseDateToObject(item.dateTime),
+        weight: item.weight || 0,
         unit: item.unitName || "",
         place: item.place || "",
         rawMaterialId: item.rawMaterialId || 0,
@@ -233,7 +231,7 @@ export default function CategorySidebarModal({
 
   const handleChange = (id, field, value) => {
     setRawMaterials((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+      prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)),
     );
   };
 
@@ -254,7 +252,7 @@ export default function CategorySidebarModal({
     }
 
     setRawMaterials((prev) =>
-      prev.map((r) => ({ ...r, agency: selectedAgency }))
+      prev.map((r) => ({ ...r, agency: selectedAgency })),
     );
 
     Swal.fire({
@@ -291,7 +289,7 @@ export default function CategorySidebarModal({
     }
 
     setRawMaterials((prev) =>
-      prev.map((r) => ({ ...r, place: selectedPlace }))
+      prev.map((r) => ({ ...r, place: selectedPlace })),
     );
 
     Swal.fire({
@@ -324,19 +322,18 @@ export default function CategorySidebarModal({
         });
         return;
       }
-  
+
       const payload = rawMaterials.map((item) => {
-        
         const partyId =
           suppliers.find((s) => s.nameEnglish === item.agency)?.id || 0;
         const unitId = unit.find((u) => u.nameEnglish === item.unit)?.id || 0;
-  
+
         return {
           id: item.itemId || 0,
           eventId: eventId || 0,
           eventFunctionId: eventFunctionId || 0,
           menuItemId: item.menuItemId || 0,
-      
+
           rawMaterialId: item.rawMaterialId || 0,
           partyId: partyId,
           unitId: unitId,
@@ -351,16 +348,14 @@ export default function CategorySidebarModal({
         };
       });
 
-      
-  
       const hasInvalidData = payload.some(
         (item) =>
           !item.eventId ||
           !item.eventFunctionId ||
           !item.menuItemId ||
-          !item.rawMaterialId
+          !item.rawMaterialId,
       );
-  
+
       if (hasInvalidData) {
         Swal.fire({
           icon: "warning",
@@ -369,30 +364,30 @@ export default function CategorySidebarModal({
         });
         return;
       }
-  
+
       const res = await SelectedRawMenuallocation(payload);
-  
+
       if (res?.data?.success === true) {
         Swal.fire({
           icon: "success",
           title: "Saved!",
           text: "Raw material data saved successfully.",
         });
-  
+
         let freshData = [];
-  
+
         try {
           const refresh = await SelectedItemNameMenuAllocation(
             eventFunctionId,
-            payload[0]?.menuItemId
+            payload[0]?.menuItemId,
           );
-  
+
           if (refresh?.data?.success) {
             freshData =
               refresh.data.data["MenuItem RawMaterial Details"] ||
               refresh.data.data.menuItemRawMaterials ||
               [];
-  
+
             setRawMaterials(
               freshData.map((item, index) => ({
                 id: `row-${Date.now()}-${index}`,
@@ -409,13 +404,13 @@ export default function CategorySidebarModal({
                 rate: item.rate || 0,
                 rawmaterial_rate: item.rawmaterial_rate || 0,
                 rawmaterial_weight: item.rawmaterial_weight || 0,
-              }))
+              })),
             );
           }
         } catch (err) {
           console.error("Error refresh raw materials:", err);
         }
-  
+
         // ✅ UPDATED: Added shouldRefresh flag
         if (onSave) {
           onSave({
@@ -427,7 +422,7 @@ export default function CategorySidebarModal({
             shouldRefresh: true, // ← This triggers refresh in parent
           });
         }
-  
+
         onClose();
       } else {
         Swal.fire({
@@ -449,7 +444,6 @@ export default function CategorySidebarModal({
       });
     }
   };
-  
 
   return (
     <AnimatePresence>
@@ -690,19 +684,18 @@ export default function CategorySidebarModal({
                           </div>
 
                           <div>
-                          <DatePicker
-                            selected={row.dateTime}
-                            onChange={(date) =>
-                              handleChange(row.id, "dateTime", date)
-                            }
-                            showTimeSelect
-                            timeFormat="hh:mm aa"
-                            timeIntervals={15}
-                            dateFormat="dd/MM/yyyy hh:mm aa"
-                            className={baseField}
-                            placeholderText="Select date & time"
-                          />
-
+                            <DatePicker
+                              selected={row.dateTime}
+                              onChange={(date) =>
+                                handleChange(row.id, "dateTime", date)
+                              }
+                              showTimeSelect
+                              timeFormat="hh:mm aa"
+                              timeIntervals={15}
+                              dateFormat="dd/MM/yyyy hh:mm aa"
+                              className={baseField}
+                              placeholderText="Select date & time"
+                            />
                           </div>
 
                           <div>
@@ -747,8 +740,6 @@ export default function CategorySidebarModal({
                                 handleChange(row.id, "place", val)
                               }
                             />
-
-                           
                           </div>
 
                           <div className="flex items-center justify-center">

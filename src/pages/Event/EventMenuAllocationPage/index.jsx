@@ -838,7 +838,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   ]);
   const [placeLoading, setPlaceLoading] = useState(false);
   const personSaveTimeoutRef = useRef(null);
-  const [allVendor,setAllVendor]=useState(false);
+  const [allVendor, setAllVendor] = useState(false);
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
@@ -1027,7 +1027,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         return;
       }
 
-
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
         allocationType = "chef";
@@ -1049,11 +1048,9 @@ const EventMenuAllocationPage = ({ mode }) => {
       setIsCategoryModal(true);
       setMenuLoading(true);
 
-  
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
-     
       );
 
       if (res?.data?.success) {
@@ -2300,7 +2297,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
             {/* ROW 2 RIGHT — Buttons */}
             <div className="ml-auto flex items-center gap-2">
-              
               <button
                 className="btn btn-sm btn-primary"
                 title="Save"
@@ -2322,16 +2318,20 @@ const EventMenuAllocationPage = ({ mode }) => {
               </button>
 
               <button
+                disabled={true}
                 className="btn btn-sm btn-success"
                 title="Pay Vendor"
                 onClick={() => setAllVendor(true)}
               >
-                 <img
-                        src={toAbsoluteUrl("/media/icons/payall.png")}
-                        className="size-6"
-                        alt=""
-                      />
-                <FormattedMessage id="COMMON.SAVE" defaultMessage="Pay Vendor" />
+                <img
+                  src={toAbsoluteUrl("/media/icons/payall.png")}
+                  className="size-6"
+                  alt=""
+                />
+                <FormattedMessage
+                  id="COMMON.SAVE"
+                  defaultMessage="Pay Vendor"
+                />
               </button>
             </div>
           </div>
@@ -2682,10 +2682,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventId={eventId}
           eventFunctionId={getEventFunctionId(activeFunction)}
         />
-          <AllVendor
-          isOpen={allVendor}
-          onClose={() => setAllVendor(false)}
-        />
+        <AllVendor isOpen={allVendor} onClose={() => setAllVendor(false)} />
       </Container>
     </Fragment>
   );

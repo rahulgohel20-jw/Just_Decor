@@ -21,19 +21,20 @@ export default function OutsideAgencySection({
         // For all functions, flatten all menuAllocation arrays from all functions
         const allMenuItems = data.flatMap((functionData, functionIndex) => {
           const allocations = functionData?.menuAllocation || [];
-          
+
           // Add function metadata to each menu item
-          return allocations.map(allocation => ({
+          return allocations.map((allocation) => ({
             ...allocation,
             _functionIndex: functionIndex,
             _functionId: functionData.eventFunction?.id,
             _functionName: functionData.eventFunction?.function?.nameEnglish,
             _functionPax: functionData.eventFunction?.pax,
             eventFunctionId: functionData.eventFunction?.id,
-            eventFunctionName: functionData.eventFunction?.function?.nameEnglish,
+            eventFunctionName:
+              functionData.eventFunction?.function?.nameEnglish,
           }));
         });
-        
+
         setMenuItems(allMenuItems);
         console.log("📊 All Functions - Total items:", allMenuItems.length);
       } else {
@@ -49,106 +50,127 @@ export default function OutsideAgencySection({
     return Object.values(selectedItems).filter(Boolean).length;
   }, [selectedItems]);
 
-  const handleItemSelect = useCallback((itemKey, isChecked, menuIndex, allocationIndex) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [itemKey]: isChecked,
-    }));
-  }, []);
+  const handleItemSelect = useCallback(
+    (itemKey, isChecked, menuIndex, allocationIndex) => {
+      setSelectedItems((prev) => ({
+        ...prev,
+        [itemKey]: isChecked,
+      }));
+    },
+    [],
+  );
 
-  const handleAllocate = useCallback((allocationData) => {
-    const { partyId, partyName, pax } = allocationData;
+  const handleAllocate = useCallback(
+    (allocationData) => {
+      // Check if items are selected
+      const hasSelectedItems = Object.values(selectedItems).some(Boolean);
 
-    if (!partyId || !pax) {
-      Swal.fire({
-        title: "Warning",
-        text: "Vendor and pax are required",
-        icon: "warning",
+      if (!hasSelectedItems) {
+        Swal.fire({
+          title: "Warning",
+          text: "Please select at least one item to allocate",
+          icon: "warning",
+        });
+        return false;
+      }
+
+      // Check if at least one field is provided
+      if (!allocationData.partyId && !allocationData.pax) {
+        Swal.fire({
+          title: "Warning",
+          text: "Please provide at least one allocation value (Vendor or Pax)",
+          icon: "warning",
+        });
+        return false;
+      }
+
+      let allocatedCount = 0;
+
+      // Update menu items with only the fields that were provided
+      const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
+        const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
+          (allocation, allocationIndex) => {
+            const itemKey = `${menuIndex}-${allocationIndex}`;
+
+            // Only update if this item is selected
+            if (selectedItems[itemKey]) {
+              allocatedCount++;
+
+              // Only update fields that were provided
+              const updates = {};
+
+              if (allocationData.partyId !== undefined) {
+                updates.partyId = allocationData.partyId;
+                updates.partyName = allocationData.partyName || "";
+              }
+
+              if (allocationData.pax !== undefined) {
+                updates.pax = allocationData.pax;
+              }
+
+              return {
+                ...allocation,
+                ...updates,
+              };
+            }
+
+            // Return unchanged if not selected
+            return allocation;
+          },
+        );
+
+        // Check if any allocations in this menu item were updated
+        const hasUpdatedAllocations =
+          menuItem.eventFunctionMenuAllocations.some((_, allocationIndex) => {
+            const itemKey = `${menuIndex}-${allocationIndex}`;
+            return selectedItems[itemKey];
+          });
+
+        return {
+          ...menuItem,
+          eventFunctionMenuAllocations: updatedAllocations,
+          // Only update personCount if pax was provided and this menu item had selected allocations
+          ...(hasUpdatedAllocations &&
+            allocationData.pax !== undefined && {
+              personCount: allocationData.pax,
+            }),
+        };
       });
-      return;
-    }
 
-    // Check if any items are selected
-    const hasSelectedItems = Object.values(selectedItems).some(
-      (isSelected) => isSelected,
-    );
+      setMenuItems(updatedMenuItems);
 
-    if (!hasSelectedItems) {
+      if (onDataUpdate) {
+        onDataUpdate(updatedMenuItems);
+      }
+
+      // Clear selections after successful allocation
+      setSelectedItems({});
+
       Swal.fire({
-        title: "Warning",
-        text: "Please select at least one item to allocate",
-        icon: "warning",
+        title: "Success",
+        text: `Updated ${allocatedCount} selected item(s) successfully`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
       });
-      return;
-    }
 
-    let allocatedCount = 0;
+      return true;
+    },
+    [menuItems, selectedItems, onDataUpdate],
+  );
 
-    const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
-      const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
-        (allocation, allocationIndex) => {
-          const itemKey = `${menuIndex}-${allocationIndex}`;
+  const handleMenuItemUpdate = useCallback(
+    (menuIndex, updatedMenuItem) => {
+      const updatedData = [...menuItems];
+      updatedData[menuIndex] = updatedMenuItem;
+      setMenuItems(updatedData);
 
-          // Only update if this item is selected
-          if (selectedItems[itemKey]) {
-            allocatedCount++;
-
-            return {
-              ...allocation,
-              partyId: partyId,
-              partyName: partyName,
-              pax: pax,
-            };
-          }
-
-          // Return unchanged if not selected
-          return allocation;
-        },
-      );
-
-      // Check if any allocations in this menu item were updated
-      const hasUpdatedAllocations = menuItem.eventFunctionMenuAllocations.some(
-        (_, allocationIndex) => {
-          const itemKey = `${menuIndex}-${allocationIndex}`;
-          return selectedItems[itemKey];
-        },
-      );
-
-      return {
-        ...menuItem,
-        eventFunctionMenuAllocations: updatedAllocations,
-        // Update personCount only if this menu item had selected allocations
-        ...(hasUpdatedAllocations && { personCount: pax }),
-      };
-    });
-
-    setMenuItems(updatedMenuItems);
-
-    if (onDataUpdate) {
-      onDataUpdate(updatedMenuItems);
-    }
-
-    // Clear selections after successful allocation
-    setSelectedItems({});
-
-    Swal.fire({
-      title: "Success",
-      text: `Allocated to ${allocatedCount} selected item(s) successfully`,
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-  }, [menuItems, selectedItems, onDataUpdate]);
-
-  const handleMenuItemUpdate = useCallback((menuIndex, updatedMenuItem) => {
-    const updatedData = [...menuItems];
-    updatedData[menuIndex] = updatedMenuItem;
-    setMenuItems(updatedData);
-
-    if (onDataUpdate) {
-      onDataUpdate(updatedData);
-    }
-  }, [menuItems, onDataUpdate]);
+      if (onDataUpdate) {
+        onDataUpdate(updatedData);
+      }
+    },
+    [menuItems, onDataUpdate],
+  );
 
   const buildPayload = useCallback(() => {
     const userId = Number(localStorage.getItem("userId"));

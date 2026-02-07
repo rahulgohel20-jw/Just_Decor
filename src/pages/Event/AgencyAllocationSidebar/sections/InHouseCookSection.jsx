@@ -4,7 +4,12 @@ import InHouseCookTable from "../components/InHouseCookTable";
 import { MenuAllocationSave } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-export default function InHouseCookSection({ data, onDataUpdate, close, isAllFunctions }) {
+export default function InHouseCookSection({
+  data,
+  onDataUpdate,
+  close,
+  isAllFunctions,
+}) {
   const [selectedItems, setSelectedItems] = useState({});
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -15,19 +20,20 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
         // For all functions, flatten all menuAllocation arrays from all functions
         const allMenuItems = data.flatMap((functionData, functionIndex) => {
           const allocations = functionData?.menuAllocation || [];
-          
+
           // Add function metadata to each menu item
-          return allocations.map(allocation => ({
+          return allocations.map((allocation) => ({
             ...allocation,
             _functionIndex: functionIndex,
             _functionId: functionData.eventFunction?.id,
             _functionName: functionData.eventFunction?.function?.nameEnglish,
             _functionPax: functionData.eventFunction?.pax,
             eventFunctionId: functionData.eventFunction?.id,
-            eventFunctionName: functionData.eventFunction?.function?.nameEnglish,
+            eventFunctionName:
+              functionData.eventFunction?.function?.nameEnglish,
           }));
         });
-        
+
         setMenuItems(allMenuItems);
         console.log("📊 All Functions - Total items:", allMenuItems.length);
       } else {
@@ -53,18 +59,9 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
 
   const handleAllocate = useCallback(
     (allocationData) => {
-      const { partyId, partyName, number, pax } = allocationData;
-
-      if (!partyId || !pax) {
-        Swal.fire({
-          title: "Warning",
-          text: "Vendor and pax are required",
-          icon: "warning",
-        });
-        return false;
-      }
-
+      // Check if items are selected
       const hasSelectedItems = Object.values(selectedItems).some(Boolean);
+
       if (!hasSelectedItems) {
         Swal.fire({
           title: "Warning",
@@ -74,8 +71,19 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
         return false;
       }
 
+      // Check if at least one field is provided
+      if (!allocationData.partyId && !allocationData.pax) {
+        Swal.fire({
+          title: "Warning",
+          text: "Please provide at least one allocation value (Vendor or Pax)",
+          icon: "warning",
+        });
+        return false;
+      }
+
       let allocatedCount = 0;
 
+      // Update menu items with only the fields that were provided
       const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
         if (!Array.isArray(menuItem.eventFunctionMenuAllocations)) {
           return menuItem;
@@ -87,28 +95,44 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
 
             if (selectedItems[itemKey]) {
               allocatedCount++;
+
+              // Only update fields that were provided
+              const updates = {};
+
+              if (allocationData.partyId !== undefined) {
+                updates.partyId = allocationData.partyId;
+                updates.partyName = allocationData.partyName || "";
+                updates.number = allocationData.number || "";
+              }
+
+              if (allocationData.pax !== undefined) {
+                updates.pax = allocationData.pax;
+              }
+
               return {
                 ...allocation,
-                partyId,
-                partyName,
-                number: number || "",
+                ...updates,
               };
             }
 
             return allocation;
-          }
+          },
         );
 
         const hasUpdatedAllocations =
           menuItem.eventFunctionMenuAllocations.some(
             (_, allocationIndex) =>
-              selectedItems[`${menuIndex}-${allocationIndex}`]
+              selectedItems[`${menuIndex}-${allocationIndex}`],
           );
 
         return {
           ...menuItem,
           eventFunctionMenuAllocations: updatedAllocations,
-          ...(hasUpdatedAllocations && { personCount: pax }),
+          // Only update personCount if pax was provided and this menu item had selected allocations
+          ...(hasUpdatedAllocations &&
+            allocationData.pax !== undefined && {
+              personCount: allocationData.pax,
+            }),
         };
       });
 
@@ -119,16 +143,18 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
       }
 
       setSelectedItems({});
+
       Swal.fire({
         title: "Success",
-        text: `Allocated to ${allocatedCount} selected item(s) successfully`,
+        text: `Updated ${allocatedCount} selected item(s) successfully`,
         icon: "success",
         timer: 2000,
         showConfirmButton: false,
       });
+
       return true;
     },
-    [menuItems, selectedItems, onDataUpdate]
+    [menuItems, selectedItems, onDataUpdate],
   );
 
   const handleMenuItemUpdate = useCallback(
@@ -145,7 +171,7 @@ export default function InHouseCookSection({ data, onDataUpdate, close, isAllFun
         onDataUpdate(updated);
       }
     },
-    [menuItems, onDataUpdate]
+    [menuItems, onDataUpdate],
   );
 
   const buildPayload = useCallback(() => {

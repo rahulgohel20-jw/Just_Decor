@@ -110,7 +110,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
-  const [allLabour,setAllLabour]=useState(false);
+  const [allLabour, setAllLabour] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -1252,6 +1252,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                       />
                     </button>
                     <button
+                      disabled={true}
                       onClick={() => setAllLabour(true)}
                       className="btn btn-primary btn-sm h-10 flex-1 sm:flex-initial"
                     >
@@ -1404,10 +1405,7 @@ const LabourOtherManagementPage = ({ mode }) => {
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
         />
-        <AllLabour
-          isOpen={allLabour}
-          onClose={() => setAllLabour(false)}
-        />
+        <AllLabour isOpen={allLabour} onClose={() => setAllLabour(false)} />
       </Container>
       {isSaving && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
