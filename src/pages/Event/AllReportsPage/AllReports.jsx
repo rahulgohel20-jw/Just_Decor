@@ -119,8 +119,9 @@ export default function AllReports() {
             costing: [],
             profitloss: [],
             menuForHM: [],
-            generalFixTheme:[],
-            crockertCutleryTheme:[]
+            generalFixTheme: [],
+            crockertCutleryTheme: [],
+            dishcounting: [],
           };
 
           allTemplates.forEach((item) => {
@@ -185,15 +186,14 @@ export default function AllReports() {
               addToModuleGroup(moduleGroups.menuForHM);
             } else if (moduleName === "Costing Report Theme") {
               addToModuleGroup(moduleGroups.costing);
-            }
-            else if (moduleName === "Profit And Loss") {
+            } else if (moduleName === "Profit And Loss") {
               addToModuleGroup(moduleGroups.profitloss);
-            }
-            else if (moduleName === "General Fix Theme") {
+            } else if (moduleName === "General Fix Theme") {
               addToModuleGroup(moduleGroups.generalFixTheme);
-            }
-            else if (moduleName === "Crockert Cutlery Theme") {
+            } else if (moduleName === "Crockert Cutlery Theme") {
               addToModuleGroup(moduleGroups.crockertCutleryTheme);
+            } else if (moduleName === "Dish counting") {
+              addToModuleGroup(moduleGroups.dishcounting);
             }
           });
 
@@ -238,6 +238,14 @@ export default function AllReports() {
               modules: moduleGroups.costing,
             });
           }
+          if (moduleGroups.dishcounting.length > 0) {
+            sections.push({
+              id: "dishcounting",
+              name: "Dish Counting",
+              modules: moduleGroups.dishcounting,
+            });
+          }
+
           if (moduleGroups.profitloss.length > 0) {
             sections.push({
               id: "profitloss",
@@ -245,7 +253,7 @@ export default function AllReports() {
               modules: moduleGroups.profitloss,
             });
           }
-          
+
           if (moduleGroups.generalFixTheme.length > 0) {
             sections.push({
               id: "generalFixTheme",

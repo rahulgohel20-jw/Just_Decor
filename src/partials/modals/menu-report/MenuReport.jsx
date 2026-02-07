@@ -91,15 +91,12 @@ const MenuReport = ({
           setisDropdownStatus(1);
           setShowAgencyDropdown(config.isAgency === 1);
           setShowItemDropdown(config.isItem === 1);
-        }
-        else if (config.isAgency === 1) {
+        } else if (config.isAgency === 1) {
           setisDropdownStatus(1);
           setShowAgencyDropdown(config.isAgency === 1);
-        
         } else if (config.isItem === 1) {
           setisDropdownStatus(1);
           setShowItemDropdown(config.isItem === 1);
-
         }
         if (config.isDate === 1) {
           setisDateStatus(1);
@@ -118,7 +115,7 @@ const MenuReport = ({
           isWithQty: config.isWithQty === 1,
           size1: {
             label: config.size1,
-            enabled: Boolean(config.size1 === 0),
+            enabled: Boolean(config.size1 === 1),
           },
           size2: {
             label: config.size2,
@@ -156,7 +153,6 @@ const MenuReport = ({
 
   /* ---------------- FETCH AGENCIES (INITIAL LOAD) ---------------- */
   useEffect(() => {
-    
     // ✅ Don't fetch agencies if this is Admin Module Report
     if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
 
@@ -170,12 +166,16 @@ const MenuReport = ({
           agencyType,
         );
 
-        console.log("🏢 Agencies fetched:", agencyRes);
-
         if (agencyRes?.data?.success && agencyRes?.data?.data) {
-          setAgencies(agencyRes.data.data);
+          const agencyList = agencyRes.data.data;
+
+          setAgencies(agencyList);
+
+          const allAgencyIds = agencyList.map((a) => a.id);
+          setSelectedAgency(allAgencyIds);
         } else {
           setAgencies([]);
+          setSelectedAgency([]);
         }
       } catch (err) {
         console.error("Agency fetch error", err);
