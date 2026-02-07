@@ -20,7 +20,7 @@ const SuperReportConfig = () => {
       const res = await GETAllreportconfiguration();
       const list = res?.data?.data || [];
       console.log(list);
-      
+
       const mapped = list.map((item, index) => ({
         sr_no: index + 1,
         mappingName: item.mappingNameEnglish,
@@ -41,12 +41,13 @@ const SuperReportConfig = () => {
         rawid: item.id,
         mappingId: item.templateMappingId,
         moduleId: item.templateModuleId,
-        dropdown:item.isDropDown,
-        WithPrice:item.isWithPrice,
-        isAgency:item.isAgency,
-        isItem:item.isItem,
-        isItemColumn:item.isItemColumn,
-        isItemPage:item.isItemPage
+        dropdown: item.isDropDown,
+        WithPrice: item.isWithPrice,
+        isAgency: item.isAgency,
+        isItem: item.isItem,
+        isItemColumn: item.isItemColumn,
+        isItemPage: item.isItemPage,
+        isCombo: item.isCombo,
       }));
 
       setTableData(mapped);

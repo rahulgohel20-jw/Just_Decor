@@ -25,8 +25,9 @@ const defaultOptions = {
   size2: "",
   isAgency: false,
   isItem: false,
-  isItemColumn:false,
-  isItemPage:false,
+  isItemColumn: false,
+  isItemPage: false,
+  isCombo: false,
 };
 
 const optionLabels = {
@@ -46,8 +47,9 @@ const optionLabels = {
   isWithPrice: "Is With Price ",
   isAgency: "Is Agency",
   isItem: "Is Item",
-  isItemColumn:"Is Item Column",
-  isItemPage:"Is Item Page",
+  isItemColumn: "Is Item Column",
+  isItemPage: "Is Item Page",
+  isCombo: "Is Combo",
 };
 
 const AddReportConfig = ({
@@ -163,7 +165,8 @@ const AddReportConfig = ({
             isAgency: !!data.isAgency,
             isItem: !!data.isItem,
             isItemColumn: !!data.isItemColumn,
-            isItemPage:!!data.isItemPage,
+            isItemPage: !!data.isItemPage,
+            isCombo: !!data.isCombo,
           });
         }
       } catch (error) {
@@ -252,9 +255,10 @@ const AddReportConfig = ({
       isAgency: booleanToNumber(options.isAgency),
       isItem: booleanToNumber(options.isItem),
       isItemColumn: booleanToNumber(options.isItemColumn),
-      isItemPage:booleanToNumber(options.isItemPage),
+      isItemPage: booleanToNumber(options.isItemPage),
       size1: options.size1,
       size2: options.size2,
+      isCombo: booleanToNumber(options.isCombo),
     };
 
     try {
