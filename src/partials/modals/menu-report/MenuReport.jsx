@@ -111,6 +111,7 @@ const MenuReport = ({
           CompanyInfo: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 1,
           itemImage: config.isItemImage === 0,
+          isCombo: config.isCombo === 0,
           partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
           size1: {
@@ -134,6 +135,7 @@ const MenuReport = ({
             itemInstruction: config.isItemInstruction,
             companyLogo: config.isCompanyLogo,
             itemImage: config.isItemImage,
+            isCombo: config.isCombo,
             partyDetails: config.isPartyDetails,
             isWithQty: config.isWithQty,
             size1: !!config.size1,
@@ -339,6 +341,7 @@ const MenuReport = ({
       isCategoryInstruction: options.categoryInstruction,
       isCategorySlogan: options.categorySlogan,
       isItemImage: options.itemImage,
+      isCombo: options.isCombo,
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
       isCompanyDetails: options.CompanyInfo,
