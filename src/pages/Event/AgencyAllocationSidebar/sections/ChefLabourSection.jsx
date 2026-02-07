@@ -4,7 +4,12 @@ import ChefLabourTable from "../components/ChefLabourTable";
 import { MenuAllocationSave } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunctions }) {
+export default function ChefLabourSection({
+  data,
+  onDataUpdate,
+  close,
+  isAllFunctions,
+}) {
   const [selectedItems, setSelectedItems] = useState({});
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -15,19 +20,20 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
         // For all functions, flatten all menuAllocation arrays from all functions
         const allMenuItems = data.flatMap((functionData, functionIndex) => {
           const allocations = functionData?.menuAllocation || [];
-          
+
           // Add function metadata to each menu item
-          return allocations.map(allocation => ({
+          return allocations.map((allocation) => ({
             ...allocation,
             _functionIndex: functionIndex,
             _functionId: functionData.eventFunction?.id,
             _functionName: functionData.eventFunction?.function?.nameEnglish,
             _functionPax: functionData.eventFunction?.pax,
             eventFunctionId: functionData.eventFunction?.id,
-            eventFunctionName: functionData.eventFunction?.function?.nameEnglish,
+            eventFunctionName:
+              functionData.eventFunction?.function?.nameEnglish,
           }));
         });
-        
+
         setMenuItems(allMenuItems);
         console.log("📊 All Functions - Total items:", allMenuItems.length);
       } else {
@@ -54,27 +60,6 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
 
   const handleAllocate = useCallback(
     (allocationData) => {
-      const { partyId, partyName, number, pax, serviceType } = allocationData;
-
-      // Validation
-      if (!partyId || !pax) {
-        Swal.fire({
-          title: "Warning",
-          text: "Vendor and pax are required",
-          icon: "warning",
-        });
-        return false;
-      }
-
-      if (!serviceType) {
-        Swal.fire({
-          title: "Warning",
-          text: "Please select a service type (Counter Wise or Plate Wise)",
-          icon: "warning",
-        });
-        return false;
-      }
-
       const hasSelectedItems = Object.values(selectedItems).some(Boolean);
       if (!hasSelectedItems) {
         Swal.fire({
@@ -85,11 +70,24 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
         return false;
       }
 
+      // Check if at least one field is provided
+      if (
+        !allocationData.partyId &&
+        !allocationData.serviceType &&
+        !allocationData.pax
+      ) {
+        Swal.fire({
+          title: "Warning",
+          text: "Please provide at least one allocation value",
+          icon: "warning",
+        });
+        return false;
+      }
+
       let allocatedCount = 0;
 
-      // Update menu items
+      // Update menu items with only the fields that were provided
       const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
-        // Ensure eventFunctionMenuAllocations exists
         if (!Array.isArray(menuItem.eventFunctionMenuAllocations)) {
           return menuItem;
         }
@@ -100,31 +98,49 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
 
             if (selectedItems[itemKey]) {
               allocatedCount++;
+
+              // Only update fields that were provided
+              const updates = {};
+
+              if (allocationData.partyId !== undefined) {
+                updates.partyId = allocationData.partyId;
+                updates.partyName = allocationData.partyName || "";
+                updates.number = allocationData.number || "";
+              }
+
+              if (allocationData.serviceType !== undefined) {
+                updates.serviceType = allocationData.serviceType;
+              }
+
+              if (allocationData.pax !== undefined) {
+                updates.pax = allocationData.pax;
+              }
+
               return {
                 ...allocation,
-                partyId,
-                partyName,
-                number: number || "",
-                pax,
-                serviceType,
+                ...updates,
               };
             }
 
             return allocation;
-          }
+          },
         );
 
         // Check if any allocations were updated
         const hasUpdatedAllocations =
           menuItem.eventFunctionMenuAllocations.some(
             (_, allocationIndex) =>
-              selectedItems[`${menuIndex}-${allocationIndex}`]
+              selectedItems[`${menuIndex}-${allocationIndex}`],
           );
 
         return {
           ...menuItem,
           eventFunctionMenuAllocations: updatedAllocations,
-          ...(hasUpdatedAllocations && { personCount: pax }),
+          // Only update personCount if pax was provided
+          ...(hasUpdatedAllocations &&
+            allocationData.pax !== undefined && {
+              personCount: allocationData.pax,
+            }),
         };
       });
 
@@ -139,14 +155,14 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
 
       Swal.fire({
         title: "Success",
-        text: `Allocated to ${allocatedCount} selected item(s) successfully`,
+        text: `Updated ${allocatedCount} selected item(s) successfully`,
         icon: "success",
         timer: 2000,
         showConfirmButton: false,
       });
       return true;
     },
-    [menuItems, selectedItems, onDataUpdate]
+    [menuItems, selectedItems, onDataUpdate],
   );
 
   const handleMenuItemUpdate = useCallback(
@@ -163,7 +179,7 @@ export default function ChefLabourSection({ data, onDataUpdate, close, isAllFunc
         onDataUpdate(updated);
       }
     },
-    [menuItems, onDataUpdate]
+    [menuItems, onDataUpdate],
   );
 
   const buildPayload = useCallback(() => {

@@ -395,30 +395,38 @@ export const allMenuItems = [
   },
   {
     title: (
-      <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Payments" />
+      <>
+        <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Payments" />
+        <span
+          className="text-primary"
+          style={{ marginLeft: "8px", fontSize: "12px" }}
+        >
+          Coming Soon
+        </span>
+      </>
     ),
     icon: "ki-filled ki-bank text-primary",
-    children: [
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CHANGESIDEARRAWMATIRAL"
-            defaultMessage="Account Ledger"
-          />
-        ),
-        path: "/account",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CHANGESIDEARRAWMATIRAL"
-            defaultMessage="Payments"
-          />
-        ),
-        path: "/Payments",
-      },
-     
-    ]
+    // children: [
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Account Ledger"
+    //       />
+    //     ),
+    //     path: "/account",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Payments"
+    //       />
+    //     ),
+    //     path: "/Payments",
+    //   },
+
+    // ]
   },
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
