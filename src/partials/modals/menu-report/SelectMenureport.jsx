@@ -123,6 +123,7 @@ export default function SelectMenureport({
                 "Chef Agency Theme",
                 "Outside Agency Theme",
                 "Name Plate Theme",
+                "Menu For HM",
               ].includes(module.nameEnglish),
             );
           } else if (mode === "raw") {
@@ -178,7 +179,6 @@ export default function SelectMenureport({
           activeTab,
         );
 
-        console.log(res);
         
 
         let dynamicTemplates = [];
@@ -190,9 +190,8 @@ export default function SelectMenureport({
         ) {
           dynamicTemplates = res.data.data.map((item) => ({
             id: item.id,
-            name: item.templateMaster.name,
-
-            description: `${item.templateMaster.name} - Custom theme template`,
+            name: item.templateMaster.name || "",
+            description:item.templateMaster.description || "",
             headingFontColor: item.templateMaster.headingFontColor,
             contentFontColor: item.templateMaster.contentFontColor,
             frontPage: item.templateMaster.frontPage,

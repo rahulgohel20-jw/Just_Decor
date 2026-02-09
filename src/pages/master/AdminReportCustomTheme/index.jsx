@@ -34,11 +34,16 @@ const AdminReportCustomThem = () => {
     setIsLoading(true);
     try {
       const response = await GetAllCustomThemeByUserId(userId);
+      console.log(response);
+      
 
       if (response?.data?.success && response?.data?.data) {
         // Map the response to extract templateMaster data
         const mappedData = response.data.data.map((item) => ({
           id: item.id,
+          ispayment:item.isPayment,
+          price:item.templateMaster.price,
+          isDefault:item.templateMaster.isDefault,
           userId: item.userId,
           name: item.templateMaster?.name,
           frontPage: item.templateMaster?.frontPage,
@@ -77,14 +82,17 @@ const AdminReportCustomThem = () => {
     if (path.startsWith("http")) return path;
     // Otherwise, construct full URL - adjust this based on your API base URL
     const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+      import.meta.env.VITE_API_BASE_URL || "";
     return `${baseUrl}${path}`;
   };
 
   // Filter templates based on active tab
   const themeTemplates = templateList.filter(
-    (template) => template.isNamePlate === false || template.isNamePlate === 0
+    (template) =>
+      (template.isNamePlate === false || template.isNamePlate === 0) &&
+      template.templateModuleMaster?.id === 7
   );
+  
   const nameplateTemplates = templateList.filter(
     (template) => template.isNamePlate === true || template.isNamePlate === 1
   );
@@ -167,11 +175,6 @@ const AdminReportCustomThem = () => {
                   : "bg-gray-200 text-gray-600"
               }`}
             >
-              {" "}
-              <FormattedMessage
-                id="ADMIN.REPORT.NAMEPLATES"
-                defaultMessage="Nameplates"
-              />
               {themeTemplates.length}
             </span>
           </button>
@@ -248,8 +251,46 @@ const AdminReportCustomThem = () => {
                   key={theme.id || index}
                   className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
                 >
+                  {/* Status Badge - Top Right Corner */}
+                  <div className="absolute top-1 left-1 z-10">
+                    {theme.isDefault ? (
+                      <span className="inline-block text-xs text-white bg-green-500 px-3 py-1 rounded-full font-medium shadow-md">
+                        <FormattedMessage
+                          id="COMMON.STATUS_RUNNING"
+                          defaultMessage="Running"
+                        />
+                      </span>
+                    ) : theme.ispayment ? (
+                      <span className="inline-block text-xs text-white bg-green-500 px-3 py-1 rounded-full font-medium shadow-md">
+                        <FormattedMessage
+                          id="COMMON.STATUS_RUNNING"
+                          defaultMessage="Running"
+                        />
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-white bg-primary px-3 py-1 rounded-full font-medium shadow-md">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <FormattedMessage
+                          id="COMMON.STATUS_LOCKED"
+                          defaultMessage="Locked"
+                        />
+                      </span>
+                    )}
+                  </div>
+
                   {/* PDF View Button - Only show for themes with PDF */}
-                  {/* {theme.dummyPdf && (
+                  {theme.dummyPdf && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -278,7 +319,7 @@ const AdminReportCustomThem = () => {
                         />
                       </svg>
                     </button>
-                  )} */}
+                  )}
 
                   <div className="h-[250px] w-full overflow-hidden bg-gray-100">
                     {/* Display namePlateBg for nameplates, frontPage for themes */}
@@ -322,6 +363,7 @@ const AdminReportCustomThem = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {theme.templateModuleMaster?.nameEnglish || "N/A"}
                     </p>
+                    
                     {!theme.dummyPdf && activeTab === "theme" && (
                       <span className="inline-block mt-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
                         No PDF Available

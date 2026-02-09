@@ -305,6 +305,21 @@ export const allMenuItems = [
     ),
     icon: " ki-filled ki-document text-primary",
     path: "/adminmodulereport",
+    children: [
+      // {
+      //   title: (
+      //     <FormattedMessage id="COMMON.QUOTATION" defaultMessage="All Booking Reports" />
+      //   ),
+      //   path: "/allreports/",
+      //   disabled: true
+      // },
+      {
+        title: (
+          <FormattedMessage id="COMMON.INVOICE" defaultMessage="Datewise Order Reports" />
+        ),
+        path: "/adminmodulereport",
+      },
+    ],
   },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,

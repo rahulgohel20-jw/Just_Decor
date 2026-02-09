@@ -29,6 +29,7 @@ import SelectMenureport from "../../../partials/modals/menu-report/SelectMenurep
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 import EditPaxModal from "./components/EditPaxModal";
 const EventPlanningPage = ({ mode }) => {
   const selectedItemsPanelRef = useRef(null);
@@ -79,6 +80,8 @@ const EventPlanningPage = ({ mode }) => {
     nameGujarati: "બધા",
   });
   const ALL_FUNCTIONS = -1;
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   const hasSelectedItems = useMemo(() => {
     const bucket = selectedByFunction[selectedFunction];
@@ -1025,6 +1028,38 @@ const EventPlanningPage = ({ mode }) => {
     setCurrentCategoryForNotes(null);
   };
 
+  const handleEventSelect = async (newEventId) => {
+    if (isDirty) {
+      const result = await Swal.fire({
+        title: "Unsaved Changes",
+        text: "You have unsaved changes. Do you want to save before switching events?",
+        icon: "warning",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        denyButtonColor: "#6c757d",
+        confirmButtonText: "Save & Switch",
+        denyButtonText: "Switch Without Saving",
+        cancelButtonText: "Cancel",
+      });
+  
+      if (result.isConfirmed) {
+        await handleSaveOrUpdate();
+        setSelectedEventId(newEventId);
+        setIsAllCustomerToogleOpen(false);
+        navigate(`/menu-preparation/${newEventId}`);
+      } else if (result.isDenied) {
+        setSelectedEventId(newEventId);
+        setIsAllCustomerToogleOpen(false);
+        navigate(`/menu-preparation/${newEventId}`);
+      }
+    } else {
+      setSelectedEventId(newEventId);
+      setIsAllCustomerToogleOpen(false);
+      navigate(`/menu-preparation/${newEventId}`);
+    }
+  };
   const currentPackageCategories =
     packageCategoriesByFunction[selectedFunction] || [];
   const currentPackageItems = packageItemsByFunction[selectedFunction] || [];
@@ -1138,7 +1173,7 @@ const EventPlanningPage = ({ mode }) => {
                     <span className="text-sm font-semibold text-gray-900">
                       Event No:
                     </span>
-                    <span className="font-semibold text-sm text-primary">
+                    <span className="font-semibold text-sm text-primary underline cursor-pointer" onClick={() => setIsAllCustomerToogleOpen(true)}>
                       {eventData?.eventNo}
                     </span>
                   </div>
@@ -1577,6 +1612,11 @@ const EventPlanningPage = ({ mode }) => {
         onClose={() => setEditPax(false)}
         eventData={eventData}
         onRefreshEvent={fetchEventData}
+      />
+      <AllCustomerToogle
+        isModalOpen={isAllCustomerToogleOpen}
+        setIsModalOpen={setIsAllCustomerToogleOpen}
+        onEventSelect={handleEventSelect}
       />
     </Fragment>
   );

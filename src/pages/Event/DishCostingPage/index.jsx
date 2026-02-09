@@ -12,6 +12,7 @@ import {
   GetDishCostingByEventFunction,
 } from "@/services/apiServices";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
+  import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
 const DishCostingPage = () => {
   const navigate = useNavigate();
@@ -32,6 +33,9 @@ const DishCostingPage = () => {
   const [allFunctionWiseCosting, setAllFunctionWiseCosting] = useState([]);
   const [agencySidebar, setAgencySidebar] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   const handleTotalWiseClick = () => {
     setViewType("Total Wise");
@@ -226,6 +230,12 @@ const DishCostingPage = () => {
     );
   };
 
+  const handleEventSelect = async (newEventId) => {
+    setSelectedEventId(newEventId);
+    setIsAllCustomerToogleOpen(false);
+    navigate(`/dish-costing/${newEventId}`);
+};
+
   return (
     <Fragment>
       <Container>
@@ -377,7 +387,7 @@ const DishCostingPage = () => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 underline cursor-pointer" onClick={() => setIsAllCustomerToogleOpen(true)}>
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -723,6 +733,11 @@ const DishCostingPage = () => {
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
         />
+        <AllCustomerToogle
+        isModalOpen={isAllCustomerToogleOpen}
+        setIsModalOpen={setIsAllCustomerToogleOpen}
+        onEventSelect={handleEventSelect}
+      />
       </Container>
     </Fragment>
   );

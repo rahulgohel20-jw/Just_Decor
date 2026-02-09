@@ -37,6 +37,7 @@ import {
   GetEventLaborDetails,
   GetAllLabourShift,
 } from "@/services/apiServices";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
 dayjs.extend(customParseFormat);
 
@@ -119,7 +120,8 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [expandedRows, setExpandedRows] = useState({});
   const [shiftRows, setShiftRows] = useState({});
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const userId = localStorage.getItem("userId");
 
   const toggleRowExpansion = (rowId) => {
@@ -927,7 +929,11 @@ const LabourOtherManagementPage = ({ mode }) => {
       }
     }
   };
-
+  const handleEventSelect = async (newEventId) => {
+    setSelectedEventId(newEventId);
+    setIsAllCustomerToogleOpen(false);
+    navigate(`/labour-and-other-management/${newEventId}`);
+};
   return (
     <Fragment>
       <Container>
@@ -1093,7 +1099,7 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 underline cursor-pointer"  onClick={() => setIsAllCustomerToogleOpen(true)}>
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -1400,6 +1406,11 @@ const LabourOtherManagementPage = ({ mode }) => {
           shiftData={selectedcontactType}
           refreshData={FetchLabourShift}
         />
+        <AllCustomerToogle
+        isModalOpen={isAllCustomerToogleOpen}
+        setIsModalOpen={setIsAllCustomerToogleOpen}
+        onEventSelect={handleEventSelect}
+      />
         <MenuReport
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}

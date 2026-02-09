@@ -28,12 +28,13 @@ const AddTheme = ({
   const [activeTab, setActiveTab] = useState("template");
   const [removedExistingImages, setRemovedExistingImages] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
-
+  const [description, setDescription] = useState("");
   const [themeTemplateName, setThemeTemplateName] = useState("");
   const [themeTemplateModule, setThemeTemplateModule] = useState("");
   const [themeModuleOptions, setThemeModuleOptions] = useState([]);
   const [isLoadingThemeModules, setIsLoadingThemeModules] = useState(false);
-
+  const [price, setPrice] = useState("");
+  const [isDefault, setIsDefault] = useState(false);
   const [nameplateTemplateName, setNameplateTemplateName] = useState("");
   const [nameplateTemplateModule, setNameplateTemplateModule] = useState("");
   const [nameplateModuleOptions, setNameplateModuleOptions] = useState([]);
@@ -158,6 +159,10 @@ const AddTheme = ({
 
   useEffect(() => {
     if (isEditMode && editingTheme) {
+      
+      setPrice(editingTheme.price || "");
+      setIsDefault(editingTheme.isDefault || false);
+      setDescription(editingTheme.description || ""); 
       if (editingTheme.isNamePlate) {
         setActiveTab("nameplate");
         setNameplateName(editingTheme.name || "");
@@ -472,7 +477,9 @@ const AddTheme = ({
       formData.append("templateMappingId", themeTemplateModule);
       formData.append("templateModuleId", themeTemplateName);
       formData.append("userId", userId);
-
+      formData.append("price", price);
+      formData.append("isDefault", isDefault);
+      formData.append("description", description);
       if (isEditMode && editingTheme) {
         formData.append("id", editingTheme.id);
       }
@@ -553,6 +560,7 @@ const AddTheme = ({
       formData.append("isNamePlate", "true");
       formData.append("name", nameplateName);
       formData.append("userId", userId);
+      formData.append("description", description);
 
       console.log("datatat", formData);
 
@@ -635,6 +643,9 @@ const AddTheme = ({
     setActiveTab("template");
     setRemovedExistingImages([]);
     setFileInputKey(Date.now());
+    setPrice(); // Add this
+    setIsDefault(false); // Add this
+    setDescription("");
   };
 
   const handleAddTemplate = (files) => {
@@ -941,6 +952,19 @@ const AddTheme = ({
                     </div>
                   )}
                 </div>
+                {/* ADD DESCRIPTION FIELD HERE */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter description (optional)"
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
 
                 {/* TEMPLATE UPLOAD - Max 6 */}
                 <div>
@@ -1020,6 +1044,46 @@ const AddTheme = ({
                     </div>
                   )}
                 </div>
+
+                <div>
+                <label className="block text-sm font-medium mb-1">
+                    Price
+                </label>
+                <input
+                id="price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Enter price"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+                </div>
+              {/* IS DEFAULT TOGGLE */}
+                <div>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm font-medium">Set as Default</span>
+                    <div className="relative inline-block w-12 h-6">
+                      <input
+                        type="checkbox"
+                        checked={isDefault}
+                        onChange={(e) => setIsDefault(e.target.checked)}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`block w-12 h-6 rounded-full transition-colors ${
+                          isDefault ? 'bg-blue-600' : 'bg-gray-300'
+                        }`}
+                      >
+                        <div
+                          className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ${
+                            isDefault ? 'translate-x-6' : 'translate-x-0'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
 
                 {/* COLOR SCHEME */}
                 <div>
@@ -1139,6 +1203,19 @@ const AddTheme = ({
                     </div>
                   )}
                 </div>
+
+                <div>
+                <label className="block text-sm font-medium mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter description (optional)"
+                  rows="3"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+              </div>
 
                 {/* TEMPLATE MODULE - Dependent Dropdown */}
                 <div>
