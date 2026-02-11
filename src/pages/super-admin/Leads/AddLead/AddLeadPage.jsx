@@ -955,8 +955,8 @@ export default function AddLeadPage() {
                                     prev.map((fu, i) =>
                                       i === index
                                         ? { ...fu, followUpStatus: value }
-                                        : fu
-                                    )
+                                        : fu,
+                                    ),
                                   );
                                 }}
                               >

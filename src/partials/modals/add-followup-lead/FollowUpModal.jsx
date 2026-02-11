@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Select, Input, DatePicker, Button } from "antd";
 import dayjs from "dayjs";
 
-export default function FollowUpModal({
+export default function AddFollowUpModal({
   isOpen,
   onClose,
   onSave,
@@ -25,7 +25,7 @@ export default function FollowUpModal({
       setFollowupDate(
         viewOnlyFollowUp.followUpDate
           ? dayjs(viewOnlyFollowUp.followUpDate)
-          : null
+          : null,
       );
     } else if (clientName) {
       setCustomerName(clientName);

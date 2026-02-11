@@ -1,7 +1,41 @@
-import { Popconfirm, Tooltip } from "antd";
+import { Popconfirm, Tooltip, Checkbox } from "antd";
 import { FormattedMessage } from "react-intl";
 
-export const columns = (onEdit, onDelete, onStatus, onView) => [
+export const columns = (
+  onEdit,
+  onDelete,
+  onStatus,
+  onView,
+  onFollowUp, // ✅ ADD: Follow-up handler
+  selectedRows,
+  onSelectRow,
+  onSelectAll,
+  totalRows,
+) => [
+  {
+    id: "select",
+    header: () => (
+      <Checkbox
+        checked={selectedRows.length > 0 && selectedRows.length === totalRows}
+        indeterminate={
+          selectedRows.length > 0 && selectedRows.length < totalRows
+        }
+        onChange={(e) => onSelectAll(e.target.checked)}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={selectedRows.includes(row.original.leadId)}
+        onChange={(e) => onSelectRow(row.original.leadId, e.target.checked)}
+      />
+    ),
+    meta: { headerClassName: "w-[5%]", cellClassName: "w-[5%]" },
+  },
+  {
+    accessorKey: "sr_no",
+    header: "Sr No",
+    meta: { headerClassName: "w-[8%]", cellClassName: "w-[8%]" },
+  },
   {
     accessorKey: "leadCode",
     header: "Lead Code",
@@ -28,7 +62,7 @@ export const columns = (onEdit, onDelete, onStatus, onView) => [
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
-    id: "action",
+    id: "leadStatus",
     accessorKey: "leadStatus",
     header: "Lead Status",
     cell: ({ row }) => {
@@ -62,15 +96,12 @@ export const columns = (onEdit, onDelete, onStatus, onView) => [
     },
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
-
-  // ACTION BUTTONS
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">
-          {/* View Lead */}
           <Tooltip title="View Lead">
             <button
               className="btn btn-sm btn-icon btn-clear"
@@ -80,7 +111,16 @@ export const columns = (onEdit, onDelete, onStatus, onView) => [
             </button>
           </Tooltip>
 
-          {/* Edit Lead */}
+          {/* ✅ ADD: Follow Up Button */}
+          <Tooltip title="Follow Up">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => onFollowUp && onFollowUp(row.original)}
+            >
+              <i className="ki-filled ki-calendar text-info"></i>
+            </button>
+          </Tooltip>
+
           <Tooltip title="Edit Lead">
             <button
               className="btn btn-sm btn-icon btn-clear"
@@ -90,7 +130,6 @@ export const columns = (onEdit, onDelete, onStatus, onView) => [
             </button>
           </Tooltip>
 
-          {/* Delete Lead */}
           <Tooltip title="Delete Lead">
             <button
               className="btn btn-sm btn-icon btn-clear"

@@ -30,7 +30,7 @@ export const utensilColumns = ({ onValueChange }) => [
   {
     id: "rawMaterial",
     Header: "Name",
-    accessor: "rawMaterial",
+    accessor: "rawMaterialNameEnglish", // ← Change from "rawMaterial" to "nameEnglish"
   },
   {
     id: "range_0_100",

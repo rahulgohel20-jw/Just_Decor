@@ -1546,3 +1546,16 @@ export const AddorUpdatebankdetails = (userId, data) => {
 export const GetbankdetailsbyuserId = (userId) => {
   return GET(`bankdetails/getbyuserid?userId=${userId}`);
 };
+
+export const GetrawMaterialCatIdbytypeid = (id) => {
+  return GET(`rawmaterialcategory/getbyrawmaterialcategorytypeid?rawMaterialCategoryTypeId=${id}`);
+
+};
+
+export const Addupdatecrockerycutlery = (data) =>{
+return POST(`crockerycutlery/addupdatecrockerycutlery`, data);
+};
+
+export const GETcrockerycutlerygetByRawMaterialCat = (rawMaterialCatId, userId) => {
+  return GET(`crockerycutlery/getByRawMaterialCat?rawMaterialCatId=${rawMaterialCatId}&userId=${userId}`);
+};

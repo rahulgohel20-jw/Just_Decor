@@ -2,284 +2,284 @@ export const gasBatlaColumns = ({ onValueChange }) => [
   {
     id: "rawMaterial",
     Header: "Name",
-    accessor: "rawMaterial",
+    accessor: "rawMaterialNameEnglish",
   },
   {
-    id: "range_0_100",
+    id: "r_0_to_100",
     Header: "0-100",
-    accessor: "range_0_100",
+    accessor: "r_0_to_100",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_0_100 || ""}
+        value={row.original.r_0_to_100 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_0_100", e.target.value)
+          onValueChange(row.original.id, "r_0_to_100", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_101_200",
+    id: "r_101_to_200",
     Header: "101-200",
-    accessor: "range_101_200",
+    accessor: "r_101_to_200",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_101_200 || ""}
+        value={row.original.r_101_to_200 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_101_200", e.target.value)
+          onValueChange(row.original.id, "r_101_to_200", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_201_300",
+    id: "r_201_to_300",
     Header: "201-300",
-    accessor: "range_201_300",
+    accessor: "r_201_to_300",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_201_300 || ""}
+        value={row.original.r_201_to_300 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_201_300", e.target.value)
+          onValueChange(row.original.id, "r_201_to_300", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_301_400",
+    id: "r_301_to_400",
     Header: "301-400",
-    accessor: "range_301_400",
+    accessor: "r_301_to_400",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_301_400 || ""}
+        value={row.original.r_301_to_400 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_301_400", e.target.value)
+          onValueChange(row.original.id, "r_301_to_400", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_401_500",
+    id: "r_401_to_500",
     Header: "401-500",
-    accessor: "range_401_500",
+    accessor: "r_401_to_500",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_401_500 || ""}
+        value={row.original.r_401_to_500 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_401_500", e.target.value)
+          onValueChange(row.original.id, "r_401_to_500", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_501_600",
+    id: "r_501_to_600",
     Header: "501-600",
-    accessor: "range_501_600",
+    accessor: "r_501_to_600",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_501_600 || ""}
+        value={row.original.r_501_to_600 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_501_600", e.target.value)
+          onValueChange(row.original.id, "r_501_to_600", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_601_700",
+    id: "r_601_to_700",
     Header: "601-700",
-    accessor: "range_601_700",
+    accessor: "r_601_to_700",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_601_700 || ""}
+        value={row.original.r_601_to_700 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_601_700", e.target.value)
+          onValueChange(row.original.id, "r_601_to_700", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_701_800",
+    id: "r_701_to_800",
     Header: "701-800",
-    accessor: "range_701_800",
+    accessor: "r_701_to_800",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_701_800 || ""}
+        value={row.original.r_701_to_800 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_701_800", e.target.value)
+          onValueChange(row.original.id, "r_701_to_800", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_801_900",
+    id: "r_801_to_900",
     Header: "801-900",
-    accessor: "range_801_900",
+    accessor: "r_801_to_900",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_801_900 || ""}
+        value={row.original.r_801_to_900 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_801_900", e.target.value)
+          onValueChange(row.original.id, "r_801_to_900", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_901_1000",
+    id: "r_901_to_1000",
     Header: "901-1000",
-    accessor: "range_901_1000",
+    accessor: "r_901_to_1000",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_901_1000 || ""}
+        value={row.original.r_901_to_1000 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_901_1000", e.target.value)
+          onValueChange(row.original.id, "r_901_to_1000", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1001_1100",
+    id: "r_1001_to_1100",
     Header: "1001-1100",
-    accessor: "range_1001_1100",
+    accessor: "r_1001_to_1100",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1001_1100 || ""}
+        value={row.original.r_1001_to_1100 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1001_1100", e.target.value)
+          onValueChange(row.original.id, "r_1001_to_1100", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1101_1200",
+    id: "r_1101_to_1200",
     Header: "1101-1200",
-    accessor: "range_1101_1200",
+    accessor: "r_1101_to_1200",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1101_1200 || ""}
+        value={row.original.r_1101_to_1200 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1101_1200", e.target.value)
+          onValueChange(row.original.id, "r_1101_to_1200", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1201_1300",
+    id: "r_1201_to_1300",
     Header: "1201-1300",
-    accessor: "range_1201_1300",
+    accessor: "r_1201_to_1300",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1201_1300 || ""}
+        value={row.original.r_1201_to_1300 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1201_1300", e.target.value)
+          onValueChange(row.original.id, "r_1201_to_1300", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1301_1400",
+    id: "r_1301_to_1400",
     Header: "1301-1400",
-    accessor: "range_1301_1400",
+    accessor: "r_1301_to_1400",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1301_1400 || ""}
+        value={row.original.r_1301_to_1400 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1301_1400", e.target.value)
+          onValueChange(row.original.id, "r_1301_to_1400", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1401_1500",
+    id: "r_1401_to_1500",
     Header: "1401-1500",
-    accessor: "range_1401_1500",
+    accessor: "r_1401_to_1500",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1401_1500 || ""}
+        value={row.original.r_1401_to_1500 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1401_1500", e.target.value)
+          onValueChange(row.original.id, "r_1401_to_1500", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1501_1600",
+    id: "r_1501_to_1600",
     Header: "1501-1600",
-    accessor: "range_1501_1600",
+    accessor: "r_1501_to_1600",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1501_1600 || ""}
+        value={row.original.r_1501_to_1600 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1501_1600", e.target.value)
+          onValueChange(row.original.id, "r_1501_to_1600", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1601_1700",
+    id: "r_1601_to_1700",
     Header: "1601-1700",
-    accessor: "range_1601_1700",
+    accessor: "r_1601_to_1700",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1601_1700 || ""}
+        value={row.original.r_1601_to_1700 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1601_1700", e.target.value)
+          onValueChange(row.original.id, "r_1601_to_1700", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1701_1800",
+    id: "r_1701_to_1800",
     Header: "1701-1800",
-    accessor: "range_1701_1800",
+    accessor: "r_1701_to_1800",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1701_1800 || ""}
+        value={row.original.r_1701_to_1800 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1701_1800", e.target.value)
+          onValueChange(row.original.id, "r_1701_to_1800", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1801_1900",
+    id: "r_1801_to_1900",
     Header: "1801-1900",
-    accessor: "range_1801_1900",
+    accessor: "r_1801_to_1900",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1801_1900 || ""}
+        value={row.original.r_1801_to_1900 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1801_1900", e.target.value)
+          onValueChange(row.original.id, "r_1801_to_1900", e.target.value)
         }
       />
     ),
   },
   {
-    id: "range_1901_2000",
+    id: "r_1901_to_2000",
     Header: "1901-2000",
-    accessor: "range_1901_2000",
+    accessor: "r_1901_to_2000",
     Cell: ({ row }) => (
       <input
         className="input"
-        value={row.original.range_1901_2000 || ""}
+        value={row.original.r_1901_to_2000 || ""}
         onChange={(e) =>
-          onValueChange(row.original.id, "range_1901_2000", e.target.value)
+          onValueChange(row.original.id, "r_1901_to_2000", e.target.value)
         }
       />
     ),
