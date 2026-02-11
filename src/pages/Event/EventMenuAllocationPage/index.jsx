@@ -28,8 +28,8 @@ import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationS
 import { message } from "antd";
 import { toAbsoluteUrl } from "@/utils/Assets";
 import AllVendor from "./components/AllVendor";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
-// ============= LANGUAGE HELPER FUNCTIONS =============
 /**
  * Get the current language from localStorage
  * @returns {string} - Language code (e.g., 'en', 'gu', 'hi')
@@ -72,10 +72,9 @@ const getLocalizedValue = (obj, baseFieldName, fallbackValue = "-") => {
 };
 
 /**
- * Get display name based on current language
- * @param {Object} row - Row data
- * @param {string} fieldType - 'categoryName' or 'itemName'
- * @returns {string} - Localized name
+ * @param {Object} row 
+ * @param {string} fieldType 
+ * @returns {string}
  */
 const getDisplayName = (row, fieldType) => {
   const lang = getCurrentLanguage();
@@ -87,11 +86,7 @@ const getDisplayName = (row, fieldType) => {
   return row[langMap[lang]] || row[fieldType] || "";
 };
 
-// Add these helper functions at the top with your other helper functions
 
-/**
- * Get localized party name
- */
 const getPartyName = (party) => {
   if (!party) return "-";
   const lang = getCurrentLanguage();
@@ -101,9 +96,7 @@ const getPartyName = (party) => {
   return party.nameEnglish || "-";
 };
 
-/**
- * Get localized event type name
- */
+
 const getEventTypeName = (eventType) => {
   if (!eventType) return "N/A";
   const lang = getCurrentLanguage();
@@ -115,9 +108,7 @@ const getEventTypeName = (eventType) => {
   return eventType.nameEnglish || "N/A";
 };
 
-/**
- * Get localized venue name
- */
+
 const getVenueName = (venue) => {
   if (!venue) return "-";
   const lang = getCurrentLanguage();
@@ -127,9 +118,7 @@ const getVenueName = (venue) => {
   return venue.nameEnglish || "-";
 };
 
-/**
- * Get localized function name
- */
+
 const getFunctionName = (functionObj) => {
   if (!functionObj) return "Unnamed";
   const lang = getCurrentLanguage();
@@ -140,8 +129,6 @@ const getFunctionName = (functionObj) => {
     return functionObj.nameGujarati || functionObj.nameEnglish || "Unnamed";
   return functionObj.nameEnglish || "Unnamed";
 };
-
-// ============= COMPONENTS =============
 
 const TopTabs = ({ value, onChange, functions }) => {
   return (
@@ -523,7 +510,7 @@ const OrderSummary = ({
                       <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
                         <div
                           className="col-span-9 pl-6 hover:text-primary"
-                          onClick={() => onItemClick(it, g)}
+                          onClick={() => onItemClick(it, g,null)}
                         >
                           {it.menuItemName}{" "}
                           <span className="text-primary font-bold">
@@ -593,7 +580,7 @@ const OrderSummary = ({
   );
 };
 
-const TableHeader = () => (
+const TableHeader = ({ onChefCheckAll, onOutsourceCheckAll, onInsideCheckAll, allChefChecked, allOutsourceChecked, allInsideChecked }) => (
   <div
     className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-10"
     style={{ top: "230px" }}
@@ -602,13 +589,31 @@ const TableHeader = () => (
       <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
     </div>
     <div className="col-span-1 text-center">
-      <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" />
+      <div className="flex flex-col items-center gap-1">
+        <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef" />
+        <Checkbox
+          checked={allChefChecked}
+          onChange={(e) => onChefCheckAll(e.target.checked)}
+        />
+      </div>
     </div>
     <div className="col-span-2 text-center">
-      <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
+      <div className="flex flex-col items-center gap-1">
+        <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
+        <Checkbox
+          checked={allOutsourceChecked}
+          onChange={(e) => onOutsourceCheckAll(e.target.checked)}
+        />
+      </div>
     </div>
     <div className="col-span-2 text-center">
-      <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside kitchen" />
+      <div className="flex flex-col items-center gap-1">
+        <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside kitchen" />
+        <Checkbox
+          checked={allInsideChecked}
+          onChange={(e) => onInsideCheckAll(e.target.checked)}
+        />
+      </div>
     </div>
     <div className="col-span-1 text-center">
       <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />
@@ -625,7 +630,7 @@ const TableHeader = () => (
   </div>
 );
 
-const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
+const TableRow = ({ row, onChange, disabled }) => {
   const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
   const [hasError, setHasError] = useState(false);
   useEffect(() => {
@@ -765,7 +770,6 @@ const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
   );
 };
 
-// Function Section Label
 const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
   return (
     <div
@@ -844,6 +848,11 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
   const lastSavedPersonRef = useRef({});
   const isInitialLoadRef = useRef(true);
+  const [allChefChecked, setAllChefChecked] = useState(false);
+  const [allOutsourceChecked, setAllOutsourceChecked] = useState(false);
+  const [allInsideChecked, setAllInsideChecked] = useState(false);
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
@@ -887,6 +896,47 @@ const EventMenuAllocationPage = ({ mode }) => {
     };
   }, [hasUnsavedChanges]);
 
+  const handleChefCheckAll = (checked) => {
+    setAllChefChecked(checked);
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        chefLabour: checked,
+        outside: false,
+        inside: false,
+      }));
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
+  };
+
+  const handleOutsourceCheckAll = (checked) => {
+    setAllOutsourceChecked(checked);
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        chefLabour: false,
+        outside: checked,
+        inside: false,
+      }));
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
+  };
+
+  const handleInsideCheckAll = (checked) => {
+    setAllInsideChecked(checked);
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        chefLabour: false,
+        outside: false,
+        inside: checked,
+      }));
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
+  };
   const handleNavigateWithWarning = async (path, state = null) => {
     if (hasUnsavedChanges) {
       const result = await Swal.fire({
@@ -1004,7 +1054,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleOrderSummaryItemClick = async (
     item,
-    group,
+    category,
     clickedFunctionId,
   ) => {
     try {
@@ -1015,6 +1065,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
+      console.log(eventFunctionId,"data");
 
       const menuItemId = item.menuItemId || item.id;
 
@@ -1047,6 +1098,8 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       setIsCategoryModal(true);
       setMenuLoading(true);
+ 
+      
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
@@ -1353,6 +1406,16 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     if (rows.length === 0) return;
 
+    if (rows.length > 0) {
+      const allChef = rows.every(row => row.chefLabour);
+      const allOutside = rows.every(row => row.outside);
+      const allInside = rows.every(row => row.inside);
+      
+      setAllChefChecked(allChef);
+      setAllOutsourceChecked(allOutside);
+      setAllInsideChecked(allInside);
+    }
+
     if (rows.some((r) => r.personCount === 0)) return;
 
     const hasPersonChanged = rows.some(
@@ -1528,7 +1591,7 @@ const EventMenuAllocationPage = ({ mode }) => {
     currentLang,
     placeOptions,
     placeLoading,
-  ]); // Add currentLang as dependency
+  ]); 
 
   const handleInsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -1833,7 +1896,6 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
-  // ✅ NEW: Fetch godown data once on component mount
   useEffect(() => {
     const fetchGodowns = async () => {
       try {
@@ -2148,6 +2210,13 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
+  
+  const handleEventSelect = async (newEventId) => {
+      setSelectedEventId(newEventId);
+      setIsAllCustomerToogleOpen(false);
+      navigate(`/menu-allocation/${newEventId}`);
+  };
+
   return (
     <Fragment>
       <Container>
@@ -2225,7 +2294,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 underline cursor-pointer" onClick={() => setIsAllCustomerToogleOpen(true)}>
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -2487,7 +2556,14 @@ const EventMenuAllocationPage = ({ mode }) => {
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-              <TableHeader />
+              <TableHeader   
+              onChefCheckAll={handleChefCheckAll}
+            onOutsourceCheckAll={handleOutsourceCheckAll}
+            onInsideCheckAll={handleInsideCheckAll}
+            allChefChecked={allChefChecked}
+            allOutsourceChecked={allOutsourceChecked}
+            allInsideChecked={allInsideChecked}
+            />
 
               {tableLoading ? (
                 <div className="flex items-center justify-center p-8">
@@ -2683,6 +2759,11 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventFunctionId={getEventFunctionId(activeFunction)}
         />
         <AllVendor isOpen={allVendor} onClose={() => setAllVendor(false)} />
+        <AllCustomerToogle
+        isModalOpen={isAllCustomerToogleOpen}
+        setIsModalOpen={setIsAllCustomerToogleOpen}
+        onEventSelect={handleEventSelect}
+      />
       </Container>
     </Fragment>
   );

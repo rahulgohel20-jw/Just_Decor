@@ -253,6 +253,12 @@ export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid) => {
   );
 };
 
+
+export const CreatePaymentTheme = (data) => {
+  return POST("exclusivethemeoayment/createThemePayment", data);
+};
+
+
 export const ContactNameItem = (Id, name) => {
   return GET(`/partymaster/getallbyuserid?partyName=${name}&userId=${Id}`);
 };
@@ -953,6 +959,12 @@ export const AddUserPlan = (data) => {
 export const CreatePaymentOrder = (data) => {
   return POST(`/userplanshistory/createPaymentOrder`, data);
 };
+
+export const ThemePurchase = (data) => {
+  return POST(`/exclusivethemeoayment`, data);
+};
+
+
 
 export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
   return GET(

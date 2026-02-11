@@ -2,7 +2,7 @@ import { useState, Fragment, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { GetAllCustomThemeByUserId } from "@/services/apiServices";
+import { GetAllCustomThemeByUserId, CreatePaymentTheme, ThemePurchase } from "@/services/apiServices";
 import { useRef } from "react";
 import Swal from "sweetalert2";
 import { toAbsoluteUrl } from "@/utils";
@@ -17,11 +17,29 @@ const AdminReportCustomThem = () => {
   const [templateList, setTemplateList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("theme");
-
+  const [paymentData, setPaymentData] = useState({
+    amount: 0,
+    transactionId: "",
+  });
+  
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
   const hasFetched = useRef(false);
+  const formatIndianMobile = (mobile) => {
+    if (!mobile) return "";
+  
+    // Remove +, spaces, and non-numeric chars
+    let cleaned = mobile.replace(/\D/g, "");
+  
+    // Remove leading 91 if present
+    if (cleaned.startsWith("91") && cleaned.length > 10) {
+      cleaned = cleaned.slice(2);
+    }
+  
+    return cleaned;
+  };
+  
 
   useEffect(() => {
     if (!userId || hasFetched.current) return;
@@ -34,11 +52,15 @@ const AdminReportCustomThem = () => {
     setIsLoading(true);
     try {
       const response = await GetAllCustomThemeByUserId(userId);
+      console.log(response);
 
       if (response?.data?.success && response?.data?.data) {
         // Map the response to extract templateMaster data
         const mappedData = response.data.data.map((item) => ({
           id: item.id,
+          ispayment: item.isPayment,
+          price: item.templateMaster.price,
+          isDefault: item.templateMaster.isDefault,
           userId: item.userId,
           name: item.templateMaster?.name,
           frontPage: item.templateMaster?.frontPage,
@@ -51,6 +73,9 @@ const AdminReportCustomThem = () => {
           dummyPdf: item.templateMaster?.dummyPdf,
           headingFontColor: item.templateMaster?.headingFontColor,
           contentFontColor: item.templateMaster?.contentFontColor,
+          userName:item.userName,
+          email:item.email,
+          mobileNo:item.mobileNo,
           templateModuleMaster:
             item.templateModuleMaster ||
             item.templateMaster?.templateModuleMaster,
@@ -76,15 +101,17 @@ const AdminReportCustomThem = () => {
     // If path already includes http/https, return as is
     if (path.startsWith("http")) return path;
     // Otherwise, construct full URL - adjust this based on your API base URL
-    const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
     return `${baseUrl}${path}`;
   };
 
   // Filter templates based on active tab
   const themeTemplates = templateList.filter(
-    (template) => template.isNamePlate === false || template.isNamePlate === 0
+    (template) =>
+      (template.isNamePlate === false || template.isNamePlate === 0) &&
+      template.templateModuleMaster?.id === 7
   );
+
   const nameplateTemplates = templateList.filter(
     (template) => template.isNamePlate === true || template.isNamePlate === 1
   );
@@ -98,6 +125,8 @@ const AdminReportCustomThem = () => {
     : currentTemplates.slice(0, 8);
 
   const openPDF = (theme) => {
+    console.log(theme);
+
     if (!theme.dummyPdf) {
       Swal.fire({
         title: "No PDF Available",
@@ -126,9 +155,121 @@ const AdminReportCustomThem = () => {
     setSelectedTheme(null);
   };
 
-  const refreshTemplates = () => {
-    const userId = localStorage.getItem("userId");
-    fetchTemplates(userId);
+  const handlePayment = async (theme) => {
+    try {
+      // Create order payload
+      const orderPayload = {
+        adminTemplateId: theme.id,
+        price: theme.price,
+      };
+
+      // Create Razorpay order
+      const res = await CreatePaymentTheme(orderPayload);
+      const backendOrder = res.data?.data;
+      const orderId =
+        typeof backendOrder === "string"
+          ? backendOrder
+          : backendOrder?.orderId || backendOrder?.paymentorderid;
+
+      if (!orderId) {
+        Swal.fire({
+          icon: "error",
+          title: "Order Creation Failed",
+          text: "Could not create Razorpay order. Please try again.",
+        });
+        return;
+      }
+
+      const razorpayKey = "rzp_live_S5dgGJ3fEPa3fO";
+
+      const options = {
+        key: razorpayKey,
+        amount: theme.price * 100, 
+        currency: "INR",
+        name: "Automate Business",
+        description: `${theme.name} Theme Purchase`,
+        order_id: orderId,
+        handler: async function (response) {
+          // Payment successful
+          const paymentPayload = {
+            adminTemplateId: theme.id,
+            internalorderid: response.razorpay_order_id,
+            isPayment: true,
+            payid: response.razorpay_payment_id,
+            paymentresponse: JSON.stringify(response),
+            paysignature: response.razorpay_signature,
+            price: theme.price,
+            paymentType:"online",
+          };
+
+          try {
+            await ThemePurchase(paymentPayload);
+
+            Swal.fire({
+              icon: "success",
+              title: "Payment Successful!",
+              text: `${theme.name} has been activated successfully.`,
+              confirmButtonColor: "#005BA8",
+            }).then(() => {
+              // Refresh templates to show updated status
+              fetchTemplates(userId);
+            });
+
+            setPaymentData({
+              amount: theme.price,
+              transactionId: response.razorpay_payment_id,
+            });
+          } catch (err) {
+            console.error("Theme activation error:", err);
+            Swal.fire({
+              icon: "error",
+              title: "Activation Failed",
+              text:
+                err.response?.data?.message ||
+                "Payment completed but failed to activate theme. Please contact support.",
+            });
+          }
+        },
+        prefill: {
+          name: theme.userName,
+          email: theme.email,
+          contact: formatIndianMobile(theme.mobileNo),
+        },
+        theme: {
+          color: "#005BA8",
+        },
+        modal: {
+          ondismiss: function () {
+            console.log("Payment modal dismissed by user");
+          },
+        },
+      };
+
+      // Open Razorpay payment modal
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+      // Handle payment failure
+      rzp.on("payment.failed", function (response) {
+        console.error("Payment failed:", response.error);
+        Swal.fire({
+          icon: "error",
+          title: "Payment Failed",
+          text:
+            response.error?.description ||
+            "Something went wrong. Please try again.",
+        });
+      });
+    } catch (error) {
+      console.error("Payment initiation error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Unexpected Error",
+        text:
+          error.response?.data?.message ||
+          "Something went wrong while initiating payment. Please try again.",
+      });
+    }
   };
 
   return (
@@ -167,11 +308,6 @@ const AdminReportCustomThem = () => {
                   : "bg-gray-200 text-gray-600"
               }`}
             >
-              {" "}
-              <FormattedMessage
-                id="ADMIN.REPORT.NAMEPLATES"
-                defaultMessage="Nameplates"
-              />
               {themeTemplates.length}
             </span>
           </button>
@@ -246,16 +382,54 @@ const AdminReportCustomThem = () => {
               {displayedThemes.map((theme, index) => (
                 <div
                   key={theme.id || index}
-                  className="w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+                  className="group w-full sm:w-[45%] md:w-[30%] lg:w-[22%] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 relative transform transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
                 >
-                  {/* PDF View Button - Only show for themes with PDF */}
-                  {/* {theme.dummyPdf && (
+                  {/* Status Badge - Top Left Corner */}
+                  <div className="absolute top-1 left-1 z-10">
+                    {theme.isDefault ? (
+                      <span className="inline-block text-xs text-white bg-green-500 px-3 py-1 rounded-full font-medium shadow-md">
+                        <FormattedMessage
+                          id="COMMON.STATUS_RUNNING"
+                          defaultMessage="Running"
+                        />
+                      </span>
+                    ) : theme.ispayment ? (
+                      <span className="inline-block text-xs text-white bg-green-500 px-3 py-1 rounded-full font-medium shadow-md">
+                        <FormattedMessage
+                          id="COMMON.STATUS_RUNNING"
+                          defaultMessage="Running"
+                        />
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-white bg-primary px-3 py-1 rounded-full font-medium shadow-md">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-3 w-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <FormattedMessage
+                          id="COMMON.STATUS_LOCKED"
+                          defaultMessage="Locked"
+                        />
+                      </span>
+                    )}
+                  </div>
+
+                  {/* PDF View Button - Only show for themes with PDF - Highest z-index to be above everything */}
+                  {theme.dummyPdf && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         openPDF(theme);
                       }}
-                      className="absolute top-2 right-2 bg-white/80 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition z-10"
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-white text-[#005BA8] hover:text-[#004C8C] p-2 rounded-full shadow-md transition z-30"
                       title="View PDF"
                     >
                       <svg
@@ -278,9 +452,41 @@ const AdminReportCustomThem = () => {
                         />
                       </svg>
                     </button>
-                  )} */}
+                  )}
 
-                  <div className="h-[250px] w-full overflow-hidden bg-gray-100">
+                  {/* Pay Button Overlay - Only show for locked themes on hover - Center positioned */}
+                  {!theme.isDefault && !theme.ispayment && (
+                    <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePayment(theme);
+                        }}
+                        className="bg-[#005BA8] hover:bg-[#004C8C] text-white px-8 py-3 rounded-full shadow-lg font-semibold text-base transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                          <path
+                            fillRule="evenodd"
+                            d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <FormattedMessage
+                          id="COMMON.PAY_NOW"
+                          defaultMessage="Pay Now"
+                        />
+                       
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="h-[250px] w-full overflow-hidden bg-gray-100 relative">
                     {/* Display namePlateBg for nameplates, frontPage for themes */}
                     {activeTab === "nameplate" && theme.namePlateBg ? (
                       <img
@@ -322,6 +528,7 @@ const AdminReportCustomThem = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {theme.templateModuleMaster?.nameEnglish || "N/A"}
                     </p>
+
                     {!theme.dummyPdf && activeTab === "theme" && (
                       <span className="inline-block mt-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
                         No PDF Available
