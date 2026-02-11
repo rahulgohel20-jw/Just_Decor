@@ -552,6 +552,7 @@ const RawMaterialAllocation = ({ mode }) => {
           const eventRawMatFunctions = item.isNewRow
             ? []
             : (item.eventRawMaterialFunctions || []).map((fn) => ({
+                menuItemId:fn.menuItemId,
                 eventFunctionId: fn.eventFunctionId || 0,
                 functionId: fn.functionId || 0,
                 functiondatetime: fn.functiondatetime

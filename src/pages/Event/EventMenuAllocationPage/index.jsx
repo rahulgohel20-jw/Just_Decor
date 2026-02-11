@@ -510,7 +510,7 @@ const OrderSummary = ({
                       <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
                         <div
                           className="col-span-9 pl-6 hover:text-primary"
-                          onClick={() => onItemClick(it, g)}
+                          onClick={() => onItemClick(it, g,null)}
                         >
                           {it.menuItemName}{" "}
                           <span className="text-primary font-bold">
@@ -1054,6 +1054,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleOrderSummaryItemClick = async (
     item,
+    category,
     clickedFunctionId,
   ) => {
     try {
@@ -1064,6 +1065,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
+      console.log(eventFunctionId,"data");
 
       const menuItemId = item.menuItemId || item.id;
 
@@ -1096,6 +1098,8 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       setIsCategoryModal(true);
       setMenuLoading(true);
+ 
+      
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
