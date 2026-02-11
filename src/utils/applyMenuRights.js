@@ -6,7 +6,10 @@ export const applyMenuRights = (menuItems, rights) => {
     // If item maps to a permission page
     if (item.pageName) {
       const canView = rights[item.pageName]?.view === true;
-
+      if (!canView) {
+        disabled = true;
+        statusLabel = "No Access 🔒";
+      }
     }
 
     // Process children recursively

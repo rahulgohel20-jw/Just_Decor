@@ -1,16 +1,18 @@
+import { applyMenuRights } from "@/utils/applyMenuRights";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthContext } from "@/auth";
 import { useMemo } from "react";
-import { useAuthContext } from "../auth/useAuthContext";
 import {
   allMenuItems,
   superAdminMenuItems,
   disableMenuItems,
 } from "../config/menu.config";
-import { applyMenuRights } from "@/utils/applyMenuRights";
-import { useAuthStore } from "@/store/useAuthStore";
 
 export const useMenu = () => {
   const { currentUser, loading } = useAuthContext();
   const rights = useAuthStore((state) => state.rights);
+
+  const rightsLoaded = Object.keys(rights || {}).length > 0;
 
   const menu = useMemo(() => {
     if (!currentUser) {
@@ -21,20 +23,22 @@ export const useMenu = () => {
     const plan = currentUser?.plan;
     const isApproved = currentUser?.isApprove === true;
 
-    // 👑 Super Admin → full access
     if (roleId === 1) {
       return superAdminMenuItems;
+    } else if (roleId === 2) {
+      return allMenuItems;
     }
 
-    // ❌ No plan or not approved → fully disabled
     if (!plan || !isApproved) {
       return disableMenuItems(allMenuItems);
     }
 
+    if (!rightsLoaded) {
+      return disableMenuItems(allMenuItems);
+    }
 
-    // 🔐 Apply rights → disable no-access pages
     return applyMenuRights(allMenuItems, rights);
-  }, [currentUser, rights]);
+  }, [currentUser, rights, rightsLoaded]);
 
   return { menu, loading };
 };
