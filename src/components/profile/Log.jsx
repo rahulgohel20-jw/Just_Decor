@@ -24,7 +24,7 @@ export default function Log() {
       setLoading(true);
 
       // Get user email from localStorage
-      const userid = localStorage.getItem("userId");
+      const userid = localStorage.getItem("mainId");
       const res = await getUserById(userid);
 
       const email = res.data.data["User Details"][0].email;

@@ -38,7 +38,7 @@ const TABS = [
 
 const getUserIdFromLocalStorage = () => {
   try {
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("mainId");
     return userId || null;
   } catch {
     return null;
