@@ -67,6 +67,7 @@ export default function AddLeadPage() {
     clientName: "",
     emailId: "",
     contactNumber: "",
+    clientRemarks: "",
     address: "",
     pinCode: "",
     city: "",
@@ -248,6 +249,8 @@ export default function AddLeadPage() {
           followUpDate: fu.followUpDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          memberId: fu.memberId ? Number(fu.memberId) : null,
+          createdAt: fu.createdAt || null,
         }));
 
         setFollowUps(normalized);
@@ -329,15 +332,20 @@ export default function AddLeadPage() {
   };
 
   const handleSaveFollowUp = (followUp) => {
+    console.log("📥 Received follow-up data:", followUp);
+
     const normalized = {
       id: followUp.id || 0,
-      followUpType: followUp.followType || followUp.followUpType || "",
+      followUpType: followUp.followUpType || followUp.followType || "",
       followUpStatus: followUp.followUpStatus || "Open",
-      followUpDate: followUp.followupDate || followUp.followUpDate || "",
-      clientRemarks: followUp.clientRemarks || "",
+      followUpDate: followUp.followUpDate || followUp.followupDate || "",
+      // ✅ CRITICAL FIX: Map clientRemarks correctly
+      clientRemarks: followUp.clientRemarks || followUp.description || "",
       employeeRemarks: followUp.employeeRemarks || "",
+      memberId: followUp.memberId || followUp.managerId || null,
     };
 
+    console.log("✅ Normalized follow-up:", normalized);
     setFollowUps((prev) => [...prev, normalized]);
   };
 
@@ -371,6 +379,7 @@ export default function AddLeadPage() {
           followUpDate: fu.followUpDate || fu.followupDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          memberId: fu.memberId || 0, // ✅ FIXED - use fu.memberId instead of fu.managerId
         })),
       };
 
@@ -921,10 +930,11 @@ export default function AddLeadPage() {
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between mb-3">
-                              <div>
-                                <h3 className="font-semibold text-gray-900 text-sm">
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-gray-900 text-sm mb-1">
                                   {leadData.clientName}
                                 </h3>
+                                {/* ✅ Display Client Remarks */}
                               </div>
 
                               <div className="text-right ml-4">
@@ -1015,11 +1025,12 @@ export default function AddLeadPage() {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    d="M9 12h6M9 16h6M9 8h6M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H7l-4-4V6a2 2 0 012-2z"
                                   />
                                 </svg>
+
                                 <span className="text-sm">
-                                  {leadData.clientName}
+                                  {item.clientRemarks}
                                 </span>
                               </div>
 
@@ -1064,17 +1075,29 @@ export default function AddLeadPage() {
                                     "No Contact"}
                                 </span>
                               </div>
+                              <div className="flex items-center gap-2">
+                                <svg
+                                  className="w-6 h-6 text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                  />
+                                </svg>
+
+                                <span className="text-sm">
+                                  {new Date(item.createdAt).toLocaleDateString(
+                                    "en-GB",
+                                  )}
+                                </span>
+                              </div>
 
                               <div className="ml-auto flex items-center gap-2">
-                                <button
-                                  onClick={() => {
-                                    setViewingFollowUp(item); // the specific follow-up
-                                    setIsFollowUpOpen(true);
-                                  }}
-                                >
-                                  <EyeIcon /> {/* your eye button */}
-                                </button>
-
                                 <button
                                   onClick={() => handleDelete(index)}
                                   className="text-gray-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50"
