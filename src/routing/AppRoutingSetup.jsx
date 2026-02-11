@@ -216,6 +216,7 @@ import AllReports from "../pages/Event/AllReportsPage/AllReports";
 import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleReport";
 import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
+import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
 
 
 const AppRoutingSetup = () => {
@@ -397,6 +398,7 @@ const AppRoutingSetup = () => {
           />
           <Route path="/super-Leads" element={<SuperLeads />} />
           <Route path="/super-leads/addlead" element={<AddLeadPage />} />
+          <Route path="/super-leads/lead-details/:id" element={<LeadDetails />} />
           <Route
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}

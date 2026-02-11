@@ -132,20 +132,15 @@ const SuperLeads = () => {
 
       if (apiData && Array.isArray(apiData)) {
         const formatted = apiData.map((item, index) => ({
-          sr_no: index + 1,
-          leadId: item.id,
-          leadCode: item.leadCode,
-          leadType: item.leadType,
-          leadStatus: item.leadStatus,
-          leadSource: item.leadSource,
-          leadAssign: item.leadAssignName || "-",
-          productType: item.planName || "-",
-          clientName: item.clientName,
-          contactNumber: item.contactNumber,
-          cityId: item.cityId,
-          cityName: item.cityName || "-",
-          createdAt: item.createdAt?.split("T")[0],
-        }));
+  ...item,
+  sr_no: index + 1,
+  leadId: item.id,
+  leadAssign: item.leadAssignName || "-",
+  productType: item.planName || "-",
+  cityName: item.cityName || "-",
+  createdAt: item.createdAt?.split("T")[0],
+}));
+
 
         setTableData(formatted);
       } else {
@@ -562,19 +557,13 @@ const SuperLeads = () => {
 
         if (response?.["All Leads"]?.length) {
           const formatted = response["All Leads"].map((item, index) => ({
-            sr_no: index + 1,
-            leadId: item.id,
-            leadCode: item.leadCode,
-            leadType: item.leadType,
-            leadStatus: item.leadStatus,
-            leadSource: item.leadSource,
-            leadAssign: item.leadAssignName || "-",
-            productType: item.planName || "-",
-            clientName: item.clientName,
-            contactNumber: item.contactNumber,
-            cityId: item.cityId,
-            cityName: item.cityName || "-",
-            createdAt: item.createdAt?.split("T")[0],
+            ...item,                
+  sr_no: index + 1,
+  leadId: item.id,        
+  leadAssign: item.leadAssignName || "-",
+  productType: item.planName || "-",
+  cityName: item.cityName || "-",
+  createdAt: item.createdAt?.split("T")[0],
           }));
 
           setTableData(formatted);
@@ -884,6 +873,7 @@ const SuperLeads = () => {
               handleSelectRow,
               handleSelectAll,
               filteredData.length,
+              navigate
             )}
             data={filteredData}
             paginationSize={10}

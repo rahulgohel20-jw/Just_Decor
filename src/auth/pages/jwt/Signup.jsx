@@ -10,6 +10,8 @@ import { useNavigate, Link } from "react-router-dom";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
 import FloatingSelect from "../../../components/form-inputs/selectinput/FloatingSelect";
+import { useLocation } from "react-router-dom";
+
 
 function FloatingInput({
   label,
@@ -123,6 +125,8 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const location = useLocation();
+
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -238,6 +242,59 @@ export default function Signup() {
     }
   }, [formData.stateId]);
 
+
+  useEffect(() => {
+  const lead = location.state?.leadData;
+  console.log("🚀 Lead data from location state:", lead);
+  if (!lead) return;
+
+
+  const loadData = async () => {
+    // 1️⃣ Set basic fields first (without city)
+    setFormData((prev) => ({
+      ...prev,
+      firstName: lead.clientName?.split(" ")[0] || "",
+      lastName: lead.clientName?.split(" ")[1] || "",
+      email: lead.emailId || "",
+      contactNo: lead.contactNumber
+        ? "+91" + lead.contactNumber
+        : "",
+      companyName: lead.companyName || "",
+      stateId: lead.stateId ? Number(lead.stateId) : "",
+      address: lead.address || "",
+    }));
+
+    // 2️⃣ If state exists → load cities
+    if (lead.stateId) {
+      try {
+        const response = await fetchCitiesByState(lead.stateId);
+        const data = response?.data?.data?.["City Details"];
+
+        if (Array.isArray(data)) {
+          const mappedCities = data.map((c) => ({
+            value: c.id,
+            label: c.name,
+          }));
+
+          setCities(mappedCities);
+
+          // 3️⃣ Now set cityId AFTER cities loaded
+          setFormData((prev) => ({
+            ...prev,
+            cityId: lead.cityId ? Number(lead.cityId) : "",
+          }));
+        }
+      } catch (error) {
+        console.error("City load error:", error);
+      }
+    }
+  };
+
+  loadData();
+}, [location.state]);
+
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -333,6 +390,8 @@ export default function Signup() {
 
   return (
     <div>
+      <form autoComplete="off">
+
       <div className="card max-w-[800px] w-full mx-auto bg-white shadow-md rounded-xl p-8">
         <div className="flex flex-col gap-2">
           <div>
@@ -349,6 +408,7 @@ export default function Signup() {
 
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
                 {/* First Name */}
                 <div>
                   <FloatingInput
@@ -464,15 +524,17 @@ export default function Signup() {
               {/* Password */}
               <div className="relative">
                 <FloatingInput
-                  type={showPassword ? "text" : "password"}
-                  label="Password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  icon="ki-lock text-primary"
-                  error={touched.password && errors.password}
-                />
+  autoComplete="new-password"
+  type={showPassword ? "text" : "password"}
+  label="Password"
+  name="password"
+  value={formData.password}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  icon="ki-lock text-primary"
+  error={touched.password && errors.password}
+/>
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -488,15 +550,17 @@ export default function Signup() {
               {/* Confirm Password */}
               <div className="relative">
                 <FloatingInput
-                  type={showConfirmPassword ? "text" : "password"}
-                  label="Confirm Password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  icon="ki-lock text-primary"
-                  error={touched.confirmPassword && errors.confirmPassword}
-                />
+  autoComplete="new-password"
+  type={showConfirmPassword ? "text" : "password"}
+  label="Confirm Password"
+  name="confirmPassword"
+  value={formData.confirmPassword}
+  onChange={handleChange}
+  onBlur={handleBlur}
+  icon="ki-lock text-primary"
+  error={touched.confirmPassword && errors.confirmPassword}
+/>
+
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -541,6 +605,8 @@ export default function Signup() {
           </span>
         </div>
       </div>
+
+      </form>
     </div>
   );
 }
