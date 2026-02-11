@@ -532,69 +532,17 @@ export const superAdminMenuItems = [
     icon: "ki-filled ki-user text-primary",
     path: "/master/user-master/",
   },
-
   {
     title: (
-      <FormattedMessage
-        id="COMMON.INVOICE_LIST"
-        defaultMessage="Invoice List"
-      />
-    ),
-    icon: "ki-filled ki-minus-folder text-primary",
-    path: "/admin-invoice",
-  },
-  {
-    title: (
-      <FormattedMessage
-        id="COMMON.CUSTOM_THEMES"
-        defaultMessage="Custom Themes"
-      />
-    ),
-    icon: "ki-filled ki-color-swatch text-primary",
-    path: "/super-reportcustomethemes",
-  },
-  {
-    title: "Plans",
-    icon: "ki-filled ki-crown text-primary",
-    path: "/plans",
-  },
-  {
-    title: "Database",
-    icon: "ki-filled ki-abstract-26 text-primary",
-    path: "/database",
-  },
-  {
-    title: (
-      <FormattedMessage
-        id="COMMON.RENEWAL_CUSTOMER"
-        defaultMessage="Renewal Customer"
-      />
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Employe List" />
     ),
     icon: "ki-filled ki-users text-primary",
-    path: "/renewal-history",
-  },
-  {
-    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Leads" />,
-    icon: "ki-filled ki-abstract-26 text-primary",
-    children: [
-      {
-        title: (
-          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
-        ),
-        path: "/super-leads",
-      },
-    ],
+    path: "/superadmin/members",
   },
   {
     title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
-      {
-        title: (
-          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Members" />
-        ),
-        path: "/superadmin/members",
-      },
       {
         title: (
           <FormattedMessage
@@ -666,6 +614,19 @@ export const superAdminMenuItems = [
     ],
   },
   {
+    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Leads" />,
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+        title: (
+          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
+        ),
+        path: "/super-leads",
+      },
+    ],
+  },
+
+  {
     title: (
       <FormattedMessage id="COMMON.MASTER" defaultMessage="User Right Master" />
     ),
@@ -687,6 +648,47 @@ export const superAdminMenuItems = [
         path: "/pages-master",
       },
     ],
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.CUSTOM_THEMES"
+        defaultMessage="Custom Themes"
+      />
+    ),
+    icon: "ki-filled ki-color-swatch text-primary",
+    path: "/super-reportcustomethemes",
+  },
+  {
+    title: "Plans",
+    icon: "ki-filled ki-crown text-primary",
+    path: "/plans",
+  },
+  {
+    title: "Database",
+    icon: "ki-filled ki-abstract-26 text-primary",
+    path: "/database",
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.RENEWAL_CUSTOMER"
+        defaultMessage="Renewal Customer"
+      />
+    ),
+    icon: "ki-filled ki-users text-primary",
+    path: "/renewal-history",
+  },
+
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.INVOICE_LIST"
+        defaultMessage="Invoice List"
+      />
+    ),
+    icon: "ki-filled ki-minus-folder text-primary",
+    path: "/admin-invoice",
   },
 ];
 
