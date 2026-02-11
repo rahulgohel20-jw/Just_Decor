@@ -132,17 +132,11 @@ const SuperLeads = () => {
 
       if (apiData && Array.isArray(apiData)) {
         const formatted = apiData.map((item, index) => ({
+          ...item,
           sr_no: index + 1,
           leadId: item.id,
-          leadCode: item.leadCode,
-          leadType: item.leadType,
-          leadStatus: item.leadStatus,
-          leadSource: item.leadSource,
           leadAssign: item.leadAssignName || "-",
           productType: item.planName || "-",
-          clientName: item.clientName,
-          contactNumber: item.contactNumber,
-          cityId: item.cityId,
           cityName: item.cityName || "-",
           createdAt: item.createdAt?.split("T")[0],
         }));
@@ -328,6 +322,7 @@ const SuperLeads = () => {
     try {
       const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
       const dataArray = response?.data?.data;
+      console.log(response, "data");
 
       if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
         const fullLeadData = dataArray[0];
@@ -562,17 +557,11 @@ const SuperLeads = () => {
 
         if (response?.["All Leads"]?.length) {
           const formatted = response["All Leads"].map((item, index) => ({
+            ...item,
             sr_no: index + 1,
             leadId: item.id,
-            leadCode: item.leadCode,
-            leadType: item.leadType,
-            leadStatus: item.leadStatus,
-            leadSource: item.leadSource,
             leadAssign: item.leadAssignName || "-",
             productType: item.planName || "-",
-            clientName: item.clientName,
-            contactNumber: item.contactNumber,
-            cityId: item.cityId,
             cityName: item.cityName || "-",
             createdAt: item.createdAt?.split("T")[0],
           }));
@@ -884,6 +873,7 @@ const SuperLeads = () => {
               handleSelectRow,
               handleSelectAll,
               filteredData.length,
+              navigate,
             )}
             data={filteredData}
             paginationSize={10}

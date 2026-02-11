@@ -1,4 +1,5 @@
 import { Popconfirm, Tooltip, Checkbox } from "antd";
+import { RotateCcw } from "lucide-react";
 import { FormattedMessage } from "react-intl";
 
 export const columns = (
@@ -11,6 +12,7 @@ export const columns = (
   onSelectRow,
   onSelectAll,
   totalRows,
+  navigate, 
 ) => [
   {
     id: "select",
@@ -39,6 +41,21 @@ export const columns = (
   {
     accessorKey: "leadCode",
     header: "Lead Code",
+    cell: ({ row }) => {
+      const leadCode = row.original.leadCode;
+      const leadId = row.original.leadId || row.original.id;
+
+      return (
+        <Tooltip title="Click to view lead details">
+          <button
+            onClick={() => navigate(`/super-leads/lead-details/${leadId}`)}
+            className="text-[#005BA8] hover:text-[#005BA8] font-medium hover:underline cursor-pointer transition-colors"
+          >
+            {leadCode}
+          </button>
+        </Tooltip>
+      );
+    },
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
@@ -102,21 +119,21 @@ export const columns = (
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-1">
-          <Tooltip title="View Lead">
+          {/* <Tooltip title="View Lead">
             <button
               className="btn btn-sm btn-icon btn-clear"
               onClick={() => onView && onView(row.original)}
             >
               <i className="ki-filled ki-eye text-primary"></i>
             </button>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip title="Follow Up">
             <button
               className="btn btn-sm btn-icon btn-clear"
               onClick={() => onFollowUp && onFollowUp(row.original)}
             >
-              <i className="ki-filled ki-calendar text-info"></i>
+              <i className="ki-filled ki-calendar text-teal-700"></i>
             </button>
           </Tooltip>
 
@@ -125,7 +142,20 @@ export const columns = (
               className="btn btn-sm btn-icon btn-clear"
               onClick={() => onEdit && onEdit(row.original)}
             >
-              <i className="ki-filled ki-notepad-edit text-success"></i>
+              <i className="ki-filled ki-notepad-edit text-blue-700"></i>
+            </button>
+          </Tooltip>
+          <Tooltip title="Revert Lead to Member">
+            <button
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => {
+  console.log("ROW DATA:", row.original);
+  navigate("/auth/signup", {
+    state: { leadData: row.original },
+  });
+}}
+            >
+             <RotateCcw size={18} className="text-gray-700" />
             </button>
           </Tooltip>
 
