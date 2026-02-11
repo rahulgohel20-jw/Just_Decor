@@ -1560,20 +1560,10 @@ export const GETcrockerycutlerygetByRawMaterialCat = (rawMaterialCatId, userId) 
   return GET(`crockerycutlery/getByRawMaterialCat?rawMaterialCatId=${rawMaterialCatId}&userId=${userId}`);
 };
 
-// ✅ FIXED VERSION with Debug Logging
-// Add this function to your apiServices.js file
+
 
 export const assignMultipleLeadToMember = (leadId_list, memberId) => {
-  // 🔍 Debug: Log what we received
-  console.log("assignMultipleLeadToMember called with:");
-  console.log("leadId_list:", leadId_list);
-  console.log("leadId_list type:", typeof leadId_list);
-  console.log("Is Array?", Array.isArray(leadId_list));
-  console.log("memberId:", memberId);
-  
-  // ✅ Ensure leadId_list is an array
-  const leadIds = Array.isArray(leadId_list) ? leadId_list : [];
-  
+  const leadIds = Array.isArray(leadId_list) ? leadId_list : []; 
   if (leadIds.length === 0) {
     console.error("❌ No lead IDs provided");
     return Promise.reject({ 
@@ -1581,9 +1571,8 @@ export const assignMultipleLeadToMember = (leadId_list, memberId) => {
       receivedValue: leadId_list
     });
   }
-  
+
   if (!memberId) {
-    console.error("❌ No member ID provided");
     return Promise.reject({ 
       message: "Member ID is required" 
     });
@@ -1607,4 +1596,8 @@ export const getLeadsByLeadStatus = (leadStatus) => {
 
 export const getleadbyleattype = (leadType) => {
   return GET(`leadmaster/getbyleadtype?leadType=${leadType}`);
+};
+
+export const Deletebyfollowupid = (id) => {
+return  DELETE(`leadmaster/deletefollowupbyid?id=${id}`);
 };
