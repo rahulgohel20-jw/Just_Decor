@@ -1559,3 +1559,52 @@ return POST(`crockerycutlery/addupdatecrockerycutlery`, data);
 export const GETcrockerycutlerygetByRawMaterialCat = (rawMaterialCatId, userId) => {
   return GET(`crockerycutlery/getByRawMaterialCat?rawMaterialCatId=${rawMaterialCatId}&userId=${userId}`);
 };
+
+// ✅ FIXED VERSION with Debug Logging
+// Add this function to your apiServices.js file
+
+export const assignMultipleLeadToMember = (leadId_list, memberId) => {
+  // 🔍 Debug: Log what we received
+  console.log("assignMultipleLeadToMember called with:");
+  console.log("leadId_list:", leadId_list);
+  console.log("leadId_list type:", typeof leadId_list);
+  console.log("Is Array?", Array.isArray(leadId_list));
+  console.log("memberId:", memberId);
+  
+  // ✅ Ensure leadId_list is an array
+  const leadIds = Array.isArray(leadId_list) ? leadId_list : [];
+  
+  if (leadIds.length === 0) {
+    console.error("❌ No lead IDs provided");
+    return Promise.reject({ 
+      message: "No lead IDs provided",
+      receivedValue: leadId_list
+    });
+  }
+  
+  if (!memberId) {
+    console.error("❌ No member ID provided");
+    return Promise.reject({ 
+      message: "Member ID is required" 
+    });
+  }
+  
+  // Create query parameters: leadId=3&leadId=4&memberId=15
+  const leadIdParams = leadIds.map((id) => `leadId=${id}`).join("&");
+  const finalUrl = `/leadmaster/assignMultipleLeadToMember?${leadIdParams}&memberId=${memberId}`;
+  
+  console.log("✅ Final URL:", finalUrl);
+  
+  return PUT(finalUrl);
+};
+export const getLeadsByLeadAssigned = (leadAssignedId) => {
+  return GET(`leadmaster/getleadbyleadassigned?leadAssignedId=${leadAssignedId}`);
+};
+
+export const getLeadsByLeadStatus = (leadStatus) => {
+  return GET(`leadmaster/getbyleadstatus?leadStatus=${leadStatus}`);
+};
+
+export const getleadbyleattype = (leadType) => {
+  return GET(`leadmaster/getbyleadtype?leadType=${leadType}`);
+};

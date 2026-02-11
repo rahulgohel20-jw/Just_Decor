@@ -6,7 +6,7 @@ export const columns = (
   onDelete,
   onStatus,
   onView,
-  onFollowUp, // ✅ ADD: Follow-up handler
+  onFollowUp,
   selectedRows,
   onSelectRow,
   onSelectAll,
@@ -111,7 +111,6 @@ export const columns = (
             </button>
           </Tooltip>
 
-          {/* ✅ ADD: Follow Up Button */}
           <Tooltip title="Follow Up">
             <button
               className="btn btn-sm btn-icon btn-clear"
