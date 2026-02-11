@@ -75,29 +75,29 @@ export const columns = (onEdit, handleView) => [
     },
   },
 
-  {
-    accessorKey: "task_access",
-    header: (
-      <FormattedMessage id="COMMON.TASK_ACCESS" defaultMessage="Task Access" />
-    ),
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
-  },
-  {
-    accessorKey: "leave_attendence_access",
-    header: (
-      <FormattedMessage
-        id="COMMON.LEAVE_ATTENDANCE_ACCESS"
-        defaultMessage="Leave Attendance Access"
-      />
-    ),
-    meta: {
-      headerClassName: "w-[10%]",
-      cellClassName: "w-[10%]",
-    },
-  },
+  // {
+  //   accessorKey: "task_access",
+  //   header: (
+  //     <FormattedMessage id="COMMON.TASK_ACCESS" defaultMessage="Task Access" />
+  //   ),
+  //   meta: {
+  //     headerClassName: "w-[10%]",
+  //     cellClassName: "w-[10%]",
+  //   },
+  // },
+  // {
+  //   accessorKey: "leave_attendence_access",
+  //   header: (
+  //     <FormattedMessage
+  //       id="COMMON.LEAVE_ATTENDANCE_ACCESS"
+  //       defaultMessage="Leave Attendance Access"
+  //     />
+  //   ),
+  //   meta: {
+  //     headerClassName: "w-[10%]",
+  //     cellClassName: "w-[10%]",
+  //   },
+  // },
 
   {
     accessorKey: "action",
@@ -114,15 +114,15 @@ export const columns = (onEdit, handleView) => [
               <i className="ki-filled ki-eye text-success"></i>
             </button>
           </Tooltip> */}
-          {/* <Tooltip className="cursor-pointer" title="View Member">
+          <Tooltip className="cursor-pointer" title="View Member">
             <button
               className="btn btn-sm btn-icon btn-clear"
               title=""
-              onClick={() => onView(row.original)}
+              onClick={() => handleView(row.original)}
             >
               <i className="ki-filled ki-eye text-success"></i>
             </button>
-          </Tooltip> */}
+          </Tooltip>
           <Tooltip className="cursor-pointer" title="Edit Member">
             <button
               className="btn btn-sm btn-icon btn-clear"
