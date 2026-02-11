@@ -79,119 +79,92 @@ const handleView = (member) => {
   setIsViewMemberModalOpen(true);
 };
 
-  const calculateStats = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    let overdue = 0;
-    let overdueFromYesterday = 0;
-    let pending = 0;
-    let inProgress = 0;
-    let inTime = 0;
-    let delayed = 0;
-
-    tickets.forEach(ticket => {
-      const expectedDate = new Date(ticket.expactedclosedate);
-      const actualDate = ticket.actualclosedate ? new Date(ticket.actualclosedate) : null;
-      const ticketCreatedDate = new Date(ticket.createdAt);
-
-      // Overdue: Expected close date passed but not closed
-      if (expectedDate < today && !actualDate) {
-        overdue++;
-        if (ticketCreatedDate < yesterday) {
-          overdueFromYesterday++;
-        }
-      }
-
-      // Pending: Not started or assigned
-      if (ticket.ticketfrom === 'pending' || !ticket.actualclosedate) {
-        pending++;
-      }
-
-      // In-Progress: Has activity but not completed
-      if (ticket.ticketfrom === 'in-progress' || (ticket.usermsg && !ticket.actualclosedate)) {
-        inProgress++;
-      }
-
-      // In-Time: Completed within expected date
-      if (actualDate && actualDate <= expectedDate) {
-        inTime++;
-      }
-
-      // Delayed: Completed after expected date
-      if (actualDate && actualDate > expectedDate) {
-        delayed++;
-      }
-    });
-
-    return {
-      overdue,
-      overdueFromYesterday,
-      pending,
-      inProgress,
-      inTime,
-      delayed
-    };
+ const calculateStats = () => {
+  const stats = {
+    pending: 10,
+    confirm: 40,
+    cancel: 70,
+    hot: 80,
+    cold: 90,
+    inquiry: 20
   };
+
+  tickets.forEach(ticket => {
+    const status = ticket.status?.toLowerCase();
+    if (status && stats.hasOwnProperty(status)) {
+      stats[status]++;
+    }
+  });
+
+  return stats;
+};
+
 
   const stats = calculateStats();
 
-  const statusCards = [
-    {
-      id: 'overdue',
-      title: 'Overdue',
-      count: stats.overdue,
-      subtitle: `+${stats.overdueFromYesterday} from yesterday`,
-      icon: AlertCircle,
-      bgColor: 'bg-red-50',
-      iconColor: 'text-red-600',
-      borderColor: 'border-red-200',
-      countColor: 'text-gray-800'
-    },
-    {
-      id: 'pending',
-      title: 'Pending',
-      count: stats.pending,
-      icon: Clock,
-      bgColor: 'bg-gray-50',
-      iconColor: 'text-gray-600',
-      borderColor: 'border-gray-200',
-      countColor: 'text-gray-800'
-    },
-    {
-      id: 'in-progress',
-      title: 'In-Progress',
-      count: stats.inProgress,
-      icon: Hourglass,
-      bgColor: 'bg-yellow-50',
-      iconColor: 'text-yellow-600',
-      borderColor: 'border-yellow-200',
-      countColor: 'text-gray-800'
-    },
-    {
-      id: 'in-time',
-      title: 'In-Time',
-      count: stats.inTime,
-      icon: CheckCircle,
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600',
-      borderColor: 'border-green-200',
-      countColor: 'text-gray-800'
-    },
-    {
-      id: 'delayed',
-      title: 'Delayed',
-      count: stats.delayed,
-      icon: Bell,
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600',
-      borderColor: 'border-orange-200',
-      countColor: 'text-gray-800'
-    }
-  ]
+ const statusCards = [
+  {
+    id: 'pending',
+    title: 'Pending',
+    count: stats.pending,
+    icon: Clock,
+    bgColor: 'bg-gray-50',
+    iconColor: 'text-gray-600',
+    borderColor: 'border-gray-200',
+    countColor: 'text-gray-800'
+  },
+  {
+    id: 'confirm',
+    title: 'Confirm',
+    count: stats.confirm,
+    icon: CheckCircle,
+    bgColor: 'bg-green-50',
+    iconColor: 'text-green-600',
+    borderColor: 'border-green-200',
+    countColor: 'text-gray-800'
+  },
+  {
+    id: 'cancel',
+    title: 'Cancel',
+    count: stats.cancel,
+    icon: AlertCircle,
+    bgColor: 'bg-red-50',
+    iconColor: 'text-red-600',
+    borderColor: 'border-red-200',
+    countColor: 'text-gray-800'
+  },
+  {
+    id: 'hot',
+    title: 'Hot',
+    count: stats.hot,
+    icon: Bell,
+    bgColor: 'bg-orange-50',
+    iconColor: 'text-orange-600',
+    borderColor: 'border-orange-200',
+    countColor: 'text-gray-800'
+  },
+  {
+    id: 'cold',
+    title: 'Cold',
+    count: stats.cold,
+    icon: Hourglass,
+    bgColor: 'bg-blue-50',
+    iconColor: 'text-blue-600',
+    borderColor: 'border-blue-200',
+    countColor: 'text-gray-800'
+  },
+  {
+    id: 'inquiry',
+    title: 'Inquiry',
+    count: stats.inquiry,
+    icon: Bell,
+    bgColor: 'bg-purple-50',
+    iconColor: 'text-purple-600',
+    borderColor: 'border-purple-200',
+    countColor: 'text-gray-800'
+  }
+];
+
 
   return (
     <Fragment>
@@ -212,16 +185,18 @@ const handleView = (member) => {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
       {statusCards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.id}
-            className={`${card.bgColor} rounded-lg p-4 border ${card.borderColor} hover:shadow-md transition-shadow`}
+            className={`${card.bgColor} flex justify-between rounded-lg p-4 border ${card.borderColor} hover:shadow-md transition-shadow`}
           >
-            {/* Icon */}
-            <div className={`${card.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-3`}>
+            <div className="flex items-center">
+              {/* Icon */}
+            <div className={`${card.bgColor} w-12 h-12 rounded-lg flex items-center justify-center `}>
               <Icon className={`${card.iconColor} w-6 h-6`} />
             </div>
 
@@ -229,8 +204,10 @@ const handleView = (member) => {
             <h3 className="text-sm font-medium text-gray-600 mb-1">
               {card.title}
             </h3>
-
-            {/* Count */}
+            </div>
+            
+            <div>
+              {/* Count */}
             <div className="flex items-baseline gap-2">
               <span className={`text-3xl font-bold ${card.countColor}`}>
                 {card.count.toString().padStart(2, '0')}
@@ -243,6 +220,8 @@ const handleView = (member) => {
                 {card.subtitle}
               </p>
             )}
+            </div>
+            
           </div>
         );
       })}
