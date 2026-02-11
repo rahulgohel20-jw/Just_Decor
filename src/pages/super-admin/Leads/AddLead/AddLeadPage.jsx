@@ -10,8 +10,9 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
 import { EyeIcon } from "lucide-react";
-
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
 const { Option } = Select;
 
 import {
@@ -250,8 +251,9 @@ export default function AddLeadPage() {
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
           memberId: fu.memberId ? Number(fu.memberId) : null,
-          createdAt: fu.createdAt || null,
+          createdAt: fu.createdAt,
         }));
+        console.log("CreatedAt value:", normalized);
 
         setFollowUps(normalized);
       }
@@ -341,6 +343,7 @@ export default function AddLeadPage() {
       clientRemarks: followUp.clientRemarks || followUp.description || "",
       employeeRemarks: followUp.employeeRemarks || "",
       memberId: followUp.memberId || followUp.managerId || null,
+      createdAt: dayjs().format("DD/MM/YYYY hh:mm A"),
     };
 
     console.log("✅ Normalized follow-up:", normalized);
@@ -973,65 +976,15 @@ export default function AddLeadPage() {
                                     created at :
                                   </span>
                                   <span className="text-gray-900">
-                                    {new Date(
-                                      item.createdAt,
-                                    ).toLocaleDateString("en-GB")}
+                                    {item.createdAt
+                                      ? dayjs(
+                                          item.createdAt,
+                                          "DD/MM/YYYY hh:mm A",
+                                        ).format("DD MMM YYYY, hh:mm A")
+                                      : "N/A"}
                                   </span>
                                 </div>
                               </div>
-                              {/* <Select
-                                value={item.followUpStatus}
-                                className="w-[120px]"
-                                optionLabelProp="label" 
-                                onChange={(value) => {
-                                  setFollowUps((prev) =>
-                                    prev.map((fu, i) =>
-                                      i === index
-                                        ? { ...fu, followUpStatus: value }
-                                        : fu,
-                                    ),
-                                  );
-                                }}
-                              >
-                                <Option
-                                  value="Open"
-                                  label={
-                                    <span className="px-2 py-1 rounded text-white bg-green-500">
-                                      Open
-                                    </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-green-500">
-                                    Open
-                                  </span>
-                                </Option>
-
-                                <Option
-                                  value="Closed"
-                                  label={
-                                    <span className="px-2 py-1 rounded text-white bg-red-500">
-                                      Closed
-                                    </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-red-500">
-                                    Closed
-                                  </span>
-                                </Option>
-
-                                <Option
-                                  value="Pending"
-                                  label={
-                                    <span className="px-2 py-1 rounded text-white bg-yellow-500">
-                                      Pending
-                                    </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-yellow-500">
-                                    Pending
-                                  </span>
-                                </Option>
-                              </Select> */}
                             </div>
 
                             <hr className="my-3 border-gray-300" />
@@ -1074,9 +1027,7 @@ export default function AddLeadPage() {
                                 </svg>
 
                                 <span className="text-sm">
-                                  {new Date(item.createdAt).toLocaleDateString(
-                                    "en-GB",
-                                  )}
+                                  {item.followUpDate || "N/A"}
                                 </span>
                               </div>
 

@@ -80,9 +80,9 @@ export default function ViewLeadDetailModal({ open, onClose, data }) {
                     <tr className="border-b text-left">
                       <th className="pb-2">Client Name</th>
                       <th className="pb-2">Name</th>
+                      <th className="pb-2">Created At</th>
                       <th className="pb-2">Reminder Date</th>
                       <th className="pb-2">Call Type</th>
-                      <th className="pb-2">Created At</th>
                     </tr>
                   </thead>
 
@@ -95,15 +95,10 @@ export default function ViewLeadDetailModal({ open, onClose, data }) {
                           {/* ✅ MEMBER NAME ENGLISH */}
                           <td>{item.memberNameEnglish || "N/A"}</td>
 
+                          <td>{item.createdAt || "-"}</td>
                           <td>{item.followUpDate || "-"}</td>
 
                           <td>{item.followUpType || "-"}</td>
-
-                          <td>
-                            {item.createdAt
-                              ? new Date(item.createdAt).toLocaleString("en-GB")
-                              : "-"}
-                          </td>
                         </tr>
                       ))
                     ) : (
