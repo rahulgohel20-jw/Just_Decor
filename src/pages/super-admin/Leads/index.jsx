@@ -342,7 +342,7 @@ const SuperLeads = () => {
 
           <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Pending Leads</p>
+              <p className="text-gray-600 text-sm font-medium">Cold Leads</p>
               <p className="text-3xl font-semibold mt-1">{stats.cold}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#FEF9C3] flex items-center justify-center">
@@ -356,10 +356,8 @@ const SuperLeads = () => {
 
           <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">
-                Assigned Leads
-              </p>
-              <p className="text-3xl font-semibold mt-1">{stats.assigned}</p>
+              <p className="text-gray-600 text-sm font-medium">Inquire Leads</p>
+              <p className="text-3xl font-semibold mt-1">{stats.inquire}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#F3E8FF] flex items-center justify-center">
               <img

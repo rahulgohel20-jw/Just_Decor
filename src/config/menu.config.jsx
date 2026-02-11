@@ -54,6 +54,7 @@ export const allMenuItems = [
             defaultMessage="Types"
           />
         ),
+        pageName: "Types",
         path: "/master/contact-type",
       },
       {
@@ -63,6 +64,7 @@ export const allMenuItems = [
             defaultMessage="Categories"
           />
         ),
+        pageName: "Categories",
         path: "/master/contact-categories",
       },
       {
@@ -315,7 +317,10 @@ export const allMenuItems = [
       // },
       {
         title: (
-          <FormattedMessage id="COMMON.INVOICE" defaultMessage="Datewise Order Reports" />
+          <FormattedMessage
+            id="COMMON.INVOICE"
+            defaultMessage="Datewise Order Reports"
+          />
         ),
         path: "/adminmodulereport",
       },
