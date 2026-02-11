@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
 import dayjs from "dayjs";
 import ViewLeadDetailModal from "../../../partials/modals/view-lead-detail/ViewLeadDetailModal";
-import FollowUpModal from "../../../partials/modals/follow-up-modal/FollowUpModal";
+import FollowUpModal from "../../../partials/modals/add-followup-lead/FollowUpModal";
 import {
   GetAllleadmaster,
   DeleteLeadbyID,
@@ -19,25 +19,24 @@ import { FormattedMessage, useIntl } from "react-intl";
 
 const SuperLeads = () => {
   const classes = useStyle();
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedcontactType, setSelectedcontactType] = useState(null);
-  const [tableData, setTableData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLeadForEdit, setSelectedLeadForEdit] = useState(null);
+  const intl = useIntl();
+
+  // State management
+  const [tableData, setTableData] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [selectedRows, setSelectedRows] = useState([]);
   const [customRange, setCustomRange] = useState({ start: "", end: "" });
   const [selectedMonth, setSelectedMonth] = useState("");
   const [totalLeads, setTotalLeads] = useState(0);
-  const [selectedRows, setSelectedRows] = useState([]);
 
-  // ✅ ADD: Follow-up modal state
+  // Modal states
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
   const [isFollowUpOpen, setIsFollowUpOpen] = useState(false);
   const [selectedLeadForFollowUp, setSelectedLeadForFollowUp] = useState(null);
 
+  // Stats
   const [stats, setStats] = useState({
     total: 0,
     hot: 0,
@@ -46,22 +45,9 @@ const SuperLeads = () => {
     assigned: 0,
   });
 
-  const intl = useIntl();
-
-  let Id = localStorage.getItem("userId");
   const lang = localStorage.getItem("lang") || "en";
 
-  const getNameByLang = (cust) => {
-    switch (lang) {
-      case "hi":
-        return cust.nameHindi || cust.nameEnglish || "-";
-      case "gu":
-        return cust.nameGujarati || cust.nameEnglish || "-";
-      default:
-        return cust.nameEnglish || "-";
-    }
-  };
-
+  // Filter data
   const filteredData = tableData.filter((item) => {
     const search = searchText.toLowerCase();
     return (
@@ -72,6 +58,7 @@ const SuperLeads = () => {
     );
   });
 
+  // Checkbox handlers
   const handleSelectRow = (leadId, isChecked) => {
     if (isChecked) {
       setSelectedRows((prev) => [...prev, leadId]);
@@ -89,7 +76,7 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ ADD: Handle Follow Up
+  // ✅ Follow-Up Handler
   const handleFollowUp = async (lead) => {
     try {
       Swal.fire({
@@ -118,6 +105,7 @@ const SuperLeads = () => {
         leadCode: fullLeadData.leadCode,
         contactNumber: fullLeadData.contactNumber,
         emailId: fullLeadData.emailId,
+        followUps: fullLeadData.followUpDetails || [],
       });
 
       setIsFollowUpOpen(true);
@@ -128,14 +116,18 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ ADD: Handle Save Follow Up
+  // ✅ Save Follow-Up Handler
   const handleSaveFollowUp = (followUpData) => {
     console.log("Follow-up saved:", followUpData);
     // You can add API call here to save the follow-up
+    // Example: AddFollowUp(selectedLeadForFollowUp.leadId, followUpData)
     Swal.fire("Success", "Follow-up added successfully!", "success");
-    setIsFollowUpOpen(false);
+
+    // Optionally refresh the leads data
+    fetchLeads();
   };
 
+  // Edit Lead Handler
   const handleEditLead = async (lead) => {
     try {
       Swal.fire({
@@ -197,10 +189,7 @@ const SuperLeads = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLeads();
-  }, []);
-
+  // Fetch Leads
   const fetchLeads = () => {
     GetAllleadmaster()
       .then((res) => {
@@ -239,6 +228,7 @@ const SuperLeads = () => {
       });
   };
 
+  // Delete Lead Handler
   const handleDeleteLead = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -263,6 +253,7 @@ const SuperLeads = () => {
     });
   };
 
+  // View Lead Handler
   const handleViewLead = async (lead) => {
     try {
       Swal.fire({
@@ -296,9 +287,14 @@ const SuperLeads = () => {
     }
   };
 
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
   return (
     <Fragment>
       <Container>
+        {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs
             items={[
@@ -314,36 +310,93 @@ const SuperLeads = () => {
           />
         </div>
 
-        <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div
-            className={`flex flex-wrap items-center gap-2 ${classes.customStyle}`}
-          ></div>
-        </div>
-
         {/* TOP STATS CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {/* ... existing stats cards ... */}
+          <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Total Leads</p>
+              <p className="text-3xl font-semibold mt-1">{stats.total}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+              <img
+                src={toAbsoluteUrl("/media/icons/lead1.png")}
+                alt="icon"
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Hot Leads</p>
+              <p className="text-3xl font-semibold mt-1">{stats.hot}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-[#FEE2E2] flex items-center justify-center">
+              <img
+                src={toAbsoluteUrl("/media/icons/lead2.png")}
+                alt="icon"
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Pending Leads</p>
+              <p className="text-3xl font-semibold mt-1">{stats.cold}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-[#FEF9C3] flex items-center justify-center">
+              <img
+                src={toAbsoluteUrl("/media/icons/lead3.png")}
+                alt="icon"
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">
+                Assigned Leads
+              </p>
+              <p className="text-3xl font-semibold mt-1">{stats.assigned}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-[#F3E8FF] flex items-center justify-center">
+              <img
+                src={toAbsoluteUrl("/media/icons/lead4.png")}
+                alt="icon"
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+          </div>
         </div>
 
         {/* FILTER ROW */}
         <div className="bg-white p-4 rounded-lg shadow-sm border mb-5">
-          {/* ... existing filter code ... */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="filItems relative">
+                <i className="ki-filled ki-magnifier leading-none text-md text-primary absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
+                <input
+                  className="input pl-8"
+                  placeholder="Search leads"
+                  type="text"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate("/super-leads/addlead")}
+              className="bg-primary text-white px-4 py-2 rounded-md shadow flex items-center gap-2"
+            >
+              <i className="ki-filled ki-plus"></i> Create Lead
+            </button>
+          </div>
         </div>
 
         {/* Selected rows indicator */}
-        {selectedRows.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4">
-            <p className="text-sm text-blue-700">
-              {selectedRows.length} lead(s) selected
-              <button
-                onClick={() => setSelectedRows([])}
-                className="ml-3 text-blue-600 underline"
-              >
-                Clear selection
-              </button>
-            </p>
-          </div>
-        )}
 
         {/* View Lead Modal */}
         {isViewModalOpen && (
@@ -354,7 +407,7 @@ const SuperLeads = () => {
           />
         )}
 
-        {/* ✅ ADD: Follow Up Modal */}
+        {/* ✅ Follow Up Modal */}
         {isFollowUpOpen && selectedLeadForFollowUp && (
           <FollowUpModal
             isOpen={isFollowUpOpen}
@@ -365,6 +418,7 @@ const SuperLeads = () => {
             onSave={handleSaveFollowUp}
             clientName={selectedLeadForFollowUp.clientName}
             leadData={selectedLeadForFollowUp}
+            existingFollowUps={selectedLeadForFollowUp.followUps}
           />
         )}
 
@@ -376,7 +430,7 @@ const SuperLeads = () => {
               handleDeleteLead,
               null,
               handleViewLead,
-              handleFollowUp, // ✅ ADD: Pass follow-up handler
+              handleFollowUp, // ✅ Follow-up handler
               selectedRows,
               handleSelectRow,
               handleSelectAll,
