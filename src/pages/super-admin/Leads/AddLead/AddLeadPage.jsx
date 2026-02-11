@@ -1074,9 +1074,7 @@ export default function AddLeadPage() {
                                 </svg>
 
                                 <span className="text-sm">
-                                  {new Date(item.createdAt).toLocaleDateString(
-                                    "en-GB",
-                                  )}
+                                  {item.followUpDate || "N/A"}
                                 </span>
                               </div>
 
