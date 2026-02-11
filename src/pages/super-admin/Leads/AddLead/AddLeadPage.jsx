@@ -332,8 +332,6 @@ export default function AddLeadPage() {
   };
 
   const handleSaveFollowUp = (followUp) => {
-    console.log("📥 Received follow-up data:", followUp);
-
     const normalized = {
       id: followUp.id || 0,
       followUpType: followUp.followUpType || followUp.followType || "",
@@ -433,6 +431,18 @@ export default function AddLeadPage() {
         setManagers([]);
       });
   };
+
+  const filteredFollowUps = followUps.filter((item) => {
+    const search = searchText.toLowerCase();
+
+    return (
+      leadData.clientName?.toLowerCase().includes(search) ||
+      item.followUpType?.toLowerCase().includes(search) ||
+      item.clientRemarks?.toLowerCase().includes(search) ||
+      item.followUpDate?.toLowerCase().includes(search) ||
+      item.followUpStatus?.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <Fragment>
@@ -906,7 +916,7 @@ export default function AddLeadPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {followUps.length === 0 ? (
+                  {filteredFollowUps.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-6 text-gray-500 text-sm">
                       <img
                         src={toAbsoluteUrl("/media/illustrations/nofound.jpg")}
@@ -916,7 +926,7 @@ export default function AddLeadPage() {
                       <span>No Follow-Up Found</span>
                     </div>
                   ) : (
-                    followUps.map((item, index) => (
+                    filteredFollowUps.map((item, index) => (
                       <div
                         key={index}
                         className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -934,6 +944,9 @@ export default function AddLeadPage() {
                                 <h3 className="font-semibold text-gray-900 text-sm mb-1">
                                   {leadData.clientName}
                                 </h3>
+                                <span className="text-sm w-40x">
+                                  {item.clientRemarks}
+                                </span>
                                 {/* ✅ Display Client Remarks */}
                               </div>
 
@@ -955,11 +968,21 @@ export default function AddLeadPage() {
                                     {item.followUpDate || "N/A"}
                                   </span>
                                 </div>
+                                <div className="flex items-center gap-1 text-sm font-medium mt-0.5">
+                                  <span className="text-gray-500">
+                                    created at :
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {new Date(
+                                      item.createdAt,
+                                    ).toLocaleDateString("en-GB")}
+                                  </span>
+                                </div>
                               </div>
-                              <Select
+                              {/* <Select
                                 value={item.followUpStatus}
                                 className="w-[120px]"
-                                optionLabelProp="label" // ✅ ensures selected value shows colored label
+                                optionLabelProp="label" 
                                 onChange={(value) => {
                                   setFollowUps((prev) =>
                                     prev.map((fu, i) =>
@@ -1008,32 +1031,12 @@ export default function AddLeadPage() {
                                     Pending
                                   </span>
                                 </Option>
-                              </Select>
+                              </Select> */}
                             </div>
 
                             <hr className="my-3 border-gray-300" />
 
                             <div className="flex items-center gap-6 text-xs text-gray-600 flex-wrap">
-                              <div className="flex items-center gap-2">
-                                <svg
-                                  className="w-6 h-6 text-gray-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12h6M9 16h6M9 8h6M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H7l-4-4V6a2 2 0 012-2z"
-                                  />
-                                </svg>
-
-                                <span className="text-sm">
-                                  {item.clientRemarks}
-                                </span>
-                              </div>
-
                               <div className="flex items-center gap-2">
                                 <svg
                                   className="w-6 h-6 text-gray-400"
@@ -1055,26 +1058,6 @@ export default function AddLeadPage() {
                                 </span>
                               </div>
 
-                              <div className="flex items-center gap-2">
-                                <svg
-                                  className="w-6 h-6 text-gray-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                                  />
-                                </svg>
-                                <span className="text-sm">
-                                  {item.contactNumber ||
-                                    leadData.contactNumber ||
-                                    "No Contact"}
-                                </span>
-                              </div>
                               <div className="flex items-center gap-2">
                                 <svg
                                   className="w-6 h-6 text-gray-400"

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Input, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 import AddFollowUpModal from "../add-followup-lead/FollowUpModal"; // ✅ CHANGE THIS LINE
-
+import { Deletebyfollowupid } from "@/services/apiServices";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -18,9 +19,41 @@ const FollowUp = ({
 }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [localFollowUps, setLocalFollowUps] = useState(existingFollowUps);
+  const [searchText, setSearchText] = useState("");
+  const handleDelete = async (followUpId) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  const handleDelete = (index) => {
-    console.log("Delete follow-up at index:", index);
+    if (result.isConfirmed) {
+      try {
+        await Deletebyfollowupid(followUpId);
+
+        await Swal.fire({
+          title: "Deleted!",
+          text: "Follow-up has been deleted.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        if (onRefresh) {
+          await onRefresh();
+        }
+      } catch (error) {
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong.",
+          icon: "error",
+        });
+      }
+    }
   };
 
   const isViewMode = !!viewOnlyFollowUp;
@@ -34,8 +67,6 @@ const FollowUp = ({
   useEffect(() => {}, [localFollowUps]);
 
   const handleSaveFromAddModal = async (followUpData) => {
-    console.log("💾 Follow-up from add modal:", followUpData);
-
     // Call the parent's onSave (which will call the API)
     await onSave(followUpData);
 
@@ -43,13 +74,23 @@ const FollowUp = ({
     setIsAddModalOpen(false);
 
     // Refresh
-    console.log("🔄 Calling onRefresh from modal...");
     if (onRefresh) {
       await onRefresh();
     }
-
-    console.log("✅ Modal save complete");
   };
+  const filteredFollowUps = localFollowUps.filter((item) => {
+    const search = searchText.trim().toLowerCase();
+
+    if (!search) return true;
+
+    return (
+      clientName?.toLowerCase().includes(search) ||
+      item?.followUpType?.toLowerCase().includes(search) ||
+      item?.clientRemarks?.toLowerCase().includes(search) ||
+      item?.memberNameEnglish?.toLowerCase().includes(search) ||
+      item?.followUpDate?.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <>
@@ -72,25 +113,9 @@ const FollowUp = ({
                 className="input pl-8"
                 placeholder="Search follow-ups"
                 type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
               />
-            </div>
-
-            <div className="filItems relative">
-              <select className="select pe-7.5">
-                <option value="">Created At</option>
-                <option value="1">Today</option>
-                <option value="2">Next 1 Month</option>
-                <option value="3">Custom Date</option>
-              </select>
-            </div>
-
-            <div className="filItems relative">
-              <select className="select pe-7.5">
-                <option value="">Get Lead</option>
-                <option value="1">Today</option>
-                <option value="2">Next 1 Month</option>
-                <option value="3">Custom Date</option>
-              </select>
             </div>
 
             <div className="flex gap-3 ml-auto">
@@ -106,13 +131,9 @@ const FollowUp = ({
           {/* Follow-Up List */}
           <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {/* ✅ Add debug info */}
-            {console.log(
-              "🎨 Rendering list with localFollowUps:",
-              localFollowUps,
-            )}
 
-            {localFollowUps && localFollowUps.length > 0 ? (
-              localFollowUps.map((item, index) => (
+            {filteredFollowUps && filteredFollowUps.length > 0 ? (
+              filteredFollowUps.map((item, index) => (
                 <div
                   key={index}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -130,6 +151,7 @@ const FollowUp = ({
                           <h3 className="font-semibold text-gray-900 text-base">
                             {clientName || "N/A"}
                           </h3>
+                          <span> {item.clientRemarks}</span>
                         </div>
 
                         <div className="text-right ml-4">
@@ -145,42 +167,23 @@ const FollowUp = ({
                               {item.followUpDate || "N/A"}
                             </span>
                           </div>
+                          <div className="flex items-center gap-1 text-sm mt-1">
+                            <span className="text-gray-500">created At:</span>
+                            <span className="text-gray-900 font-medium">
+                              {new Date(item.createdAt).toLocaleDateString(
+                                "en-GB",
+                              )}{" "}
+                            </span>
+                          </div>{" "}
                         </div>
 
                         {/* Status Dropdown */}
-                        <Select
-                          value={item.followUpStatus}
-                          className="w-[120px]"
-                          size="small"
-                          disabled={isViewMode}
-                        >
-                          <Option value="Open">
-                            <span className="text-green-600 font-medium">
-                              Open
-                            </span>
-                          </Option>
-                          <Option value="Pending">
-                            <span className="text-yellow-600 font-medium">
-                              Pending
-                            </span>
-                          </Option>
-                          <Option value="Closed">
-                            <span className="text-red-600 font-medium">
-                              Closed
-                            </span>
-                          </Option>
-                        </Select>
                       </div>
 
                       <hr className="my-3 border-gray-200" />
 
                       {/* Contact Info */}
                       <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
-                        <div className="flex items-center gap-2">
-                          <i className="ki-filled ki-note text-gray-400"></i>
-                          <span> {item.clientRemarks}</span>
-                        </div>
-
                         <div className="flex items-center gap-2">
                           <i className="ki-filled ki-sms text-gray-400"></i>
                           <span>{leadData?.emailId || "No Email"}</span>
@@ -190,39 +193,11 @@ const FollowUp = ({
                           <i className="ki-filled ki-phone text-gray-400"></i>
                           <span>{leadData?.contactNumber || "No Contact"}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="w-6 h-6 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-
-                          <span className="text-sm">
-                            {new Date(item.createdAt).toLocaleDateString(
-                              "en-GB",
-                            )}
-                          </span>
-                        </div>
 
                         {/* Action Buttons */}
                         <div className="ml-auto flex items-center gap-2">
                           <button
-                            onClick={() => {}}
-                            className="text-gray-400 hover:text-blue-600 p-1.5 rounded hover:bg-blue-50"
-                          >
-                            <i className="ki-filled ki-eye text-lg"></i>
-                          </button>
-
-                          <button
-                            onClick={() => handleDelete(index)}
+                            onClick={() => handleDelete(item.id)}
                             className="text-gray-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50"
                           >
                             <i className="ki-filled ki-trash text-lg"></i>

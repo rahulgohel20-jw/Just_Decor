@@ -1,17 +1,17 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { User } from "lucide-react";
 
 export default function ViewLeadDetailModal({ open, onClose, data }) {
   const safeData = data || {};
+
   const {
     clientName = "",
     leadCode = "",
     leadType = "",
-    leadAssign = "",
-    productType = "",
+    leadAssignName = "",
+    planName = "",
     leadStatus = "",
-    followUps = [],
-  } = safeData; // <-- use safeData here!
+    followUpDetails = [],
+  } = safeData;
 
   return (
     <AnimatePresence>
@@ -31,82 +31,84 @@ export default function ViewLeadDetailModal({ open, onClose, data }) {
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 40, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 180, damping: 22 }}
             >
               {/* Header */}
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  View Details
-                </h2>
-                <button
-                  onClick={onClose}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
+              <div className="px-6 py-4 border-b flex justify-between">
+                <h2 className="text-xl font-semibold">View Details</h2>
+                <button onClick={onClose}>✕</button>
               </div>
 
               {/* Lead Details */}
               <div className="p-6 grid grid-cols-3 gap-6 text-sm">
                 <div>
-                  <p className="font-semibold text-gray-800">Client Name</p>
-                  <p className="text-gray-700 mt-1">{clientName}</p>
+                  <p className="font-semibold">Client Name</p>
+                  <p>{clientName}</p>
                 </div>
+
                 <div>
-                  <p className="font-semibold text-gray-800">Lead Code</p>
-                  <p className="text-gray-700 mt-1">{leadCode}</p>
+                  <p className="font-semibold">Lead Code</p>
+                  <p>{leadCode}</p>
                 </div>
+
                 <div>
-                  <p className="font-semibold text-gray-800">Lead Type</p>
-                  <p className="text-gray-700 mt-1">{leadType}</p>
+                  <p className="font-semibold">Lead Type</p>
+                  <p>{leadType}</p>
                 </div>
+
                 <div>
-                  <p className="font-semibold text-gray-800">Lead Assign</p>
-                  <p className="text-gray-700 mt-1">{leadAssign}</p>
+                  <p className="font-semibold">Lead Assign</p>
+                  <p>{leadAssignName}</p>
                 </div>
+
                 <div>
-                  <p className="font-semibold text-gray-800">Product Type</p>
-                  <p className="text-gray-700 mt-1">{productType}</p>
+                  <p className="font-semibold">Product Type</p>
+                  <p>{planName}</p>
                 </div>
+
                 <div>
-                  <p className="font-semibold text-gray-800">Lead Status</p>
-                  <p className="text-gray-700 mt-1">{leadStatus}</p>
+                  <p className="font-semibold">Lead Status</p>
+                  <p>{leadStatus}</p>
                 </div>
               </div>
 
               {/* Follow-up Table */}
               <div className="px-6 pb-6">
-                <h3 className="text-md font-semibold text-gray-800 mb-3">
-                  Follow-up
-                </h3>
+                <h3 className="text-md font-semibold mb-3">Follow-up</h3>
 
-                <table className="w-full border-collapse text-sm text-gray-700">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-gray-600 border-b">
+                    <tr className="border-b text-left">
                       <th className="pb-2">Client Name</th>
-                      <th className="pb-2">Manager Name</th>
+                      <th className="pb-2">Name</th>
                       <th className="pb-2">Reminder Date</th>
                       <th className="pb-2">Call Type</th>
+                      <th className="pb-2">Created At</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {safeData.followUpDetails &&
-                    safeData.followUpDetails.length > 0 ? (
-                      safeData.followUpDetails.map((item, index) => (
+                    {followUpDetails.length > 0 ? (
+                      followUpDetails.map((item, index) => (
                         <tr key={index} className="border-b">
-                          {/* Or leave blank */}
                           <td>{clientName}</td>
-                          <td>{leadAssign || "N/A"}</td>
-                          <td>{item.followUpDate}</td>
-                          <td>{item.followUpType}</td>
+
+                          {/* ✅ MEMBER NAME ENGLISH */}
+                          <td>{item.memberNameEnglish || "N/A"}</td>
+
+                          <td>{item.followUpDate || "-"}</td>
+
+                          <td>{item.followUpType || "-"}</td>
+
+                          <td>
+                            {item.createdAt
+                              ? new Date(item.createdAt).toLocaleString("en-GB")
+                              : "-"}
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan={5}
-                          className="text-center py-4 text-gray-500"
-                        >
+                        <td colSpan="5" className="text-center py-4">
                           No Follow-ups found
                         </td>
                       </tr>
@@ -116,10 +118,10 @@ export default function ViewLeadDetailModal({ open, onClose, data }) {
               </div>
 
               {/* Footer */}
-              <div className="p-4 border-t flex justify-end bg-white">
+              <div className="p-4 border-t flex justify-end">
                 <button
                   onClick={onClose}
-                  className="px-6 py-2 rounded-xl bg-blue-500 text-white"
+                  className="px-6 py-2 bg-blue-500 text-white rounded-xl"
                 >
                   Close
                 </button>
