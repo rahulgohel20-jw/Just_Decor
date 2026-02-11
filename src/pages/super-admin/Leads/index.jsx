@@ -435,6 +435,7 @@ const SuperLeads = () => {
           followUpDate: fu.followUpDate || fu.followupDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          memberId: fu.memberId || 0,
         }),
       );
 
