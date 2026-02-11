@@ -250,6 +250,7 @@ export default function AddLeadPage() {
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
           memberId: fu.memberId ? Number(fu.memberId) : null,
+          createdAt: fu.createdAt || null,
         }));
 
         setFollowUps(normalized);
@@ -1024,9 +1025,10 @@ export default function AddLeadPage() {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    d="M9 12h6M9 16h6M9 8h6M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H7l-4-4V6a2 2 0 012-2z"
                                   />
                                 </svg>
+
                                 <span className="text-sm">
                                   {item.clientRemarks}
                                 </span>
@@ -1071,6 +1073,27 @@ export default function AddLeadPage() {
                                   {item.contactNumber ||
                                     leadData.contactNumber ||
                                     "No Contact"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <svg
+                                  className="w-6 h-6 text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                  />
+                                </svg>
+
+                                <span className="text-sm">
+                                  {new Date(item.createdAt).toLocaleDateString(
+                                    "en-GB",
+                                  )}
                                 </span>
                               </div>
 
