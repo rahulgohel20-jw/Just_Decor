@@ -144,7 +144,7 @@ const SuperLeads = () => {
           contactNumber: item.contactNumber,
           cityId: item.cityId,
           cityName: item.cityName || "-",
-          createdAt: item.createdAt?.split("T")[0],
+          createdAt: item.createdAt ? item.createdAt.split("T")[0] : "",
         }));
 
         setTableData(formatted);
@@ -328,6 +328,7 @@ const SuperLeads = () => {
     try {
       const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
       const dataArray = response?.data?.data;
+      console.log(response, "data");
 
       if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
         const fullLeadData = dataArray[0];
