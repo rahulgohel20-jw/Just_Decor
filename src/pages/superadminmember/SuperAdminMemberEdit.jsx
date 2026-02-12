@@ -1213,16 +1213,6 @@ const SuperAdminMemberEdit = () => {
                   onChange={(v) => handleMemberChange("profile", v)}
                 />
               </div>
-
-              <div>
-                <label className="block mb-1 text-sm">Plan</label>
-                <Select
-                  value={memberDetails.planId}
-                  onChange={(v) => handleMemberChange("planId", v)}
-                  options={plans}
-                  className="w-full"
-                />
-              </div>
             </div>
           </section>
           {/* plandetai */}
@@ -1244,6 +1234,17 @@ const SuperAdminMemberEdit = () => {
               </div>
 
               {/* Price (Read-only) */}
+
+              {/* Base Price (Editable) */}
+              <div>
+                <label className="text-sm">Base Amount </label>
+                <Input
+                  type="number"
+                  value={planDetails.price}
+                  disabled
+                  placeholder="Enter base price"
+                />
+              </div>
               <div>
                 <label className="text-sm">Price</label>
                 <Input
@@ -1253,17 +1254,6 @@ const SuperAdminMemberEdit = () => {
                     handlePlanDetailsChange("basePrice", e.target.value)
                   }
                   placeholder="Select a plan first"
-                />
-              </div>
-
-              {/* Base Price (Editable) */}
-              <div>
-                <label className="text-sm">Base Price </label>
-                <Input
-                  type="number"
-                  value={planDetails.price}
-                  disabled
-                  placeholder="Enter base price"
                 />
               </div>
             </div>

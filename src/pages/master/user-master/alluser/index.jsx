@@ -8,6 +8,7 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
 import { getAllByRoleId, LoginWithOtp } from "@/services/apiServices";
 import ApproveOtp from "../approveotp";
+
 const AllUser = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);

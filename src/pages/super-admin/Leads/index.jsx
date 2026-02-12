@@ -240,10 +240,6 @@ const SuperLeads = () => {
     }
 
     try {
-      console.log("=== ASSIGNMENT DEBUG ===");
-      console.log("selectedRows:", selectedRows);
-      console.log("selectedManager:", selectedManager);
-
       Swal.fire({
         title: "Assigning...",
         text: "Please wait while we assign the leads.",
@@ -322,7 +318,6 @@ const SuperLeads = () => {
     try {
       const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
       const dataArray = response?.data?.data;
-      console.log(response, "data");
 
       if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
         const fullLeadData = dataArray[0];
@@ -489,6 +484,8 @@ const SuperLeads = () => {
   };
 
   // Edit Lead Handler
+  // ✅ FIXED: In handleEditLead function around line 545
+
   const handleEditLead = async (lead) => {
     try {
       Swal.fire({
@@ -516,6 +513,7 @@ const SuperLeads = () => {
           followUpDate: fu.followUpDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          createdAt: fu.createdAt || null, // ✅ ADD THIS LINE - This was missing!
         }),
       );
 

@@ -12,7 +12,7 @@ export const columns = (
   onSelectRow,
   onSelectAll,
   totalRows,
-  navigate, 
+  navigate,
 ) => [
   {
     id: "select",
@@ -113,21 +113,16 @@ export const columns = (
     },
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
+
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => {
+      const leadStatus = row.original.leadStatus?.toLowerCase();
+      const isConfirmed = leadStatus === "confirmed";
+
       return (
         <div className="flex items-center gap-1">
-          {/* <Tooltip title="View Lead">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              onClick={() => onView && onView(row.original)}
-            >
-              <i className="ki-filled ki-eye text-primary"></i>
-            </button>
-          </Tooltip> */}
-
           <Tooltip title="Follow Up">
             <button
               className="btn btn-sm btn-icon btn-clear"
@@ -145,19 +140,22 @@ export const columns = (
               <i className="ki-filled ki-notepad-edit text-blue-700"></i>
             </button>
           </Tooltip>
-          <Tooltip title="Revert Lead to Member">
-            <button
-              className="btn btn-sm btn-icon btn-clear"
-              onClick={() => {
-  console.log("ROW DATA:", row.original);
-  navigate("/auth/signup", {
-    state: { leadData: row.original },
-  });
-}}
-            >
-             <RotateCcw size={18} className="text-gray-700" />
-            </button>
-          </Tooltip>
+
+          {/* Only show Convert button if status is confirmed */}
+          {isConfirmed && (
+            <Tooltip title="Convert Lead to Member">
+              <button
+                className="btn btn-sm btn-icon btn-clear"
+                onClick={() => {
+                  navigate("/auth/signup", {
+                    state: { leadData: row.original },
+                  });
+                }}
+              >
+                <RotateCcw size={18} className="text-gray-700" />
+              </button>
+            </Tooltip>
+          )}
 
           <Tooltip title="Delete Lead">
             <button
