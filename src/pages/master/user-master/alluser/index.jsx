@@ -9,6 +9,7 @@ import { columns } from "../alluser/constant";
 import { getAllByRoleId, LoginWithOtp } from "@/services/apiServices";
 import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 import ApproveOtp from "../approveotp";
+
 const AllUser = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -82,8 +83,8 @@ const AllUser = () => {
             u.email?.toLowerCase().includes(lower) ||
             u.companyName?.toLowerCase().includes(lower) ||
             u.plan?.toLowerCase().includes(lower) ||
-            u.userCode?.toLowerCase().includes(lower)
-        )
+            u.userCode?.toLowerCase().includes(lower),
+        ),
       );
     }
   }, [searchText, tableData]);
@@ -168,7 +169,7 @@ const AllUser = () => {
             handleApprove,
             navigate,
             handleThemeClick,
-            handleApproveOtp
+            handleApproveOtp,
           )}
           data={filteredData}
           paginationSize={10}

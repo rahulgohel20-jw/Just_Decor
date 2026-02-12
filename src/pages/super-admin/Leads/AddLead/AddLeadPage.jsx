@@ -10,9 +10,8 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
 import { EyeIcon } from "lucide-react";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 
+import dayjs from "dayjs";
 const { Option } = Select;
 
 import {
@@ -251,10 +250,8 @@ export default function AddLeadPage() {
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
           memberId: fu.memberId ? Number(fu.memberId) : null,
-          createdAt: fu.createdAt,
+          createdAt: fu.createdAt || null, // ✅ ADD THIS LINE
         }));
-        console.log("CreatedAt value:", normalized);
-
         setFollowUps(normalized);
       }
     } else {
@@ -339,14 +336,12 @@ export default function AddLeadPage() {
       followUpType: followUp.followUpType || followUp.followType || "",
       followUpStatus: followUp.followUpStatus || "Open",
       followUpDate: followUp.followUpDate || followUp.followupDate || "",
-      // ✅ CRITICAL FIX: Map clientRemarks correctly
       clientRemarks: followUp.clientRemarks || followUp.description || "",
       employeeRemarks: followUp.employeeRemarks || "",
       memberId: followUp.memberId || followUp.managerId || null,
-      createdAt: dayjs().format("DD/MM/YYYY hh:mm A"),
+      createdAt: followUp.createdAt || dayjs().format("DD/MM/YYYY hh:mm A"), // ✅ ADD THIS
     };
 
-    console.log("✅ Normalized follow-up:", normalized);
     setFollowUps((prev) => [...prev, normalized]);
   };
 
@@ -973,18 +968,79 @@ export default function AddLeadPage() {
                                 </div>
                                 <div className="flex items-center gap-1 text-sm font-medium mt-0.5">
                                   <span className="text-gray-500">
-                                    created at :
+                                    created at:
                                   </span>
                                   <span className="text-gray-900">
-                                    {item.createdAt
-                                      ? dayjs(
-                                          item.createdAt,
+                                    {(() => {
+                                      if (!item.createdAt) {
+                                        return "Not Available";
+                                      }
+
+                                      try {
+                                        return dayjs(item.createdAt, [
                                           "DD/MM/YYYY hh:mm A",
-                                        ).format("DD MMM YYYY, hh:mm A")
-                                      : "N/A"}
+                                          "DD/MM/YYYY",
+                                        ]).format("DD MMM YYYY, hh:mm A");
+                                      } catch (e) {
+                                        return item.createdAt;
+                                      }
+                                    })()}
                                   </span>
                                 </div>
                               </div>
+                              {/* <Select
+                                value={item.followUpStatus}
+                                className="w-[120px]"
+                                optionLabelProp="label" 
+                                onChange={(value) => {
+                                  setFollowUps((prev) =>
+                                    prev.map((fu, i) =>
+                                      i === index
+                                        ? { ...fu, followUpStatus: value }
+                                        : fu,
+                                    ),
+                                  );
+                                }}
+                              >
+                                <Option
+                                  value="Open"
+                                  label={
+                                    <span className="px-2 py-1 rounded text-white bg-green-500">
+                                      Open
+                                    </span>
+                                  }
+                                >
+                                  <span className="px-2 py-1 rounded text-white bg-green-500">
+                                    Open
+                                  </span>
+                                </Option>
+
+                                <Option
+                                  value="Closed"
+                                  label={
+                                    <span className="px-2 py-1 rounded text-white bg-red-500">
+                                      Closed
+                                    </span>
+                                  }
+                                >
+                                  <span className="px-2 py-1 rounded text-white bg-red-500">
+                                    Closed
+                                  </span>
+                                </Option>
+
+                                <Option
+                                  value="Pending"
+                                  label={
+                                    <span className="px-2 py-1 rounded text-white bg-yellow-500">
+                                      Pending
+                                    </span>
+                                  }
+                                >
+                                  <span className="px-2 py-1 rounded text-white bg-yellow-500">
+                                    Pending
+                                  </span>
+                                </Option>
+                              </Select> */}
                             </div>
 
                             <hr className="my-3 border-gray-300" />
