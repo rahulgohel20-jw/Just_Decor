@@ -12,7 +12,6 @@ import PhoneInput from "react-phone-input-2";
 import FloatingSelect from "../../../components/form-inputs/selectinput/FloatingSelect";
 import { useLocation } from "react-router-dom";
 
-
 function FloatingInput({
   label,
   type = "text",
@@ -126,7 +125,7 @@ export default function Signup() {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const location = useLocation();
-
+  const [leadId, setLeadId] = useState(null);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -176,7 +175,7 @@ export default function Signup() {
           error = "Password required";
         } else if (
           !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#_])[A-Za-z\d@$!%*?&#_]{6,}$/.test(
-            value
+            value,
           )
         ) {
           error =
@@ -205,7 +204,7 @@ export default function Signup() {
             data.map((s) => ({
               value: s.id,
               label: s.name,
-            }))
+            })),
           );
         } else {
           setStates([]);
@@ -229,7 +228,7 @@ export default function Signup() {
               data.map((c) => ({
                 value: c.id,
                 label: c.name,
-              }))
+              })),
             );
           } else {
             setCities([]);
@@ -242,58 +241,52 @@ export default function Signup() {
     }
   }, [formData.stateId]);
 
-
   useEffect(() => {
-  const lead = location.state?.leadData;
-  console.log("🚀 Lead data from location state:", lead);
-  if (!lead) return;
+    const lead = location.state?.leadData;
+    console.log("🚀 Lead data from location state:", lead);
+    if (!lead) return;
 
+    const loadData = async () => {
+      // 1️⃣ Set basic fields first (without city)
+      setFormData((prev) => ({
+        ...prev,
+        firstName: lead.clientName?.split(" ")[0] || "",
+        lastName: lead.clientName?.split(" ")[1] || "",
+        email: lead.emailId || "",
+        contactNo: lead.contactNumber ? "+91" + lead.contactNumber : "",
+        companyName: lead.companyName || "",
+        stateId: lead.stateId ? Number(lead.stateId) : "",
+        address: lead.address || "",
+      }));
 
-  const loadData = async () => {
-    // 1️⃣ Set basic fields first (without city)
-    setFormData((prev) => ({
-      ...prev,
-      firstName: lead.clientName?.split(" ")[0] || "",
-      lastName: lead.clientName?.split(" ")[1] || "",
-      email: lead.emailId || "",
-      contactNo: lead.contactNumber
-        ? "+91" + lead.contactNumber
-        : "",
-      companyName: lead.companyName || "",
-      stateId: lead.stateId ? Number(lead.stateId) : "",
-      address: lead.address || "",
-    }));
+      // 2️⃣ If state exists → load cities
+      if (lead.stateId) {
+        try {
+          const response = await fetchCitiesByState(lead.stateId);
+          const data = response?.data?.data?.["City Details"];
 
-    // 2️⃣ If state exists → load cities
-    if (lead.stateId) {
-      try {
-        const response = await fetchCitiesByState(lead.stateId);
-        const data = response?.data?.data?.["City Details"];
+          if (Array.isArray(data)) {
+            const mappedCities = data.map((c) => ({
+              value: c.id,
+              label: c.name,
+            }));
 
-        if (Array.isArray(data)) {
-          const mappedCities = data.map((c) => ({
-            value: c.id,
-            label: c.name,
-          }));
+            setCities(mappedCities);
 
-          setCities(mappedCities);
-
-          // 3️⃣ Now set cityId AFTER cities loaded
-          setFormData((prev) => ({
-            ...prev,
-            cityId: lead.cityId ? Number(lead.cityId) : "",
-          }));
+            // 3️⃣ Now set cityId AFTER cities loaded
+            setFormData((prev) => ({
+              ...prev,
+              cityId: lead.cityId ? Number(lead.cityId) : "",
+            }));
+          }
+        } catch (error) {
+          console.error("City load error:", error);
         }
-      } catch (error) {
-        console.error("City load error:", error);
       }
-    }
-  };
+    };
 
-  loadData();
-}, [location.state]);
-
-
+    loadData();
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -326,8 +319,8 @@ export default function Signup() {
       setTouched(
         Object.keys(formData).reduce(
           (acc, key) => ({ ...acc, [key]: true }),
-          {}
-        )
+          {},
+        ),
       );
       return;
     }
@@ -353,7 +346,11 @@ export default function Signup() {
       isAttendanceLeaveAccess: formData.isAttendanceLeaveAccess,
       isTaskAccess: formData.isTaskAccess,
       clientId: formData.clientId,
+      // 🔹 Add lead ID to payload if it exists
+      ...(leadId && { leadId: leadId }),
     };
+
+    console.log("📤 Submitting payload with lead ID:", payload);
 
     try {
       setLoading(true);
@@ -364,7 +361,9 @@ export default function Signup() {
         await Swal.fire({
           icon: "success",
           title: "Registration Successful!",
-          text: "Your account has been created successfully.",
+          text: leadId
+            ? "Lead converted to member successfully!"
+            : "Your account has been created successfully.",
           confirmButtonText: "Okay",
           confirmButtonColor: "#3085d6",
         });
@@ -387,225 +386,278 @@ export default function Signup() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const lead = location.state?.leadData;
+    if (!lead) return;
 
+    // 🔹 Store the lead ID
+    if (lead.leadId || lead.id) {
+      setLeadId(lead.leadId || lead.id);
+    }
+
+    const loadData = async () => {
+      // 1️⃣ Set basic fields first (without city)
+      setFormData((prev) => ({
+        ...prev,
+        firstName: lead.clientName?.split(" ")[0] || "",
+        lastName: lead.clientName?.split(" ")[1] || "",
+        email: lead.emailId || "",
+        contactNo: lead.contactNumber ? "+91" + lead.contactNumber : "",
+        companyName: lead.companyName || "",
+        stateId: lead.stateId ? Number(lead.stateId) : "",
+        address: lead.address || "",
+      }));
+
+      // 2️⃣ If state exists → load cities
+      if (lead.stateId) {
+        try {
+          const response = await fetchCitiesByState(lead.stateId);
+          const data = response?.data?.data?.["City Details"];
+
+          if (Array.isArray(data)) {
+            const mappedCities = data.map((c) => ({
+              value: c.id,
+              label: c.name,
+            }));
+
+            setCities(mappedCities);
+
+            // 3️⃣ Now set cityId AFTER cities loaded
+            setFormData((prev) => ({
+              ...prev,
+              cityId: lead.cityId ? Number(lead.cityId) : "",
+            }));
+          }
+        } catch (error) {
+          console.error("City load error:", error);
+        }
+      }
+    };
+    loadData();
+  }, [location.state]);
   return (
     <div>
       <form autoComplete="off">
+        <div className="card max-w-[800px] w-full mx-auto bg-white shadow-md rounded-xl p-8">
+          <div className="flex flex-col gap-2">
+            <div>
+              <h2 className="text-2xl font-semibold text-primary mb-2">
+                Signup
+              </h2>
+              <p className="text-gray-600 text-md">
+                Please fill in all required fields to create your account.
+              </p>
+            </div>
 
-      <div className="card max-w-[800px] w-full mx-auto bg-white shadow-md rounded-xl p-8">
-        <div className="flex flex-col gap-2">
-          <div>
-            <h2 className="text-2xl font-semibold text-primary mb-2">Signup</h2>
-            <p className="text-gray-600 text-md">
-              Please fill in all required fields to create your account.
-            </p>
-          </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4 border-b pb-2">
+                Personal Details
+              </h3>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4 border-b pb-2">
-              Personal Details
-            </h3>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* First Name */}
+                  <div>
+                    <FloatingInput
+                      label="First Name"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      icon="ki-user text-primary"
+                      error={touched.firstName && errors.firstName}
+                    />
+                    {touched.firstName && errors.firstName && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.firstName}
+                      </p>
+                    )}
+                  </div>
 
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* First Name */}
-                <div>
-                  <FloatingInput
-                    label="First Name"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    icon="ki-user text-primary"
-                    error={touched.firstName && errors.firstName}
-                  />
-                  {touched.firstName && errors.firstName && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.firstName}
-                    </p>
-                  )}
+                  {/* Last Name */}
+                  <div>
+                    <FloatingInput
+                      label="Last Name"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      icon="ki-user text-primary"
+                      error={touched.lastName && errors.lastName}
+                    />
+                    {touched.lastName && errors.lastName && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.lastName}
+                      </p>
+                    )}
+                  </div>
+                  {/* Email */}
+                  <div>
+                    <FloatingInput
+                      type="email"
+                      label="Email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      icon="ki-message-text text-primary"
+                      error={touched.email && errors.email}
+                    />
+                    {touched.email && errors.email && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <FloatingInput
+                      label="Company Name"
+                      name="companyName"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      icon="ki-user text-primary"
+                      error={touched.lastName && errors.lastName}
+                    />
+                    {touched.lastName && errors.lastName && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.lastName}
+                      </p>
+                    )}
+                  </div>
                 </div>
-
-                {/* Last Name */}
                 <div>
-                  <FloatingInput
-                    label="Last Name"
-                    name="lastName"
-                    value={formData.lastName}
+                  {/* Phone */}
+                  <FloatingInputPhone
+                    label="Phone Number"
+                    name="contactNo"
+                    value={formData.contactNo} // <-- use contactNo instead of mobile
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    icon="ki-user text-primary"
-                    error={touched.lastName && errors.lastName}
+                    error={errors.contactNo} // <-- also correct error key
                   />
+
                   {touched.lastName && errors.lastName && (
                     <p className="text-red-500 text-xs mt-1">
                       {errors.lastName}
                     </p>
                   )}
                 </div>
-                {/* Email */}
-                <div>
-                  <FloatingInput
-                    type="email"
-                    label="Email"
-                    name="email"
-                    value={formData.email}
+                {/* State & City Selects */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FloatingSelect
+                    label="State"
+                    name="stateId"
+                    value={formData.stateId}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    icon="ki-message-text text-primary"
-                    error={touched.email && errors.email}
+                    options={states}
+                    icon="ki-map"
+                    iconColor="text-primary"
+                    placeholder="Select State"
+                    error={touched.stateId && errors.stateId}
                   />
-                  {touched.email && errors.email && (
-                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                  )}
+
+                  <FloatingSelect
+                    label="City"
+                    name="cityId"
+                    value={formData.cityId}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    options={cities}
+                    icon="ki-map"
+                    iconColor="text-primary"
+                    placeholder="Select City"
+                    error={touched.cityId && errors.cityId}
+                  />
                 </div>
-                <div>
+
+                {/* Password */}
+                <div className="relative">
                   <FloatingInput
-                    label="Company Name"
-                    name="companyName"
-                    value={formData.companyName}
+                    autoComplete="new-password"
+                    type={showPassword ? "text" : "password"}
+                    label="Password"
+                    name="password"
+                    value={formData.password}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    icon="ki-user text-primary"
-                    error={touched.lastName && errors.lastName}
+                    icon="ki-lock text-primary"
+                    error={touched.password && errors.password}
                   />
-                  {touched.lastName && errors.lastName && (
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                  {touched.password && errors.password && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.lastName}
+                      {errors.password}
                     </p>
                   )}
                 </div>
-              </div>
-              <div>
-                {/* Phone */}
-                <FloatingInputPhone
-                  label="Phone Number"
-                  name="contactNo"
-                  value={formData.contactNo} // <-- use contactNo instead of mobile
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  error={errors.contactNo} // <-- also correct error key
-                />
 
-                {touched.lastName && errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
-                )}
-              </div>
-              {/* State & City Selects */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FloatingSelect
-                  label="State"
-                  name="stateId"
-                  value={formData.stateId}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  options={states}
-                  icon="ki-map"
-                  iconColor="text-primary"
-                  placeholder="Select State"
-                  error={touched.stateId && errors.stateId}
-                />
+                {/* Confirm Password */}
+                <div className="relative">
+                  <FloatingInput
+                    autoComplete="new-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    icon="ki-lock text-primary"
+                    error={touched.confirmPassword && errors.confirmPassword}
+                  />
 
-                <FloatingSelect
-                  label="City"
-                  name="cityId"
-                  value={formData.cityId}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  options={cities}
-                  icon="ki-map"
-                  iconColor="text-primary"
-                  placeholder="Select City"
-                  error={touched.cityId && errors.cityId}
-                />
-              </div>
-
-              {/* Password */}
-              <div className="relative">
-                <FloatingInput
-  autoComplete="new-password"
-  type={showPassword ? "text" : "password"}
-  label="Password"
-  name="password"
-  value={formData.password}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  icon="ki-lock text-primary"
-  error={touched.password && errors.password}
-/>
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-                {touched.password && errors.password && (
-                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div className="relative">
-                <FloatingInput
-  autoComplete="new-password"
-  type={showConfirmPassword ? "text" : "password"}
-  label="Confirm Password"
-  name="confirmPassword"
-  value={formData.confirmPassword}
-  onChange={handleChange}
-  onBlur={handleBlur}
-  icon="ki-lock text-primary"
-  error={touched.confirmPassword && errors.confirmPassword}
-/>
-
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-4 text-gray-500 hover:text-gray-700"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
+                  </button>
+                  {touched.confirmPassword && errors.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.confirmPassword}
+                    </p>
                   )}
-                </button>
-                {touched.confirmPassword && errors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.confirmPassword}
-                  </p>
-                )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Submit Button */}
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className={`w-full text-white font-semibold py-2.5 px-8 rounded-lg transition-colors ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-            >
-              {loading ? "Please wait..." : "Sign Up"}
-            </button>
-          </div>
+            {/* Submit Button */}
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className={`w-full text-white font-semibold py-2.5 px-8 rounded-lg transition-colors ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-primary hover:bg-primary/90"
+                }`}
+              >
+                {loading ? "Please wait..." : "Sign Up"}
+              </button>
+            </div>
 
-          <span className="flex justify-end gap-1 mt-2">
-            Back to
-            <Link to="/auth/login" className="text-primary underline">
-              Login
-            </Link>
-          </span>
+            <span className="flex justify-end gap-1 mt-2">
+              Back to
+              <Link to="/auth/login" className="text-primary underline">
+                Login
+              </Link>
+            </span>
+          </div>
         </div>
-      </div>
-
       </form>
     </div>
   );
