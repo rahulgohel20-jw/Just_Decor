@@ -128,15 +128,15 @@ const CrockeryCutleryReportModal = ({
         }
 
         setOptions({
-          categorySlogan: config.isCategorySlogan === 0,
+          categorySlogan: config.isCategorySlogan === 1, // ✅ consistent: 1 = enabled
           categoryInstruction: config.isCategoryInstruction === 1,
-          categoryImage: config.isCategoryImage === 0,
-          itemSlogan: config.isItemSlogan === 0,
+          categoryImage: config.isCategoryImage === 1,
+          itemSlogan: config.isItemSlogan === 1,
           itemInstruction: config.isItemInstruction === 1,
           CompanyInfo: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 1,
-          itemImage: config.isItemImage === 0,
-          isCombo: config.isCombo === 0,
+          itemImage: config.isItemImage === 1,
+          isCombo: config.isCombo === 1,
           partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
           size1: {
@@ -147,7 +147,7 @@ const CrockeryCutleryReportModal = ({
             label: config.size2,
             enabled: Boolean(config.size2 === 0),
           },
-          isWithPrice: config.isWithPrice === 0,
+          isWithPrice: config.isWithPrice === 1,
         });
 
         setVisibleOptions(
@@ -163,11 +163,11 @@ const CrockeryCutleryReportModal = ({
             isCombo: config.isCombo,
             partyDetails: config.isPartyDetails,
             isWithQty: config.isWithQty,
-            size1: !!config.size1,
-            size2: !!config.size2,
+            size1: config.size1 === 1 ? 1 : 0,
+            size2: config.size2 === 1 ? 1 : 0,
             isWithPrice: config.isWithPrice,
           })
-            .filter(([_, value]) => value)
+            .filter(([_, value]) => value === 1) // ✅ only show if DB says 1
             .map(([key]) => key),
         );
       } catch (err) {
