@@ -1601,3 +1601,8 @@ export const getleadbyleattype = (leadType) => {
 export const Deletebyfollowupid = (id) => {
 return  DELETE(`leadmaster/deletefollowupbyid?id=${id}`);
 };
+
+export const GetAllfunctioneventbyid = (eventId) => {
+  return GET(`eventfunction/getalleventfunctionByeventid?eventId=${eventId}`);
+
+};
