@@ -9,7 +9,7 @@ import ViewLeadDetailModal from "../../../partials/modals/view-lead-detail/ViewL
 import FollowUp from "../../../partials/modals/follow-up-modal/Followup";
 import AssignLeadModal from "../../../partials/modals/follow-up-modal/Assignleadmodal";
 import {
-  GetAllleadmaster,
+  GetAllAssignLead,
   DeleteLeadbyID,
   GetLeadByID,
   UpdateleadbyID,
@@ -549,7 +549,8 @@ const SuperLeads = () => {
 
   // Fetch Leads
   const fetchLeads = () => {
-    GetAllleadmaster()
+    const mainId = localStorage.getItem("mainId");
+    GetAllAssignLead(mainId)
       .then((res) => {
         const response = res?.data?.data;
 

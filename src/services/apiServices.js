@@ -371,8 +371,10 @@ export const AddNamePlate = (data) => {
 export const Addrole = (data) => {
   return POST(`/rolemaster/add`, data);
 };
-export const GetPages = (isadmin) => {
-  return GET(`/user-rights/getPages?isAdminRights=${isadmin}`);
+export const GetPages = (isadmin, iscombo) => {
+  return GET(
+    `/user-rights/getPages?isAdminRights=${isadmin}&isCombine=${iscombo}`,
+  );
 };
 
 export const GetRightsBYroleId = (roleId) => {
@@ -1441,12 +1443,22 @@ export const AddUserRightsPage = (data) => {
   return POST(`/user-rights/addPage`, data);
 };
 
-export const GetAllPages = (isadmin) => {
-  return GET(`/user-rights/getPages?isAdminRights=${isadmin}`);
+export const GetAllPages = (isadmin, iscombo) => {
+  return GET(
+    `/user-rights/getPages?isAdminRights=${isadmin}&isCombine=${iscombo}`,
+  );
 };
 
 export const GetModuleRights = () => {
   return GET(`/modulerights/getall`);
+};
+
+export const GetMemberByIdD = (userID) => {
+  return GET(`/user/getallclientbyreportingmanager?managerId=${userID}`);
+};
+
+export const GetAllAssignLead = (userID) => {
+  return GET(`/leadmaster/getleadbyleadassigned?leadAssignedId=${userID}`);
 };
 
 export const AddUtility = (data) => {

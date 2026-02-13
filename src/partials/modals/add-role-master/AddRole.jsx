@@ -53,9 +53,10 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const fetchPages = async (roleId) => {
     try {
       const istrue = roleId !== 1;
+      const iscombo = roleId === 1 ? true : false;
 
       const res = await axios.get(
-        `${API_BASE}/user-rights/getPages?isAdminRights=${istrue}`,
+        `${API_BASE}/user-rights/getPages?isAdminRights=${istrue}&isCombine=false`,
       );
 
       setModules(res.data?.data?.ModuleWiseUserRights || []);
@@ -160,14 +161,22 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
       return;
     }
 
-    const rightsList = Object.values(rights).map((item) => ({
-      moduleId: item.moduleId,
-      pageid: item.pageid,
-      view: !!item.view,
-      edit: !!item.edit,
-      delete: !!item.delete,
-      add: !!item.add,
-    }));
+    const rightsList = [];
+
+    modules.forEach((module) => {
+      module.userRightsPages.forEach((page) => {
+        const existing = rights[page.pageId] || {};
+
+        rightsList.push({
+          moduleId: module.moduleId,
+          pageid: page.pageId,
+          view: existing.view || false,
+          edit: existing.edit || false,
+          delete: existing.delete || false,
+          add: existing.add || false,
+        });
+      });
+    });
 
     const payload = {
       roleId: role.id,

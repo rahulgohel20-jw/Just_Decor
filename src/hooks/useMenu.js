@@ -11,11 +11,6 @@ import {
 export const useMenu = () => {
   const { currentUser, loading } = useAuthContext();
   const rights = useAuthStore((state) => state.rights);
-  console.log(rights);
-
-  const rightsLoaded = Object.keys(rights || {}).length > 0;
-
-  console.log(rightsLoaded);
 
   const menu = useMemo(() => {
     if (!currentUser) {
@@ -23,25 +18,28 @@ export const useMenu = () => {
     }
 
     const roleId = Number(currentUser?.userBasicDetails?.role?.id);
+    const clientId = currentUser?.clientId;
     const plan = currentUser?.plan;
     const isApproved = currentUser?.isApprove === true;
 
-    if (roleId === 1) {
-      return superAdminMenuItems;
-    } else if (roleId === 2) {
-      return allMenuItems;
-    }
+    // 🔥 Decide Base Menu First
+    const isSuperSystem = roleId === 1 || clientId === 1;
 
+    const baseMenu = isSuperSystem ? superAdminMenuItems : allMenuItems;
+
+    // 🔒 Plan restriction
     if (!plan || !isApproved) {
-      return disableMenuItems(allMenuItems);
+      return disableMenuItems(baseMenu);
     }
 
-    // if (!rightsLoaded) {
-    //   return disableMenuItems(allMenuItems);
-    // }
+    // 👑 Top level roles (Admin & SuperAdmin)
+    if (roleId === 1 || roleId === 2) {
+      return baseMenu;
+    }
 
-    return applyMenuRights(allMenuItems, rights);
-  }, [currentUser, rights, rightsLoaded]);
+    // 👥 Members → apply rights
+    return applyMenuRights(baseMenu, rights);
+  }, [currentUser, rights]);
 
   return { menu, loading };
 };

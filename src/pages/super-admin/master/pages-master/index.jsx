@@ -26,7 +26,8 @@ const PageMaster = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       const istrue = roleId !== 1;
-      GetAllPages(istrue)
+      const iscombo = roleId === 1 ? true : false;
+      GetAllPages(istrue, iscombo)
         .then((res) => {
           const modules = res?.data?.data?.ModuleWiseUserRights;
 

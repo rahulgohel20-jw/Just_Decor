@@ -76,7 +76,7 @@ const LeadPage = ({ children }) => {
         {/* Breadcrumbs */}
 
         <div className="gap-2 pb-2 mb-3">
-          <Breadcrumbs items={[{ title: "Leads" }]} />
+          <h3>Leads</h3>
         </div>
         {/* filters */}
         <div className="filters flex justify-between items-center gap-2 mb-3">
