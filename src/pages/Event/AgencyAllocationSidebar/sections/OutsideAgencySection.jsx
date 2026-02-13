@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import AllocateRowOutside from "../components/AllocateRowOutside";
 import OutsideAgencyTable from "../components/OutsideAgencyTable";
 import { MenuAllocationSave } from "@/services/apiServices";
@@ -14,6 +14,10 @@ export default function OutsideAgencySection({
   const [selectedItems, setSelectedItems] = useState({});
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
+
+  // ✅ Track which items had PAX changes
+  const changedPaxItemsRef = useRef(new Set());
+  const initialMenuItemsRef = useRef([]);
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
@@ -36,14 +40,23 @@ export default function OutsideAgencySection({
         });
 
         setMenuItems(allMenuItems);
+        // ✅ Store initial state
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(allMenuItems));
         console.log("📊 All Functions - Total items:", allMenuItems.length);
       } else {
         // For single function, use existing logic
-        setMenuItems(data[0]?.menuAllocation || []);
+        const allocations = data[0]?.menuAllocation || [];
+        setMenuItems(allocations);
+        // ✅ Store initial state
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(allocations));
       }
     } else {
       setMenuItems([]);
+      initialMenuItemsRef.current = [];
     }
+
+    // ✅ Clear PAX change tracking when data changes
+    changedPaxItemsRef.current.clear();
   }, [data, isAllFunctions]);
 
   const selectedCount = useMemo(() => {
@@ -126,6 +139,17 @@ export default function OutsideAgencySection({
             return selectedItems[itemKey];
           });
 
+        // ✅ Track PAX change if pax was updated
+        if (hasUpdatedAllocations && allocationData.pax !== undefined) {
+          const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
+
+          // Check if PAX actually changed
+          const initialItem = initialMenuItemsRef.current[menuIndex];
+          if (initialItem && initialItem.personCount !== allocationData.pax) {
+            changedPaxItemsRef.current.add(itemKey);
+          }
+        }
+
         return {
           ...menuItem,
           eventFunctionMenuAllocations: updatedAllocations,
@@ -162,6 +186,17 @@ export default function OutsideAgencySection({
   const handleMenuItemUpdate = useCallback(
     (menuIndex, updatedMenuItem) => {
       const updatedData = [...menuItems];
+
+      // ✅ Track PAX change if personCount changed
+      const initialItem = initialMenuItemsRef.current[menuIndex];
+      if (
+        initialItem &&
+        initialItem.personCount !== updatedMenuItem.personCount
+      ) {
+        const itemKey = `${updatedMenuItem.menuItemId}-${updatedMenuItem.menuCategoryId}-${updatedMenuItem.eventFunctionId}`;
+        changedPaxItemsRef.current.add(itemKey);
+      }
+
       updatedData[menuIndex] = updatedMenuItem;
       setMenuItems(updatedData);
 
@@ -175,41 +210,48 @@ export default function OutsideAgencySection({
   const buildPayload = useCallback(() => {
     const userId = Number(localStorage.getItem("userId"));
 
-    return menuItems.map((menuItem) => ({
-      chefLabour: false,
-      eventFunctionId: menuItem.eventFunctionId || 0,
-      eventId: menuItem.eventId || 0,
-      id: menuItem.id || 0,
-      inside: false,
-      outside: true,
-      instructions: menuItem.instructions || "",
-      menuCategoryId: menuItem.menuCategoryId || 0,
-      menuItemId: menuItem.menuItemId || 0,
-      personCount: menuItem.personCount || 0,
-      oldPersonCount: menuItem.oldPersonCount || 0,
-      place: menuItem.place || "",
-      menuItemRawMaterials: [],
-      userId,
+    return menuItems.map((menuItem) => {
+      // ✅ Check if this item had a PAX change
+      const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
+      const isPaxChange = changedPaxItemsRef.current.has(itemKey);
 
-      menuAllocationOrders:
-        menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
-          id: allocation.id || 0,
-          partyId: allocation.partyId || 0,
-          number: allocation.number || "",
-          serviceType: "",
-          quantity: allocation.quantity,
-          price: allocation.price || 0,
-          counterQuantity: 0,
-          counterPrice: 0,
-          helperQuantity: 0,
-          helperPrice: 0,
-          totalPrice: allocation.totalPrice || 0,
-          unitId: allocation.unitId || 0,
-          remarks: "",
-          menuItemRawMaterials: [],
-          isOutside: true,
-        })) || [],
-    }));
+      return {
+        chefLabour: false,
+        eventFunctionId: menuItem.eventFunctionId || 0,
+        eventId: menuItem.eventId || 0,
+        id: menuItem.id || 0,
+        inside: false,
+        outside: true,
+        instructions: menuItem.instructions || "",
+        menuCategoryId: menuItem.menuCategoryId || 0,
+        menuItemId: menuItem.menuItemId || 0,
+        personCount: menuItem.personCount || 0,
+        oldPersonCount: menuItem.oldPersonCount || 0,
+        isPaxChange: isPaxChange, // ✅ Add isPaxChange flag
+        place: menuItem.place || "",
+        menuItemRawMaterials: [],
+        userId,
+
+        menuAllocationOrders:
+          menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
+            id: allocation.id || 0,
+            partyId: allocation.partyId || 0,
+            number: allocation.number || "",
+            serviceType: "",
+            quantity: allocation.quantity,
+            price: allocation.price || 0,
+            counterQuantity: 0,
+            counterPrice: 0,
+            helperQuantity: 0,
+            helperPrice: 0,
+            totalPrice: allocation.totalPrice || 0,
+            unitId: allocation.unitId || 0,
+            remarks: "",
+            menuItemRawMaterials: [],
+            isOutside: true,
+          })) || [],
+      };
+    });
   }, [menuItems]);
 
   const handleSave = async () => {
@@ -228,6 +270,12 @@ export default function OutsideAgencySection({
           timer: 2000,
           showConfirmButton: false,
         });
+
+        // ✅ Clear PAX change tracking after successful save
+        changedPaxItemsRef.current.clear();
+
+        // ✅ Update initial state to current state
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(menuItems));
 
         close?.();
       } else {

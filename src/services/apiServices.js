@@ -9,7 +9,9 @@ export const GetMenuCategoryByUserIdmenuitem = (userId) => {
 };
 
 export const GetQuotation = (id, isCopyToInvoice) => {
-  return GET(`/quotation/getbyeventid?eventId=${id}&isCopyToInvoice=${isCopyToInvoice}`);
+  return GET(
+    `/quotation/getbyeventid?eventId=${id}&isCopyToInvoice=${isCopyToInvoice}`,
+  );
 };
 
 export const UpdateQuotation = (id, data) => {
@@ -1217,8 +1219,8 @@ export const AddLead = (data) => {
   return POST(`/leadmaster/add`, data);
 };
 
-export const GetAllleadmaster = () => {
-  return GET(`/leadmaster/getAll`);
+export const GetAllleadmaster = (lead) => {
+  return GET(`/leadmaster/getAll?AssignId=${lead}`);
 };
 
 export const GetLeadCode = () => {
