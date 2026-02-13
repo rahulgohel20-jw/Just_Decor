@@ -17,7 +17,7 @@ const { Option } = Select;
 
 const getUserIdFromLocalStorage = () => {
   try {
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("mainId");
     return userId || null;
   } catch {
     return null;
@@ -210,7 +210,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
     loadingKey,
     onFocus,
     onSelect,
-    required = false
+    required = false,
   ) => (
     <Form.Item
       label={label}
@@ -442,7 +442,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
               city: null,
             });
             loadStates(opt.value);
-          }
+          },
         )}
         {renderLocationSelect(
           <FormattedMessage id="COMMON.STATE" defaultMessage="State" />,
@@ -453,7 +453,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           (val) => {
             form.setFieldsValue({ city: null });
             loadCities(val);
-          }
+          },
         )}
         {renderLocationSelect(
           <FormattedMessage id="COMMON.CITY" defaultMessage="City" />,
@@ -461,7 +461,7 @@ const ProfileForm = ({ isEditing, onSaveSuccess }) => {
           cities,
           "city",
           () => loadCities(form.getFieldValue("state")?.value),
-          () => {}
+          () => {},
         )}
       </div>
 

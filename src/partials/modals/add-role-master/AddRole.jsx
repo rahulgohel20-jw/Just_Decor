@@ -3,12 +3,11 @@ import PropTypes from "prop-types";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Checkbox } from "@mui/material";
 import AddRoleModal from "../add-role-modal/AddRoleModal";
-import { AddRights, GetAllRole } from "@/services/apiServices";
+import { AddRights, GetAllRole, getUserById } from "@/services/apiServices";
 import axios from "axios";
 import Swal from "sweetalert2";
 
 const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
-  
   const [formData, setFormData] = useState({});
   const [openAddRoleModal, setOpenAddRoleModal] = useState(false);
   const [pages, setPages] = useState([]);
@@ -16,7 +15,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const [rights, setRights] = useState({});
   const [activeTab, setActiveTab] = useState("pages");
   const [modules, setModules] = useState([]);
-
+  const [currentRole, setCurrentRole] = useState([]);
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
   const userId = localStorage.getItem("userId");
 
@@ -25,6 +24,19 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
     setFormData({});
     setRights({});
     setActiveTab("pages");
+  };
+
+  const fetchuser = async () => {
+    try {
+      const res = await getUserById(userId);
+      const roleId = res.data?.data["User Details"][0].userBasicDetails.role.id;
+
+      setCurrentRole(roleId);
+
+      fetchPages(roleId);
+    } catch {
+      setCurrentRole(null);
+    }
   };
 
   /* ---------------- FETCH ROLES ---------------- */
@@ -38,36 +50,36 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   };
 
   /* ---------------- FETCH PAGES ---------------- */
-  const fetchPages = async () => {
+  const fetchPages = async (roleId) => {
     try {
-      const res = await axios.get(`${API_BASE}/user-rights/getPages`);
-  
-      setModules(
-        res.data?.data?.ModuleWiseUserRights || []
+      const istrue = roleId !== 1;
+
+      const res = await axios.get(
+        `${API_BASE}/user-rights/getPages?isAdminRights=${istrue}`,
       );
+
+      setModules(res.data?.data?.ModuleWiseUserRights || []);
     } catch {
       setModules([]);
     }
   };
-  
 
   /* ---------------- FETCH ROLE RIGHTS (EDIT) ---------------- */
   const fetchRoleRights = async (roleId) => {
     try {
       const res = await axios.get(
-        `${API_BASE}/user-rights/getByRole?roleId=${roleId}`
+        `${API_BASE}/user-rights/getByRole?roleId=${roleId}`,
       );
-  
+
       const data = res.data.data?.UserRights || {};
-   
-      
+
       const formatted = {};
-  
+
       data.forEach((module) => {
         module.userRights.forEach((page) => {
           formatted[page.pageid] = {
             moduleId: module.moduleId,
-            pageId: page.pageid,   // ✅ normalize
+            pageId: page.pageid, // ✅ normalize
             view: page.view,
             add: page.add,
             edit: page.edit,
@@ -75,21 +87,20 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
           };
         });
       });
-  
+
       setRights(formatted);
     } catch (err) {
       console.error("Error fetching role rights", err);
     }
   };
-  
 
   /* ---------------- EFFECT ---------------- */
   useEffect(() => {
     if (!isModalOpen) return;
-  
+    fetchuser();
     fetchPages();
     fetchRoles();
-  
+
     if (editData?.roleId) {
       setFormData({ role_name: editData.role_name });
       fetchRoleRights(editData.roleId); // ✅ correct
@@ -97,7 +108,6 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
       resetForm();
     }
   }, [isModalOpen, editData]);
-  
 
   /* ---------------- HANDLERS ---------------- */
   const handleModalClose = () => {
@@ -107,9 +117,17 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // ✅ When department/role is selected, fetch its rights
+    if (name === "role_name" && value) {
+      const selectedRole = roles.find((r) => r.name === value);
+      if (selectedRole?.id) {
+        fetchRoleRights(selectedRole.id);
+      }
+    }
   };
 
-  const handleCheckboxChange = (moduleId,pageId, action, checked) => {
+  const handleCheckboxChange = (moduleId, pageId, action, checked) => {
     setRights((prev) => ({
       ...prev,
       [pageId]: {
@@ -143,14 +161,13 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
     }
 
     const rightsList = Object.values(rights).map((item) => ({
-      moduleId: item.moduleId,   
+      moduleId: item.moduleId,
       pageid: item.pageid,
       view: !!item.view,
       edit: !!item.edit,
       delete: !!item.delete,
       add: !!item.add,
     }));
-    
 
     const payload = {
       roleId: role.id,
@@ -165,7 +182,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: res.data.msg, 
+          text: res.data.msg,
           timer: 1500,
           showConfirmButton: false,
         });
@@ -210,7 +227,7 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
           </div>,
         ]}
       >
-          <div className="max-h-[60vh] overflow-y-auto px-2">
+        <div className="max-h-[60vh] overflow-y-auto px-2">
           <div className="flex flex-col gap-y-3">
             {/* ROLE SELECT */}
             <div className="flex flex-col">
@@ -247,7 +264,6 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
             <div className="border rounded-lg overflow-hidden">
               {modules.map((module) => (
                 <div key={module.moduleId} className="mb-4">
-                  
                   {/* MODULE HEADER */}
                   <div className="bg-gray-200 px-4 py-2 font-bold text-primary">
                     {module.moduleName}
@@ -276,10 +292,10 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
                                 checked={rights[page.pageId]?.[action] || false}
                                 onChange={(e) =>
                                   handleCheckboxChange(
-                                    module.moduleId, 
+                                    module.moduleId,
                                     page.pageId,
                                     action,
-                                    e.target.checked
+                                    e.target.checked,
                                   )
                                 }
                               />
@@ -292,9 +308,8 @@ const AddRole = ({ isModalOpen, setIsModalOpen, editData, onRoleAdded }) => {
                 </div>
               ))}
             </div>
-
           </div>
-          </div>
+        </div>
 
         {/* ADD ROLE MODAL */}
         <AddRoleModal
