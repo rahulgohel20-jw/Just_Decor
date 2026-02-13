@@ -7,13 +7,7 @@ import { columns } from "./constant";
 import AddMember from "@/partials/modals/add-member/AddMember";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { 
-  AlertCircle, 
-  Clock, 
-  Hourglass, 
-  CheckCircle, 
-  Bell 
-} from 'lucide-react';
+import { AlertCircle, Clock, Hourglass, CheckCircle, Bell } from "lucide-react";
 import MemberPerformanceSidebar from "./MemberPerformanceSidebar";
 
 const SuperadminMember = () => {
@@ -22,9 +16,9 @@ const SuperadminMember = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
 
-  const intl = useIntl(); 
+  const intl = useIntl();
 
-  const tickets = [] ;
+  const tickets = [];
 
   const Id = localStorage.getItem("userId");
 
@@ -36,7 +30,10 @@ const SuperadminMember = () => {
   const FetchMembers = () => {
     GetAllMemberByUserId(Id)
       .then((res) => {
-        const userDetails = res?.data?.data?.["User Details"];
+        console.log();
+
+        const userDetails = res?.data.data.userDetails.UserDetails;
+
         if (userDetails && Array.isArray(userDetails)) {
           const formatted = userDetails.map((member, index) => ({
             id: member.id,
@@ -74,97 +71,95 @@ const SuperadminMember = () => {
     setSelectedMember(member);
     setIsMemberModalOpen(true);
   };
-const handleView = (member) => {
-  setSelectedMember(member);
-  setIsViewMemberModalOpen(true);
-};
-
- const calculateStats = () => {
-  const stats = {
-    pending: 10,
-    confirm: 40,
-    cancel: 70,
-    hot: 80,
-    cold: 90,
-    inquiry: 20
+  const handleView = (member) => {
+    setSelectedMember(member);
+    setIsViewMemberModalOpen(true);
   };
 
-  tickets.forEach(ticket => {
-    const status = ticket.status?.toLowerCase();
-    if (status && stats.hasOwnProperty(status)) {
-      stats[status]++;
-    }
-  });
+  const calculateStats = () => {
+    const stats = {
+      pending: 10,
+      confirm: 40,
+      cancel: 70,
+      hot: 80,
+      cold: 90,
+      inquiry: 20,
+    };
 
-  return stats;
-};
+    tickets.forEach((ticket) => {
+      const status = ticket.status?.toLowerCase();
+      if (status && stats.hasOwnProperty(status)) {
+        stats[status]++;
+      }
+    });
 
+    return stats;
+  };
 
   const stats = calculateStats();
 
- const statusCards = [
-  {
-    id: 'pending',
-    title: 'Pending',
-    count: stats.pending,
-    icon: Clock,
-    bgColor: 'bg-gray-50',
-    iconColor: 'text-gray-600',
-    borderColor: 'border-gray-200',
-    countColor: 'text-gray-800'
-  },
-  {
-    id: 'confirm',
-    title: 'Confirm',
-    count: stats.confirm,
-    icon: CheckCircle,
-    bgColor: 'bg-green-50',
-    iconColor: 'text-green-600',
-    borderColor: 'border-green-200',
-    countColor: 'text-gray-800'
-  },
-  {
-    id: 'cancel',
-    title: 'Cancel',
-    count: stats.cancel,
-    icon: AlertCircle,
-    bgColor: 'bg-red-50',
-    iconColor: 'text-red-600',
-    borderColor: 'border-red-200',
-    countColor: 'text-gray-800'
-  },
-  {
-    id: 'hot',
-    title: 'Hot',
-    count: stats.hot,
-    icon: Bell,
-    bgColor: 'bg-orange-50',
-    iconColor: 'text-orange-600',
-    borderColor: 'border-orange-200',
-    countColor: 'text-gray-800'
-  },
-  {
-    id: 'cold',
-    title: 'Cold',
-    count: stats.cold,
-    icon: Hourglass,
-    bgColor: 'bg-blue-50',
-    iconColor: 'text-blue-600',
-    borderColor: 'border-blue-200',
-    countColor: 'text-gray-800'
-  },
-  {
-    id: 'inquiry',
-    title: 'Inquiry',
-    count: stats.inquiry,
-    icon: Bell,
-    bgColor: 'bg-purple-50',
-    iconColor: 'text-purple-600',
-    borderColor: 'border-purple-200',
-    countColor: 'text-gray-800'
-  }
-];
-
+  const statusCards = [
+    {
+      id: "pending",
+      title: "Pending",
+      count: stats.pending,
+      icon: Clock,
+      bgColor: "bg-gray-50",
+      iconColor: "text-gray-600",
+      borderColor: "border-gray-200",
+      countColor: "text-gray-800",
+    },
+    {
+      id: "confirm",
+      title: "Confirm",
+      count: stats.confirm,
+      icon: CheckCircle,
+      bgColor: "bg-green-50",
+      iconColor: "text-green-600",
+      borderColor: "border-green-200",
+      countColor: "text-gray-800",
+    },
+    {
+      id: "cancel",
+      title: "Cancel",
+      count: stats.cancel,
+      icon: AlertCircle,
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+      borderColor: "border-red-200",
+      countColor: "text-gray-800",
+    },
+    {
+      id: "hot",
+      title: "Hot",
+      count: stats.hot,
+      icon: Bell,
+      bgColor: "bg-orange-50",
+      iconColor: "text-orange-600",
+      borderColor: "border-orange-200",
+      countColor: "text-gray-800",
+    },
+    {
+      id: "cold",
+      title: "Cold",
+      count: stats.cold,
+      icon: Hourglass,
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
+      borderColor: "border-blue-200",
+      countColor: "text-gray-800",
+    },
+    {
+      id: "inquiry",
+      title: "Inquiry",
+      count: stats.inquiry,
+      icon: Bell,
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
+      borderColor: "border-purple-200",
+      countColor: "text-gray-800",
+    },
+  ];
 
   return (
     <Fragment>
@@ -186,46 +181,44 @@ const handleView = (member) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {statusCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={card.id}
+                className={`${card.bgColor} flex justify-between rounded-lg p-4 border ${card.borderColor} hover:shadow-md transition-shadow`}
+              >
+                <div className="flex items-center">
+                  {/* Icon */}
+                  <div
+                    className={`${card.bgColor} w-12 h-12 rounded-lg flex items-center justify-center `}
+                  >
+                    <Icon className={`${card.iconColor} w-6 h-6`} />
+                  </div>
 
-      {statusCards.map((card) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={card.id}
-            className={`${card.bgColor} flex justify-between rounded-lg p-4 border ${card.borderColor} hover:shadow-md transition-shadow`}
-          >
-            <div className="flex items-center">
-              {/* Icon */}
-            <div className={`${card.bgColor} w-12 h-12 rounded-lg flex items-center justify-center `}>
-              <Icon className={`${card.iconColor} w-6 h-6`} />
-            </div>
+                  {/* Title */}
+                  <h3 className="text-sm font-medium text-gray-600 mb-1">
+                    {card.title}
+                  </h3>
+                </div>
 
-            {/* Title */}
-            <h3 className="text-sm font-medium text-gray-600 mb-1">
-              {card.title}
-            </h3>
-            </div>
-            
-            <div>
-              {/* Count */}
-            <div className="flex items-baseline gap-2">
-              <span className={`text-3xl font-bold ${card.countColor}`}>
-                {card.count.toString().padStart(2, '0')}
-              </span>
-            </div>
+                <div>
+                  {/* Count */}
+                  <div className="flex items-baseline gap-2">
+                    <span className={`text-3xl font-bold ${card.countColor}`}>
+                      {card.count.toString().padStart(2, "0")}
+                    </span>
+                  </div>
 
-            {/* Subtitle (only for overdue) */}
-            {card.subtitle && (
-              <p className="text-xs text-red-500 mt-1">
-                {card.subtitle}
-              </p>
-            )}
-            </div>
-            
-          </div>
-        );
-      })}
-    </div>
+                  {/* Subtitle (only for overdue) */}
+                  {card.subtitle && (
+                    <p className="text-xs text-red-500 mt-1">{card.subtitle}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         {/* Filters */}
         <div className="filters flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -258,7 +251,6 @@ const handleView = (member) => {
               />
             </button>
           </div>
-
         </div>
 
         {/* Modals */}
@@ -270,10 +262,10 @@ const handleView = (member) => {
         />
 
         <MemberPerformanceSidebar
-  isOpen={isViewMemberModalOpen}
-  onClose={() => setIsViewMemberModalOpen(false)}
-  staffData={selectedMember}
-/>
+          isOpen={isViewMemberModalOpen}
+          onClose={() => setIsViewMemberModalOpen(false)}
+          staffData={selectedMember}
+        />
 
         {/* Table */}
         <TableComponent

@@ -21,7 +21,7 @@ const AuthProvider = ({ children }) => {
 
   const verify = async () => {
     const token = localStorage.getItem("userToken");
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("mainId");
 
     if (!token || !userId) {
       saveAuth(undefined);
@@ -74,6 +74,7 @@ const AuthProvider = ({ children }) => {
             ? userData.id
             : userData.clientId;
         localStorage.setItem("userId", finalUserId.toString());
+        localStorage.setItem("mainId", userData.id);
 
         setCurrentUser(userData);
 
@@ -93,7 +94,7 @@ const AuthProvider = ({ children }) => {
       throw new Error(
         error.response?.data?.msg ||
           error.message ||
-          "Login failed. Please try again."
+          "Login failed. Please try again.",
       );
     }
   };

@@ -1,4 +1,4 @@
-import { useState,useEffect  } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FetchAllUser } from "@/services/apiServices";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -56,43 +56,40 @@ const Login = () => {
 
         const userResponse = await FetchAllUser(userId);
 
-        const userData = userResponse?.data?.data;
-        console.log(userData);
-        
+        const userData = userResponse?.data.data.userDetails.UserDetails;
 
         if (
           !userData ||
-          !userData["User Details"] ||
-          !Array.isArray(userData["User Details"]) ||
-          userData["User Details"].length === 0
+          !userData ||
+          !Array.isArray(userData) ||
+          userData.length === 0
         ) {
           throw new Error("Failed to fetch user details.");
         }
         window.history.pushState(null, "", "/auth/login");
         window.history.replaceState(null, "", "/auth/login");
 
-        const userDetails = userData["User Details"][0];
+        const userDetails = userData[0];
         console.log(userDetails);
-        
+
         const rawRights = userDetails?.userRights || [];
         const roleId = Number(userDetails?.userBasicDetails?.role?.id);
         const userPlan = userDetails?.userPlan?.plan ?? null;
         const plan = userDetails?.plan ?? null;
         const isApprove = userDetails?.isApprove;
         console.log(rawRights);
-        
+
         const normalizedRights = normalizeRights(rawRights);
         console.log(normalizedRights);
-        
+
         setAuth(
           {
             id: userId,
             roleId,
           },
           auth?.token,
-          normalizedRights
+          normalizedRights,
         );
-
 
         if (roleId === 1) {
           // 🧑‍💼 Super Admin
@@ -216,7 +213,11 @@ const Login = () => {
                 "is-invalid": formik.touched.password && formik.errors.password,
               })}
             />
-            <button type="button" className="btn btn-icon" onClick={togglePassword}>
+            <button
+              type="button"
+              className="btn btn-icon"
+              onClick={togglePassword}
+            >
               <KeenIcon
                 icon="eye"
                 className={clsx("text-gray-500", { hidden: !showPassword })}
