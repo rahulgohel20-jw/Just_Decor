@@ -19,6 +19,7 @@ export const allMenuItems = [
     ),
     icon: "element-11 text-primary text-lg",
     path: "/",
+    pageName: "Dashboard",
   },
   {
     title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
@@ -72,6 +73,7 @@ export const allMenuItems = [
           <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Customers" />
         ),
         path: "/master/customers",
+        pageName: "Customers",
       },
       {
         title: (
@@ -81,15 +83,17 @@ export const allMenuItems = [
           />
         ),
         path: "/master/vendor-master",
+        pageName: "Vendor",
       },
       {
         title: (
           <FormattedMessage
             id="COMMON.EVENTSIDEBAR_TYPE"
-            defaultMessage="Events "
+            defaultMessage="Events"
           />
         ),
         path: "/master/event-type",
+        pageName: "Events",
       },
       {
         title: (
@@ -99,15 +103,17 @@ export const allMenuItems = [
           />
         ),
         path: "/master/functions",
+        pageName: "Function",
       },
       {
         title: (
           <FormattedMessage
             id="COMMON.MEALSIDEBAR_TYPE"
-            defaultMessage="Food Prefrence "
+            defaultMessage="Food Prefrence"
           />
         ),
         path: "/master/meals",
+        pageName: "Food Prefrence",
       },
 
       {
@@ -118,6 +124,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/venue-type",
+        pageName: "Venue",
       },
       {
         title: (
@@ -127,6 +134,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/godown",
+        pageName: "Godown",
       },
       {
         title: (
@@ -136,6 +144,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/labour-shift",
+        pageName: "Labour Shift",
       },
       {
         title: (
@@ -145,6 +154,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/custom-package",
+        pageName: "Menu Packages",
       },
 
       {
@@ -161,6 +171,7 @@ export const allMenuItems = [
               />
             ),
             path: "/master/all-members",
+            pageName: "User Master",
           },
           {
             title: (
@@ -170,6 +181,7 @@ export const allMenuItems = [
               />
             ),
             path: "/master/role",
+            pageName: "Department",
           },
         ],
       },
@@ -188,10 +200,11 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.RAW_MATERIALSIDEBAR_TYPE"
-            defaultMessage=" Type"
+            defaultMessage="Type"
           />
         ),
         path: "/master/raw-material-type-master",
+        pageName: "Type",
       },
       {
         title: (
@@ -201,6 +214,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/raw-material-master",
+        pageName: "Category",
       },
       {
         title: (
@@ -210,12 +224,14 @@ export const allMenuItems = [
           />
         ),
         path: "/master/raw-material",
+        pageName: "Items",
       },
       {
         title: (
           <FormattedMessage id="COMMONSIDEBAR.UNIT" defaultMessage="Unit" />
         ),
         path: "/master/unit",
+        pageName: "Unit",
       },
     ],
   },
@@ -233,6 +249,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/menu-category",
+        pageName: "Category",
       },
       {
         title: (
@@ -242,6 +259,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/menu-sub-category",
+        pageName: "Sub Category",
       },
 
       // {
@@ -257,10 +275,11 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.MENUSIDEBAR_ITEM"
-            defaultMessage=" Items With Recipe "
+            defaultMessage="Items With Recipe "
           />
         ),
         path: "/master/menu-item",
+        pageName: "Items With Recipe",
       },
     ],
   },
@@ -297,6 +316,7 @@ export const allMenuItems = [
     ),
     icon: "ki-filled ki-color-swatch text-primary",
     path: "/adminreportcustomtheme",
+    pageName: "Custom Themes",
   },
   {
     title: (
@@ -323,6 +343,7 @@ export const allMenuItems = [
           />
         ),
         path: "/adminmodulereport",
+        pageName: "Datewise Order Reports",
       },
     ],
   },
@@ -335,12 +356,14 @@ export const allMenuItems = [
           <FormattedMessage id="COMMON.QUOTATION" defaultMessage="Quotation" />
         ),
         path: "/quotation-dashboard",
+        pageName: "Quotation",
       },
       {
         title: (
           <FormattedMessage id="COMMON.INVOICE" defaultMessage="Invoice" />
         ),
         path: "/sales/invoice-dashboard",
+        pageName: "Invoice",
       },
     ],
   },
@@ -373,6 +396,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/CrockeryConfiguration",
+        pageName: "Crockery Configuration",
       },
       {
         title: (
@@ -382,6 +406,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/changerawraterialcategory",
+        pageName: "Change Raw Material Category",
       },
       {
         title: (
@@ -391,6 +416,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/changemenuitemcategory",
+        pageName: "Change Menu Item Category",
       },
 
       {
@@ -401,6 +427,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/confimenuitemallocate",
+        pageName: "Menu Item Allocation",
       },
       {
         title: (
@@ -410,6 +437,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/allocationsupplier",
+        pageName: "Allocate Supplier",
       },
     ],
   },
@@ -461,6 +489,7 @@ export const allMenuItems = [
           />
         ),
         path: "/settings/general",
+        pageName: "Company Profile",
       },
       {
         title: (
@@ -470,6 +499,7 @@ export const allMenuItems = [
           />
         ),
         path: "/user-rights",
+        pageName: "User Rights",
       },
       {
         title: (
@@ -479,6 +509,7 @@ export const allMenuItems = [
           />
         ),
         path: "/utility",
+        pageName: "Utility Page",
       },
       {
         title: (
@@ -488,6 +519,7 @@ export const allMenuItems = [
           />
         ),
         path: "/settings/subscription",
+        pageName: "Subscription",
       },
       {
         title: (
@@ -497,6 +529,7 @@ export const allMenuItems = [
           />
         ),
         path: "/setting/payment-history",
+        pageName: "Payment History",
       },
 
       // {
@@ -519,11 +552,13 @@ export const superAdminMenuItems = [
     ),
     icon: "element-11 text-primary",
     path: "/super-dashboard",
+    pageName: "Dashboard",
   },
   {
     title: "Calender",
     icon: "ki-filled ki-calendar-tick text-primary",
     path: "/super-calendar",
+    pageName: "Calendar",
   },
   {
     title: (
@@ -531,6 +566,7 @@ export const superAdminMenuItems = [
     ),
     icon: "ki-filled ki-user text-primary",
     path: "/master/user-master/",
+    pageName: "Member List",
   },
   {
     title: (
@@ -538,6 +574,18 @@ export const superAdminMenuItems = [
     ),
     icon: "ki-filled ki-users text-primary",
     path: "/superadmin/members",
+    pageName: "Employe List",
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.DEPARTMENTSIDEBAR"
+        defaultMessage="Department"
+      />
+    ),
+    icon: "ki-filled ki-users text-primary",
+    path: "/master/role",
+    pageName: "Department",
   },
   {
     title: (
@@ -553,6 +601,7 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-contact-type-master",
+        pageName: "Categories",
       },
       {
         title: (
@@ -562,22 +611,26 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-raw-material-type-master",
+        pageName: "Raw Material",
       },
       {
         title: <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Unit" />,
         path: "/super-unit-master",
+        pageName: "Unit",
       },
       {
         title: (
           <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Theme Type" />
         ),
         path: "/super-templateMapping",
+        pageName: "Theme Type",
       },
       {
         title: (
           <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Theme" />
         ),
         path: "super-template-name-master",
+        pageName: "Theme",
       },
       {
         title: (
@@ -587,6 +640,7 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/interaction-master",
+        pageName: "Interaction",
       },
       {
         title: (
@@ -596,6 +650,7 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-allreport-config",
+        pageName: "Report Configuration",
       },
 
       {
@@ -606,12 +661,14 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/extrapayment",
+        pageName: "Extra Payments",
       },
       {
         title: (
           <FormattedMessage id="COMMON.COUPONS" defaultMessage="Coupons" />
         ),
         path: "/coupon",
+        pageName: "Coupons",
       },
     ],
   },
@@ -624,6 +681,7 @@ export const superAdminMenuItems = [
           <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
         ),
         path: "/super-leads",
+        pageName: "Leads",
       },
     ],
   },
@@ -638,16 +696,18 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CUSTOMERS"
-            defaultMessage="Module Right  Name"
+            defaultMessage="Module Right Name"
           />
         ),
         path: "/ModuleRights",
+        pageName: "Module Right Name",
       },
       {
         title: (
           <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Pages" />
         ),
         path: "/pages-master",
+        pageName: "Pages",
       },
     ],
   },
@@ -657,16 +717,19 @@ export const superAdminMenuItems = [
     ),
     icon: "ki-filled ki-color-swatch text-primary",
     path: "/super-reportcustomethemes",
+    pageName: "Themes",
   },
   {
     title: "Plans",
     icon: "ki-filled ki-crown text-primary",
     path: "/plans",
+    pageName: "Plans",
   },
   {
     title: "Database",
     icon: "ki-filled ki-abstract-26 text-primary",
     path: "/database",
+    pageName: "Database",
   },
   {
     title: (
@@ -677,6 +740,7 @@ export const superAdminMenuItems = [
     ),
     icon: "ki-filled ki-users text-primary",
     path: "/renewal-history",
+    pageName: "Renewal Customer",
   },
 
   {
@@ -688,6 +752,7 @@ export const superAdminMenuItems = [
     ),
     icon: "ki-filled ki-minus-folder text-primary",
     path: "/admin-invoice",
+    pageName: "superadmin Invoices",
   },
 ];
 

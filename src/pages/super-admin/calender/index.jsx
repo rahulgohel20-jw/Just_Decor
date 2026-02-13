@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/container";
 import CalendarComponent from "@/components/CalendarComponent";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
-import { getAllByRoleId } from "@/services/apiServices";
+import { GetMemberByIdD } from "@/services/apiServices";
 import { useNavigate } from "react-router-dom";
 import { useIntl } from "react-intl";
 import { useLanguage } from "@/i18n";
@@ -15,12 +15,12 @@ const SuperCalendarPage = () => {
   const [data, setData] = useState([]);
 
   // 📌 Get userId from localStorage
-  const Id = localStorage.getItem("userId");
+  const Id = localStorage.getItem("mainId");
 
   // ✅ Fetch Users by Role ID only
   const FetchUserByRoleId = async () => {
     try {
-      const res = await getAllByRoleId(Id);
+      const res = await GetMemberByIdD(Id);
       const userList = res?.data?.data?.["User Details"] || [];
 
       // Convert users into calendar event objects

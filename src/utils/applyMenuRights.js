@@ -1,11 +1,16 @@
 export const applyMenuRights = (menuItems, rights) => {
+  console.log("pages", menuItems);
+
   return menuItems.map((item) => {
     let disabled = false;
     let statusLabel;
 
     // If item maps to a permission page
     if (item.pageName) {
+      console.log(item.pageName);
+
       const canView = rights[item.pageName]?.view === true;
+
       if (!canView) {
         disabled = true;
         statusLabel = "No Access 🔒";

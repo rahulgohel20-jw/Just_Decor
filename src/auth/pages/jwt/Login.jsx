@@ -72,6 +72,7 @@ const Login = () => {
         const userDetails = userData[0];
         console.log(userDetails?.userRights);
 
+        const clientId = userDetails?.clientId;
         const rawRights = userDetails?.userRights || [];
         const roleId = Number(userDetails?.userBasicDetails?.role?.id);
         const userPlan = userDetails?.userPlan?.plan ?? null;
@@ -88,12 +89,13 @@ const Login = () => {
           {
             id: userId,
             roleId,
+            clientId,
           },
           auth?.token,
           normalizedRights,
         );
 
-        if (roleId === 1) {
+        if (roleId === 1 || clientId === 1) {
           // 🧑‍💼 Super Admin
           navigate("/super-dashboard", { replace: true });
         } else if (roleId === 2) {
