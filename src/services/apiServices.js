@@ -29,7 +29,7 @@ export const fetchCountryById = (id) => GET(`/countrymaster/getbyid?id=${id}`);
 // State APIs
 export const fetchStatesByCountry = (countryId, stateName = "") =>
   GET(
-    `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`
+    `/statemaster/getbycountryid?countryId=${countryId}&stateName=${stateName}`,
   );
 
 export const fetchStateById = (id) => GET(`/statemaster/getbyid?id=${id}`);
@@ -45,7 +45,7 @@ export const LoginUser = (data) => {
 
 export const LoginOutUser = (email, eventtype) => {
   return GET(
-    `/user-logs/logout-notification?email=${email}&eventType=${eventtype}`
+    `/user-logs/logout-notification?email=${email}&eventType=${eventtype}`,
   );
 };
 
@@ -57,7 +57,7 @@ export const GetAllCustomer = (Id) => {
 //get customer by id by cat id
 export const GetPartyMasterByCatId = (catTypeId, userId) => {
   return GET(
-    `/partymaster/getallbycontcatid?contCatId=${catTypeId}&userId=${userId}`
+    `/partymaster/getallbycontcatid?contCatId=${catTypeId}&userId=${userId}`,
   );
 };
 
@@ -90,14 +90,14 @@ export const GetAllContactCategory = (Id) => {
 
 export const GetAllContactCategorybycontacttype = (concatId, Id) => {
   return GET(
-    `/contactcategory/getallbycatid?conCatId=${concatId}&userId=${Id}`
+    `/contactcategory/getallbycatid?conCatId=${concatId}&userId=${Id}`,
   );
 };
 
 //search ContactCategory
 export const SearchContactCategory = (data, Id) => {
   return GET(
-    `/contactcategory/getallbyuserid?categoryName=${data}&userId=${Id}`
+    `/contactcategory/getallbyuserid?categoryName=${data}&userId=${Id}`,
   );
 };
 
@@ -146,13 +146,13 @@ export const updateContactTypeStatus = (Id, statusId) => {
 // Get All Raw Material
 export const GetAllRawMaterial = (Id, page, pageSize) => {
   return GET(
-    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
+    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMateriaCatlId=0&unitid=0&userid=${Id}`,
   );
 };
 
 export const SearchRawMaterial = (Id, page, pageSize, itemName) => {
   return GET(
-    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMaterialName=${itemName}&rawMateriaCatlId=0&unitid=0&userid=${Id}`
+    `rawmaterial/getallbyuserid?pageNo=${page}&pageSize=${pageSize}&rawMaterialName=${itemName}&rawMateriaCatlId=0&unitid=0&userid=${Id}`,
   );
 };
 
@@ -170,7 +170,7 @@ export const GetUnitById = (Id) => {
 
 export const GetSuplier = (id) => {
   return GET(
-    `/partymaster/getallbyuserid?partyName=Supplier%20(Vendor)&userId=${id}`
+    `/partymaster/getallbyuserid?partyName=Supplier%20(Vendor)&userId=${id}`,
   );
 };
 export const GetAllQuotation = (id) => {
@@ -178,19 +178,19 @@ export const GetAllQuotation = (id) => {
 };
 export const GetQuotationReport = (eventId, userId, isInvoice) => {
   return POST(
-    `/quotationreport/generatequotation?eventId=${eventId}&lang=0&userId=${userId}&isInvoice=${isInvoice}`
+    `/quotationreport/generatequotation?eventId=${eventId}&lang=0&userId=${userId}&isInvoice=${isInvoice}`,
   );
 };
 
 export const GetAllQuotationByFilter = (enddate, startdate, id) => {
   return GET(
-    `/quotation/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
+    `/quotation/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`,
   );
 };
 
 export const GetRawmaterialwithcatID = (catID, id) => {
   return GET(
-    `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`
+    `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`,
   );
 };
 export const SelectedRawMenuallocation = (data) => {
@@ -205,7 +205,7 @@ export const GetRawmaterialforitem = (userid) => {
 
 export const GetAllSupllierVendors = (Id) => {
   return GET(
-    `/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`
+    `/partymaster/getallbyuserid?partyName=supplier (Vendor)&userId=${Id}`,
   );
 };
 
@@ -216,7 +216,7 @@ export const GetAllRawMaterialAllocationCategory = (eventId) => {
 
 export const GetAllRawMaterialAllocationItems = (eventId, categoryId) => {
   return GET(
-    `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`
+    `event-raw-material/getbyevent?eventId=${eventId}&rawMateriaCatlId=${categoryId}`,
   );
 };
 
@@ -243,28 +243,26 @@ export const EditMealType = (Id, data) => {
 
 export const RawMaterialName = (Id, name) => {
   return GET(
-    `/contactcategory/getallbyuserid?categoryName=${name}&userId=${Id}`
+    `/contactcategory/getallbyuserid?categoryName=${name}&userId=${Id}`,
   );
 };
 
 export const SelectedItemNameMenuAllocation = (eventfunctionid, menuitemid) => {
   return GET(
-    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`
+    `/menuallocation/getrawmaterialbyitem?eventFunctionId=${eventfunctionid}&menuItemId=${menuitemid}`,
   );
 };
-
 
 export const CreatePaymentTheme = (data) => {
   return POST("exclusivethemeoayment/createThemePayment", data);
 };
-
 
 export const ContactNameItem = (Id, name) => {
   return GET(`/partymaster/getallbyuserid?partyName=${name}&userId=${Id}`);
 };
 export const OutsideContactName = (cattypeid, userid) => {
   return GET(
-    `/partymaster/getallbycattypeid?catTypeId=${cattypeid}&userId=${userid}`
+    `/partymaster/getallbycattypeid?catTypeId=${cattypeid}&userId=${userid}`,
   );
 };
 
@@ -320,7 +318,7 @@ export const GetEventMasterById = (Id) => {
 };
 export const GetMenuAllocation = (eventid, Id) => {
   return GET(
-    `/menuallocation/getmenuallocation?eventFunctionId=${Id}&eventId=${eventid}`
+    `/menuallocation/getmenuallocation?eventFunctionId=${Id}&eventId=${eventid}`,
   );
 };
 //Delete event
@@ -356,7 +354,7 @@ export const GetUsersByRoleId = (roleId = 2) => {
 
 export const GetNamePlatedata = (eventFunctionId, eventId, lang, userID) => {
   return GET(
-    `/nameplate/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}&lang=${lang}&userId=${userID}`
+    `/nameplate/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}&lang=${lang}&userId=${userID}`,
   );
 };
 
@@ -373,8 +371,8 @@ export const AddNamePlate = (data) => {
 export const Addrole = (data) => {
   return POST(`/rolemaster/add`, data);
 };
-export const GetPages = () => {
-  return GET(`/user-rights/getPages`);
+export const GetPages = (isadmin) => {
+  return GET(`/user-rights/getPages?isAdminRights=${isadmin}`);
 };
 
 export const GetRightsBYroleId = (roleId) => {
@@ -405,7 +403,7 @@ export const DeleteEventFunctionById = (id) => {
 
 export const GetFunctionsByFunctionName = (functionName) => {
   return GET(
-    `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`
+    `/functionmaster/getallbyuserid?userId=1&functionName=${functionName}`,
   );
 };
 
@@ -459,7 +457,7 @@ export const GetAllCategoryformenu = (id) => {
 
 export const Getmenusubcategory = (menucategoryid, userId) => {
   return GET(
-    `/menusubcategory/getallbyuserid?isActive=true&menuCategoryId=${menucategoryid}&userid=${userId}`
+    `/menusubcategory/getallbyuserid?isActive=true&menuCategoryId=${menucategoryid}&userid=${userId}`,
   );
 };
 
@@ -470,30 +468,30 @@ export const Getmenuprep = (
   menuCatId,
   pageNo,
   TotalRecord,
-  UserId
+  UserId,
 ) => {
   return GET(
-    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&itemName=${itemname}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`
+    `/menupreparation/getmenupreparationitems?eventFunctionId=${eventFunId}&itemName=${itemname}&menuCategoryId=${menuCatId}&pageNo=${pageNo}&totalRecord=${TotalRecord}&userId=${UserId}`,
   );
 };
 
 // get menu items
 export const Getmenuitems = (pageno, size, UserId) => {
   return GET(
-    `/menuitems/getallbyuserid?page=${pageno}&size=${size}&userId=${UserId}`
+    `/menuitems/getallbyuserid?page=${pageno}&size=${size}&userId=${UserId}`,
   );
 };
 
 export const Getmenuitemsusingcatid = (pageno, size, UserId, catid) => {
   return GET(
-    `/menuitems/getallbyuserid?menuCatId=${catid}&page=${pageno}&size=${size}&userId=${UserId}`
+    `/menuitems/getallbyuserid?menuCatId=${catid}&page=${pageno}&size=${size}&userId=${UserId}`,
   );
 };
 
 //Get menu preparation items
 export const Deleteiteminmenu = (itemId, menuCatId, MenuprepId) => {
   return DELETE(
-    `/menupreparation/deletemenupreparationitem?itemId=${itemId}&menuCategoryId=${menuCatId}&menuPreparationId=${MenuprepId}`
+    `/menupreparation/deletemenupreparationitem?itemId=${itemId}&menuCategoryId=${menuCatId}&menuPreparationId=${MenuprepId}`,
   );
 };
 //Get menu preparation items
@@ -519,10 +517,10 @@ export const MenuReportData = (
   catSlogan,
   itemSlogan,
   itemIns,
-  lang
+  lang,
 ) => {
   return GET(
-    `/menupreparation/generateexclusivereport2?eventFunctionId=${eventFunctionId}&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemInstruction=${itemIns}&isItemSlogan=${itemSlogan}&lang=${lang}`
+    `/menupreparation/generateexclusivereport2?eventFunctionId=${eventFunctionId}&eventId=${eventId}&isCategoryImage=${catImg}&isCategoryInstruction=${catIns}&isCategorySlogan=${catSlogan}&isItemInstruction=${itemIns}&isItemSlogan=${itemSlogan}&lang=${lang}`,
   );
 };
 
@@ -737,14 +735,14 @@ export const EditRawType = (id, data) => {
 };
 export const updatestatusrawmaterialtype = (id, currentStatus) => {
   return PUT(
-    `/rawmaterialcattype/updatestatus?id=${id}&isActive=${currentStatus}`
+    `/rawmaterialcattype/updatestatus?id=${id}&isActive=${currentStatus}`,
   );
 };
 //raw material category
 
 export const GetRawMaterialcategory = (id) => {
   return GET(
-    `/rawmaterialcategory/getallbyuserid?categoryTypeId=0&userid=${id}`
+    `/rawmaterialcategory/getallbyuserid?categoryTypeId=0&userid=${id}`,
   );
 };
 
@@ -764,7 +762,7 @@ export const EditRawMaterialCat = (id, data) => {
 };
 export const updatestatusrawmatrialcat = (id, currentStatus) => {
   return PUT(
-    `/rawmaterialcategory/updatestatus?id=${id}&isActive=${currentStatus}`
+    `/rawmaterialcategory/updatestatus?id=${id}&isActive=${currentStatus}`,
   );
 };
 
@@ -863,7 +861,7 @@ export const AddUpdateLabor = (payload) => {
 //get labour by event id
 export const GetEventLaborDetails = (eventFunctionId, eventId) => {
   return GET(
-    `/labor/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+    `/labor/get?eventFunctionId=${eventFunctionId}&eventId=${eventId}`,
   );
 };
 
@@ -877,7 +875,7 @@ export const GetAllInvoice = (id) => {
 
 export const GetAllInvoicedatabyfilter = (enddate, startdate, id) => {
   return GET(
-    `/invoice/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`
+    `/invoice/getallbyfilter?endDate=${enddate}&startDate=${startdate}&userid=${id}`,
   );
 };
 
@@ -891,7 +889,7 @@ export const GetInvoice = (id) => {
 
 export const GetEventLabourBySupplier = (eventFunctionId, eventId, partyId) => {
   return GET(
-    `/labor/getBySupplier?eventFunctionId=${eventFunctionId}&eventId=${eventId}&partyId=${partyId}`
+    `/labor/getBySupplier?eventFunctionId=${eventFunctionId}&eventId=${eventId}&partyId=${partyId}`,
   );
 };
 
@@ -901,7 +899,7 @@ export const AddExtraExpenseApi = (data) => {
 
 export const GetExtraExpenseByEvent = (eventFunctionId, eventId) => {
   return GET(
-    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`
+    `/extra-expense/getallbyeventId?eventFunctionId=${eventFunctionId}&eventId=${eventId}`,
   );
 };
 
@@ -964,23 +962,21 @@ export const ThemePurchase = (data) => {
   return POST(`/exclusivethemeoayment`, data);
 };
 
-
-
 export const GetDishCostingByEventFunction = (eventId, eventFunctionId) => {
   return GET(
-    `/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`
+    `/dish-costing/get?eventId=${eventId}&eventFunctionId=${eventFunctionId}`,
   );
 };
 
 export const GetDishCostingbyRawmaterial = (eventId, eventFunctionId) => {
   return GET(
-    `/dish-costing/raw-material-category-wise?eventId=${eventId}&eventFunctionId=${eventFunctionId}`
+    `/dish-costing/raw-material-category-wise?eventId=${eventId}&eventFunctionId=${eventFunctionId}`,
   );
 };
 
 export const GetRenewalCustomer = (startDate, endDate, isActive = true) => {
   return GET(
-    `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`
+    `/userplanshistory/renewal-customer-info?startDate=${startDate}&endDate=${endDate}&isActive=${isActive}`,
   );
 };
 
@@ -1035,30 +1031,30 @@ export const GetClientwisedashboardata = (id) => {
 };
 export const GetClientdashboardpiechart1 = (date, useriD) => {
   return GET(
-    `/dashboard/admin/userWiseDashboardPieChart1?dateString=${date}&userId=${useriD}`
+    `/dashboard/admin/userWiseDashboardPieChart1?dateString=${date}&userId=${useriD}`,
   );
 };
 
 export const GetClientdashboardpiechart3 = (date, useriD) => {
   return GET(
-    `/dashboard/admin/userWiseEventQuotationPieChart3?dateString=${date}&userId=${useriD}`
+    `/dashboard/admin/userWiseEventQuotationPieChart3?dateString=${date}&userId=${useriD}`,
   );
 };
 export const GetClientdashboardpiechart2 = (date, useriD) => {
   return GET(
-    `/dashboard/admin/userWiseSalesInvoicePieChart2?dateString=${date}&userId=${useriD}`
+    `/dashboard/admin/userWiseSalesInvoicePieChart2?dateString=${date}&userId=${useriD}`,
   );
 };
 
 export const GetClienteventdata = (startdate, enddate, useriD) => {
   return GET(
-    `/dashboard/admin/getEventsByUserAndDate?endDate=${enddate}&startDate=${startdate}&userId=${useriD}`
+    `/dashboard/admin/getEventsByUserAndDate?endDate=${enddate}&startDate=${startdate}&userId=${useriD}`,
   );
 };
 
 export const Getmostsellingitems = (enddate, startdate, userId) => {
   return GET(
-    `/dashboard/admin/getMostSellingItems?endDate=${enddate}&startDate=${startdate}&userId=${userId}`
+    `/dashboard/admin/getMostSellingItems?endDate=${enddate}&startDate=${startdate}&userId=${userId}`,
   );
 };
 
@@ -1107,17 +1103,17 @@ export const SuperAdminDashboardTotalUserAndPlan = () => {
 
 export const GetRawmaterialItemByRecipe = (menuId, id, isSync) => {
   return GET(
-    `/menuitems/getmenuitemrawmaterialbymenuid?isSync=${isSync}&menuItemId=${menuId}&userId=${id}`
+    `/menuitems/getmenuitemrawmaterialbymenuid?isSync=${isSync}&menuItemId=${menuId}&userId=${id}`,
   );
 };
 
 export const SuperAdminDashboardMonthWiseData = (
   endDate,
   planId,
-  startDate
+  startDate,
 ) => {
   return GET(
-    `/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`
+    `/dashboard/superadmin/getMonthWisePlanTotal?endDate=${endDate}&planId=${planId}&startDate=${startDate}`,
   );
 };
 
@@ -1186,7 +1182,7 @@ export const AddTickets = (formData) => {
 
 export const GetOutsideSummary = (eventfunID, eventId, type) => {
   return GET(
-    `/menuallocation/getagencywithitemsbytype?eventFunctionId=${eventfunID}&eventId=${eventId}&type=${type}`
+    `/menuallocation/getagencywithitemsbytype?eventFunctionId=${eventfunID}&eventId=${eventId}&type=${type}`,
   );
 };
 
@@ -1212,7 +1208,7 @@ export const EditTicket = (id, data) => {
 
 export const MenuAllocationTypeSummary = (event_func_id, event_id, type) => {
   return GET(
-    `menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`
+    `menuallocation/getagencywithitemsbytype?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`,
   );
 };
 export const AddLead = (data) => {
@@ -1245,7 +1241,7 @@ export const GetFilteredFollowUps = ({
   leadId,
 }) => {
   return GET(
-    `/leadmaster/getFolloupDetails?startDate=${startDate}&endDate=${endDate}&isCreated=${isCreated}&leadId=${leadId}`
+    `/leadmaster/getFolloupDetails?startDate=${startDate}&endDate=${endDate}&isCreated=${isCreated}&leadId=${leadId}`,
   );
 };
 export const AddExpensemanagement = (data) => {
@@ -1254,7 +1250,7 @@ export const AddExpensemanagement = (data) => {
 
 export const GETExpenseBYUserType = ({ eventId, userId, userType }) => {
   return GET(
-    `/expensemanagement/getexpensebyusertype?eventId=${eventId}&userId=${userId}&userType=${userType}`
+    `/expensemanagement/getexpensebyusertype?eventId=${eventId}&userId=${userId}&userType=${userType}`,
   );
 };
 
@@ -1272,7 +1268,7 @@ export const AddExpenseItem = (data) => {
 
 export const GetExpenseItemsByExpenseAndEvent = (eventId, expenseId) =>
   GET(
-    `/expenseitem/getbyexpenseandevent?eventId=${eventId}&expenseId=${expenseId}`
+    `/expenseitem/getbyexpenseandevent?eventId=${eventId}&expenseId=${expenseId}`,
   );
 
 export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
@@ -1281,7 +1277,7 @@ export const Getrawmaterialitembycat = (cat_id_list = [], user_id) => {
   }
   const catIdParams = cat_id_list.map((id) => `cat_id_list=${id}`).join("&");
   return GET(
-    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`
+    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}`,
   );
 };
 
@@ -1289,14 +1285,14 @@ export const GetRawMaterialByCategoryWithPagination = (
   cat_id_list = [],
   user_id,
   page,
-  size
+  size,
 ) => {
   if (!cat_id_list || cat_id_list.length === 0) {
     return Promise.resolve({ data: { data: [] } });
   }
   const catIdParams = cat_id_list.map((id) => `cat_id_list=${id}`).join("&");
   return GET(
-    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}&page=${page}&size=${size}`
+    `/rawmaterial/getrawmaterialbycategory?${catIdParams}&user_id=${user_id}&page=${page}&size=${size}`,
   );
 };
 
@@ -1307,7 +1303,7 @@ export const UpdateRawMaterialCategory = (queryString) => {
 export const Getmenuitemsusingcatidconfig = (
   menu_cat_ids = [],
   userId,
-  type
+  type,
 ) => {
   if (!menu_cat_ids || menu_cat_ids.length === 0) {
     return Promise.resolve({ data: { data: [] } });
@@ -1316,7 +1312,7 @@ export const Getmenuitemsusingcatidconfig = (
   const catIdParams = menu_cat_ids.map((id) => `menu_cat_ids=${id}`).join("&");
   const typeParam = type ? `&type=${encodeURIComponent(type)}` : "";
   return GET(
-    `/menuitems/getmenubycatorsubcat?${catIdParams}&userId=${userId}${typeParam}`
+    `/menuitems/getmenubycatorsubcat?${catIdParams}&userId=${userId}${typeParam}`,
   );
 };
 
@@ -1330,7 +1326,7 @@ export const Updateallocatesupplier = (queryString) => {
 
 export const GetAllItemByType = (eventFunctionId, eventId, type) => {
   return GET(
-    `/menuallocation/getitembytype?eventFunctionId=${eventFunctionId}&eventId=${eventId}&type=${type}`
+    `/menuallocation/getitembytype?eventFunctionId=${eventFunctionId}&eventId=${eventId}&type=${type}`,
   );
 };
 
@@ -1344,7 +1340,7 @@ export const GetAllCustomThemeByUserId = (Id) => {
 
 export const GetAllCustomThemeByUserIdAndModuleId = (Id, moduleId) => {
   return GET(
-    `/admintemplatemodule/getall?templateModuleId=${moduleId}&userId=${Id}`
+    `/admintemplatemodule/getall?templateModuleId=${moduleId}&userId=${Id}`,
   );
 };
 
@@ -1387,7 +1383,7 @@ export const DeleteRefund = (id) => {
 
 export const GetAllThemeByModuleId = (namePlate, Id, userId) => {
   return GET(
-    `/templatemaster/getallbymoduleid?isNameplate=${namePlate}&moduleId=${Id}&userId=${userId}`
+    `/templatemaster/getallbymoduleid?isNameplate=${namePlate}&moduleId=${Id}&userId=${userId}`,
   );
 };
 
@@ -1405,7 +1401,7 @@ export const AddExclusiveReport = (formData) => {
 
 export const GetReportConfiguration = (mappingId, moduleId) => {
   return GET(
-    `/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`
+    `/report/configuration/get?mappingId=${mappingId}&moduleId=${moduleId}`,
   );
 };
 
@@ -1445,8 +1441,8 @@ export const AddUserRightsPage = (data) => {
   return POST(`/user-rights/addPage`, data);
 };
 
-export const GetAllPages = () => {
-  return GET(`/user-rights/getPages`);
+export const GetAllPages = (isadmin) => {
+  return GET(`/user-rights/getPages?isAdminRights=${isadmin}`);
 };
 
 export const GetModuleRights = () => {
@@ -1486,27 +1482,25 @@ export const DeleteCoupon = (id) => {
 };
 
 export const GetAgenciesForReportFilter = (event_func_id, event_id, type) => {
-  return GET(`/menupreparation/getagencybyeventandeventfunctionid?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`);
+  return GET(
+    `/menupreparation/getagencybyeventandeventfunctionid?eventFunctionId=${event_func_id}&eventId=${event_id}&type=${type}`,
+  );
 };
-
 
 export const GetSelectedItemsForReportFilter = (
   event_func_id,
   event_id,
-  partyIds = []
+  partyIds = [],
 ) => {
-  const partyQuery = partyIds
-    .map(id => `partyIds=${id}`)
-    .join("&");
+  const partyQuery = partyIds.map((id) => `partyIds=${id}`).join("&");
 
   return GET(
     `/menupreparation/getselectedmenuitembyeventandeventfunctionid` +
-    `?eventFunctionId=${event_func_id}` +
-    `&eventId=${event_id}` +
-    (partyQuery ? `&${partyQuery}` : "")
+      `?eventFunctionId=${event_func_id}` +
+      `&eventId=${event_id}` +
+      (partyQuery ? `&${partyQuery}` : ""),
   );
 };
-
 
 export const GetNamePlateByNamePlateType = (
   eventFunctionId,
@@ -1515,17 +1509,17 @@ export const GetNamePlateByNamePlateType = (
   isStandyItem,
   isTableMenuItem,
   lang,
-  userId
+  userId,
 ) => {
   return GET(
     `/nameplate/getbynameplatetype` +
-    `?eventFunctionId=${eventFunctionId}` +
-    `&eventId=${eventId}` +
-    `&isCounterItem=${isCounterItem}` +
-    `&isStandyItem=${isStandyItem}` +
-    `&isTableMenuItem=${isTableMenuItem}` +
-    `&lang=${lang}` +
-    `&userId=${userId}`
+      `?eventFunctionId=${eventFunctionId}` +
+      `&eventId=${eventId}` +
+      `&isCounterItem=${isCounterItem}` +
+      `&isStandyItem=${isStandyItem}` +
+      `&isTableMenuItem=${isTableMenuItem}` +
+      `&lang=${lang}` +
+      `&userId=${userId}`,
   );
 };
 
@@ -1548,46 +1542,52 @@ export const GetbankdetailsbyuserId = (userId) => {
 };
 
 export const GetrawMaterialCatIdbytypeid = (id) => {
-  return GET(`rawmaterialcategory/getbyrawmaterialcategorytypeid?rawMaterialCategoryTypeId=${id}`);
-
+  return GET(
+    `rawmaterialcategory/getbyrawmaterialcategorytypeid?rawMaterialCategoryTypeId=${id}`,
+  );
 };
 
-export const Addupdatecrockerycutlery = (data) =>{
-return POST(`crockerycutlery/addupdatecrockerycutlery`, data);
+export const Addupdatecrockerycutlery = (data) => {
+  return POST(`crockerycutlery/addupdatecrockerycutlery`, data);
 };
 
-export const GETcrockerycutlerygetByRawMaterialCat = (rawMaterialCatId, userId) => {
-  return GET(`crockerycutlery/getByRawMaterialCat?rawMaterialCatId=${rawMaterialCatId}&userId=${userId}`);
+export const GETcrockerycutlerygetByRawMaterialCat = (
+  rawMaterialCatId,
+  userId,
+) => {
+  return GET(
+    `crockerycutlery/getByRawMaterialCat?rawMaterialCatId=${rawMaterialCatId}&userId=${userId}`,
+  );
 };
-
-
 
 export const assignMultipleLeadToMember = (leadId_list, memberId) => {
-  const leadIds = Array.isArray(leadId_list) ? leadId_list : []; 
+  const leadIds = Array.isArray(leadId_list) ? leadId_list : [];
   if (leadIds.length === 0) {
     console.error("❌ No lead IDs provided");
-    return Promise.reject({ 
+    return Promise.reject({
       message: "No lead IDs provided",
-      receivedValue: leadId_list
+      receivedValue: leadId_list,
     });
   }
 
   if (!memberId) {
-    return Promise.reject({ 
-      message: "Member ID is required" 
+    return Promise.reject({
+      message: "Member ID is required",
     });
   }
-  
+
   // Create query parameters: leadId=3&leadId=4&memberId=15
   const leadIdParams = leadIds.map((id) => `leadId=${id}`).join("&");
   const finalUrl = `/leadmaster/assignMultipleLeadToMember?${leadIdParams}&memberId=${memberId}`;
-  
+
   console.log("✅ Final URL:", finalUrl);
-  
+
   return PUT(finalUrl);
 };
 export const getLeadsByLeadAssigned = (leadAssignedId) => {
-  return GET(`leadmaster/getleadbyleadassigned?leadAssignedId=${leadAssignedId}`);
+  return GET(
+    `leadmaster/getleadbyleadassigned?leadAssignedId=${leadAssignedId}`,
+  );
 };
 
 export const getLeadsByLeadStatus = (leadStatus) => {
@@ -1599,20 +1599,24 @@ export const getleadbyleattype = (leadType) => {
 };
 
 export const Deletebyfollowupid = (id) => {
-return  DELETE(`leadmaster/deletefollowupbyid?id=${id}`);
+  return DELETE(`leadmaster/deletefollowupbyid?id=${id}`);
 };
 
 export const GetAllfunctioneventbyid = (eventId) => {
   return GET(`eventfunction/getalleventfunctionByeventid?eventId=${eventId}`);
-
 };
 
 export const GetAllEventFunction = (userId) => {
-  return GET(`eventfunction/getalleventfunction?page=1&size=1000&userId=${userId}`);
-
+  return GET(
+    `eventfunction/getalleventfunction?page=1&size=1000&userId=${userId}`,
+  );
 };
 
-export const GetCopyMenuPlanning = (activeEventFunctionId,oldEventFunctionId) => {
-  return GET(`menupreparation/copyeventfunctionmenu?activeEventFunctionId=${activeEventFunctionId}&oldEventFunctionId=${oldEventFunctionId}`);
-
+export const GetCopyMenuPlanning = (
+  activeEventFunctionId,
+  oldEventFunctionId,
+) => {
+  return GET(
+    `menupreparation/copyeventfunctionmenu?activeEventFunctionId=${activeEventFunctionId}&oldEventFunctionId=${oldEventFunctionId}`,
+  );
 };
