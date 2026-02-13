@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import AllocateRowChef from "../components/AllocateRowChef";
 import ChefLabourTable from "../components/ChefLabourTable";
 import { MenuAllocationSave } from "@/services/apiServices";
@@ -13,6 +13,10 @@ export default function ChefLabourSection({
   const [selectedItems, setSelectedItems] = useState({});
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
+
+  // ✅ Track which items had PAX changes
+  const changedPaxItemsRef = useRef(new Set());
+  const initialMenuItemsRef = useRef([]);
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
@@ -35,16 +39,24 @@ export default function ChefLabourSection({
         });
 
         setMenuItems(allMenuItems);
+        // ✅ Store initial state
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(allMenuItems));
         console.log("📊 All Functions - Total items:", allMenuItems.length);
       } else {
         // For single function, use existing logic
         const allocations = data[0]?.menuAllocation || [];
         setMenuItems(allocations);
+        // ✅ Store initial state
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(allocations));
       }
     } else {
       setMenuItems([]);
+      initialMenuItemsRef.current = [];
       console.warn("⚠️ Invalid data structure:", data);
     }
+
+    // ✅ Clear PAX change tracking when data changes
+    changedPaxItemsRef.current.clear();
   }, [data, isAllFunctions]);
 
   const selectedCount = useMemo(() => {
@@ -133,6 +145,17 @@ export default function ChefLabourSection({
               selectedItems[`${menuIndex}-${allocationIndex}`],
           );
 
+        // ✅ Track PAX change if pax was updated
+        if (hasUpdatedAllocations && allocationData.pax !== undefined) {
+          const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
+
+          // Check if PAX actually changed
+          const initialItem = initialMenuItemsRef.current[menuIndex];
+          if (initialItem && initialItem.personCount !== allocationData.pax) {
+            changedPaxItemsRef.current.add(itemKey);
+          }
+        }
+
         return {
           ...menuItem,
           eventFunctionMenuAllocations: updatedAllocations,
@@ -169,6 +192,17 @@ export default function ChefLabourSection({
     (menuIndex, updatedMenuItem) => {
       setMenuItems((prev) => {
         const updated = [...prev];
+
+        // ✅ Track PAX change if personCount changed
+        const initialItem = initialMenuItemsRef.current[menuIndex];
+        if (
+          initialItem &&
+          initialItem.personCount !== updatedMenuItem.personCount
+        ) {
+          const itemKey = `${updatedMenuItem.menuItemId}-${updatedMenuItem.menuCategoryId}-${updatedMenuItem.eventFunctionId}`;
+          changedPaxItemsRef.current.add(itemKey);
+        }
+
         updated[menuIndex] = updatedMenuItem;
         return updated;
       });
@@ -185,40 +219,47 @@ export default function ChefLabourSection({
   const buildPayload = useCallback(() => {
     const userId = Number(localStorage.getItem("userId"));
 
-    return menuItems.map((menuItem) => ({
-      chefLabour: true,
-      eventFunctionId: menuItem.eventFunctionId || 0,
-      eventId: menuItem.eventId || 0,
-      id: menuItem.id || 0,
-      inside: false,
-      outside: false,
-      instructions: menuItem.instructions || "",
-      menuCategoryId: menuItem.menuCategoryId || 0,
-      menuItemId: menuItem.menuItemId || 0,
-      personCount: menuItem.personCount || 0,
-      oldPersonCount: menuItem.oldPersonCount || 0,
-      menuItemRawMaterials: [],
-      place: menuItem.place || "",
-      userId,
+    return menuItems.map((menuItem) => {
+      // ✅ Check if this item had a PAX change
+      const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
+      const isPaxChange = changedPaxItemsRef.current.has(itemKey);
 
-      menuAllocationOrders:
-        menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
-          id: allocation.id || 0,
-          partyId: allocation.partyId || 0,
-          number: "",
-          serviceType: allocation.serviceType || "",
-          quantity: allocation.quantity || 0,
-          price: allocation.price || 0,
-          counterQuantity: allocation.counterQuantity || 0,
-          counterPrice: allocation.counterPrice || 0,
-          helperQuantity: allocation.helperQuantity || 0,
-          helperPrice: allocation.helperPrice || 0,
-          totalPrice: allocation.totalPrice || 0,
-          unitId: allocation.unitId || 0,
-          remarks: "",
-          isOutside: false,
-        })) || [],
-    }));
+      return {
+        chefLabour: true,
+        eventFunctionId: menuItem.eventFunctionId || 0,
+        eventId: menuItem.eventId || 0,
+        id: menuItem.id || 0,
+        inside: false,
+        outside: false,
+        instructions: menuItem.instructions || "",
+        menuCategoryId: menuItem.menuCategoryId || 0,
+        menuItemId: menuItem.menuItemId || 0,
+        personCount: menuItem.personCount || 0,
+        oldPersonCount: menuItem.oldPersonCount || 0,
+        isPaxChange: isPaxChange, // ✅ Add isPaxChange flag
+        menuItemRawMaterials: [],
+        place: menuItem.place || "",
+        userId,
+
+        menuAllocationOrders:
+          menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
+            id: allocation.id || 0,
+            partyId: allocation.partyId || 0,
+            number: "",
+            serviceType: allocation.serviceType || "",
+            quantity: allocation.quantity || 0,
+            price: allocation.price || 0,
+            counterQuantity: allocation.counterQuantity || 0,
+            counterPrice: allocation.counterPrice || 0,
+            helperQuantity: allocation.helperQuantity || 0,
+            helperPrice: allocation.helperPrice || 0,
+            totalPrice: allocation.totalPrice || 0,
+            unitId: allocation.unitId || 0,
+            remarks: "",
+            isOutside: false,
+          })) || [],
+      };
+    });
   }, [menuItems]);
 
   const handleSave = async () => {
@@ -237,6 +278,12 @@ export default function ChefLabourSection({
           timer: 2000,
           showConfirmButton: false,
         });
+
+        // ✅ Clear PAX change tracking after successful save
+        changedPaxItemsRef.current.clear();
+
+        // ✅ Update initial state to current state
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(menuItems));
 
         close?.();
       } else {
