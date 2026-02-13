@@ -25,7 +25,7 @@ const PageMaster = () => {
   // SEARCH FUNCTION
   useEffect(() => {
     const handler = setTimeout(() => {
-      const istrue = true;
+      const istrue = role !== 1;
       GetAllPages(istrue)
         .then((res) => {
           const modules = res?.data?.data?.ModuleWiseUserRights;
@@ -67,7 +67,7 @@ const PageMaster = () => {
 
   // FETCH PAGES
   const FetchPages = () => {
-    const istrue = true;
+    const istrue = role !== 1;
     GetAllPages(istrue)
       .then((res) => {
         const modules = res?.data?.data?.ModuleWiseUserRights;
