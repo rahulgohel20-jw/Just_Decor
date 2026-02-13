@@ -1,5 +1,7 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { Container } from "@/components/container";
+import { TableComponent } from "@/components/table/TableComponent";
+
 import {
   GetrawMaterialCatIdbytypeid,
   GETcrockerycutlerygetByRawMaterialCat,
@@ -8,6 +10,7 @@ import {
 import { utensilColumns } from "./utensilColumns";
 import { gasBatlaColumns } from "./gasBatlaColumns";
 import Swal from "sweetalert2";
+import styles from "./CrockeryConfiguration.module.css";
 
 const CrockeryConfiguration = () => {
   const [tabs, setTabs] = useState([]);
@@ -15,24 +18,20 @@ const CrockeryConfiguration = () => {
   const [tabDataMap, setTabDataMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+
   const getColumnsForTab = (tabKey) => {
     const columnMap = {
       UTENSILS: utensilColumns,
       GAS: gasBatlaColumns,
     };
-
     return columnMap[tabKey] || utensilColumns;
-    k;
   };
 
   useEffect(() => {
     const fetchTabs = async () => {
       try {
         setLoading(true);
-
-        // Fetch categories dynamically (parent categories)
         const res = await GetrawMaterialCatIdbytypeid(2);
-
         const apiTabs =
           res?.data?.data?.["Raw Material Category Details"] || [];
 
@@ -46,12 +45,10 @@ const CrockeryConfiguration = () => {
         }));
 
         setTabs(formattedTabs);
-
         if (formattedTabs.length > 0) {
-          setActiveTab(formattedTabs[0]); // first tab active
+          setActiveTab(formattedTabs[0]);
         }
 
-        // initialize empty table data per tab
         const initialMap = {};
         formattedTabs.forEach((tab) => {
           initialMap[tab.key] = [];
@@ -73,17 +70,12 @@ const CrockeryConfiguration = () => {
     const fetchTableData = async () => {
       try {
         setLoading(true);
-
         const userId = localStorage.getItem("userId");
-
-        // Fetch crockery/cutlery data by category
         const res = await GETcrockerycutlerygetByRawMaterialCat(
           activeTab.id,
           userId,
         );
-
-        console.log("GETcrockerycutlerygetByRawMaterialCat Response:", res); // Add this
-
+        console.log("GETcrockerycutlerygetByRawMaterialCat Response:", res);
         const tableData = res?.data?.data || [];
         setTabDataMap((prev) => ({
           ...prev,
@@ -103,10 +95,8 @@ const CrockeryConfiguration = () => {
     try {
       setSaveLoading(true);
       const userId = localStorage.getItem("userId");
-
       const currentData = tabDataMap[activeTab.key] || [];
 
-      // Transform data to match API format
       const payload = currentData.map((row) => ({
         id: row.id || 0,
         rawMaterialCategoryId: activeTab.id,
@@ -147,7 +137,6 @@ const CrockeryConfiguration = () => {
           confirmButtonColor: "#3b82f6",
         });
 
-        const userId = localStorage.getItem("userId");
         const res = await GETcrockerycutlerygetByRawMaterialCat(
           activeTab.id,
           userId,
@@ -181,21 +170,36 @@ const CrockeryConfiguration = () => {
   useEffect(() => {
     document.body.style.overflowX = "hidden";
     document.documentElement.style.overflowX = "hidden";
-
     return () => {
       document.body.style.overflowX = "";
       document.documentElement.style.overflowX = "";
     };
   }, []);
 
-  const handleValueChange = (id, field, value) => {
-    setTabDataMap((prev) => ({
-      ...prev,
-      [activeTab.key]: prev[activeTab.key].map((row) =>
-        row.id === id ? { ...row, [field]: value } : row,
-      ),
-    }));
-  };
+  // ✅ FIX 1: useCallback ensures handleValueChange has a stable reference.
+  // Without this, a new function is created every render, which causes
+  // useMemo below to recompute columns, which remounts inputs and kills focus.
+  const handleValueChange = useCallback(
+    (id, field, value) => {
+      setTabDataMap((prev) => ({
+        ...prev,
+        [activeTab.key]: prev[activeTab.key].map((row) =>
+          row.id === id ? { ...row, [field]: value } : row,
+        ),
+      }));
+    },
+    [activeTab?.key],
+  );
+
+  // ✅ FIX 2: useMemo ensures columns are only recomputed when the active tab
+  // actually changes — NOT on every keystroke/state update. This prevents
+  // React from unmounting/remounting inputs, which was causing focus loss.
+  const currentColumns = useMemo(() => {
+    if (!activeTab) return [];
+    return activeTab.columns({ onValueChange: handleValueChange });
+  }, [activeTab?.key, handleValueChange]);
+
+  const currentData = tabDataMap[activeTab?.key] || [];
 
   if (!activeTab) {
     return (
@@ -209,17 +213,8 @@ const CrockeryConfiguration = () => {
     );
   }
 
-  const currentColumns = activeTab.columns({
-    onValueChange: handleValueChange,
-  });
-  const currentData = tabDataMap[activeTab.key] || [];
-
-  const nameColumn = currentColumns[0];
-  const rangeColumns = currentColumns.slice(1);
-
   return (
     <Fragment>
-      {/* Header */}
       <Container>
         <div className="max-w-full overflow-hidden">
           {/* Header */}
@@ -264,113 +259,14 @@ const CrockeryConfiguration = () => {
             </div>
           )}
 
+          {/* Table with scoped styles */}
           {!loading && (
-            <div
-              className="bg-white rounded shadow mb-10 overflow-hidden"
-              style={{ border: "1px solid #e5e7eb" }}
-            >
-              <div className="p-4 overflow-x-auto">
-                <div style={{ display: "flex", minWidth: "max-content" }}>
-                  {/* Fixed Name Column */}
-                  <div style={{ flexShrink: 0 }}>
-                    <table style={{ borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ backgroundColor: "#f3f4f6" }}>
-                          <th
-                            style={{
-                              border: "1px solid #d1d5db",
-                              padding: "20px 35px",
-                              textAlign: "left",
-                              fontWeight: "600",
-                              whiteSpace: "nowrap",
-                              fontSize: "14px",
-                            }}
-                          >
-                            {nameColumn.Header}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {currentData.map((row) => (
-                          <tr key={row.id}>
-                            <td
-                              style={{
-                                border: "1px solid #d1d5db",
-                                padding: "20px 35px",
-                                whiteSpace: "nowrap",
-                                backgroundColor: "white",
-                              }}
-                            >
-                              {nameColumn.Cell
-                                ? nameColumn.Cell({ row: { original: row } })
-                                : row[nameColumn.accessor]}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Scrollable Range Columns */}
-                  <div
-                    style={{
-                      overflowX: "auto",
-                      flexGrow: 1,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <table
-                      style={{
-                        borderCollapse: "collapse",
-                        width: "max-content",
-                        minWidth: "100%",
-                      }}
-                    >
-                      <thead>
-                        <tr style={{ backgroundColor: "#f3f4f6" }}>
-                          {rangeColumns.map((col) => (
-                            <th
-                              key={col.id}
-                              style={{
-                                border: "1px solid #d1d5db",
-                                borderLeft: "none",
-                                padding: "20px 35px",
-                                textAlign: "left",
-                                fontWeight: "600",
-                                whiteSpace: "nowrap",
-                                fontSize: "14px",
-                              }}
-                            >
-                              {col.Header}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {currentData.map((row) => (
-                          <tr key={row.id}>
-                            {rangeColumns.map((col) => (
-                              <td
-                                key={col.id}
-                                style={{
-                                  border: "1px solid #d1d5db",
-                                  borderLeft: "none",
-                                  padding: "12px",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {col.Cell
-                                  ? col.Cell({ row: { original: row } })
-                                  : row[col.accessor]}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+            <div className={`mb-10 ${styles.crockeryTableWrapper}`}>
+              <TableComponent
+                columns={currentColumns}
+                data={currentData}
+                paginationSize={50}
+              />
             </div>
           )}
         </div>

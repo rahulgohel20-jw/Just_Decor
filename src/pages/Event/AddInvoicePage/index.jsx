@@ -29,8 +29,12 @@ const AddInvoicePage = () => {
   const location = useLocation();
   const intl = useIntl();
 
-  const { eventId, eventTypeId } = location.state || {};
-
+  const {
+    eventId,
+    eventTypeId,
+    fromQuotation,
+    quotationData: quotationStateData,
+  } = location.state || {};
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [dueDate, setDueDate] = useState(null);
@@ -42,6 +46,9 @@ const AddInvoicePage = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
   const pdfPlugin = defaultLayoutPlugin();
+  // Add near other states:
+  const [fetchCompleted, setFetchCompleted] = useState(false);
+  const [isInvoiceExisting, setIsInvoiceExisting] = useState(false);
 
   // New state for invoice footer data
   const [footerData, setFooterData] = useState({
@@ -372,6 +379,107 @@ Thanks!`;
     }
   }, [invoiceData]);
 
+  // ✅ REPLACE the existing fromQuotation useEffect with this:
+  // Add this useEffect BEFORE the `if (loading)` return:
+  useEffect(() => {
+    if (!fromQuotation || !quotationStateData || !fetchCompleted) return;
+
+    const applyQuotationData = () => {
+      const mappedRows = quotationStateData.functions.map((fn, index) => {
+        let dateValue = null;
+        if (fn.date) {
+          if (typeof fn.date === "object" && fn.date.format) {
+            dateValue = fn.date;
+          } else if (typeof fn.date === "string") {
+            dateValue = dayjs(fn.date, "DD MMM YYYY");
+            if (!dateValue.isValid()) {
+              dateValue = dayjs(fn.date, "DD/MM/YYYY hh:mm A");
+            }
+          }
+        }
+        return {
+          key: `${index + 1}-${Math.random()}`,
+          name: fn.name || "",
+          date: dateValue,
+          person: fn.persons || "",
+          extra: 0,
+          rate: fn.rate || 0,
+          amount: parseFloat(fn.totalPrice) || 0,
+          isCustom: true,
+          isEventFunction: false,
+          id: 0,
+          isNewRow: false,
+        };
+      });
+
+      if (mappedRows.length > 0) setRows(mappedRows);
+
+      setFooterData((prev) => ({
+        ...prev,
+        notes: quotationStateData.notes || prev.notes,
+        cgst: parseFloat(quotationStateData.cgst) || 0,
+        sgst: parseFloat(quotationStateData.sgst) || 0,
+        igst: parseFloat(quotationStateData.igst) || 0,
+        cgstAmnt: parseFloat(quotationStateData.cgstAmnt) || 0,
+        sgstAmnt: parseFloat(quotationStateData.sgstAmnt) || 0,
+        igstAmnt: parseFloat(quotationStateData.igstAmnt) || 0,
+        discount: parseFloat(quotationStateData.discount) || 0,
+        roundOff: parseFloat(quotationStateData.roundOff) || 0,
+        subTotal: parseFloat(quotationStateData.subtotal) || 0,
+        grandTotal: parseFloat(quotationStateData.grandTotal) || 0,
+        totalAmount: parseFloat(quotationStateData.subtotal) || 0,
+      }));
+
+      setTempValues((prev) => ({
+        ...prev,
+        billingname: quotationStateData.billingname || "",
+        billingaddress: quotationStateData.billingaddress || "",
+        shipname: quotationStateData.shipname || "",
+        shipaddress: quotationStateData.shipaddress || "",
+        gstnumber: quotationStateData.gstnumber || "",
+      }));
+
+      if (quotationStateData.duedate) {
+        if (
+          typeof quotationStateData.duedate === "object" &&
+          quotationStateData.duedate.format
+        ) {
+          setDueDate(quotationStateData.duedate);
+        } else {
+          setDueDate(dayjs(quotationStateData.duedate, "DD/MM/YYYY"));
+        }
+      }
+
+      setIsEdited(true);
+    };
+
+    if (isInvoiceExisting) {
+      Swal.fire({
+        title: "Overwrite Invoice?",
+        text: "This invoice already has data. Are you sure you want to overwrite it with quotation data?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Overwrite",
+        cancelButtonText: "No, Keep Existing",
+        confirmButtonColor: "#005BA8",
+        cancelButtonColor: "#d33",
+        background: "#fffbf0",
+        color: "#8B4513",
+        customClass: {
+          popup: "rounded-2xl shadow-xl",
+          title: "text-2xl font-bold",
+          confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+          cancelButton: "px-6 py-2 text-white font-semibold rounded-lg",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          applyQuotationData();
+        }
+      });
+    } else {
+      applyQuotationData();
+    }
+  }, [fromQuotation, quotationStateData, fetchCompleted]);
   // Fetch invoice data when component mounts
   useEffect(() => {
     if (eventId) {
@@ -391,6 +499,11 @@ Thanks!`;
         if (invoiceDetailsArray && invoiceDetailsArray.length > 0) {
           const invoiceDetails = invoiceDetailsArray[0];
           setInvoiceData(invoiceDetails);
+
+          const hasExistingData =
+            invoiceDetails?.invoiceFunctionItems?.length > 0 ||
+            invoiceDetails?.grandTotal > 0;
+          setIsInvoiceExisting(hasExistingData);
 
           // Set due date if available
           if (invoiceDetails.duedate) {
@@ -500,6 +613,7 @@ Thanks!`;
       message.error("Failed to load invoice data");
     } finally {
       setLoading(false);
+      setFetchCompleted(true);
     }
   };
 
@@ -1064,9 +1178,7 @@ Thanks!`;
                     </div>
                   ) : (
                     <p className="text-sm text-gray-700">
-                      {invoiceData?.billingaddress || (
-                        <FormattedMessage id="COMMON.NA" />
-                      )}
+                      {invoiceData?.billingaddress || "N/A"}
                       <br />
                       {invoiceData?.billingname || ""}
                     </p>
@@ -1212,9 +1324,7 @@ Thanks!`;
                       </div>
                     ) : (
                       <span className="text-sm text-gray-700">
-                        {invoiceData?.billingname || (
-                          <FormattedMessage id="COMMON.NA" />
-                        )}
+                        {invoiceData?.billingname}
                       </span>
                     )}
                   </div>
@@ -1276,9 +1386,7 @@ Thanks!`;
                       </div>
                     ) : (
                       <span className="text-sm text-gray-700">
-                        {invoiceData?.gstnumber || (
-                          <FormattedMessage id="COMMON.NA" />
-                        )}
+                        {invoiceData?.gstnumber || "NA"}
                       </span>
                     )}
                   </div>

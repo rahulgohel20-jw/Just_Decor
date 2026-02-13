@@ -343,16 +343,15 @@ const SuperAdminMemberEdit = () => {
               label: user.userPlan.plan.name,
               value: user.userPlan.plan.id,
               price: user.userPlan.plan.price,
-              // basePrice: user.userPlan.plan.description,
             };
 
             setSelectedPlanDetails(planData);
 
-            // Set plan details state
+            // Set plan details state - basePrice is read-only from planBaseAmount, price is editable from planAmount
             setPlanDetails({
               planId: user.userPlan.plan.id,
-              price: user.userPlan.plan.price || "",
-              basePrice: user.userPlan.basePrice || "",
+              basePrice: user.userPlan.planBaseAmount || "", // Read-only base amount
+              price: user.userPlan.planAmount || "", // Editable price
               validDate: user.userPlan.validDate
                 ? user.userPlan.validDate.split("/").reverse().join("-")
                 : "",
@@ -442,37 +441,6 @@ const SuperAdminMemberEdit = () => {
               })),
             );
           }
-          if (user.userPlan?.plan) {
-            const planData = {
-              label: user.userPlan.plan.name,
-              value: user.userPlan.plan.id,
-              price: user.userPlan.plan.price,
-            };
-
-            setSelectedPlanDetails(planData);
-
-            // Set plan details state with API values
-            setPlanDetails({
-              planId: user.userPlan.plan.id,
-              price: user.userPlan.plan.planBaseAmount || "",
-              basePrice:
-                user.userPlan.planAmount || user.userPlan.plan.price || "", // ✅ Use planBaseAmount from API
-              validDate: user.userPlan.validDate
-                ? user.userPlan.validDate.split("/").reverse().join("-")
-                : "",
-              remarks: user.userPlan.remarks || "",
-            });
-
-            setPlans((prev) => {
-              const exists = prev.some(
-                (p) => p.value === user.userPlan.plan.id,
-              );
-              if (!exists) {
-                return [...prev, planData];
-              }
-              return prev;
-            });
-          }
 
           // ✅ User Offers (NEW)
           if (user.userOffers && user.userOffers.length > 0) {
@@ -528,8 +496,8 @@ const SuperAdminMemberEdit = () => {
         setPlanDetails((prev) => ({
           ...prev,
           planId: value,
-          price: plan.price || "",
-          basePrice: plan.price || "", // ✅ Set basePrice to plan price initially
+          basePrice: plan.price || "", // Set base price from plan (read-only)
+          price: plan.price || "", // Set initial editable price same as base
         }));
       }
     }
@@ -1055,13 +1023,11 @@ const SuperAdminMemberEdit = () => {
         });
 
       // ✅ Plan Details
+      // ✅ Plan Details
       if (planDetails.planId) {
         formData.append("planId", planDetails.planId);
-        formData.append("planAmount", planDetails.basePrice || 0);
-        formData.append(
-          "planBaseAmount",
-          planDetails.price || planDetails.price || 0,
-        );
+        formData.append("planAmount", planDetails.price || 0); // Editable price
+        formData.append("planBaseAmount", planDetails.basePrice || 0); // Read-only base amount
       }
 
       // Submit
@@ -1233,27 +1199,28 @@ const SuperAdminMemberEdit = () => {
                 />
               </div>
 
-              {/* Price (Read-only) */}
-
-              {/* Base Price (Editable) */}
+              {/* Base Amount (Read-only) */}
               <div>
-                <label className="text-sm">Base Amount </label>
-                <Input
-                  type="number"
-                  value={planDetails.price}
-                  disabled
-                  placeholder="Enter base price"
-                />
-              </div>
-              <div>
-                <label className="text-sm">Price</label>
+                <label className="text-sm">Plan Base Amount </label>
                 <Input
                   type="number"
                   value={planDetails.basePrice}
+                  disabled
+                  placeholder="Plan base amount"
+                  className="bg-gray-50"
+                />
+              </div>
+
+              {/* Price (Editable) */}
+              <div>
+                <label className="text-sm">Plan Amount</label>
+                <Input
+                  type="number"
+                  value={planDetails.price}
                   onChange={(e) =>
-                    handlePlanDetailsChange("basePrice", e.target.value)
+                    handlePlanDetailsChange("price", e.target.value)
                   }
-                  placeholder="Select a plan first"
+                  placeholder="Enter plan price"
                 />
               </div>
             </div>
