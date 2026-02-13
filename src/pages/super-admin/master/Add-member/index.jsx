@@ -30,7 +30,10 @@ const SuperadminMember = () => {
   const FetchMembers = () => {
     GetAllMemberByUserId(Id)
       .then((res) => {
-        const userDetails = res?.data?.data?.["User Details"];
+        console.log();
+
+        const userDetails = res?.data.data.userDetails.userDetails;
+
         if (userDetails && Array.isArray(userDetails)) {
           const formatted = userDetails.map((member, index) => ({
             id: member.id,

@@ -56,21 +56,20 @@ const Login = () => {
 
         const userResponse = await FetchAllUser(userId);
 
-        const userData = userResponse?.data?.data["User Details"];
-        console.log(userData);
+        const userData = userResponse?.data.data.userDetails.userDetails;
 
         if (
           !userData ||
-          !userData["User Details"] ||
-          !Array.isArray(userData["User Details"]) ||
-          userData["User Details"].length === 0
+          !userData ||
+          !Array.isArray(userData) ||
+          userData.length === 0
         ) {
           throw new Error("Failed to fetch user details.");
         }
         window.history.pushState(null, "", "/auth/login");
         window.history.replaceState(null, "", "/auth/login");
 
-        const userDetails = userData["User Details"][0];
+        const userDetails = userData[0];
         console.log(userDetails);
 
         const rawRights = userDetails?.userRights || [];
