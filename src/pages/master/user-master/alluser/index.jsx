@@ -7,7 +7,6 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
 import { getAllByRoleId, LoginWithOtp } from "@/services/apiServices";
-import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 import ApproveOtp from "../approveotp";
 
 const AllUser = () => {
@@ -17,7 +16,6 @@ const AllUser = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [editingUserId, setEditingUserId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [selectedThemeUserId, setSelectedThemeUserId] = useState(null);
@@ -91,7 +89,6 @@ const AllUser = () => {
 
   const handleEdit = (user) => {
     setEditingUserId(user);
-    setIsModalOpen(true);
   };
 
   const handleApprove = async (userId) => {
@@ -175,13 +172,6 @@ const AllUser = () => {
           paginationSize={10}
         />
       )}
-
-      <EditUserModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        refreshData={handleFetchByRoleId}
-        userId={editingUserId}
-      />
 
       <ApproveOtp
         isModalOpen={isOtpModalOpen}

@@ -28,7 +28,7 @@ const DropdownUser = ({ menuItemRef }) => {
     });
   };
   const [userdata, setUserData] = useState([]);
-  let Id = localStorage.getItem("userId");
+  let Id = localStorage.getItem("mainId");
 
   useEffect(() => {
     const fetchUser = async () => {

@@ -521,7 +521,7 @@ export const superAdminMenuItems = [
     path: "/super-dashboard",
   },
   {
-    title: "Calander",
+    title: "Calender",
     icon: "ki-filled ki-calendar-tick text-primary",
     path: "/super-calendar",
   },
@@ -540,7 +540,9 @@ export const superAdminMenuItems = [
     path: "/superadmin/members",
   },
   {
-    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
+    title: (
+      <FormattedMessage id="COMMON.MASTER" defaultMessage="Superadmin Master" />
+    ),
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
       {
@@ -651,10 +653,7 @@ export const superAdminMenuItems = [
   },
   {
     title: (
-      <FormattedMessage
-        id="COMMON.CUSTOM_THEMES"
-        defaultMessage="Custom Themes"
-      />
+      <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Themes" />
     ),
     icon: "ki-filled ki-color-swatch text-primary",
     path: "/super-reportcustomethemes",
@@ -684,7 +683,7 @@ export const superAdminMenuItems = [
     title: (
       <FormattedMessage
         id="COMMON.INVOICE_LIST"
-        defaultMessage="Invoice List"
+        defaultMessage="superadmin Invoices"
       />
     ),
     icon: "ki-filled ki-minus-folder text-primary",

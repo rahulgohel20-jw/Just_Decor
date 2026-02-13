@@ -8,7 +8,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const refreshUser = useCallback(async () => {
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("mainId");
     if (!userId) return;
 
     const res = await getUserById(userId);
