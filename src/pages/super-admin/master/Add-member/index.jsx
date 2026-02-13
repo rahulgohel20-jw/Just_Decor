@@ -32,7 +32,7 @@ const SuperadminMember = () => {
       .then((res) => {
         console.log();
 
-        const userDetails = res?.data.data.userDetails.userDetails;
+        const userDetails = res?.data.data.userDetails.UserDetails;
 
         if (userDetails && Array.isArray(userDetails)) {
           const formatted = userDetails.map((member, index) => ({

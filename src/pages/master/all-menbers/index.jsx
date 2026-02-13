@@ -31,7 +31,7 @@ const AllMemberMaster = () => {
   const FetchMembers = () => {
     GetAllMemberByUserId(Id)
       .then((res) => {
-        const userDetails = res?.data.data.userDetails.userDetails;
+        const userDetails = res?.data.data.userDetails.UserDetails;
         if (userDetails && Array.isArray(userDetails)) {
           const formatted = userDetails.map((member, index) => ({
             id: member.id,
