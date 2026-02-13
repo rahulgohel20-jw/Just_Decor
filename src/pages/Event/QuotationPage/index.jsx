@@ -242,7 +242,7 @@ const QuotationPage = () => {
             QuotationDate:
               quotationInfo.quotationdate ||
               quotationInfo.createdAt ||
-              todayDate, // Use quotationdate if available, fallback to createdAt or today
+              todayDate,
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             billingname: quotationInfo.billingname || "",
