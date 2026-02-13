@@ -130,7 +130,7 @@ const Addinvoice = () => {
       const response = await GetAllMemberByUserId(partyId);
 
       if (response?.data?.success) {
-        const userDetails = response?.data.data.userDetails.userDetails;
+        const userDetails = response?.data.data.userDetails.UserDetails;
 
         if (Array.isArray(userDetails) && userDetails.length > 0) {
           const partyData = userDetails[0]; // Get first user from array

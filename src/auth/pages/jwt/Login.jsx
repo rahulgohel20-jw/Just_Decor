@@ -56,7 +56,7 @@ const Login = () => {
 
         const userResponse = await FetchAllUser(userId);
 
-        const userData = userResponse?.data.data.userDetails.userDetails;
+        const userData = userResponse?.data.data.userDetails.UserDetails;
 
         if (
           !userData ||

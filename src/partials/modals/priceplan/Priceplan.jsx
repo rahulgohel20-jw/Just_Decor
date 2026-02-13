@@ -65,7 +65,6 @@ const Priceplan = () => {
   const [couponsLoaded, setCouponsLoaded] = useState(false);
   const [approvalChecked, setApprovalChecked] = useState(false);
 
-
   // Tax state
   const [cgstRate, setCgstRate] = useState(9); // Default 9%
   const [sgstRate, setSgstRate] = useState(9); // Default 9%
@@ -92,9 +91,9 @@ const Priceplan = () => {
     const fetchUserDetails = async () => {
       try {
         const res = await FetchAllUser(userId);
-        const fetched = res?.data?.data?.["User Details"]?.[0] ?? null;
+        const fetched = res?.data.data.userDetails.UserDetails?.[0] ?? null;
         console.log(fetched.isApprove);
-        
+
         if (fetched) {
           setUser(fetched);
           if (!approvalChecked && fetched.isApprove === false) {
@@ -886,7 +885,7 @@ const Priceplan = () => {
                     </div>
                   </div>
                   <button
-                  disabled={user?.isApprove === false}
+                    disabled={user?.isApprove === false}
                     onClick={() => {
                       if (selectedPlan)
                         handlePayment(selectedPlan, finalTotalWithGST);
