@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Tooltip, DatePicker, Popconfirm } from "antd";
 import { useParams } from "react-router-dom";
 import { successMsgPopup } from "../../../underConstruction";
+import { useNavigate } from "react-router-dom";
 import {
   GetQuotation,
   UpdateQuotation,
@@ -40,6 +41,7 @@ const QuotationPage = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
   const pdfPlugin = defaultLayoutPlugin();
+  const navigate = useNavigate();
 
   const intl = useIntl();
 
@@ -342,7 +344,7 @@ const QuotationPage = () => {
               quotationInfo.eventFunctionQuotationPayments &&
               Array.isArray(quotationInfo.eventFunctionQuotationPayments)
                 ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
-                  id: p.id || 0,
+                    id: p.id || 0,
                     amount: p.advancePayment || 0,
                     date:
                       p.advancePaymentDate &&
@@ -674,8 +676,6 @@ const QuotationPage = () => {
       quotationdate: formattedQuotationDate,
     };
 
-
-
     return payload;
   };
 
@@ -976,6 +976,55 @@ const QuotationPage = () => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const handleCopyToInvoice = () => {
+    if (!quotationId) {
+      Swal.fire({
+        title: "Error",
+        text: "Quotation not loaded yet. Please wait.",
+        icon: "error",
+        confirmButtonColor: "#005BA8",
+      });
+      return;
+    }
+
+    navigate(`/add-invoice/${eventId}`, {
+      state: {
+        eventId,
+        fromQuotation: true,
+        quotationId: quotationId, // Pass quotation ID for reference only
+        quotationData: {
+          functions: quotationData.functions,
+          taxDetails: quotationData.taxDetails,
+          advancePayments: quotationData.advancePayments,
+          notes: quotationData.notes,
+          billingname: billingName || quotationData.billingname,
+          billingaddress: quotationData.billingaddress || "",
+          shipname: quotationData.shipname || "",
+          shipaddress: quotationData.shipaddress || "",
+          gstnumber: gstNumber || quotationData.gstnumber,
+          duedate: dueDate
+            ? dueDate.format("DD/MM/YYYY")
+            : quotationData.duedate || "",
+          grandTotal: totals.grandTotal,
+          subtotal: totals.subtotal,
+          cgst:
+            quotationData.taxDetails.find((t) => t.label === "CGST")
+              ?.percentage || "0",
+          sgst:
+            quotationData.taxDetails.find((t) => t.label === "SGST")
+              ?.percentage || "0",
+          igst:
+            quotationData.taxDetails.find((t) => t.label === "IGST")
+              ?.percentage || "0",
+          cgstAmnt: totals.cgstAmount,
+          sgstAmnt: totals.sgstAmount,
+          igstAmnt: totals.igstAmount,
+          discount: totals.discountAmount,
+          roundOff: totals.roundOffAmount,
+        },
+      },
+    });
+  };
   return (
     <Fragment>
       <style>
@@ -1118,7 +1167,15 @@ const QuotationPage = () => {
                           defaultMessage="Quotation Date:"
                         />
                       </span>
+
                       <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="text-primary hover:text-primary-dark"
+                          onClick={() => setIsQuotationDateEditing(true)}
+                        >
+                          <i className="ki-filled ki-pencil text-sm"></i>
+                        </button>
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">
@@ -1225,7 +1282,32 @@ const QuotationPage = () => {
               </div>
 
               {/* Right side - Print Button */}
-              <div className="w-full lg:w-auto lg:self-start">
+              <div className="w-full lg:w-auto lg:self-start flex flex-col lg:flex-row gap-2">
+                <button
+                  className="btn btn-primary w-full lg:w-auto"
+                  onClick={handleCopyToInvoice}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <FormattedMessage
+                    id="COMMON.COPY_TO_INVOICE"
+                    defaultMessage="Copy to Invoice"
+                  />
+                </button>
+
+                {/* Print */}
                 <button
                   className="btn btn-primary w-full lg:w-auto"
                   onClick={handleSaveAndOpenPdf}
@@ -1257,7 +1339,7 @@ const QuotationPage = () => {
                         <rect x="6" y="14" width="12" height="8" rx="1" />
                       </svg>
                       <FormattedMessage
-                        id="COMMON.SHARE"
+                        id="COMMON.PRINT"
                         defaultMessage="Print"
                       />
                     </>

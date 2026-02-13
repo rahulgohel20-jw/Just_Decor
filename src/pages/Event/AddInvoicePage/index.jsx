@@ -29,8 +29,6 @@ const AddInvoicePage = () => {
   const location = useLocation();
   const intl = useIntl();
 
-  const { eventId, eventTypeId } = location.state || {};
-
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [dueDate, setDueDate] = useState(null);
@@ -42,8 +40,13 @@ const AddInvoicePage = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
   const pdfPlugin = defaultLayoutPlugin();
+  const {
+    eventId,
+    eventTypeId,
+    fromQuotation,
+    quotationData: quotationStateData,
+  } = location.state || {};
 
-  // New state for invoice footer data
   const [footerData, setFooterData] = useState({
     notes: "Thanks for your Business...",
     gst: 0,
@@ -204,13 +207,24 @@ const AddInvoicePage = () => {
 
       const convertDisplayDateToAPI = (displayDate) => {
         if (!displayDate) return null;
+
         try {
-          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
-            return `${displayDate} 12:00 AM`;
+          // ✅ PRIORITY 1: Handle dayjs objects directly (from quotation)
+          if (typeof displayDate === "object" && displayDate.format) {
+            return displayDate.format("DD/MM/YYYY hh:mm A");
           }
+
+          // ✅ PRIORITY 2: Already in correct format
           if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate)) {
             return displayDate;
           }
+
+          // ✅ PRIORITY 3: Just date without time
+          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
+            return `${displayDate} 12:00 AM`;
+          }
+
+          // ✅ PRIORITY 4: Handle "DD MMM YYYY" format (from display)
           const monthMap = {
             Jan: "01",
             Feb: "02",
@@ -225,7 +239,9 @@ const AddInvoicePage = () => {
             Nov: "11",
             Dec: "12",
           };
-          const parts = displayDate.split(" ");
+
+          // Convert to string first to handle any type
+          const parts = String(displayDate).split(" ");
           if (parts.length === 3) {
             const day = parts[0].padStart(2, "0");
             const month = monthMap[parts[1]];
@@ -234,6 +250,14 @@ const AddInvoicePage = () => {
               return `${day}/${month}/${year} 12:00 AM`;
             }
           }
+
+          // ✅ PRIORITY 5: Try parsing as dayjs string
+          const parsed = dayjs(displayDate);
+          if (parsed.isValid()) {
+            return parsed.format("DD/MM/YYYY hh:mm A");
+          }
+
+          // ✅ PRIORITY 6: Last resort - native Date
           const date = new Date(displayDate);
           if (!isNaN(date.getTime())) {
             const d = String(date.getDate()).padStart(2, "0");
@@ -241,6 +265,12 @@ const AddInvoicePage = () => {
             const y = date.getFullYear();
             return `${d}/${m}/${y} 12:00 AM`;
           }
+
+          console.warn(
+            "Could not convert date:",
+            displayDate,
+            typeof displayDate,
+          );
           return null;
         } catch (error) {
           console.error("Error converting date:", displayDate, error);
@@ -293,7 +323,7 @@ const AddInvoicePage = () => {
           pax: Number(r.person) || 0,
           ratePerPlate: Number(r.rate) || 0,
         })),
-        notes: footerData.notes,
+
         remainingAmount: remainingAmount,
         roundOff: footerData.roundOff,
         sgst: String(footerData.sgst),
@@ -307,6 +337,18 @@ const AddInvoicePage = () => {
 
       // Save without showing success message
       const response = await UpdateInvoice(invoiceData?.id, payload);
+      console.log(
+        "Row:",
+        r.name,
+        "Date:",
+        r.date,
+        "Converted:",
+        converted,
+        "ID:",
+        r.id,
+      );
+
+      console.log("Full Payload:", payload);
 
       if (response?.data?.success === true) {
         setIsEdited(false);
@@ -336,7 +378,6 @@ const AddInvoicePage = () => {
     }
   };
 
-  // WhatsApp Share
   const handleWhatsAppShare = (pdfUrl) => {
     const name = invoiceData?.event?.party?.nameEnglish || "there";
     const mobile = invoiceData?.event?.party?.mobileno || "";
@@ -359,7 +400,6 @@ Thanks!`;
     }
   }, [invoiceData]);
 
-  // Initialize billing name and GST number from invoiceData
   useEffect(() => {
     if (invoiceData) {
       setTempValues({
@@ -371,13 +411,6 @@ Thanks!`;
       });
     }
   }, [invoiceData]);
-
-  // Fetch invoice data when component mounts
-  useEffect(() => {
-    if (eventId) {
-      fetchInvoiceData();
-    }
-  }, [eventId]);
 
   const fetchInvoiceData = async () => {
     try {
@@ -398,7 +431,7 @@ Thanks!`;
           }
 
           let mappedRows = [];
-
+          // REMOVE THIS FUNCTION - we don't need it anymore
           const formatDateForDisplay = (dateString) => {
             if (!dateString) return "";
             try {
@@ -422,7 +455,6 @@ Thanks!`;
               return dateString;
             }
           };
-
           if (invoiceDetails?.invoiceFunctionItems?.length > 0) {
             mappedRows = invoiceDetails.invoiceFunctionItems.map(
               (item, index) => {
@@ -430,10 +462,29 @@ Thanks!`;
                   item.isEventFunction === false ||
                   (item.id > 0 && !item.isEventFunction);
 
+                // ✅ FIX: Convert date string back to dayjs object
+                let dateValue = null;
+                if (item.functionDate || item.date) {
+                  const dateStr = item.functionDate || item.date;
+                  // Try parsing DD/MM/YYYY hh:mm A format first
+                  dateValue = dayjs(dateStr, "DD/MM/YYYY hh:mm A");
+                  if (!dateValue.isValid()) {
+                    // Try other formats
+                    dateValue = dayjs(dateStr, "DD/MM/YYYY");
+                    if (!dateValue.isValid()) {
+                      dateValue = dayjs(dateStr);
+                    }
+                  }
+                  // If still invalid, set to null
+                  if (!dateValue.isValid()) {
+                    dateValue = null;
+                  }
+                }
+
                 return {
                   key: `${index + 1}-${Math.random()}`,
                   name: item.functionName || item.name || "",
-                  date: formatDateForDisplay(item.functionDate || item.date),
+                  date: dateValue, // ✅ Store as dayjs object, not string
                   person: item.pax || item.person || 0,
                   extra: item.extraPax || item.extra || 0,
                   rate: item.ratePerPlate || item.rate || 0,
@@ -444,17 +495,36 @@ Thanks!`;
                       Number(item.rate || item.ratePerPlate || 0),
                   isCustom: isManuallyAdded,
                   isEventFunction: item.isEventFunction === true,
-                  id: item.id || 0,
+                  id: item.id || 0, // ✅ Preserve the ID
                   isNewRow: false,
                 };
               },
             );
-          } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
-            mappedRows = invoiceDetails.event.eventFunctions.map(
-              (func, index) => ({
+          }
+        } else if (invoiceDetails?.event?.eventFunctions?.length > 0) {
+          mappedRows = invoiceDetails.event.eventFunctions.map(
+            (func, index) => {
+              // ✅ FIX: Convert date string back to dayjs object
+              let dateValue = null;
+              if (func.functionStartDateTime) {
+                // Try parsing DD/MM/YYYY hh:mm A format first
+                dateValue = dayjs(
+                  func.functionStartDateTime,
+                  "DD/MM/YYYY hh:mm A",
+                );
+                if (!dateValue.isValid()) {
+                  // Try ISO format
+                  dateValue = dayjs(func.functionStartDateTime);
+                  if (!dateValue.isValid()) {
+                    dateValue = null;
+                  }
+                }
+              }
+
+              return {
                 key: `${index + 1}-${Math.random()}`,
                 name: func.function?.nameEnglish || "N/A",
-                date: formatDateForDisplay(func.functionStartDateTime),
+                date: dateValue, // ✅ Store as dayjs object, not string
                 person: func.pax || 0,
                 extra: 0,
                 rate: func.rate || 0,
@@ -462,38 +532,37 @@ Thanks!`;
                 isCustom: false,
                 isEventFunction: true,
                 id: 0,
-              }),
-            );
-          }
-
-          setRows(mappedRows.length > 0 ? mappedRows : rows);
-
-          setTempValues({
-            billingaddress: invoiceDetails.billingaddress || "",
-            billingname: invoiceDetails.billingname || "",
-            shipaddress: invoiceDetails.shipaddress || "",
-            shipname: invoiceDetails.shipname || "",
-            gstnumber: invoiceDetails.gstnumber || "",
-          });
-
-          setFooterData({
-            notes: invoiceDetails.notes || "Thanks for your Business...",
-            gst: 0,
-            cgst: parseFloat(invoiceDetails.cgst) || 0,
-            sgst: parseFloat(invoiceDetails.sgst) || 0,
-            igst: parseFloat(invoiceDetails.igst) || 0,
-            discount: parseFloat(invoiceDetails.discount) || 0,
-            roundOff: parseFloat(invoiceDetails.roundOff) || 0,
-            subTotal: parseFloat(invoiceDetails.subTotal) || 0,
-            totalAmount: parseFloat(invoiceDetails.totalAmount) || 0,
-            cgstAmnt: parseFloat(invoiceDetails.cgstAmnt) || 0,
-            sgstAmnt: parseFloat(invoiceDetails.sgstAmnt) || 0,
-            igstAmnt: parseFloat(invoiceDetails.igstAmnt) || 0,
-            grandTotal: parseFloat(invoiceDetails.grandTotal) || 0,
-          });
-        } else {
-          message.warning("No invoice data found");
+              };
+            },
+          );
         }
+        setRows(mappedRows.length > 0 ? mappedRows : rows);
+
+        setTempValues({
+          billingaddress: invoiceDetails.billingaddress || "",
+          billingname: invoiceDetails.billingname || "",
+          shipaddress: invoiceDetails.shipaddress || "",
+          shipname: invoiceDetails.shipname || "",
+          gstnumber: invoiceDetails.gstnumber || "",
+        });
+
+        setFooterData({
+          notes: invoiceDetails.notes || "Thanks for your Business...",
+          gst: 0,
+          cgst: parseFloat(invoiceDetails.cgst) || 0,
+          sgst: parseFloat(invoiceDetails.sgst) || 0,
+          igst: parseFloat(invoiceDetails.igst) || 0,
+          discount: parseFloat(invoiceDetails.discount) || 0,
+          roundOff: parseFloat(invoiceDetails.roundOff) || 0,
+          subTotal: parseFloat(invoiceDetails.subTotal) || 0,
+          totalAmount: parseFloat(invoiceDetails.totalAmount) || 0,
+          cgstAmnt: parseFloat(invoiceDetails.cgstAmnt) || 0,
+          sgstAmnt: parseFloat(invoiceDetails.sgstAmnt) || 0,
+          igstAmnt: parseFloat(invoiceDetails.igstAmnt) || 0,
+          grandTotal: parseFloat(invoiceDetails.grandTotal) || 0,
+        });
+      } else {
+        message.warning("No invoice data found");
       }
     } catch (error) {
       console.error("Error fetching invoice data:", error);
@@ -503,10 +572,19 @@ Thanks!`;
     }
   };
 
+  useEffect(() => {
+    if (eventId) {
+      fetchInvoiceData(fromQuotation);
+    }
+  }, [eventId, fromQuotation]);
+
   const handleInputChange = (index, field, value) => {
     setIsEdited(true);
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
+    if (field === "date") {
+      updatedRows[index][field] = value;
+    }
 
     if (field === "person" || field === "extra" || field === "rate") {
       const person = parseFloat(updatedRows[index].person) || 0;
@@ -519,6 +597,7 @@ Thanks!`;
 
     setRows(updatedRows);
   };
+
   const handleDeleteRow = (key) => {
     setIsEdited(true);
 
@@ -552,7 +631,6 @@ Thanks!`;
     setFooterData(newFooterData);
   };
 
-  // Toggle edit mode
   const toggleEdit = (field) => {
     setEditStates((prev) => ({
       ...prev,
@@ -560,7 +638,6 @@ Thanks!`;
     }));
   };
 
-  // Handle temp value changes
   const handleTempValueChange = (field, value) => {
     setIsEdited(true);
     handleTempValueChange;
@@ -570,7 +647,6 @@ Thanks!`;
     }));
   };
 
-  // Save changes
   const saveChanges = (field) => {
     setInvoiceData((prev) => ({
       ...prev,
@@ -598,6 +674,87 @@ Thanks!`;
     return dateString;
   };
 
+  useEffect(() => {
+    if (!fromQuotation || !quotationStateData) return;
+
+    // Pre-fill rows from quotation functions
+    const mappedRows = quotationStateData.functions.map((fn, index) => {
+      // ✅ FIX: Always send dayjs object to invoice
+      let dateValue = null;
+      if (fn.date) {
+        if (typeof fn.date === "object" && fn.date.format) {
+          // Already a dayjs object
+          dateValue = fn.date;
+        } else if (typeof fn.date === "string") {
+          // Parse string to dayjs
+          dateValue = dayjs(fn.date, "DD MMM YYYY");
+          if (!dateValue.isValid()) {
+            dateValue = dayjs(fn.date, "DD/MM/YYYY hh:mm A");
+          }
+        }
+      }
+
+      return {
+        key: `${index + 1}-${Math.random()}`,
+        name: fn.name || "",
+        date: dateValue, // ✅ Send as dayjs object
+        person: fn.persons || "",
+        extra: 0,
+        rate: fn.rate || 0,
+        amount: parseFloat(fn.totalPrice) || 0,
+        isCustom: true,
+        isEventFunction: false,
+        id: 0,
+        isNewRow: false,
+      };
+    });
+
+    if (mappedRows.length > 0) {
+      setRows(mappedRows);
+    }
+
+    // Pre-fill footer data
+    setFooterData((prev) => ({
+      ...prev,
+      notes: quotationStateData.notes || prev.notes,
+      cgst: parseFloat(quotationStateData.cgst) || 0,
+      sgst: parseFloat(quotationStateData.sgst) || 0,
+      igst: parseFloat(quotationStateData.igst) || 0,
+      cgstAmnt: parseFloat(quotationStateData.cgstAmnt) || 0,
+      sgstAmnt: parseFloat(quotationStateData.sgstAmnt) || 0,
+      igstAmnt: parseFloat(quotationStateData.igstAmnt) || 0,
+      discount: parseFloat(quotationStateData.discount) || 0,
+      roundOff: parseFloat(quotationStateData.roundOff) || 0,
+      subTotal: parseFloat(quotationStateData.subtotal) || 0,
+      grandTotal: parseFloat(quotationStateData.grandTotal) || 0,
+      totalAmount: parseFloat(quotationStateData.subtotal) || 0,
+    }));
+
+    // Pre-fill ALL address and billing fields
+    setTempValues((prev) => ({
+      ...prev,
+      billingname: quotationStateData.billingname || "",
+      billingaddress: quotationStateData.billingaddress || "",
+      shipname: quotationStateData.shipname || "",
+      shipaddress: quotationStateData.shipaddress || "",
+      gstnumber: quotationStateData.gstnumber || "",
+    }));
+
+    // Pre-fill due date
+    if (quotationStateData.duedate) {
+      // Check if it's already a dayjs object or needs to be parsed
+      if (
+        typeof quotationStateData.duedate === "object" &&
+        quotationStateData.duedate.format
+      ) {
+        setDueDate(quotationStateData.duedate);
+      } else {
+        setDueDate(dayjs(quotationStateData.duedate, "DD/MM/YYYY"));
+      }
+    }
+
+    setIsEdited(true); // Mark as edited so Save is enabled
+  }, [fromQuotation, quotationStateData]);
   if (loading) {
     return (
       <Container>
@@ -627,16 +784,42 @@ Thanks!`;
       };
 
       const convertDisplayDateToAPI = (displayDate) => {
-        if (!displayDate) return null;
+        if (!displayDate) {
+          console.warn("Empty date provided");
+          return null;
+        }
+
         try {
-          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
-            return `${displayDate} 12:00 AM`;
+          // ✅ PRIORITY 1: Handle dayjs objects
+          if (typeof displayDate === "object" && displayDate.format) {
+            console.log(
+              "Converting dayjs object:",
+              displayDate.format("DD/MM/YYYY hh:mm A"),
+            );
+            return displayDate.format("DD/MM/YYYY hh:mm A");
           }
 
-          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate)) {
-            return displayDate;
+          // ✅ PRIORITY 2: Handle moment objects (just in case)
+          if (typeof displayDate === "object" && displayDate._isAMomentObject) {
+            return displayDate.format("DD/MM/YYYY hh:mm A");
           }
 
+          // Convert to string for remaining checks
+          const dateStr = String(displayDate);
+
+          // ✅ PRIORITY 3: Already in correct format
+          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(dateStr)) {
+            console.log("Already in correct format:", dateStr);
+            return dateStr;
+          }
+
+          // ✅ PRIORITY 4: Just date without time
+          if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+            console.log("Date without time:", dateStr);
+            return `${dateStr} 12:00 AM`;
+          }
+
+          // ✅ PRIORITY 5: Handle "DD MMM YYYY" format
           const monthMap = {
             Jan: "01",
             Feb: "02",
@@ -652,24 +835,40 @@ Thanks!`;
             Dec: "12",
           };
 
-          const parts = displayDate.split(" ");
-          if (parts.length === 3) {
+          const parts = dateStr.split(" ");
+          if (parts.length === 3 && monthMap[parts[1]]) {
             const day = parts[0].padStart(2, "0");
             const month = monthMap[parts[1]];
             const year = parts[2];
-            if (month) {
-              return `${day}/${month}/${year} 12:00 AM`;
-            }
+            const result = `${day}/${month}/${year} 12:00 AM`;
+            console.log("Converted display format:", dateStr, "→", result);
+            return result;
           }
 
-          const date = new Date(displayDate);
+          // ✅ PRIORITY 6: Try parsing with dayjs
+          const parsed = dayjs(dateStr);
+          if (parsed.isValid()) {
+            const result = parsed.format("DD/MM/YYYY hh:mm A");
+            console.log("Parsed with dayjs:", dateStr, "→", result);
+            return result;
+          }
+
+          // ✅ PRIORITY 7: Last resort
+          const date = new Date(dateStr);
           if (!isNaN(date.getTime())) {
             const d = String(date.getDate()).padStart(2, "0");
             const m = String(date.getMonth() + 1).padStart(2, "0");
             const y = date.getFullYear();
-            return `${d}/${m}/${y} 12:00 AM`;
+            const result = `${d}/${m}/${y} 12:00 AM`;
+            console.log("Converted with Date:", dateStr, "→", result);
+            return result;
           }
 
+          console.error(
+            "Could not convert date:",
+            displayDate,
+            typeof displayDate,
+          );
           return null;
         } catch (error) {
           console.error("Error converting date:", displayDate, error);

@@ -167,7 +167,7 @@ const CrockeryCutleryReportModal = ({
             size2: config.size2 === 1 ? 1 : 0,
             isWithPrice: config.isWithPrice,
           })
-            .filter(([_, value]) => value === 1) // ✅ only show if DB says 1
+            .filter(([_, value]) => value === 1)
             .map(([key]) => key),
         );
       } catch (err) {
