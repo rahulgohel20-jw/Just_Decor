@@ -130,7 +130,7 @@ const Addinvoice = () => {
       const response = await GetAllMemberByUserId(partyId);
 
       if (response?.data?.success) {
-        const userDetails = response.data.data?.["User Details"];
+        const userDetails = response?.data.data.userDetails.userDetails;
 
         if (Array.isArray(userDetails) && userDetails.length > 0) {
           const partyData = userDetails[0]; // Get first user from array
@@ -175,7 +175,7 @@ const Addinvoice = () => {
               // Parse date like "10/11/2025 04:58 pm"
               const startDateParsed = dayjs(
                 userPlan.startDate,
-                "DD/MM/YYYY hh:mm a"
+                "DD/MM/YYYY hh:mm a",
               );
               setPlanStartDate(startDateParsed.format("DD/MM/YYYY"));
             }
@@ -184,7 +184,7 @@ const Addinvoice = () => {
               // Parse date like "10/12/2025 04:58 pm"
               const endDateParsed = dayjs(
                 userPlan.endDate,
-                "DD/MM/YYYY hh:mm a"
+                "DD/MM/YYYY hh:mm a",
               );
               setPlanEndDate(endDateParsed.format("DD/MM/YYYY"));
             }
@@ -196,12 +196,12 @@ const Addinvoice = () => {
                 planName: plan?.name || "N/A",
                 startDate: userPlan.startDate
                   ? dayjs(userPlan.startDate, "DD/MM/YYYY hh:mm a").format(
-                      "DD/MM/YYYY"
+                      "DD/MM/YYYY",
                     )
                   : "",
                 endDate: userPlan.endDate
                   ? dayjs(userPlan.endDate, "DD/MM/YYYY hh:mm a").format(
-                      "DD/MM/YYYY"
+                      "DD/MM/YYYY",
                     )
                   : "",
                 amount: plan?.price?.toString() || "0",
@@ -267,7 +267,7 @@ const Addinvoice = () => {
             handleCellChange(
               record.key,
               "startDate",
-              date ? date.format("DD/MM/YYYY") : ""
+              date ? date.format("DD/MM/YYYY") : "",
             )
           }
           className="w-full"
@@ -286,7 +286,7 @@ const Addinvoice = () => {
             handleCellChange(
               record.key,
               "endDate",
-              date ? date.format("DD/MM/YYYY") : ""
+              date ? date.format("DD/MM/YYYY") : "",
             )
           }
           className="w-full"
@@ -326,8 +326,8 @@ const Addinvoice = () => {
   const handleCellChange = (key, field, value) => {
     setData((prev) =>
       prev.map((item) =>
-        item.key === key ? { ...item, [field]: value } : item
-      )
+        item.key === key ? { ...item, [field]: value } : item,
+      ),
     );
   };
 
@@ -514,7 +514,7 @@ const Addinvoice = () => {
     } catch (error) {
       console.error("❌ Error creating invoice:", error);
       message.error(
-        error?.response?.data?.message || "Failed to create invoice"
+        error?.response?.data?.message || "Failed to create invoice",
       );
     } finally {
       setLoading(false);
@@ -615,7 +615,7 @@ const Addinvoice = () => {
                           format="DD/MM/YYYY"
                           onChange={(date) =>
                             setPlanStartDate(
-                              date ? date.format("DD/MM/YYYY") : ""
+                              date ? date.format("DD/MM/YYYY") : "",
                             )
                           }
                           className="w-full"
@@ -635,7 +635,7 @@ const Addinvoice = () => {
                           format="DD/MM/YYYY"
                           onChange={(date) =>
                             setPlanEndDate(
-                              date ? date.format("DD/MM/YYYY") : ""
+                              date ? date.format("DD/MM/YYYY") : "",
                             )
                           }
                           className="w-full"
