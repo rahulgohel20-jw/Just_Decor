@@ -31,7 +31,7 @@ const AllMemberMaster = () => {
   const FetchMembers = () => {
     GetAllMemberByUserId(Id)
       .then((res) => {
-        const userDetails = res?.data?.data?.["User Details"];
+        const userDetails = res?.data.data.userDetails.userDetails;
         if (userDetails && Array.isArray(userDetails)) {
           const formatted = userDetails.map((member, index) => ({
             id: member.id,
@@ -81,12 +81,11 @@ const AllMemberMaster = () => {
         {/* Breadcrumbs */}
         <div className=" pb-2 mb-3">
           <h1 className="text-xl text-gray-900">
-         
-                  <FormattedMessage
-                    id="COMMON.SIDEBAR_USERS"
-                    defaultMessage="User Master"
-                  />
-               </h1>
+            <FormattedMessage
+              id="COMMON.SIDEBAR_USERS"
+              defaultMessage="User Master"
+            />
+          </h1>
         </div>
 
         {/* Filters */}
