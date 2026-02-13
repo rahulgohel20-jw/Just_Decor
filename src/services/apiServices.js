@@ -1606,3 +1606,13 @@ export const GetAllfunctioneventbyid = (eventId) => {
   return GET(`eventfunction/getalleventfunctionByeventid?eventId=${eventId}`);
 
 };
+
+export const GetAllEventFunction = (userId) => {
+  return GET(`eventfunction/getalleventfunction?page=1&size=1000&userId=${userId}`);
+
+};
+
+export const GetCopyMenuPlanning = (activeEventFunctionId,oldEventFunctionId) => {
+  return GET(`menupreparation/copyeventfunctionmenu?activeEventFunctionId=${activeEventFunctionId}&oldEventFunctionId=${oldEventFunctionId}`);
+
+};
