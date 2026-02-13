@@ -72,8 +72,8 @@ const getLocalizedValue = (obj, baseFieldName, fallbackValue = "-") => {
 };
 
 /**
- * @param {Object} row 
- * @param {string} fieldType 
+ * @param {Object} row
+ * @param {string} fieldType
  * @returns {string}
  */
 const getDisplayName = (row, fieldType) => {
@@ -86,7 +86,6 @@ const getDisplayName = (row, fieldType) => {
   return row[langMap[lang]] || row[fieldType] || "";
 };
 
-
 const getPartyName = (party) => {
   if (!party) return "-";
   const lang = getCurrentLanguage();
@@ -95,7 +94,6 @@ const getPartyName = (party) => {
   if (lang === "gu") return party.nameGujarati || party.nameEnglish || "-";
   return party.nameEnglish || "-";
 };
-
 
 const getEventTypeName = (eventType) => {
   if (!eventType) return "N/A";
@@ -108,7 +106,6 @@ const getEventTypeName = (eventType) => {
   return eventType.nameEnglish || "N/A";
 };
 
-
 const getVenueName = (venue) => {
   if (!venue) return "-";
   const lang = getCurrentLanguage();
@@ -117,7 +114,6 @@ const getVenueName = (venue) => {
   if (lang === "gu") return venue.nameGujarati || venue.nameEnglish || "-";
   return venue.nameEnglish || "-";
 };
-
 
 const getFunctionName = (functionObj) => {
   if (!functionObj) return "Unnamed";
@@ -510,7 +506,7 @@ const OrderSummary = ({
                       <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
                         <div
                           className="col-span-9 pl-6 hover:text-primary"
-                          onClick={() => onItemClick(it, g,null)}
+                          onClick={() => onItemClick(it, g, null)}
                         >
                           {it.menuItemName}{" "}
                           <span className="text-primary font-bold">
@@ -580,7 +576,14 @@ const OrderSummary = ({
   );
 };
 
-const TableHeader = ({ onChefCheckAll, onOutsourceCheckAll, onInsideCheckAll, allChefChecked, allOutsourceChecked, allInsideChecked }) => (
+const TableHeader = ({
+  onChefCheckAll,
+  onOutsourceCheckAll,
+  onInsideCheckAll,
+  allChefChecked,
+  allOutsourceChecked,
+  allInsideChecked,
+}) => (
   <div
     className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-10"
     style={{ top: "230px" }}
@@ -853,6 +856,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [allInsideChecked, setAllInsideChecked] = useState(false);
   const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [isMenuForHMOpen, setIsMenuForHMOpen] = useState(false);
 
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
@@ -1065,7 +1069,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
-      console.log(eventFunctionId,"data");
+      console.log(eventFunctionId, "data");
 
       const menuItemId = item.menuItemId || item.id;
 
@@ -1098,8 +1102,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
       setIsCategoryModal(true);
       setMenuLoading(true);
- 
-      
 
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
@@ -1407,10 +1409,10 @@ const EventMenuAllocationPage = ({ mode }) => {
     if (rows.length === 0) return;
 
     if (rows.length > 0) {
-      const allChef = rows.every(row => row.chefLabour);
-      const allOutside = rows.every(row => row.outside);
-      const allInside = rows.every(row => row.inside);
-      
+      const allChef = rows.every((row) => row.chefLabour);
+      const allOutside = rows.every((row) => row.outside);
+      const allInside = rows.every((row) => row.inside);
+
       setAllChefChecked(allChef);
       setAllOutsourceChecked(allOutside);
       setAllInsideChecked(allInside);
@@ -1591,7 +1593,7 @@ const EventMenuAllocationPage = ({ mode }) => {
     currentLang,
     placeOptions,
     placeLoading,
-  ]); 
+  ]);
 
   const handleInsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -2120,6 +2122,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       });
     }
   };
+
   function openSelectMenureport() {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
@@ -2210,11 +2213,10 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
-  
   const handleEventSelect = async (newEventId) => {
-      setSelectedEventId(newEventId);
-      setIsAllCustomerToogleOpen(false);
-      navigate(`/menu-allocation/${newEventId}`);
+    setSelectedEventId(newEventId);
+    setIsAllCustomerToogleOpen(false);
+    navigate(`/menu-allocation/${newEventId}`);
   };
 
   return (
@@ -2294,7 +2296,10 @@ const EventMenuAllocationPage = ({ mode }) => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900 underline cursor-pointer" onClick={() => setIsAllCustomerToogleOpen(true)}>
+                <span
+                  className="text-sm font-medium text-gray-900 underline cursor-pointer"
+                  onClick={() => setIsAllCustomerToogleOpen(true)}
+                >
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -2459,28 +2464,44 @@ const EventMenuAllocationPage = ({ mode }) => {
                   </div>
                 </div>
 
-                <div className="flex flex-row gap-4 items-end">
-                  <Input
-                    placeholder={intl.formatMessage({
-                      id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
-                      defaultMessage: "Enter Person",
-                    })}
-                    value={percentage}
-                    onChange={(e) => setPercentage(e.target.value)}
-                    className="p-1 pl-2 w-28"
-                  />
-                  <Tooltip title="It will increase or decrease the number of persons by the entered number.">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      title="Adjust Person"
-                      onClick={handleAdjustPerson}
-                    >
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
-                        defaultMessage="Adjust Person"
-                      />
-                    </button>
-                  </Tooltip>
+                <div className="flex flex-row gap-4 items-end flex-1 justify-between">
+                  <div className="flex flex-row gap-4 items-end">
+                    <Input
+                      placeholder={intl.formatMessage({
+                        id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
+                        defaultMessage: "Enter Person",
+                      })}
+                      value={percentage}
+                      onChange={(e) => setPercentage(e.target.value)}
+                      className="p-1 pl-2 w-28"
+                    />
+                    <Tooltip title="It will increase or decrease the number of persons by the entered number.">
+                      <button
+                        className="btn btn-sm btn-primary"
+                        title="Adjust Person"
+                        onClick={handleAdjustPerson}
+                      >
+                        <FormattedMessage
+                          id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
+                          defaultMessage="Adjust Person"
+                        />
+                      </button>
+                    </Tooltip>
+                  </div>
+
+                  <button
+                    className="btn btn-sm btn-primary"
+                    title="Menu For HM"
+                    onClick={() => {
+                      setMenuReportEventId(eventId);
+                      setIsMenuForHMOpen(true);
+                    }}
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.MENU_FOR_HM"
+                      defaultMessage="Menu For HM"
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -2556,14 +2577,14 @@ const EventMenuAllocationPage = ({ mode }) => {
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-              <TableHeader   
-              onChefCheckAll={handleChefCheckAll}
-            onOutsourceCheckAll={handleOutsourceCheckAll}
-            onInsideCheckAll={handleInsideCheckAll}
-            allChefChecked={allChefChecked}
-            allOutsourceChecked={allOutsourceChecked}
-            allInsideChecked={allInsideChecked}
-            />
+              <TableHeader
+                onChefCheckAll={handleChefCheckAll}
+                onOutsourceCheckAll={handleOutsourceCheckAll}
+                onInsideCheckAll={handleInsideCheckAll}
+                allChefChecked={allChefChecked}
+                allOutsourceChecked={allOutsourceChecked}
+                allInsideChecked={allInsideChecked}
+              />
 
               {tableLoading ? (
                 <div className="flex items-center justify-center p-8">
@@ -2711,6 +2732,17 @@ const EventMenuAllocationPage = ({ mode }) => {
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
         />
+        <MenuReport
+          isModalOpen={isMenuForHMOpen}
+          setIsModalOpen={setIsMenuForHMOpen}
+          eventId={eventId}
+          eventFunctionId={getEventFunctionId(activeFunction)}
+          moduleId={15}
+          mappingId={49}
+          selectedTemplateId={15}
+          selectedTemplateName="Menu For HM"
+          isAdminModuleReport={true}
+        />
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
@@ -2760,10 +2792,10 @@ const EventMenuAllocationPage = ({ mode }) => {
         />
         <AllVendor isOpen={allVendor} onClose={() => setAllVendor(false)} />
         <AllCustomerToogle
-        isModalOpen={isAllCustomerToogleOpen}
-        setIsModalOpen={setIsAllCustomerToogleOpen}
-        onEventSelect={handleEventSelect}
-      />
+          isModalOpen={isAllCustomerToogleOpen}
+          setIsModalOpen={setIsAllCustomerToogleOpen}
+          onEventSelect={handleEventSelect}
+        />
       </Container>
     </Fragment>
   );
