@@ -8,8 +8,8 @@ export const GetMenuCategoryByUserIdmenuitem = (userId) => {
   return GET(`/menucategory/getallbyuserid?userid=${userId}`);
 };
 
-export const GetQuotation = (id) => {
-  return GET(`/quotation/getbyeventid?eventId=${id}`);
+export const GetQuotation = (id, isCopyToInvoice) => {
+  return GET(`/quotation/getbyeventid?eventId=${id}&isCopyToInvoice=${isCopyToInvoice}`);
 };
 
 export const UpdateQuotation = (id, data) => {

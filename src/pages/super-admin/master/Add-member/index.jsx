@@ -15,6 +15,8 @@ const SuperadminMember = () => {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [tableData, setTableData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [stats, setStats] = useState({
     pending: 0,
     confirmed: 0,
@@ -27,6 +29,20 @@ const SuperadminMember = () => {
   const intl = useIntl();
   const Id = localStorage.getItem("userId");
 
+  const filteredData = tableData.filter((member) => {
+    const value = searchTerm.toLowerCase();
+
+    return (
+      member.full_name?.toLowerCase().includes(value) ||
+      member.email?.toLowerCase().includes(value) ||
+      member.contact?.toLowerCase().includes(value) ||
+      member.role?.toLowerCase().includes(value) ||
+      member.city?.toLowerCase().includes(value) ||
+      member.state?.toLowerCase().includes(value) ||
+      member.country?.toLowerCase().includes(value)
+    );
+  });
+
   useEffect(() => {
     FetchMembers();
   }, []);
@@ -35,21 +51,22 @@ const SuperadminMember = () => {
   const FetchMembers = () => {
     GetAllMemberByUserId(Id)
       .then((res) => {
-        const response = res?.data?.data?.userDetails;
-        const userDetails = response?.userDetails;
+        const response = res?.data?.data?.userDetails; // ✅ Get userDetails object
+        const userDetails = response?.UserDetails; // ✅ Get UserDetails array
+        const leadStatus = response?.LeadStatus || {}; // ✅ Get LeadStatus from response
+        const leadType = response?.LeadType || {}; // ✅ Get LeadType from response
 
-        // ✅ Extract leadStatus and leadType from API
-        const leadStatus = response?.leadStatus || {};
-        const leadType = response?.leadType || {};
+        console.log("Lead Status:", leadStatus); // ✅ Debug log
+        console.log("Lead Type:", leadType); // ✅ Debug log
 
-        // ✅ Update stats with API data
+        // ✅ Update stats with API data (handle both capitalization)
         setStats({
-          pending: leadStatus.pending || 0,
-          confirmed: leadStatus.confirmed || 0,
+          pending: (leadStatus.pending || 0) + (leadStatus.Pending || 0),
+          confirmed: (leadStatus.confirmed || 0) + (leadStatus.Confirmed || 0),
           cancel: (leadStatus.cancel || 0) + (leadStatus.Cancel || 0),
-          hot: leadType.hot || 0,
+          hot: (leadType.hot || 0) + (leadType.Hot || 0),
           cold: (leadType.cold || 0) + (leadType.Cold || 0),
-          inquiry: (leadType.inquire || 0) + (leadType.inquiry || 0),
+          inquiry: (leadType.inquire || 0) + (leadType.Inquire || 0),
         });
 
         if (userDetails && Array.isArray(userDetails)) {
@@ -74,7 +91,6 @@ const SuperadminMember = () => {
             city: member["userBasicDetails"]?.city?.name || "-",
             state: member["userBasicDetails"]?.state?.name || "-",
             companyEmail: member["userBasicDetails"]?.companyEmail || "-",
-            // ✅ Add lead status and type from individual member
             leadStatus: member.leadStatus || {},
             leadType: member.leadType || {},
           }));
@@ -94,7 +110,7 @@ const SuperadminMember = () => {
   };
 
   const handleView = (member) => {
-    console.log("Selected Member for View:", member); // ✅ Debug log
+    console.log("Selected Member for View:", member);
     setSelectedMember(member);
     setIsViewMemberModalOpen(true);
   };
@@ -227,6 +243,8 @@ const SuperadminMember = () => {
                   defaultMessage: "Search Member...",
                 })}
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -267,7 +285,7 @@ const SuperadminMember = () => {
         {/* Table */}
         <TableComponent
           columns={columns(handleEdit, handleView)}
-          data={tableData}
+          data={filteredData}
           paginationSize={10}
         />
       </Container>
