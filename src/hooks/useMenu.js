@@ -11,8 +11,11 @@ import {
 export const useMenu = () => {
   const { currentUser, loading } = useAuthContext();
   const rights = useAuthStore((state) => state.rights);
+  console.log(rights);
 
   const rightsLoaded = Object.keys(rights || {}).length > 0;
+
+  console.log(rightsLoaded);
 
   const menu = useMemo(() => {
     if (!currentUser) {
@@ -33,9 +36,9 @@ export const useMenu = () => {
       return disableMenuItems(allMenuItems);
     }
 
-    if (!rightsLoaded) {
-      return disableMenuItems(allMenuItems);
-    }
+    // if (!rightsLoaded) {
+    //   return disableMenuItems(allMenuItems);
+    // }
 
     return applyMenuRights(allMenuItems, rights);
   }, [currentUser, rights, rightsLoaded]);
