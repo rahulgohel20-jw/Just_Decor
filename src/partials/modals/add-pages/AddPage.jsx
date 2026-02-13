@@ -7,7 +7,7 @@ import { FormattedMessage } from "react-intl";
 
 const AddPage = ({ isOpen, onClose, page, refreshData }) => {
   console.log(page);
-  
+
   if (!isOpen) return null;
 
   const [modules, setModules] = useState([]);
@@ -15,7 +15,6 @@ const AddPage = ({ isOpen, onClose, page, refreshData }) => {
   useEffect(() => {
     GetModuleRights()
       .then((res) => {
-        
         setModules(res.data.data || []);
       })
       .catch((error) => {
@@ -27,11 +26,13 @@ const AddPage = ({ isOpen, onClose, page, refreshData }) => {
     pagename: "",
     moduleId: "",
     isActive: true,
+    isAdmin: false,
   };
 
   const validationSchema = Yup.object().shape({
     pagename: Yup.string().required("Page name is required"),
     moduleId: Yup.string().required("Module is required"),
+    isAdmin: Yup.boolean().required("Admin selection is required"),
   });
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -46,6 +47,7 @@ const AddPage = ({ isOpen, onClose, page, refreshData }) => {
         pagename: values.pagename,
         moduleId: parseInt(values.moduleId),
         isActive: values.isActive,
+        isAdmin: values.isAdmin === "true",
         userId: Id,
       };
 
@@ -102,6 +104,7 @@ const AddPage = ({ isOpen, onClose, page, refreshData }) => {
                   pagename: page.pagename || "",
                   moduleId: page.moduleId || "",
                   isActive: page.isActive !== undefined ? page.isActive : true,
+                  isAdmin: page.isAdmin !== undefined ? page.isAdmin : false,
                 }
               : initialFormState
           }
@@ -134,6 +137,8 @@ const AddPage = ({ isOpen, onClose, page, refreshData }) => {
                     name="moduleId"
                     options={modules}
                   />
+
+                  <SelectWithFormikBoolean label="Is Admin" name="isAdmin" />
                 </div>
 
                 {/* Actions */}
@@ -187,6 +192,29 @@ const InputWithFormik = ({ label, name, placeholder }) => (
       placeholder={placeholder || label}
       className="border border-gray-300 rounded-lg p-2 w-full"
     />
+    <ErrorMessage
+      name={name}
+      component="div"
+      className="text-red-500 text-sm mt-1"
+    />
+  </div>
+);
+
+const SelectWithFormikBoolean = ({ label, name }) => (
+  <div className="flex flex-col">
+    <label className="block text-gray-600 mb-1">
+      {label}
+      <span className="text-red-500">*</span>
+    </label>
+    <Field
+      as="select"
+      name={name}
+      className="border border-gray-300 rounded-lg p-2 w-full"
+    >
+      <option value="">Select Option</option>
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </Field>
     <ErrorMessage
       name={name}
       component="div"

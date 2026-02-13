@@ -2,6 +2,8 @@ import { createContext, useState, useEffect, useRef } from "react";
 import { LoginUser, getUserById, LoginOutUser } from "@/services/apiServices";
 import * as authHelper from "../_helpers";
 import { message } from "antd";
+import { useAuthStore } from "@/store/useAuthStore";
+import { normalizeRights } from "@/utils/normalizeRights";
 
 const AuthContext = createContext(null);
 
@@ -10,6 +12,7 @@ const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(authHelper.getAuth());
   const [currentUser, setCurrentUser] = useState(null);
   const inactivityTimerRef = useRef(null);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   const INACTIVITY_LIMIT = 10 * 60 * 60 * 1000;
 
@@ -34,7 +37,11 @@ const AuthProvider = ({ children }) => {
       const response = await getUserById(userId);
 
       if (response?.data?.success) {
-        setCurrentUser(response.data.data["User Details"][0]);
+        const user = response.data.data["User Details"][0];
+        setCurrentUser(user);
+
+        const normalizedRights = normalizeRights(user?.userRights || []);
+        useAuthStore.getState().setAuth(user, user.token, normalizedRights);
       } else {
         logout();
       }
@@ -102,8 +109,6 @@ const AuthProvider = ({ children }) => {
   const logout = async () => {
     const email = currentUser?.email;
 
-    // window.location.href = "/justcaterings/auth/login";
-
     try {
       if (email) {
         await LoginOutUser(email, "logout");
@@ -112,9 +117,13 @@ const AuthProvider = ({ children }) => {
       console.error("Logout notification failed:", err);
     }
 
+    // 🧹 Clear localStorage
     localStorage.removeItem("userToken");
     localStorage.removeItem("userId");
     localStorage.removeItem("lang");
+
+    // 🔥 CLEAR ZUSTAND RIGHTS HERE
+    clearAuth();
 
     saveAuth(undefined);
     setCurrentUser(undefined);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FetchAllUser } from "@/services/apiServices";
+import { getUserById } from "@/services/apiServices";
 import { useAuthStore } from "@/store/useAuthStore";
 import { normalizeRights } from "@/utils/normalizeRights";
 import clsx from "clsx";
@@ -54,9 +54,9 @@ const Login = () => {
 
         if (!userId) throw new Error("User ID not found after login.");
 
-        const userResponse = await FetchAllUser(userId);
+        const userResponse = await getUserById(userId);
 
-        const userData = userResponse?.data.data.userDetails.UserDetails;
+        const userData = userResponse?.data.data["User Details"];
 
         if (
           !userData ||
@@ -70,16 +70,18 @@ const Login = () => {
         window.history.replaceState(null, "", "/auth/login");
 
         const userDetails = userData[0];
-        console.log(userDetails);
+        console.log(userDetails?.userRights);
 
         const rawRights = userDetails?.userRights || [];
         const roleId = Number(userDetails?.userBasicDetails?.role?.id);
         const userPlan = userDetails?.userPlan?.plan ?? null;
         const plan = userDetails?.plan ?? null;
         const isApprove = userDetails?.isApprove;
+
         console.log(rawRights);
 
         const normalizedRights = normalizeRights(rawRights);
+
         console.log(normalizedRights);
 
         setAuth(
