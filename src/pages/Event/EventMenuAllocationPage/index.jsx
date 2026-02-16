@@ -20,6 +20,8 @@ import {
   SyncRawmaterialMenuallocation,
   MenuAllocationTypeSummary,
   GETallGodown,
+  GettemplatebyuserId,
+  GetAllCustomThemeByUserIdAndModuleId,
 } from "@/services/apiServices";
 import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -147,7 +149,9 @@ const TopTabs = ({ value, onChange, functions }) => {
                 : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50")
             }
           >
-            <p className="font-semibold">{getFunctionName(item.function)}</p>
+            <p className="font-semibold">
+              {getFunctionName(item.function)} {/* ✅ Updated */}
+            </p>
 
             <p
               className={
@@ -173,7 +177,6 @@ const TopTabs = ({ value, onChange, functions }) => {
     </div>
   );
 };
-
 const OrderSummary = ({
   groups,
   onItemClick,
@@ -182,6 +185,7 @@ const OrderSummary = ({
   groupedByFunction,
   rows,
 }) => {
+  // Helper function to get localized names
   console.log(groups, groupedByFunction);
 
   const getItemName = (item) => {
@@ -632,14 +636,12 @@ const TableHeader = ({
 );
 
 const TableRow = ({ row, onChange, disabled }) => {
-  const [localPersonCount, setLocalPersonCount] = useState(row.personCount);
+  const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
   const [hasError, setHasError] = useState(false);
-
   useEffect(() => {
     setLocalPersonCount(row.personCount);
     setHasError(false);
   }, [row.personCount]);
-
   const handleCheckboxChange = (type, checked) => {
     const updated = {
       ...row,
@@ -650,7 +652,6 @@ const TableRow = ({ row, onChange, disabled }) => {
 
     onChange(updated);
   };
-
   const handlePersonCountChange = (e) => {
     setLocalPersonCount(Number(e.target.value) || 0);
     setHasError(false);
@@ -786,7 +787,7 @@ const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
             <i className="ki-filled ki-calendar text-primary text-xl"></i>
             <div>
               <h3 className="text-lg font-bold text-gray-800 uppercase">
-                {functionName}
+                {functionName} {/* This will now show localized name */}
               </h3>
               <p className="text-sm text-gray-600">{functionDateTime}</p>
             </div>
@@ -858,12 +859,65 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [isMenuForHMOpen, setIsMenuForHMOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [menuForHMModuleId, setMenuForHMModuleId] = useState(null);
+  const [menuForHMMappingId, setMenuForHMMappingId] = useState(null);
+  const [menuForHMTemplateId, setMenuForHMTemplateId] = useState(null);
 
-  // ✅ NEW: Track which rows had PAX changes
-  const changedPaxRowsRef = useRef(new Set());
+  const fetchMenuForHMModule = async () => {
+    try {
+      const res = await GettemplatebyuserId();
 
-  // ============= LISTEN FOR LANGUAGE CHANGES =============
+      if (res?.data?.success && res?.data?.data) {
+        const menuForHMModule = res.data.data.find(
+          (module) =>
+            module.nameEnglish === "Menu For HM" &&
+            module.isActive &&
+            !module.isDelete,
+        );
+
+        if (menuForHMModule) {
+          setMenuForHMModuleId(menuForHMModule.id);
+
+          const templatesRes = await GetAllCustomThemeByUserIdAndModuleId(
+            localStorage.getItem("userId"),
+            menuForHMModule.id,
+          );
+
+          // ✅ ADD THIS DEBUG CODE
+          console.log("📦 All Templates:", templatesRes?.data?.data);
+          templatesRes?.data?.data?.forEach((template, index) => {
+            console.log(`Template ${index}:`, {
+              name: template.templateMaster?.name,
+              mappingId: template.templateMappingResponseDto?.id,
+            });
+          });
+
+          if (
+            templatesRes?.data?.success &&
+            templatesRes?.data?.data?.length > 0
+          ) {
+            const firstTemplate = templatesRes.data.data[0];
+
+            const templateId = firstTemplate.id; // 446
+            const mappingId =
+              firstTemplate.templateMappingResponseDto?.id || firstTemplate.id; // 49
+
+            console.log("🔗 Template ID (446) for payload:", templateId);
+            console.log("🔗 Mapping ID (49) for config:", mappingId);
+
+            setMenuForHMTemplateId(templateId); // ✅ Store 446
+            setMenuForHMMappingId(mappingId); // ✅ Store 49
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (eventId) fetchMenuForHMModule();
+  }, [eventId]); // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
     const handleStorageChange = () => {
       const newLang = getCurrentLanguage();
@@ -872,8 +926,10 @@ const EventMenuAllocationPage = ({ mode }) => {
       }
     };
 
+    // Listen for storage changes from other tabs
     window.addEventListener("storage", handleStorageChange);
 
+    // Also check on interval (in case same tab changes it)
     const interval = setInterval(() => {
       const newLang = getCurrentLanguage();
       if (newLang !== currentLang) {
@@ -944,7 +1000,6 @@ const EventMenuAllocationPage = ({ mode }) => {
       return updatedRows;
     });
   };
-
   const handleNavigateWithWarning = async (path, state = null) => {
     if (hasUnsavedChanges) {
       const result = await Swal.fire({
@@ -1178,9 +1233,11 @@ const EventMenuAllocationPage = ({ mode }) => {
         (d) => d.menuAllocation || [],
       );
 
+      // ============= UPDATED: Store all language variants =============
       const transformedRows = mergedMenuAllocation.map((item) => ({
         key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
         id: item.id,
+        // Store all language variants
         categoryName: getLocalizedValue(item, "menuCategoryName", ""),
         categoryNameEn: item.menuCategoryName,
         categoryNameGu: item.menuCategoryNameGujarati,
@@ -1401,15 +1458,25 @@ const EventMenuAllocationPage = ({ mode }) => {
   useEffect(() => {
     if (eventData?.eventFunctions?.length > 0) {
       setActiveFunction(allFunctionTab);
-      changedPaxRowsRef.current.clear(); // ✅ Clear on initial load
       fetchMenuAllocation(-1);
     }
   }, [eventData?.eventFunctions]);
 
   useEffect(() => {
     if (isInitialLoadRef.current) return;
+
     if (rows.length === 0) return;
-    if (isSaving) return;
+
+    if (rows.length > 0) {
+      const allChef = rows.every((row) => row.chefLabour);
+      const allOutside = rows.every((row) => row.outside);
+      const allInside = rows.every((row) => row.inside);
+
+      setAllChefChecked(allChef);
+      setAllOutsourceChecked(allOutside);
+      setAllInsideChecked(allInside);
+    }
+
     if (rows.some((r) => r.personCount === 0)) return;
 
     const hasPersonChanged = rows.some(
@@ -1426,12 +1493,8 @@ const EventMenuAllocationPage = ({ mode }) => {
       handleMainSave();
     }, 1000);
 
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [rows, isSaving]);
+    return () => clearTimeout(saveTimeoutRef.current);
+  }, [rows]);
 
   const totalPax = useMemo(() => {
     if (activeFunction?.id === -1) {
@@ -1482,16 +1545,9 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const updateRow = (updated) => {
     setRows((prevRows) => {
-      const updatedRows = prevRows.map((x) => {
-        if (x.key === updated.key) {
-          // ✅ Check if personCount changed for THIS specific row
-          if (x.personCount !== updated.personCount) {
-            changedPaxRowsRef.current.add(updated.key);
-          }
-          return updated;
-        }
-        return x;
-      });
+      const updatedRows = prevRows.map((x) =>
+        x.key === updated.key ? updated : x,
+      );
 
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
@@ -1502,7 +1558,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
-    changedPaxRowsRef.current.clear(); // ✅ Clear tracked changes
     const functionId = functionItem?.id;
     fetchMenuAllocation(functionId);
   };
@@ -1512,13 +1567,10 @@ const EventMenuAllocationPage = ({ mode }) => {
     if (isNaN(adjustment) || adjustment === 0) return;
 
     setRows((prevRows) => {
-      const updatedRows = prevRows.map((row) => {
-        changedPaxRowsRef.current.add(row.key); // ✅ Mark all rows as having PAX changes
-        return {
-          ...row,
-          personCount: Math.max(0, (row.personCount || 0) + adjustment),
-        };
-      });
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        personCount: Math.max(0, (row.personCount || 0) + adjustment),
+      }));
 
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
@@ -1876,14 +1928,19 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setIsCategoryModal(false);
 
+    // ✅ NEW: Refresh all data if shouldRefresh flag is true
     if (saveData.shouldRefresh) {
       const currentActiveFunctionId = activeFunction?.id;
 
       if (currentActiveFunctionId) {
+        // Show loading indicator
         setTableLoading(true);
 
         try {
+          // Refresh the menu allocation data
           await fetchMenuAllocation(currentActiveFunctionId);
+
+          // Optional: Show success message
           console.log("Data refreshed successfully after category save");
         } catch (error) {
           console.error("Error refreshing data after category save:", error);
@@ -1905,13 +1962,16 @@ const EventMenuAllocationPage = ({ mode }) => {
       try {
         setPlaceLoading(true);
 
+        // Get userId from localStorage
         const userId = localStorage.getItem("userId");
 
+        // Validate userId
         if (!userId || userId === "undefined" || userId === "null") {
           console.warn("No valid userId found, skipping godown fetch");
           return;
         }
 
+        // Pass userId to the API call
         const res = await GETallGodown(userId);
 
         if (res?.data?.data?.length) {
@@ -1935,7 +1995,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     fetchGodowns();
   }, []);
-
   if (loading) {
     return (
       <Container>
@@ -1948,13 +2007,11 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleMainSave = async () => {
     try {
-      setIsSaving(true);
       let Id = localStorage.getItem("userId");
 
       const validEventId = Number(eventId);
       const validEventFunctionId = getValidFunctionId(activeFunction);
       const hasInvalidPerson = rows.some((r) => r.personCount === 0);
-
       if (hasInvalidPerson) {
         Swal.fire({
           icon: "error",
@@ -1963,7 +2020,6 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
         return;
       }
-
       const currentActiveFunctionId = activeFunction?.id;
       if (!validEventId || !validEventFunctionId) {
         Swal.fire({
@@ -2048,6 +2104,8 @@ const EventMenuAllocationPage = ({ mode }) => {
             ? allocationData[`${r.menuItemId}-category`].rawMaterials
             : r.menuItemRawMaterials || [];
 
+        console.log(rawMaterialsSource, "data");
+
         const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
           dateTime: rm.dateTime || "",
           eventFunctionId: r.eventFunctionId,
@@ -2064,9 +2122,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           weight: rm.weight || 0,
         }));
 
-        // ✅ Check if THIS specific row had a PAX change
-        const rowHadPaxChange = changedPaxRowsRef.current.has(r.key);
-
         return {
           chefLabour: r.chefLabour || false,
           eventFunctionId: r.eventFunctionId,
@@ -2074,7 +2129,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           id: r.id || 0,
           inside: r.inside || false,
           instructions: r.instructions || "",
-          isPaxChange: rowHadPaxChange, // ✅ Only true for rows that actually changed
           menuAllocationOrders,
           menuCategoryId: r.menuCategoryId || 0,
           menuItemId: r.menuItemId || 0,
@@ -2096,17 +2150,12 @@ const EventMenuAllocationPage = ({ mode }) => {
           confirmButtonColor: "#3085d6",
         });
 
-        // ✅ Clear the tracked PAX changes after successful save
-        changedPaxRowsRef.current.clear();
-
+        await fetchMenuAllocation(currentActiveFunctionId);
         const personSnapshot = {};
         rows.forEach((r) => {
           personSnapshot[r.key] = r.personCount;
         });
         lastSavedPersonRef.current = personSnapshot;
-
-        await fetchMenuAllocation(currentActiveFunctionId);
-
         setHasUnsavedChanges(false);
         setInitialRows(JSON.parse(JSON.stringify(rows)));
       } else {
@@ -2130,11 +2179,8 @@ const EventMenuAllocationPage = ({ mode }) => {
         icon: "error",
         confirmButtonColor: "#d33",
       });
-    } finally {
-      setIsSaving(false);
     }
   };
-
   function openSelectMenureport() {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
@@ -2164,6 +2210,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const handleSyncRawMaterial = async () => {
     try {
       const eventFunctionId = activeFunction?.id || -1;
+      console.log(eventFunctionId);
 
       if (!eventFunctionId) {
         Swal.fire({
@@ -2297,6 +2344,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
           <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+            {/* ROW 1 */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
@@ -2360,8 +2408,10 @@ const EventMenuAllocationPage = ({ mode }) => {
               </div>
             </div>
 
+            {/* FORCE NEW ROW */}
             <div className="w-full h-0"></div>
 
+            {/* ROW 2 LEFT — Event Venue */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
@@ -2377,6 +2427,7 @@ const EventMenuAllocationPage = ({ mode }) => {
               </div>
             </div>
 
+            {/* ROW 2 RIGHT — Buttons */}
             <div className="ml-auto flex items-center gap-2">
               <button
                 className="btn btn-sm btn-primary"
@@ -2472,41 +2523,65 @@ const EventMenuAllocationPage = ({ mode }) => {
                 </div>
 
                 <div className="flex flex-row gap-4 items-end flex-1 justify-between">
-                  <div className="flex flex-row gap-4 items-end">
-                    <Input
-                      placeholder={intl.formatMessage({
-                        id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
-                        defaultMessage: "Enter Person",
-                      })}
-                      value={percentage}
-                      onChange={(e) => setPercentage(e.target.value)}
-                      className="p-1 pl-2 w-28"
-                    />
-                    <Tooltip title="It will increase or decrease the number of persons by the entered number.">
-                      <button
-                        className="btn btn-sm btn-primary"
-                        title="Adjust Person"
-                        onClick={handleAdjustPerson}
-                      >
-                        <FormattedMessage
-                          id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
-                          defaultMessage="Adjust Person"
-                        />
-                      </button>
-                    </Tooltip>
-                  </div>
-
+                  <Input
+                    placeholder={intl.formatMessage({
+                      id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
+                      defaultMessage: "Enter Person",
+                    })}
+                    value={percentage}
+                    onChange={(e) => setPercentage(e.target.value)}
+                    className="p-1 pl-2 w-28"
+                  />
+                  <Tooltip title="It will increase or decrease the number of persons by the entered number.">
+                    <button
+                      className="btn btn-sm btn-primary"
+                      title="Adjust Person"
+                      onClick={handleAdjustPerson}
+                    >
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
+                        defaultMessage="Adjust Person"
+                      />
+                    </button>
+                  </Tooltip>
                   <button
-                    className="btn btn-sm btn-primary"
-                    title="Menu For HM Report"
                     onClick={() => {
-                      setMenuReportEventId(eventId);
+                      console.log("🔘 Menu for HM BUTTON CLICKED!");
+                      console.log("📋 Debug Info:", {
+                        moduleId: menuForHMModuleId,
+                        mappingId: menuForHMMappingId,
+                        eventId: eventId,
+                        activeFunction: activeFunction?.id,
+                      });
+
+                      if (!menuForHMMappingId) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Configuration Missing",
+                          text: "Menu for HM template is not configured. Please set up the template first.",
+                          confirmButtonColor: "#d33",
+                        });
+                        return;
+                      }
+
+                      if (!eventId) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Error",
+                          text: "Event ID is missing. Please refresh the page.",
+                          confirmButtonColor: "#d33",
+                        });
+                        return;
+                      }
+
                       setIsMenuForHMOpen(true);
                     }}
+                    className="bg-primary text-white text-sm px-3 py-2 rounded-md transition "
+                    title="Menu for HM"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.MENU_FOR_HM"
-                      defaultMessage="Menu For HM Report"
+                      defaultMessage="Menu for HM"
                     />
                   </button>
                 </div>
@@ -2735,20 +2810,20 @@ const EventMenuAllocationPage = ({ mode }) => {
           onClose={() => setIsWhatsAppSidebar(false)}
         />
         <MenuReport
-          isModalOpen={isMenuReport}
-          setIsModalOpen={setIsMenuReport}
-          eventId={menuReportEventId}
-        />
-        <MenuReport
           isModalOpen={isMenuForHMOpen}
           setIsModalOpen={setIsMenuForHMOpen}
           eventId={eventId}
           eventFunctionId={getEventFunctionId(activeFunction)}
-          moduleId={15}
-          mappingId={49}
-          selectedTemplateId={15}
-          selectedTemplateName="Menu For HM"
+          moduleId={menuForHMModuleId}
+          mappingId={menuForHMMappingId}
+          selectedTemplateId={menuForHMTemplateId}
+          eventName={eventData?.party?.nameEnglish}
+          selectedTemplateName="Menu for HM"
+          PartyNumber={eventData?.party?.mobileno}
+          isNamePlateTheme={false}
+          agencyType={null}
           isAdminModuleReport={true}
+          adminTemplateModuleId={menuForHMMappingId}
         />
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
