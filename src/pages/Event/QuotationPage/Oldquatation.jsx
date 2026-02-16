@@ -61,7 +61,7 @@ const QuotationPage = () => {
   }, []);
 
   const FetchGetQuotation = () => {
-    GetQuotation(eventId)
+    GetQuotation(eventId, 0)
       .then((res) => {})
       .catch((error) => {
         console.log(error);
