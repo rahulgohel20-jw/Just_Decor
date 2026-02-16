@@ -2523,27 +2523,37 @@ const EventMenuAllocationPage = ({ mode }) => {
                 </div>
 
                 <div className="flex flex-row gap-4 items-end flex-1 justify-between">
-                  <Input
-                    placeholder={intl.formatMessage({
-                      id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
-                      defaultMessage: "Enter Person",
-                    })}
-                    value={percentage}
-                    onChange={(e) => setPercentage(e.target.value)}
-                    className="p-1 pl-2 w-28"
-                  />
-                  <Tooltip title="It will increase or decrease the number of persons by the entered number.">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      title="Adjust Person"
-                      onClick={handleAdjustPerson}
-                    >
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
-                        defaultMessage="Adjust Person"
+                  <div className="flex items-end gap-2">
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-600">
+                        <FormattedMessage
+                          id="EVENT_MENU_ALLOCATION.ENTER_PERSON"
+                          defaultMessage="Enter Person"
+                        />
+                      </span>
+                      <Input
+                        placeholder={intl.formatMessage({
+                          id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
+                          defaultMessage: "Enter Person",
+                        })}
+                        value={percentage}
+                        onChange={(e) => setPercentage(e.target.value)}
+                        className="p-1 pl-2 w-28"
                       />
-                    </button>
-                  </Tooltip>
+                    </div>
+                    <Tooltip title="It will increase or decrease the number of persons by the entered number.">
+                      <button
+                        className="btn btn-sm btn-primary"
+                        title="Adjust Person"
+                        onClick={handleAdjustPerson}
+                      >
+                        <FormattedMessage
+                          id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
+                          defaultMessage="Adjust Person"
+                        />
+                      </button>
+                    </Tooltip>
+                  </div>
                   <button
                     onClick={() => {
                       console.log("🔘 Menu for HM BUTTON CLICKED!");
