@@ -861,6 +861,7 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [isMenuForHMOpen, setIsMenuForHMOpen] = useState(false);
   const [menuForHMModuleId, setMenuForHMModuleId] = useState(null);
   const [menuForHMMappingId, setMenuForHMMappingId] = useState(null);
+  const [menuForHMTemplateId, setMenuForHMTemplateId] = useState(null);
 
   const fetchMenuForHMModule = async () => {
     try {
@@ -896,14 +897,16 @@ const EventMenuAllocationPage = ({ mode }) => {
             templatesRes?.data?.data?.length > 0
           ) {
             const firstTemplate = templatesRes.data.data[0];
-            // ✅ Use same logic as SelectMenureport - fallback to item.id if mappingId is null
+
+            const templateId = firstTemplate.id; // 446
             const mappingId =
-              firstTemplate.templateMappingResponseDto?.id || firstTemplate.id;
+              firstTemplate.templateMappingResponseDto?.id || firstTemplate.id; // 49
 
-            console.log("🔗 Selected mapping ID:", mappingId);
-            console.log("📦 Full template data:", firstTemplate);
+            console.log("🔗 Template ID (446) for payload:", templateId);
+            console.log("🔗 Mapping ID (49) for config:", mappingId);
 
-            setMenuForHMMappingId(mappingId);
+            setMenuForHMTemplateId(templateId); // ✅ Store 446
+            setMenuForHMMappingId(mappingId); // ✅ Store 49
           }
         }
       }
@@ -2519,7 +2522,7 @@ const EventMenuAllocationPage = ({ mode }) => {
                   </div>
                 </div>
 
-                <div className="flex flex-row gap-4 items-end">
+                <div className="flex flex-row gap-4 items-end flex-1 justify-between">
                   <Input
                     placeholder={intl.formatMessage({
                       id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
@@ -2573,7 +2576,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
                       setIsMenuForHMOpen(true);
                     }}
-                    className="bg-[#FF6B00] text-white text-sm px-3 py-2 rounded-md transition hover:bg-[#E55D00]"
+                    className="bg-primary text-white text-sm px-3 py-2 rounded-md transition "
                     title="Menu for HM"
                   >
                     <FormattedMessage
@@ -2813,7 +2816,7 @@ const EventMenuAllocationPage = ({ mode }) => {
           eventFunctionId={getEventFunctionId(activeFunction)}
           moduleId={menuForHMModuleId}
           mappingId={menuForHMMappingId}
-          selectedTemplateId={null}
+          selectedTemplateId={menuForHMTemplateId}
           eventName={eventData?.party?.nameEnglish}
           selectedTemplateName="Menu for HM"
           PartyNumber={eventData?.party?.mobileno}

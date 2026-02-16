@@ -34,7 +34,7 @@ export default function QuotationViewPage() {
 
   const FetchQuotation = async (eventId) => {
     try {
-      const response = await GetQuotation(eventId);
+      const response = await GetQuotation(eventId, 0);
 
       setQuotationId(response);
     } catch (error) {

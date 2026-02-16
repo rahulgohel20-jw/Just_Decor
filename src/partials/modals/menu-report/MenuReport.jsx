@@ -314,15 +314,6 @@ const MenuReport = ({
   };
 
   const handleReport = async () => {
-    console.log("🎯 Menu Report Props:", {
-      eventId,
-      eventFunctionId,
-      moduleId,
-      mappingId,
-      selectedTemplateId,
-      isAdminModuleReport,
-    });
-
     if (isNamePlateTheme) {
       setShowNamePlateUI(true);
       return;
@@ -337,9 +328,7 @@ const MenuReport = ({
     const payload = {
       eventId,
       eventFunctionId: eventFunctionId ?? -1,
-      adminTemplateModuleId: isAdminModuleReport
-        ? mappingId
-        : (selectedTemplateId ?? 0),
+      adminTemplateModuleId: selectedTemplateId ?? 0,
       type: reportType || null,
       userId,
       lang:
