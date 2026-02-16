@@ -21,12 +21,12 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
   const [assignLoading, setAssignLoading] = useState(false);
   const [categorySearch, setCategorySearch] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [itemSearch, setItemSearch] = useState("");
 
   // Preview states
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewItem, setPreviewItem] = useState(null);
   const [previewPage, setPreviewPage] = useState("frontPage");
-
   const filteredCategories = categories.filter((cat) =>
     cat.label.toLowerCase().includes(categorySearch.toLowerCase()),
   );
@@ -125,6 +125,10 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
   };
 
   const currentItems = activeTab === "theme" ? themes : nameplates;
+  const filteredItems = currentItems.filter((item) =>
+    item.title?.toLowerCase().includes(itemSearch.toLowerCase()),
+  );
+
   const selectedItems =
     activeTab === "theme" ? selectedTheme : selectedNameplate;
 
@@ -219,63 +223,75 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
             ))}
           </div>
 
-          {/* Category Filter */}
-          {activeTab === "theme" && (
-            <div className="relative mb-4 w-64">
-              {/* Selected value */}
-              <button
-                type="button"
-                onClick={() => setCategoryOpen((prev) => !prev)}
-                className="w-full px-3 py-2 border rounded text-left bg-white flex justify-between items-center"
-                disabled={loading}
-              >
-                <span>
-                  {categories.find((c) => c.id === selectedCategory)?.label ||
-                    "Select Category"}
-                </span>
-                <span className="text-gray-400">▾</span>
-              </button>
+          <div className="flex flex-row gap-4">
+            {/* Category Filter */}
+            {activeTab === "theme" && (
+              <div className="relative mb-4 w-64">
+                {/* Selected value */}
+                <button
+                  type="button"
+                  onClick={() => setCategoryOpen((prev) => !prev)}
+                  className="w-full px-3 py-2 border rounded text-left bg-white flex justify-between items-center"
+                  disabled={loading}
+                >
+                  <span>
+                    {categories.find((c) => c.id === selectedCategory)?.label ||
+                      "Select Category"}
+                  </span>
+                  <span className="text-gray-400">▾</span>
+                </button>
 
-              {/* Dropdown */}
-              {categoryOpen && (
-                <div className="absolute z-20 mt-1 w-full bg-white border rounded shadow-lg">
-                  {/* Search input */}
-                  <input
-                    type="text"
-                    placeholder="Search category..."
-                    value={categorySearch}
-                    onChange={(e) => setCategorySearch(e.target.value)}
-                    className="w-full px-3 py-2 border-b outline-none text-sm"
-                  />
+                {/* Dropdown */}
+                {categoryOpen && (
+                  <div className="absolute z-20 mt-1 w-full bg-white border rounded shadow-lg">
+                    {/* Search input */}
+                    <input
+                      type="text"
+                      placeholder="Search category..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className="w-full px-3 py-2 border-b outline-none text-sm"
+                    />
 
-                  {/* List */}
-                  <div className="max-h-48 overflow-y-auto">
-                    {filteredCategories.length ? (
-                      filteredCategories.map((cat) => (
-                        <div
-                          key={cat.id}
-                          onClick={() => {
-                            setSelectedCategory(cat.id);
-                            setCategoryOpen(false);
-                            setCategorySearch("");
-                          }}
-                          className={`px-3 py-2 cursor-pointer text-sm hover:bg-primary hover:text-white
+                    {/* List */}
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredCategories.length ? (
+                        filteredCategories.map((cat) => (
+                          <div
+                            key={cat.id}
+                            onClick={() => {
+                              setSelectedCategory(cat.id);
+                              setCategoryOpen(false);
+                              setCategorySearch("");
+                            }}
+                            className={`px-3 py-2 cursor-pointer text-sm hover:bg-primary hover:text-white
                   ${selectedCategory === cat.id ? "bg-primary text-white" : ""}
                 `}
-                        >
-                          {cat.label}
+                          >
+                            {cat.label}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-3 py-2 text-sm text-gray-500">
+                          No category found
                         </div>
-                      ))
-                    ) : (
-                      <div className="px-3 py-2 text-sm text-gray-500">
-                        No category found
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            )}
+
+            <div className="mb-4 w-64">
+              <input
+                type="text"
+                placeholder={`Search ${activeTab === "theme" ? "theme" : "nameplate"}...`}
+                value={itemSearch}
+                onChange={(e) => setItemSearch(e.target.value)}
+                className="w-full px-3 py-2 border rounded text-sm outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
-          )}
+          </div>
 
           {/* Grid */}
           <div className="max-h-[55vh] overflow-y-auto">
@@ -285,7 +301,7 @@ const AssignTheme = ({ isModalOpen, setIsModalOpen, userId }) => {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {currentItems.map((item) => (
+                {filteredItems.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => toggleSelectItem(item)}

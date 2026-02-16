@@ -105,6 +105,7 @@ export default function AllReports() {
         setLoading(true);
 
         const res = await GetAllCustomThemeByUserIdAndModuleId(userId, "");
+        console.log(res);
 
         if (
           res?.data?.success &&
@@ -132,7 +133,7 @@ export default function AllReports() {
             const template = {
               id: item.id,
               name: item.templateMaster.name,
-              description: `${item.templateMaster.name} - Custom theme template`,
+              description: item.templateMaster.description || "",
               headingFontColor: item.templateMaster.headingFontColor,
               contentFontColor: item.templateMaster.contentFontColor,
               frontPage: item.templateMaster.frontPage,
