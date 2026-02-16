@@ -17,7 +17,13 @@ import { toAbsoluteUrl } from "@/utils/Assets";
 import { Fragment } from "react";
 import { Task } from "./Task";
 
-const SortableItem = ({ task }) => {
+const SortableItem = ({
+  task,
+  onViewLead,
+  onEditLead,
+  onDeleteLead,
+  onFollowUp,
+}) => {
   const {
     attributes,
     listeners,
@@ -44,23 +50,41 @@ const SortableItem = ({ task }) => {
       style={style}
       className="mb-2 w-full box-border max-w-[100%]"
     >
-      <Task item={task} index={task.id} dropdown={true} />
+      <Task
+        item={task}
+        index={task.id}
+        dropdown={true}
+        onViewLead={onViewLead}
+        onEditLead={onEditLead}
+        onDeleteLead={onDeleteLead}
+        onFollowUp={onFollowUp}
+      />
     </div>
   );
 };
 
-const SortableColumn = ({ column }) => {
+const SortableColumn = ({
+  column,
+  onViewLead,
+  onEditLead,
+  onDeleteLead,
+  onFollowUp,
+}) => {
   const { setNodeRef, attributes, listeners } = useSortable({ id: column.id });
+
+  // Calculate column stats
+  const leadCount = column.children?.length || 0;
+  const totalAmount = 0; // You can calculate this based on your data
 
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[300px] flex-shrink-0 flex flex-col"
+      className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[450px] flex-shrink-0 flex flex-col"
       id={column.id}
       style={{
-        maxHeight: "calc(100vh - 150px)", // adjust based on your top bar height
+        maxHeight: "calc(100vh - 150px)",
       }}
     >
       {/* Column Header */}
@@ -68,8 +92,10 @@ const SortableColumn = ({ column }) => {
         <div className="flex flex-col">
           <p className="text-sm font-semibold text-gray-900">{column.name}</p>
           <small className="text-xs">
-            123 leads{" "}
-            <span className="font-semibold text-success">&#8377;100/-</span>
+            {leadCount} leads{" "}
+            <span className="font-semibold text-success">
+              &#8377;{totalAmount}/-
+            </span>
           </small>
         </div>
         <button className="btn btn-sm btn-icon btn-light btn-clear">
@@ -79,13 +105,20 @@ const SortableColumn = ({ column }) => {
 
       {/* Cards List - scrollable */}
       <div className="overflow-y-auto flex-1 scrollbar-hide p-3">
-        {column.children.length > 0 ? (
+        {column.children && column.children.length > 0 ? (
           <SortableContext
             items={[column.id, ...column.children.map((task) => task.id)]}
             strategy={rectSortingStrategy}
           >
             {column.children.map((task) => (
-              <SortableItem key={task.id} task={task} />
+              <SortableItem
+                key={task.id}
+                task={task}
+                onViewLead={onViewLead}
+                onEditLead={onEditLead}
+                onDeleteLead={onDeleteLead}
+                onFollowUp={onFollowUp}
+              />
             ))}
           </SortableContext>
         ) : (
@@ -110,7 +143,15 @@ const SortableColumn = ({ column }) => {
   );
 };
 
-export const DragAndDrop = ({ columns, setColumns, setDndActive }) => {
+export const DragAndDrop = ({
+  columns,
+  setColumns,
+  setDndActive,
+  onViewLead,
+  onEditLead,
+  onDeleteLead,
+  onFollowUp,
+}) => {
   const [activeTask, setActiveTask] = useState(null);
 
   const sensors = useSensors(
@@ -119,25 +160,25 @@ export const DragAndDrop = ({ columns, setColumns, setDndActive }) => {
         delay: 200,
         tolerance: 5,
       },
-    })
+    }),
   );
 
   const findColumnByTaskId = (taskId) => {
     return columns.find((col) =>
-      col.children.some((task) => task.id === taskId)
+      col.children?.some((task) => task.id === taskId),
     );
   };
 
   const findColumnById = (id) => {
     return columns.find(
-      (col) => col.id === id || col.children.some((task) => task.id === id)
+      (col) => col.id === id || col.children?.some((task) => task.id === id),
     );
   };
 
   const handleDragStart = (event) => {
     const { active } = event;
     const task = columns
-      .flatMap((col) => col.children)
+      .flatMap((col) => col.children || [])
       .find((task) => task.id === active.id);
     setActiveTask(task);
   };
@@ -163,10 +204,10 @@ export const DragAndDrop = ({ columns, setColumns, setDndActive }) => {
         const newChildren = arrayMove(
           activeCol.children,
           activeIndex,
-          overIndex
+          overIndex,
         );
         const updatedCols = columns.map((col) =>
-          col.id === activeCol.id ? { ...col, children: newChildren } : col
+          col.id === activeCol.id ? { ...col, children: newChildren } : col,
         );
         setColumns(updatedCols);
       }
@@ -211,9 +252,16 @@ export const DragAndDrop = ({ columns, setColumns, setDndActive }) => {
       onDragCancel={() => setDndActive(false)}
       onDragOver={handleDragOver}
     >
-      <div className="flex gap-4 overflow-x-auto  ">
+      <div className="flex gap-4 overflow-x-auto">
         {columns.map((column) => (
-          <SortableColumn key={column.id} column={column} />
+          <SortableColumn
+            key={column.id}
+            column={column}
+            onViewLead={onViewLead}
+            onEditLead={onEditLead}
+            onDeleteLead={onDeleteLead}
+            onFollowUp={onFollowUp}
+          />
         ))}
       </div>
       <DragOverlay>

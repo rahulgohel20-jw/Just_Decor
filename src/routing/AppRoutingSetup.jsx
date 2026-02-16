@@ -217,7 +217,8 @@ import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleRepor
 import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
 import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
-
+import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
+import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
 
 const AppRoutingSetup = () => {
   return (
@@ -260,16 +261,9 @@ const AppRoutingSetup = () => {
             element={<CreateEventPage mode="edit" />}
           />
 
-          <Route
-            path="/Payments"
-            element={< RecivedPayments  />}
-          />
-          <Route
-            path="/account"
-            element={< AccountLedger  />}
-          />
+          <Route path="/Payments" element={<RecivedPayments />} />
+          <Route path="/account" element={<AccountLedger />} />
 
-         
           <Route
             path="/edit-event/:eventId/copy"
             element={<CreateEventPage mode="copy" />}
@@ -398,7 +392,10 @@ const AppRoutingSetup = () => {
           />
           <Route path="/super-Leads" element={<SuperLeads />} />
           <Route path="/super-leads/addlead" element={<AddLeadPage />} />
-          <Route path="/super-leads/lead-details/:id" element={<LeadDetails />} />
+          <Route
+            path="/super-leads/lead-details/:id"
+            element={<LeadDetails />}
+          />
           <Route
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}
@@ -522,6 +519,11 @@ const AppRoutingSetup = () => {
           <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
           {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
+          <Route
+            path="/superadmin/employeedashboard"
+            element={<EmployeeDashboard />}
+          />
+          <Route path="/superadmin/lead/followup" element={<FollowUpPage />} />
           <Route
             path="/public-profile/profiles/default"
             element={<ProfileDefaultPage />}

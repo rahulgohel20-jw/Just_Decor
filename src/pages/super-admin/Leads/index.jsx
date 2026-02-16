@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useRef } from "react";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
@@ -21,11 +21,17 @@ import {
 import useStyle from "./style";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
+import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
+import { Badge } from "@/components/ui/badge";
 
 const SuperLeads = () => {
   const classes = useStyle();
   const navigate = useNavigate();
   const intl = useIntl();
+  const scrollRef = useRef(null);
+
+  // View Toggle State
+  const [viewMode, setViewMode] = useState(0); // 0 = Board, 1 = List
 
   // State management
   const [tableData, setTableData] = useState([]);
@@ -44,22 +50,36 @@ const SuperLeads = () => {
   const [managers, setManagers] = useState([]);
   const [selectedManager, setSelectedManager] = useState("");
 
-  // ✅ Filter states
+  // Filter states
   const [selectedLeadStatus, setSelectedLeadStatus] = useState("");
   const [selectedLeadType, setSelectedLeadType] = useState("");
   const [isFilterLoading, setIsFilterLoading] = useState(false);
 
-  // ✅ Lead Status Options (for getLeadsByLeadStatus API)
+  // Board view states - Initialize with empty structure
+  const [boardColumns, setBoardColumns] = useState([
+    { id: "pending", name: "Pending", children: [] },
+    { id: "open", name: "Open", children: [] },
+    { id: "confirmed", name: "Confirmed", children: [] },
+    { id: "cancel", name: "Cancelled", children: [] },
+    { id: "closed", name: "Closed", children: [] },
+  ]);
+  const [dndActive, setDndActive] = useState(false);
+  const [isLoadingLeads, setIsLoadingLeads] = useState(true);
+
+  // Lead Status Options
   const LEAD_STATUS_OPTIONS = [
-    { label: "All Status", value: "" },
-    { label: "Pending", value: "Pending" },
-    { label: "confirmed", value: "confirmed" },
-    { label: "Cancel", value: "Cancel" },
-    { label: "Open", value: "Open" },
-    { label: "Closed", value: "Closed" },
+    { label: "All Stages", value: "" },
+    { label: "New Inquiry", value: "New Inquiry" },
+    { label: "Cold Lead", value: "Cold Lead" },
+    { label: "Hot Lead", value: "Hot Lead" },
+    { label: "Proposal sent", value: "Proposal sent" },
+    { label: "Client Demo", value: "Client Demo" },
+    { label: " Follow up", value: " Follow up" },
+    { label: "won", value: " won" },
+    { label: "lost", value: "lost" },
   ];
 
-  // ✅ Lead Type Options (for getleadbyleattype API)
+  // Lead Type Options
   const LEAD_TYPE_OPTIONS = [
     { label: "All Types", value: "" },
     { label: "Hot", value: "Hot" },
@@ -78,7 +98,7 @@ const SuperLeads = () => {
 
   const lang = localStorage.getItem("lang") || "en";
 
-  // ✅ Filter data based on search only (filters handled by API)
+  // Filter data based on search only
   const filteredData = tableData.filter((item) => {
     const search = searchText.toLowerCase();
     return (
@@ -89,7 +109,95 @@ const SuperLeads = () => {
     );
   });
 
-  // ✅ Fetch Managers when modal opens
+  // Scroll functions for board view
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: -scrollRef.current.offsetWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: scrollRef.current.offsetWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  // Drag scroll functionality
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
+
+  const onPointerDown = (e) => {
+    isDragging.current = true;
+    if (dndActive) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    startX.current = clientX;
+    scrollStart.current = scrollRef.current.scrollLeft;
+    scrollRef.current.classList.add("cursor-grabbing");
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging.current) return;
+    if (dndActive) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const dx = clientX - startX.current;
+    scrollRef.current.scrollLeft = scrollStart.current - dx;
+  };
+
+  const onPointerUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.classList.remove("cursor-grabbing");
+    }
+  };
+
+  // Transform table data to board columns
+  const transformToBoardData = (data) => {
+    const statusGroups = {
+      Pending: { id: "pending", name: "Pending", children: [] },
+      Open: { id: "open", name: "Open", children: [] },
+      confirmed: { id: "confirmed", name: "Confirmed", children: [] },
+      Cancel: { id: "cancel", name: "Cancelled", children: [] },
+      Closed: { id: "closed", name: "Closed", children: [] },
+    };
+
+    data.forEach((lead) => {
+      const status = lead.leadStatus || "Open";
+      if (statusGroups[status]) {
+        statusGroups[status].children.push({
+          id: lead.leadId.toString(),
+          leadId: lead.leadId,
+          title: lead.clientName,
+          subtitle: lead.leadCode,
+          description: lead.productType,
+          type: lead.leadType,
+          contact: lead.contactNumber,
+          city: lead.cityName,
+          cityName: lead.cityName,
+          assignedTo: lead.leadAssign,
+          leadAssign: lead.leadAssign,
+          leadAssignName: lead.leadAssignName,
+          createdAt: lead.createdAt,
+          updatedAt: lead.updatedAt,
+          amount: lead.amount || 0,
+          closeDate: lead.closeDate || "NA",
+          followUpDetails: lead.followUpDetails || [],
+          leadStatus: lead.leadStatus,
+          ...lead,
+        });
+      }
+    });
+
+    return Object.values(statusGroups);
+  };
+
+  // Fetch Managers
   useEffect(() => {
     const FetchManager = () => {
       Fetchmanager(1)
@@ -113,13 +221,12 @@ const SuperLeads = () => {
     }
   }, [isAssignModalOpen]);
 
-  // ✅ Handle Lead Status Filter Change (API: getLeadsByLeadStatus)
+  // Handle Lead Status Filter Change
   const handleLeadStatusChange = async (e) => {
     const selectedStatus = e.target.value;
     setSelectedLeadStatus(selectedStatus);
 
     if (!selectedStatus) {
-      // If "All Status" is selected, fetch all leads
       fetchLeads();
       return;
     }
@@ -127,7 +234,6 @@ const SuperLeads = () => {
     try {
       setIsFilterLoading(true);
       const response = await getLeadsByLeadStatus(selectedStatus);
-
       const apiData = response?.data?.data || response?.data;
 
       if (apiData && Array.isArray(apiData)) {
@@ -142,8 +248,16 @@ const SuperLeads = () => {
         }));
 
         setTableData(formatted);
+        setBoardColumns(transformToBoardData(formatted));
       } else {
         setTableData([]);
+        setBoardColumns([
+          { id: "pending", name: "Pending", children: [] },
+          { id: "open", name: "Open", children: [] },
+          { id: "confirmed", name: "Confirmed", children: [] },
+          { id: "cancel", name: "Cancelled", children: [] },
+          { id: "closed", name: "Closed", children: [] },
+        ]);
       }
     } catch (error) {
       console.error("Error fetching leads by status:", error);
@@ -157,13 +271,12 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ Handle Lead Type Filter Change (API: getleadbyleattype)
+  // Handle Lead Type Filter Change
   const handleLeadTypeChange = async (e) => {
     const selectedType = e.target.value;
     setSelectedLeadType(selectedType);
 
     if (!selectedType) {
-      // If "All Types" is selected, fetch all leads
       fetchLeads();
       return;
     }
@@ -171,7 +284,6 @@ const SuperLeads = () => {
     try {
       setIsFilterLoading(true);
       const response = await getleadbyleattype(selectedType);
-
       const apiData = response?.data?.data || response?.data;
 
       if (apiData && Array.isArray(apiData)) {
@@ -192,8 +304,16 @@ const SuperLeads = () => {
         }));
 
         setTableData(formatted);
+        setBoardColumns(transformToBoardData(formatted));
       } else {
         setTableData([]);
+        setBoardColumns([
+          { id: "pending", name: "Pending", children: [] },
+          { id: "open", name: "Open", children: [] },
+          { id: "confirmed", name: "Confirmed", children: [] },
+          { id: "cancel", name: "Cancelled", children: [] },
+          { id: "closed", name: "Closed", children: [] },
+        ]);
       }
     } catch (error) {
       console.error("Error fetching leads by type:", error);
@@ -207,7 +327,7 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ Clear All Filters
+  // Clear All Filters
   const handleClearFilters = () => {
     setSelectedLeadStatus("");
     setSelectedLeadType("");
@@ -215,7 +335,7 @@ const SuperLeads = () => {
     fetchLeads();
   };
 
-  // ✅ Handle Assign Lead
+  // Handle Assign Lead
   const handleAssignLead = () => {
     if (selectedRows.length === 0) {
       Swal.fire({
@@ -228,7 +348,7 @@ const SuperLeads = () => {
     setIsAssignModalOpen(true);
   };
 
-  // ✅ Save Assigned Leads using PUT API with Query Parameters
+  // Save Assigned Leads
   const handleSaveAssignment = async () => {
     if (!selectedManager) {
       Swal.fire({
@@ -246,16 +366,6 @@ const SuperLeads = () => {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
-
-      if (!Array.isArray(selectedRows) || selectedRows.length === 0) {
-        Swal.close();
-        Swal.fire({
-          icon: "error",
-          title: "Invalid Data",
-          text: "No leads selected or invalid selection.",
-        });
-        return;
-      }
 
       const response = await assignMultipleLeadToMember(
         selectedRows,
@@ -278,7 +388,6 @@ const SuperLeads = () => {
         setSelectedManager("");
         setSelectedRows([]);
 
-        // Refresh based on active filter
         if (selectedLeadStatus) {
           handleLeadStatusChange({ target: { value: selectedLeadStatus } });
         } else if (selectedLeadType) {
@@ -309,7 +418,7 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ Refresh Follow-ups
+  // Refresh Follow-ups
   const refreshFollowUps = async () => {
     if (!selectedLeadForFollowUp?.leadId) {
       return;
@@ -327,6 +436,7 @@ const SuperLeads = () => {
           leadCode: fullLeadData.leadCode,
           contactNumber: fullLeadData.contactNumber,
           emailId: fullLeadData.emailId,
+          leadAssignId: fullLeadData.leadAssignId,
           followUps: fullLeadData.followUpDetails || [],
         });
       }
@@ -353,7 +463,7 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ Follow-Up Handler
+  // Follow-Up Handler
   const handleFollowUp = async (lead) => {
     try {
       Swal.fire({
@@ -380,6 +490,7 @@ const SuperLeads = () => {
         leadCode: fullLeadData.leadCode,
         contactNumber: fullLeadData.contactNumber,
         emailId: fullLeadData.emailId,
+        leadAssignId: fullLeadData.leadAssignId,
         followUps: fullLeadData.followUpDetails || [],
       });
 
@@ -391,7 +502,7 @@ const SuperLeads = () => {
     }
   };
 
-  // ✅ Save Follow-Up Handler
+  // Save Follow-Up Handler
   const handleSaveFollowUp = async (followUpData) => {
     try {
       const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
@@ -465,7 +576,6 @@ const SuperLeads = () => {
         Swal.fire("Success", "Follow-up added successfully!", "success");
         await refreshFollowUps();
 
-        // Refresh based on active filter
         if (selectedLeadStatus) {
           handleLeadStatusChange({ target: { value: selectedLeadStatus } });
         } else if (selectedLeadType) {
@@ -484,8 +594,6 @@ const SuperLeads = () => {
   };
 
   // Edit Lead Handler
-  // ✅ FIXED: In handleEditLead function around line 545
-
   const handleEditLead = async (lead) => {
     try {
       Swal.fire({
@@ -513,7 +621,7 @@ const SuperLeads = () => {
           followUpDate: fu.followUpDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
-          createdAt: fu.createdAt || null, // ✅ ADD THIS LINE - This was missing!
+          createdAt: fu.createdAt || null,
         }),
       );
 
@@ -549,6 +657,7 @@ const SuperLeads = () => {
 
   // Fetch Leads
   const fetchLeads = () => {
+    setIsLoadingLeads(true);
     const mainId = localStorage.getItem("mainId");
     GetAllleadmaster(mainId)
       .then((res) => {
@@ -566,6 +675,7 @@ const SuperLeads = () => {
           }));
 
           setTableData(formatted);
+          setBoardColumns(transformToBoardData(formatted));
 
           setStats({
             total: response["All Leads Count"] || 0,
@@ -574,10 +684,22 @@ const SuperLeads = () => {
             inquire: response["Inquire"] || 0,
             assigned: response["Lead Assigned"] || 0,
           });
+        } else {
+          setTableData([]);
+          setBoardColumns([
+            { id: "pending", name: "Pending", children: [] },
+            { id: "open", name: "Open", children: [] },
+            { id: "confirmed", name: "Confirmed", children: [] },
+            { id: "cancel", name: "Cancelled", children: [] },
+            { id: "closed", name: "Closed", children: [] },
+          ]);
         }
       })
       .catch((error) => {
         console.error("Error fetching leads:", error);
+      })
+      .finally(() => {
+        setIsLoadingLeads(false);
       });
   };
 
@@ -597,7 +719,6 @@ const SuperLeads = () => {
           .then((res) => {
             Swal.fire("Deleted!", "Lead has been deleted.", "success");
 
-            // Refresh based on active filter
             if (selectedLeadStatus) {
               handleLeadStatusChange({ target: { value: selectedLeadStatus } });
             } else if (selectedLeadType) {
@@ -652,7 +773,7 @@ const SuperLeads = () => {
 
   return (
     <Fragment>
-      <Container>
+      <div className="w-full max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
         <div className="gap-2 pb-2 mb-3">
           <Breadcrumbs
@@ -661,7 +782,7 @@ const SuperLeads = () => {
                 title: (
                   <FormattedMessage
                     id="USER.MASTER.CONTACT_TYPE_MASTER"
-                    defaultMessage="Leads "
+                    defaultMessage="Leads"
                   />
                 ),
               },
@@ -728,7 +849,7 @@ const SuperLeads = () => {
           </div>
         </div>
 
-        {/* ✅ IMPROVED FILTER ROW WITH BOTH API FILTERS */}
+        {/* FILTER ROW */}
         <div className="bg-white p-4 rounded-lg shadow-sm border mb-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Left Side - Search and Filters */}
@@ -745,7 +866,7 @@ const SuperLeads = () => {
                 />
               </div>
 
-              {/* Lead Status Filter (API: getLeadsByLeadStatus) */}
+              {/* Lead Status Filter */}
               <select
                 value={selectedLeadStatus}
                 onChange={handleLeadStatusChange}
@@ -759,19 +880,7 @@ const SuperLeads = () => {
                 ))}
               </select>
 
-              {/* Lead Type Filter (API: getleadbyleattype) */}
-              <select
-                value={selectedLeadType}
-                onChange={handleLeadTypeChange}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={isFilterLoading}
-              >
-                {LEAD_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              {/* Lead Type Filter */}
 
               {/* Clear Filters Button */}
               {(selectedLeadStatus || selectedLeadType || searchText) && (
@@ -794,9 +903,27 @@ const SuperLeads = () => {
               )}
             </div>
 
-            {/* Right Side - Action Buttons */}
-            <div className="flex gap-3">
-              {selectedRows.length > 0 && (
+            {/* Right Side - View Toggle and Action Buttons */}
+            <div className="flex gap-3 items-center">
+              {/* View Toggle Buttons */}
+              <div className="btn-tabs flex gap-1 bg-gray-100 rounded-md p-1">
+                <button
+                  className={`btn btn-icon ${viewMode === 0 ? "active bg-white shadow-sm" : ""}`}
+                  onClick={() => setViewMode(0)}
+                  title="Board View"
+                >
+                  <i className="ki-outline ki-element-11"></i>
+                </button>
+                <button
+                  className={`btn btn-icon ${viewMode === 1 ? "active bg-white shadow-sm" : ""}`}
+                  onClick={() => setViewMode(1)}
+                  title="List View"
+                >
+                  <i className="ki-outline ki-row-horizontal"></i>
+                </button>
+              </div>
+
+              {selectedRows.length > 0 && viewMode === 1 && (
                 <button
                   onClick={handleAssignLead}
                   className="bg-green-600 text-white px-4 py-2 rounded-md shadow flex items-center gap-2 hover:bg-green-700 transition"
@@ -814,8 +941,170 @@ const SuperLeads = () => {
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Active Filters Display */}
+        {/* Status Summary Badges - Only show in Board View */}
+        {viewMode === 0 && (
+          <div className="flex flex-wrap justify-between items-end gap-2 mb-3">
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                className="badge badge-outline badge-success text-xs"
+                title="Total Leads"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Total: <strong>{stats.total}</strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;0/-</strong>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+              <Badge
+                className="badge badge-outline badge-dark text-xs"
+                title="Open Leads"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Open:{" "}
+                      <strong>
+                        {
+                          filteredData.filter((l) => l.leadStatus === "Open")
+                            .length
+                        }
+                      </strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;0/-</strong>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+              <Badge
+                className="badge badge-outline badge-info text-xs"
+                title="Confirmed Leads"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Confirmed:{" "}
+                      <strong>
+                        {
+                          filteredData.filter(
+                            (l) => l.leadStatus === "confirmed",
+                          ).length
+                        }
+                      </strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;0/-</strong>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+              <Badge
+                className="badge badge-outline badge-danger text-xs"
+                title="Cancelled Leads"
+              >
+                <span className="flex items-center">
+                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
+                  <span className="flex flex-col">
+                    <span>
+                      Cancelled:{" "}
+                      <strong>
+                        {
+                          filteredData.filter((l) => l.leadStatus === "Cancel")
+                            .length
+                        }
+                      </strong>
+                    </span>
+                    <span>
+                      Amount: <strong>&#8377;0/-</strong>
+                    </span>
+                  </span>
+                </span>
+              </Badge>
+            </div>
+
+            {/* Scroll Buttons for Board View */}
+            <div className="flex justify-end items-center gap-2">
+              <button
+                onClick={scrollLeft}
+                className="btn btn-light btn-sm px-3"
+              >
+                <i className="ki-filled ki-arrow-left"></i> Prev
+              </button>
+              <button
+                onClick={scrollRight}
+                className="btn btn-light btn-sm px-3"
+              >
+                Next <i className="ki-filled ki-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* View Content */}
+        <div className="w-full">
+          {viewMode === 0 ? (
+            /* Board View */
+            <div
+              className="flex-1 flex flex-wrap space-x-4 cursor-grab overflow-x-hidden flex-shrink-0"
+              ref={scrollRef}
+              onMouseDown={onPointerDown}
+              onMouseMove={onPointerMove}
+              onMouseUp={onPointerUp}
+              onMouseLeave={onPointerUp}
+              onTouchStart={onPointerDown}
+              onTouchMove={onPointerMove}
+              onTouchEnd={onPointerUp}
+            >
+              {isLoadingLeads ? (
+                <div className="w-full flex justify-center items-center py-20">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-gray-600">Loading leads...</p>
+                  </div>
+                </div>
+              ) : (
+                <DragAndDrop
+                  columns={boardColumns}
+                  setColumns={setBoardColumns}
+                  setDndActive={setDndActive}
+                  // onViewLead={handleViewLead}
+                  onEditLead={handleEditLead}
+                  onDeleteLead={handleDeleteLead}
+                  onFollowUp={handleFollowUp}
+                />
+              )}
+            </div>
+          ) : (
+            /* List View */
+            <div className="bg-white p-4 rounded-lg shadow-sm border">
+              <TableComponent
+                columns={columns(
+                  handleEditLead,
+                  handleDeleteLead,
+                  null,
+                  handleViewLead,
+                  handleFollowUp,
+                  selectedRows,
+                  handleSelectRow,
+                  handleSelectAll,
+                  filteredData.length,
+                  navigate,
+                )}
+                data={filteredData}
+                paginationSize={10}
+              />
+            </div>
+          )}
         </div>
 
         {/* View Lead Modal */}
@@ -858,27 +1147,7 @@ const SuperLeads = () => {
             selectedCount={selectedRows.length}
           />
         )}
-
-        {/* Table */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <TableComponent
-            columns={columns(
-              handleEditLead,
-              handleDeleteLead,
-              null,
-              handleViewLead,
-              handleFollowUp,
-              selectedRows,
-              handleSelectRow,
-              handleSelectAll,
-              filteredData.length,
-              navigate,
-            )}
-            data={filteredData}
-            paginationSize={10}
-          />
-        </div>
-      </Container>
+      </div>
     </Fragment>
   );
 };

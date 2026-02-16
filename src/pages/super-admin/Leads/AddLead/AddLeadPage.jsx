@@ -481,12 +481,14 @@ export default function AddLeadPage() {
                       readOnly
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Type
+                      Lead Stages
                     </label>
+
                     <Select
+                      showSearch // ✅ Makes it searchable
+                      optionFilterProp="children" // ✅ Search by option text
                       placeholder="-- Select Lead Type --"
                       value={leadData.leadType || undefined}
                       onChange={(value) =>
@@ -494,13 +496,30 @@ export default function AddLeadPage() {
                       }
                       className="w-full"
                     >
-                      <Select.Option value="Hot">Hot</Select.Option>
-                      <Select.Option value="Cold">Cold</Select.Option>
-                      <Select.Option value="Inquire">Inquire</Select.Option>
+                      <Select.Option value="New Inquiry">
+                        New Inquiry
+                      </Select.Option>
+
+                      <Select.Option value="Hot Lead">Hot Lead</Select.Option>
+
+                      <Select.Option value="Cold lead">Cold Lead</Select.Option>
+
+                      <Select.Option value="proposal sent">
+                        Proposal sent
+                      </Select.Option>
+
+                      <Select.Option value="lclient dmeo">
+                        Client Demo
+                      </Select.Option>
+
+                      <Select.Option value="follow up">Follow up</Select.Option>
+
+                      <Select.Option value="won">Won</Select.Option>
+
+                      <Select.Option value="Lost">Lost</Select.Option>
                     </Select>
                   </div>
-
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Status
                     </label>
@@ -518,24 +537,48 @@ export default function AddLeadPage() {
                       <Select.Option value="Open">Open</Select.Option>
                       <Select.Option value="Closed">Closed</Select.Option>
                     </Select>
-                  </div>
-
+                  </div> */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Source
                     </label>
-                    <Input
-                      placeholder="e.g. Website, Referral"
-                      value={leadData.leadSource}
-                      onChange={(e) =>
-                        setLeadData({
-                          ...leadData,
-                          leadSource: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
 
+                    <Select
+                      showSearch
+                      optionFilterProp="children"
+                      placeholder="-- Select Lead Source --"
+                      value={leadData.leadSource}
+                      onChange={(value) =>
+                        setLeadData({ ...leadData, leadSource: value })
+                      }
+                      className="w-full"
+                    >
+                      <Select.Option value="Whatsapp">Whatsapp</Select.Option>
+                      <Select.Option value="FaceBook Ads">
+                        FaceBook Ads
+                      </Select.Option>
+                      <Select.Option value="Reference">Reference</Select.Option>
+                      <Select.Option value="Exhibition">
+                        Exhibition
+                      </Select.Option>
+                      <Select.Option value="Other">Other</Select.Option>
+                    </Select>
+
+                    {/* ✅ Show input only when Other is selected */}
+                    {leadData.leadSource === "Other" && (
+                      <Input
+                        placeholder="Enter Other Lead Source"
+                        className="mt-3"
+                        value={leadData.otherSource}
+                        onChange={(e) =>
+                          setLeadData({
+                            ...leadData,
+                            otherSource: e.target.value,
+                          })
+                        }
+                      />
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Remarks
@@ -551,12 +594,13 @@ export default function AddLeadPage() {
                       }
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Assign
                     </label>
                     <Select
+                      showSearch // ✅ Enable search
+                      optionFilterProp="label"
                       placeholder="-- Assign Employee --"
                       value={leadData.leadAssign || undefined}
                       onChange={(value) =>
@@ -566,13 +610,45 @@ export default function AddLeadPage() {
                       options={managers}
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Product Type
                     </label>
                     <Select
+                      showSearch // ✅ Enable search
+                      optionFilterProp="label"
                       placeholder="-- Select Product Type --"
+                      className="w-full"
+                      value={leadData.plan || undefined}
+                      onChange={(value) =>
+                        setLeadData({ ...leadData, plan: value })
+                      }
+                      options={plans}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Estimate Amount
+                    </label>
+                    <Input
+                      placeholder="Initial notes..."
+                      value={leadData.leadRemark}
+                      onChange={(e) =>
+                        setLeadData({
+                          ...leadData,
+                          leadRemark: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Pipeline
+                    </label>
+                    <Select
+                      showSearch // ✅ Enable search
+                      optionFilterProp="label"
+                      placeholder="-- Select Pipeline --"
                       className="w-full"
                       value={leadData.plan || undefined}
                       onChange={(value) =>
@@ -1156,6 +1232,7 @@ export default function AddLeadPage() {
         onSave={handleSaveFollowUp}
         clientName={leadData.clientName}
         viewOnlyFollowUp={viewingFollowUp}
+        defaultManager={leadData.leadAssign}
       />
     </Fragment>
   );
