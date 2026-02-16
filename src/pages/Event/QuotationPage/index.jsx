@@ -602,44 +602,23 @@ const QuotationPage = () => {
       const parsed = dayjs(quotationDate, "YYYY-MM-DD");
       if (parsed.isValid()) {
         formattedQuotationDate = parsed.format("DD/MM/YYYY");
-        console.log(
-          "Using edited quotationDate (YYYY-MM-DD → DD/MM/YYYY):",
-          formattedQuotationDate,
-        );
       } else {
-        // Invalid edited date, use QuotationDate
         formattedQuotationDate =
           quotationData.QuotationDate || dayjs().format("DD/MM/YYYY");
-        console.log(
-          "Edited date invalid, using QuotationDate or today:",
-          formattedQuotationDate,
-        );
       }
     } else if (quotationData.QuotationDate) {
-      // Date from API - already in DD/MM/YYYY format
       const parsed = dayjs(quotationData.QuotationDate, "DD/MM/YYYY");
       if (parsed.isValid()) {
         formattedQuotationDate = parsed.format("DD/MM/YYYY");
-        console.log(
-          "Using QuotationDate (already DD/MM/YYYY):",
-          formattedQuotationDate,
-        );
       } else {
-        // Fallback: try to parse as ISO
         const parsedISO = dayjs(quotationData.QuotationDate);
         formattedQuotationDate = parsedISO.isValid()
           ? parsedISO.format("DD/MM/YYYY")
           : dayjs().format("DD/MM/YYYY");
-        console.log("Parsed as ISO or using today:", formattedQuotationDate);
       }
     } else {
-      // Default to today
       formattedQuotationDate = dayjs().format("DD/MM/YYYY");
-      console.log("Using today's date:", formattedQuotationDate);
     }
-
-    console.log("Final formattedQuotationDate:", formattedQuotationDate);
-    console.log("=== END QUOTATION DATE DEBUG ===\n");
 
     const payload = {
       eventFunctionQuotationPayments: payments,
@@ -700,7 +679,6 @@ const QuotationPage = () => {
       return;
     }
 
-    // Validate that all advance payment dates are set
     const hasEmptyDate = quotationData.advancePayments.some(
       (payment) => !payment.date,
     );
@@ -787,13 +765,6 @@ const QuotationPage = () => {
         }
       })
       .catch((error) => {
-        console.error("=== ERROR DETAILS ===");
-        console.error("Full error object:", error);
-        console.error("Error response:", error?.response);
-        console.error("Error response data:", error?.response?.data);
-        console.error("Error response status:", error?.response?.status);
-        console.error("=== END ERROR DETAILS ===");
-
         const beMsg = getErrorMessage(
           error,
           "Something went wrong while saving quotation",
@@ -987,58 +958,82 @@ const QuotationPage = () => {
       return;
     }
 
-    // Call API with isCopyToInvoice = 1 to copy data to invoice
-    GetQuotation(eventId, 1)
-      .then(() => {
-        navigate(`/add-invoice/${eventId}`, {
-          state: {
-            eventId,
-            fromQuotation: true,
-            quotationId: quotationId,
-            quotationData: {
-              functions: quotationData.functions,
-              taxDetails: quotationData.taxDetails,
-              advancePayments: quotationData.advancePayments,
-              notes: quotationData.notes,
-              billingname: billingName || quotationData.billingname,
-              billingaddress: quotationData.billingaddress || "",
-              shipname: quotationData.shipname || "",
-              shipaddress: quotationData.shipaddress || "",
-              gstnumber: gstNumber || quotationData.gstnumber,
-              duedate: dueDate
-                ? dueDate.format("DD/MM/YYYY")
-                : quotationData.duedate || "",
-              grandTotal: totals.grandTotal,
-              subtotal: totals.subtotal,
-              cgst:
-                quotationData.taxDetails.find((t) => t.label === "CGST")
-                  ?.percentage || "0",
-              sgst:
-                quotationData.taxDetails.find((t) => t.label === "SGST")
-                  ?.percentage || "0",
-              igst:
-                quotationData.taxDetails.find((t) => t.label === "IGST")
-                  ?.percentage || "0",
-              cgstAmnt: totals.cgstAmount,
-              sgstAmnt: totals.sgstAmount,
-              igstAmnt: totals.igstAmount,
-              discount: totals.discountAmount,
-              roundOff: totals.roundOffAmount,
-            },
-          },
-        });
-      })
-      .catch((error) => {
-        console.error("Copy to invoice failed:", error);
-        Swal.fire({
-          title: "Error",
-          text: "Failed to copy quotation to invoice.",
-          icon: "error",
-          confirmButtonColor: "#005BA8",
-        });
-      });
-  };
+    // Show confirmation dialog
+    Swal.fire({
+      title: "Copy to Invoice?",
+      text: "Do you want to copy this quotation data to the invoice?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Copy",
+      cancelButtonText: "No",
+      confirmButtonColor: "#005BA8",
+      cancelButtonColor: "#d33",
+      background: "#f5faff",
+      color: "#003f73",
+      customClass: {
+        popup: "rounded-2xl shadow-xl",
+        title: "text-2xl font-bold",
+        confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+        cancelButton: "px-6 py-2 text-white font-semibold rounded-lg",
+      },
+    }).then((result) => {
+      // Pass 1 if confirmed (Yes), 0 if cancelled (No)
+      const isCopyToInvoice = result.isConfirmed ? 1 : 0;
 
+      // Call API with the appropriate flag
+      GetQuotation(eventId, isCopyToInvoice)
+        .then(() => {
+          navigate(`/add-invoice/${eventId}`, {
+            state: {
+              eventId,
+              fromQuotation: result.isConfirmed, // Only true if user clicked Yes
+              quotationId: quotationId,
+              quotationData: result.isConfirmed
+                ? {
+                    functions: quotationData.functions,
+                    taxDetails: quotationData.taxDetails,
+                    advancePayments: quotationData.advancePayments,
+                    notes: quotationData.notes,
+                    billingname: billingName || quotationData.billingname,
+                    billingaddress: quotationData.billingaddress || "",
+                    shipname: quotationData.shipname || "",
+                    shipaddress: quotationData.shipaddress || "",
+                    gstnumber: gstNumber || quotationData.gstnumber,
+                    duedate: dueDate
+                      ? dueDate.format("DD/MM/YYYY")
+                      : quotationData.duedate || "",
+                    grandTotal: totals.grandTotal,
+                    subtotal: totals.subtotal,
+                    cgst:
+                      quotationData.taxDetails.find((t) => t.label === "CGST")
+                        ?.percentage || "0",
+                    sgst:
+                      quotationData.taxDetails.find((t) => t.label === "SGST")
+                        ?.percentage || "0",
+                    igst:
+                      quotationData.taxDetails.find((t) => t.label === "IGST")
+                        ?.percentage || "0",
+                    cgstAmnt: totals.cgstAmount,
+                    sgstAmnt: totals.sgstAmount,
+                    igstAmnt: totals.igstAmount,
+                    discount: totals.discountAmount,
+                    roundOff: totals.roundOffAmount,
+                  }
+                : null, // Don't pass quotation data if user clicked No
+            },
+          });
+        })
+        .catch((error) => {
+          console.error("Copy to invoice failed:", error);
+          Swal.fire({
+            title: "Error",
+            text: "Failed to copy quotation to invoice.",
+            icon: "error",
+            confirmButtonColor: "#005BA8",
+          });
+        });
+    });
+  };
   return (
     <Fragment>
       <style>
