@@ -161,7 +161,7 @@ const QuotationDetail = ({ Eventid }) => {
   const fetchEventData = async (id) => {
     if (!id) return;
     try {
-      const response = await GetQuotation(id);
+      const response = await GetQuotation(id, 0);
       const data = response?.data?.data;
       const quotationDetails = data?.["Event Functions Quotation Details"]?.[0];
 
