@@ -681,6 +681,16 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CONTACT_TYPE"
+            defaultMessage="Pipelines"
+          />
+        ),
+        path: "/pipeline",
+        pageName: "Pipelines",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
             defaultMessage="Employee Dashbaord"
           />
         ),

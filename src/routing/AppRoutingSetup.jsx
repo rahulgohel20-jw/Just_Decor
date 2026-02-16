@@ -217,6 +217,7 @@ import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleRepor
 import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
 import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
+import Pipeline from "../pages/lead/pipeline";
 import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
 import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
 
@@ -409,6 +410,9 @@ const AppRoutingSetup = () => {
             path="/super-raw-material-type-master"
             element={<SuperRawMaterialType />}
           />
+
+          <Route path="/pipeline" element={<Pipeline />} />
+
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
           <Route
             path="/super-template-name-master"
