@@ -187,11 +187,12 @@ export default function InvoiceViewPage() {
 
             </div>
 
-            <PaymentReceived
+           <PaymentReceived
   salesInvoiceData={invoiceData?.salesInvoiceData}
   onEditPayment={handleEditPayment}
-  
+  refreshKey={invoiceRefreshKey}
   onDueAmountLoad={(amount) => setApiDueAmount(amount)}
+  onRefresh={refreshInvoice}
 />
 
 
