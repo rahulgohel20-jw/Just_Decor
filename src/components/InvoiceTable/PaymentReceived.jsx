@@ -6,7 +6,7 @@ import { paymentColumns,  } from "./paymentColumns";
 import { DeleteRecordPayment } from "../../services/apiServices";
 import Swal from "sweetalert2";
 
-export default function PaymentReceived({ salesInvoiceData, onEditPayment, onDueAmountLoad }){
+export default function PaymentReceived({ salesInvoiceData, onEditPayment, onDueAmountLoad,onRefresh }){
   const [payments, setPayments] = useState([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const userId = JSON.parse(localStorage.getItem("userId"));
@@ -81,12 +81,7 @@ useEffect(() => {
           "Payment has been deleted.",
           "success"
         );
-        // Refresh payment list after deletion
-        setPayments((prev) => prev.filter((payment) => payment.id !== paymentId));
-        // Optionally, you can also refresh the invoice data to get updated due amount
-        if (onDueAmountLoad) {
-          onDueAmountLoad(due_amount); // Pass the current due amount to refresh it
-        } 
+        if (onRefresh) onRefresh();
         
       }
     });
