@@ -5,9 +5,10 @@ import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constact";
 import { useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
-import ViewLeadDetailModal from "../../../partials/modals/view-lead-detail/ViewLeadDetailModal";
+import Leaddetailview from "../../../partials/modals/leadmodal/Leaddetailview";
 import FollowUp from "../../../partials/modals/follow-up-modal/Followup";
 import AssignLeadModal from "../../../partials/modals/follow-up-modal/Assignleadmodal";
+import Moveleadmodal from "../../../partials/modals/leadmodal/Moveleadmodal";
 import {
   GetAllleadmaster,
   DeleteLeadbyID,
@@ -49,6 +50,11 @@ const SuperLeads = () => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [managers, setManagers] = useState([]);
   const [selectedManager, setSelectedManager] = useState("");
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [moveLeadPayload, setMoveLeadPayload] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerLead, setDrawerLead] = useState(null);
+  const [drawerFollowUps, setDrawerFollowUps] = useState([]);
 
   // Filter states
   const [selectedLeadStatus, setSelectedLeadStatus] = useState("");
@@ -98,6 +104,52 @@ const SuperLeads = () => {
 
   const lang = localStorage.getItem("lang") || "en";
 
+  const handleOpenDrawer = async (lead) => {
+    try {
+      const response = await GetLeadByID(lead.leadId);
+      const fullLeadData = response?.data?.data?.[0] || lead;
+      setDrawerLead(fullLeadData);
+      setDrawerFollowUps(fullLeadData.followUpDetails || []);
+      setIsDrawerOpen(true);
+    } catch {
+      setDrawerLead(lead);
+      setDrawerFollowUps([]);
+      setIsDrawerOpen(true);
+    }
+  };
+  const handleLeadDropped = ({
+    lead,
+    fromColumn,
+    toColumn,
+    pendingColumns,
+  }) => {
+    setMoveLeadPayload({ lead, fromColumn, toColumn, pendingColumns });
+    setIsMoveModalOpen(true);
+  };
+
+  const handleConfirmMove = (formPayload) => {
+    // 1. Commit the column change that was held in pendingColumns
+    setBoardColumns(moveLeadPayload.pendingColumns);
+
+    // 2. Persist to backend (optional – adapt to your API)
+    UpdateleadbyID(moveLeadPayload.lead.leadId, {
+      leadStatus: moveLeadPayload.toColumn.name, // or toColumn.id
+      leadAssignId: formPayload.assignedTo
+        ? Number(formPayload.assignedTo)
+        : undefined,
+      leadRemark: formPayload.remarks,
+      // ...spread other required fields from the existing lead
+    }).catch(console.error);
+
+    // 3. Close modal and clear payload
+    setIsMoveModalOpen(false);
+    setMoveLeadPayload(null);
+  };
+  const handleCancelMove = () => {
+    setIsMoveModalOpen(false);
+    setMoveLeadPayload(null);
+    // Columns are NOT updated → drop is effectively cancelled
+  };
   // Filter data based on search only
   const filteredData = tableData.filter((item) => {
     const search = searchText.toLowerCase();
@@ -1075,12 +1127,13 @@ const SuperLeads = () => {
               ) : (
                 <DragAndDrop
                   columns={boardColumns}
-                  setColumns={setBoardColumns}
+                  setColumns={setBoardColumns} // keep for internal DnD state
                   setDndActive={setDndActive}
-                  // onViewLead={handleViewLead}
+                  onLeadDropped={handleLeadDropped} // ← NEW prop
                   onEditLead={handleEditLead}
                   onDeleteLead={handleDeleteLead}
                   onFollowUp={handleFollowUp}
+                  onViewLead={handleOpenDrawer}
                 />
               )}
             </div>
@@ -1107,12 +1160,38 @@ const SuperLeads = () => {
           )}
         </div>
 
-        {/* View Lead Modal */}
-        {isViewModalOpen && (
-          <ViewLeadDetailModal
-            open={isViewModalOpen}
-            onClose={() => setIsViewModalOpen(false)}
-            data={selectedLead}
+        {isDrawerOpen && drawerLead && (
+          <Leaddetailview
+            isOpen={isDrawerOpen}
+            onClose={() => {
+              setIsDrawerOpen(false);
+              setDrawerLead(null);
+            }}
+            lead={drawerLead}
+            followUps={drawerFollowUps}
+            onNewFollowUp={() => {
+              setIsDrawerOpen(false);
+              handleFollowUp(drawerLead); // reuse existing follow-up handler
+            }}
+            onEdit={() => {
+              setIsDrawerOpen(false);
+              handleEditLead(drawerLead);
+            }}
+            onDelete={() => {
+              setIsDrawerOpen(false);
+              handleDeleteLead(drawerLead.id || drawerLead.leadId);
+            }}
+          />
+        )}
+        {isMoveModalOpen && moveLeadPayload && (
+          <Moveleadmodal
+            isOpen={isMoveModalOpen}
+            onClose={handleCancelMove}
+            onConfirm={handleConfirmMove}
+            lead={moveLeadPayload.lead}
+            fromColumn={moveLeadPayload.fromColumn}
+            toColumn={moveLeadPayload.toColumn}
+            managers={managers}
           />
         )}
 

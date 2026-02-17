@@ -10,7 +10,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
 import { EyeIcon } from "lucide-react";
-
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 const { Option } = Select;
 
@@ -42,6 +42,7 @@ export default function AddLeadPage() {
   const [viewingFollowUp, setViewingFollowUp] = useState(null);
   const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
   const [selectedGetLead, setSelectedGetLead] = useState("");
+  const [followupDate, setFollowupDate] = useState(null);
 
   const [customRangeCreatedAt, setCustomRangeCreatedAt] = useState({
     start: "",
@@ -579,9 +580,11 @@ export default function AddLeadPage() {
                       />
                     )}
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Remarks
+                      {" "}
+                      Lead Title
                     </label>
                     <Input
                       placeholder="Initial notes..."
@@ -592,6 +595,19 @@ export default function AddLeadPage() {
                           leadRemark: e.target.value,
                         })
                       }
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Follow-up Date
+                    </label>
+
+                    <DatePicker
+                      value={followupDate}
+                      onChange={(date) => setFollowupDate(date)}
+                      format="DD-MM-YYYY"
+                      placeholder="Select follow-up date"
+                      className="w-full h-[30px]"
                     />
                   </div>
                   <div>
@@ -646,7 +662,7 @@ export default function AddLeadPage() {
                       Select Pipeline
                     </label>
                     <Select
-                      showSearch // ✅ Enable search
+                      showSearch
                       optionFilterProp="label"
                       placeholder="-- Select Pipeline --"
                       className="w-full"
@@ -656,6 +672,35 @@ export default function AddLeadPage() {
                       }
                       options={plans}
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Lead Remarks
+                    </label>
+                    <Input
+                      placeholder="Initial notes..."
+                      value={leadData.leadRemark}
+                      onChange={(e) =>
+                        setLeadData({
+                          ...leadData,
+                          leadRemark: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description
+                    </label>
+
+                    <textarea
+                      name="description"
+                      rows={4}
+                      placeholder="Enter description here..."
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm 
+               focus:outline-none focus:ring-2 focus:ring-blue-500 
+               focus:border-blue-500 transition duration-200 resize-none"
+                    ></textarea>
                   </div>
                 </div>
               </CardContent>

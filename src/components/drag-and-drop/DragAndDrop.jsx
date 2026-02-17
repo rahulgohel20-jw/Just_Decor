@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   DndContext,
   closestCenter,
@@ -72,9 +72,8 @@ const SortableColumn = ({
 }) => {
   const { setNodeRef, attributes, listeners } = useSortable({ id: column.id });
 
-  // Calculate column stats
   const leadCount = column.children?.length || 0;
-  const totalAmount = 0; // You can calculate this based on your data
+  const totalAmount = 0;
 
   return (
     <div
@@ -83,9 +82,7 @@ const SortableColumn = ({
       {...listeners}
       className="border rounded-lg bg-gray-100 w-64 transition-all duration-200 min-w-[450px] flex-shrink-0 flex flex-col"
       id={column.id}
-      style={{
-        maxHeight: "calc(100vh - 150px)",
-      }}
+      style={{ maxHeight: "calc(100vh - 150px)" }}
     >
       {/* Column Header */}
       <div className="flex items-center justify-between border-b rounded-t-lg w-full py-2 px-3 bg-white flex-shrink-0">
@@ -151,8 +148,16 @@ export const DragAndDrop = ({
   onEditLead,
   onDeleteLead,
   onFollowUp,
+  onLeadDropped, // ← NEW: fires when a card moves to a different column
 }) => {
   const [activeTask, setActiveTask] = useState(null);
+
+  // Track which column the drag started from
+  const dragSourceColumnRef = useRef(null);
+
+  // Keep a snapshot of columns BEFORE the drag started
+  // so we can revert if the modal is cancelled
+  const snapshotColumnsRef = useRef(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -177,6 +182,17 @@ export const DragAndDrop = ({
 
   const handleDragStart = (event) => {
     const { active } = event;
+
+    // Find and store the source column before anything moves
+    const sourceCol = findColumnByTaskId(active.id);
+    dragSourceColumnRef.current = sourceCol ? { ...sourceCol } : null;
+
+    // Snapshot current columns so we can revert on cancel
+    snapshotColumnsRef.current = columns.map((col) => ({
+      ...col,
+      children: [...(col.children || [])],
+    }));
+
     const task = columns
       .flatMap((col) => col.children || [])
       .find((task) => task.id === active.id);
@@ -185,7 +201,6 @@ export const DragAndDrop = ({
 
   const handleDragOver = (event) => {
     const { active, over } = event;
-
     if (!over) return;
 
     const activeCol = findColumnByTaskId(active.id);
@@ -197,7 +212,7 @@ export const DragAndDrop = ({
     const activeIndex = activeCol.children.findIndex((i) => i.id === active.id);
     const task = activeCol.children[activeIndex];
 
-    // Handle intra-column reordering
+    // Intra-column reorder — always commit immediately (no modal needed)
     if (activeCol.id === overCol.id) {
       const overIndex = overCol.children.findIndex((i) => i.id === over.id);
       if (overIndex !== -1 && activeIndex !== overIndex) {
@@ -214,27 +229,89 @@ export const DragAndDrop = ({
       return;
     }
 
-    // Handle inter-column dragging
+    // Inter-column drag: update columns visually while dragging
+    // (will be confirmed or reverted in handleDragEnd)
     const newActiveChildren = [...activeCol.children];
     newActiveChildren.splice(activeIndex, 1);
-
     const newOverChildren = [...overCol.children, task];
 
     const updatedCols = columns.map((col) => {
-      if (col.id === activeCol.id) {
+      if (col.id === activeCol.id)
         return { ...col, children: newActiveChildren };
-      }
-      if (col.id === overCol.id) {
-        return { ...col, children: newOverChildren };
-      }
+      if (col.id === overCol.id) return { ...col, children: newOverChildren };
       return col;
     });
 
     setColumns(updatedCols);
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
     setActiveTask(null);
+    setDndActive(false);
+
+    if (!over) {
+      // Dropped outside — revert to snapshot
+      if (snapshotColumnsRef.current) {
+        setColumns(snapshotColumnsRef.current);
+      }
+      dragSourceColumnRef.current = null;
+      snapshotColumnsRef.current = null;
+      return;
+    }
+
+    const sourceColumn = dragSourceColumnRef.current;
+
+    // Find destination column in the CURRENT (visually updated) columns
+    const destColumn = findColumnById(over.id);
+
+    // Cross-column drop detected
+    if (
+      sourceColumn &&
+      destColumn &&
+      sourceColumn.id !== destColumn.id &&
+      onLeadDropped
+    ) {
+      // Find the dragged task
+      const droppedTask = columns
+        .flatMap((col) => col.children || [])
+        .find((t) => t.id === active.id);
+
+      // current columns already have the card in the new column (from handleDragOver)
+      // pass them as pendingColumns so SuperLeads can commit them on confirm
+      const pendingColumns = columns.map((col) => ({
+        ...col,
+        children: [...(col.children || [])],
+      }));
+
+      // Revert columns back to snapshot until user confirms in modal
+      if (snapshotColumnsRef.current) {
+        setColumns(snapshotColumnsRef.current);
+      }
+
+      // Fire the modal
+      onLeadDropped({
+        lead: droppedTask,
+        fromColumn: { id: sourceColumn.id, name: sourceColumn.name },
+        toColumn: { id: destColumn.id, name: destColumn.name },
+        pendingColumns, // SuperLeads will apply this on confirm
+      });
+    }
+
+    dragSourceColumnRef.current = null;
+    snapshotColumnsRef.current = null;
+  };
+
+  const handleDragCancel = () => {
+    // Revert to snapshot on cancel
+    if (snapshotColumnsRef.current) {
+      setColumns(snapshotColumnsRef.current);
+    }
+    setActiveTask(null);
+    setDndActive(false);
+    dragSourceColumnRef.current = null;
+    snapshotColumnsRef.current = null;
   };
 
   return (
@@ -245,11 +322,8 @@ export const DragAndDrop = ({
         handleDragStart(event);
         setDndActive(true);
       }}
-      onDragEnd={(event) => {
-        handleDragEnd(event);
-        setDndActive(false);
-      }}
-      onDragCancel={() => setDndActive(false)}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       onDragOver={handleDragOver}
     >
       <div className="flex gap-4 overflow-x-auto">

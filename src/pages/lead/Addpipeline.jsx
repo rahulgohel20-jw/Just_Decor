@@ -1,14 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Plus } from "lucide-react";
+import { Fetchmanager, CreatePipeline } from "@/services/apiServices";
 
 const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
   const [pipelineName, setPipelineName] = useState("");
   const [openStages, setOpenStages] = useState([]);
   const [closeStages, setCloseStages] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(""); // ✅ was missing
 
   const handleClose = () => {
     setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      fetchManagers();
+    }
+  }, [isModalOpen]);
+
+  const fetchManagers = () => {
+    Fetchmanager(1)
+      .then((res) => {
+        if (res?.data?.data?.userDetails) {
+          const managerList = res.data.data.userDetails.map((man) => ({
+            value: man.id,
+            label: man.firstName || "-",
+          }));
+          setManagers(managerList);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch managers:", err);
+        setManagers([]);
+      });
   };
 
   const addOpenStage = () => {
@@ -31,6 +57,26 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
 
+  // ✅ Save handler with CreatePipeline API
+  const handleSave = () => {
+    const payload = {
+      closeStages: closeStages.map((stage) => ({ stage })),
+      id: -1,
+      openStages: openStages.map((stage) => ({ stage })),
+      partyId: Number(selectedMember),
+      pipelineName: pipelineName,
+    };
+
+    CreatePipeline(payload)
+      .then((res) => {
+        console.log("Pipeline created:", res);
+        handleClose();
+      })
+      .catch((err) => {
+        console.error("Failed to create pipeline:", err);
+      });
+  };
+
   return (
     isModalOpen && (
       <CustomModal
@@ -39,7 +85,7 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
         width="900px"
         title="Create Pipeline"
       >
-        <div className="  rounded-lg">
+        <div className="rounded-lg">
           {/* Pipeline Name */}
           <div className="mb-6">
             <label htmlFor="">Name: </label>
@@ -67,7 +113,6 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
                 <Plus size={16} />
               </button>
             </div>
-
             <div className="p-4 space-y-3">
               {openStages.map((stage, index) => (
                 <input
@@ -95,7 +140,6 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
                 <Plus size={16} />
               </button>
             </div>
-
             <div className="p-4 space-y-3">
               {closeStages.map((stage, index) => (
                 <input
@@ -114,10 +158,17 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
 
           {/* Created By Member */}
           <div className="mb-6">
-            <select className="w-full p-3 border rounded-md bg-white">
+            <select
+              className="w-full p-3 border rounded-md bg-white"
+              value={selectedMember}
+              onChange={(e) => setSelectedMember(e.target.value)}
+            >
               <option value="">Select Created By Member</option>
-              <option value="1">Member 1</option>
-              <option value="2">Member 2</option>
+              {managers.map((manager) => (
+                <option key={manager.value} value={manager.value}>
+                  {manager.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -129,7 +180,10 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen }) => {
             >
               Cancel
             </button>
-            <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700">
+            <button
+              onClick={handleSave} // ✅ wired up
+              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
+            >
               Save
             </button>
           </div>

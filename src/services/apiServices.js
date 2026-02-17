@@ -1637,3 +1637,7 @@ export const GetCopyMenuPlanning = (
     `menupreparation/copyeventfunctionmenu?activeEventFunctionId=${activeEventFunctionId}&oldEventFunctionId=${oldEventFunctionId}`,
   );
 };
+
+export const CreatePipeline = (payload) => {
+  return POST(`/pipeline/add`, payload);
+};

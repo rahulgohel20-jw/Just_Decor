@@ -10,6 +10,7 @@ export default function AddFollowUpModal({
   clientName,
   viewOnlyFollowUp,
   defaultManager,
+  zIndex,
 }) {
   const [customerName, setCustomerName] = useState("");
   const [managers, setManagers] = useState([]);
@@ -105,6 +106,7 @@ export default function AddFollowUpModal({
       footer={null}
       centered
       width={700}
+      zIndex={zIndex || 1100}
     >
       <div className="space-y-5 p-2">
         {/* Customer Name */}
