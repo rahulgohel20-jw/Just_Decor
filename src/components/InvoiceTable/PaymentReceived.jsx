@@ -1,68 +1,56 @@
 import { useState, useEffect } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { TableComponent } from "@/components/table/TableComponent";
-import { GetRecordPayments } from "@/services/apiServices";
 import { FormattedMessage } from "react-intl";
 import { paymentColumns,  } from "./paymentColumns";
 import { DeleteRecordPayment } from "../../services/apiServices";
 import Swal from "sweetalert2";
 
-export default function PaymentReceived({ eventId, refreshKey, onEditPayment, onDueAmountLoad }) {
+export default function PaymentReceived({ salesInvoiceData, onEditPayment, onDueAmountLoad }){
   const [payments, setPayments] = useState([]);
   const [isExpanded, setIsExpanded] = useState(true);
   const userId = JSON.parse(localStorage.getItem("userId"));
   const [due_amount, setDueAmount] = useState(0);
 
-  const fetchPayments = async () => {
-  if (!userId || !eventId) return;
 
-  try {
-
-    const res = await GetRecordPayments(userId, eventId);
-
-
-   const paymentList = res?.data?.data?.data || [];
-  const due_amount = res?.data?.data?.due_amount
- || 0;  
-    setDueAmount(due_amount); 
-    if (onDueAmountLoad) onDueAmountLoad(due_amount); 
-    const safeList = Array.isArray(paymentList) ? paymentList : [];
-
-    const mapped = safeList.map((payment, index) => ({
-      sr_no: index + 1,
-      id: payment.id,
-      invoiceNo: payment.invoiceNo || "-",
-      paymentDate: payment.paymentDate
-        ? new Date(payment.paymentDate).toLocaleDateString("en-GB")
-        : "-",
-      totalAmount: payment.totalAmount || 0,
-      due_amount: due_amount, 
-      dueAmount: payment.dueAmount || 0,
-      invoiceAmount: payment.invoiceAmount || 0,
-      paymentMode: payment.paymentMode || "-",
-      reference: payment.reference || "-",
-      status: payment.status || "Pending",
-      bankId: payment.bankId || null,
-      _originalData: payment,
-    }));
-
-    setPayments(mapped);
-  } catch (error) {
-    console.error("Error fetching payments:", error);
-    setPayments([]);
-  }
-};
+ 
 
 
 
 useEffect(() => {
-  if (!eventId || !userId) {
+  if (!salesInvoiceData) {
     setPayments([]);
+    setDueAmount(0);
     return;
   }
 
-  fetchPayments();
-}, [eventId, userId, refreshKey]);
+  const paymentList = salesInvoiceData?.data || [];
+  const due_amount = salesInvoiceData?.due_amount || 0;
+
+  setDueAmount(due_amount);
+  if (onDueAmountLoad) onDueAmountLoad(due_amount);
+
+  const mapped = paymentList.map((payment, index) => ({
+    sr_no: index + 1,
+    id: payment.id,
+    invoiceNo: payment.invoiceNo || "-",
+    paymentDate: payment.paymentDate
+      ? new Date(payment.paymentDate).toLocaleDateString("en-GB")
+      : "-",
+    totalAmount: payment.totalAmount || 0,
+    due_amount: due_amount || 0,
+    dueAmount: payment.dueAmount || 0,
+    invoiceAmount: payment.invoiceAmount || 0,
+    paymentMode: payment.paymentMode || "-",
+    reference: payment.reference || "-",
+    status: payment.status || "Pending",
+    bankId: payment.bankId || null,
+    _originalData: payment,
+  }));
+
+  setPayments(mapped);
+}, [salesInvoiceData]);
+
 
 
   const handleEdit = (payment) => {
@@ -93,7 +81,13 @@ useEffect(() => {
           "Payment has been deleted.",
           "success"
         );
-        fetchPayments();
+        // Refresh payment list after deletion
+        setPayments((prev) => prev.filter((payment) => payment.id !== paymentId));
+        // Optionally, you can also refresh the invoice data to get updated due amount
+        if (onDueAmountLoad) {
+          onDueAmountLoad(due_amount); // Pass the current due amount to refresh it
+        } 
+        
       }
     });
 

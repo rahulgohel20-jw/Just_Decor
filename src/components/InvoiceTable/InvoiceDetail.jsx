@@ -10,7 +10,7 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Swal from "sweetalert2";
 
-const InvoiceDetail = ({ Eventid, onInvoiceDataLoad }) => {
+const InvoiceDetail = ({ Eventid, onInvoiceDataLoad, refreshKey }) => {
   const navigate = useNavigate();
   const { EventId } = useParams();
   const [invoiceInfo, setInvoiceInfo] = useState({});
@@ -20,11 +20,13 @@ const InvoiceDetail = ({ Eventid, onInvoiceDataLoad }) => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [invoiceData, setInvoiceData] = useState(null);
 
-  // PDF Modal states
+  
   const [isPdfModalVisible, setIsPdfModalVisible] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
   const pdfPlugin = defaultLayoutPlugin();
+
+  
 
   const numberToIndianWords = (num) => {
     if (!num || isNaN(num)) return "";
@@ -260,17 +262,17 @@ Thanks!`;
 
     setFunctionData(functions);
 
-    // CREATE DATA OBJECT TO PASS TO PARENT - ADD THIS
     const invoiceDataForParent = {
-      invoiceCode: invoice?.invoiceCode || "-",
-      invoiceNo: invoice?.invoiceCode || "-", // Alias
-      grandTotal: invoice?.grandTotal || 0,
-      invoiceAmount: invoice?.grandTotal || 0, // Alias
-      dueAmount: invoice?.dueAmount || invoice?.grandTotal || 0,
-      eventId: event?.id || id,
-      billingname: invoice?.billingname || party?.nameEnglish || "-",
-      event: event,
-    };
+  invoiceCode: invoice?.invoiceCode || "-",
+  invoiceNo: invoice?.invoiceCode || "-",
+  grandTotal: invoice?.grandTotal || 0,
+  invoiceAmount: invoice?.grandTotal || 0,
+  dueAmount: invoice?.dueAmount || invoice?.grandTotal || 0,
+  eventId: event?.id || id,
+  billingname: invoice?.billingname || party?.nameEnglish || "-",
+  event: event,
+  salesInvoiceData: invoice?.salesInvoiceData || {},   // ✅ ADD THIS
+};
 
     // CALL PARENT CALLBACK WITH DATA - ADD THIS
     if (onInvoiceDataLoad) {
@@ -291,7 +293,8 @@ Thanks!`;
   if (activeEventId) {
     fetchInvoiceData(activeEventId);
   }
-}, [Eventid, EventId]);
+}, [Eventid, EventId, refreshKey]);  
+
 
 
   return (
