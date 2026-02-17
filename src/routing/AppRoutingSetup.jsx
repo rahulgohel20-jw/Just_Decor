@@ -218,6 +218,8 @@ import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
 import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
 import Pipeline from "../pages/lead/pipeline";
+import BankDetails from "../pages/master/Bank-Details";
+
 
 const AppRoutingSetup = () => {
   return (
@@ -364,6 +366,8 @@ const AppRoutingSetup = () => {
             path="/master/raw-material-type-master"
             element={<RawMaterialTypeMaster />}
           />
+
+          <Route path="/master/bank-details" element={<BankDetails />} />
           <Route path="/master/all-members" element={<AllMemberMaster />} />
           <Route path="/superadmin/members" element={<SuperadminMember />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />

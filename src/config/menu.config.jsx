@@ -159,6 +159,17 @@ export const allMenuItems = [
 
       {
         title: (
+          <FormattedMessage
+        id="COMMON.CUSTOMSIDEBAR_BANK_DETAILS"
+            defaultMessage="Bank Details"
+          />
+        ),
+        path: "/master/bank-details",
+        pageName: "Bank Details",
+      },
+
+      {
+        title: (
           <FormattedMessage id="COMMON.SIDEBAR_USERS" defaultMessage="Users" />
         ),
         icon: "  text-lg ki-filled ki-abstract-18 text-primary",

@@ -10,7 +10,7 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Swal from "sweetalert2";
 
-const InvoiceDetail = ({ Eventid }) => {
+const InvoiceDetail = ({ Eventid, onInvoiceDataLoad }) => {
   const navigate = useNavigate();
   const { EventId } = useParams();
   const [invoiceInfo, setInvoiceInfo] = useState({});
@@ -193,84 +193,106 @@ Thanks!`;
   };
 
   const fetchInvoiceData = async (id) => {
-    if (!id) return;
-    try {
-      const response = await GetInvoice(id);
-      const invoiceArray = response?.data?.data?.["Event Invoice Details"];
+  if (!id) return null;
+  try {
+    const response = await GetInvoice(id);
+    const invoiceArray = response?.data?.data?.["Event Invoice Details"];
 
-      if (
-        !invoiceArray ||
-        !Array.isArray(invoiceArray) ||
-        invoiceArray.length === 0
-      ) {
-        console.error("No invoice data found");
-        return;
-      }
-
-      // Get the first invoice from the array
-      const invoice = invoiceArray[0];
-      const event = invoice?.event || {};
-      const party = event?.party || {};
-
-      // Store full invoice data for WhatsApp sharing
-      setInvoiceData(invoice);
-
-      // Set subtotal and total
-      setSubTotal(invoice?.subTotal || 0);
-      setTotalAmount(invoice?.grandTotal || 0);
-
-      // Set invoice information
-      setInvoiceInfo({
-        invoiceCode: invoice?.invoiceCode || "-",
-        billingName: invoice?.billingname || party?.nameEnglish || "-",
-        quotationNumber: invoice?.quotationCode || "-",
-        invoiceDate: invoice?.createdAt || "-",
-        dueDate: invoice?.duedate || "-",
-        eventDate: event?.eventStartDateTime
-          ? new Date(event.eventStartDateTime).toLocaleDateString("en-GB")
-          : "-",
-        gstNumber: invoice?.gstnumber || party?.gst || "NA",
-        address: invoice?.shipaddress || party?.addressEnglish || "-",
-        notes: invoice?.notes || "",
-        discount: invoice?.discount || 0,
-        terms: invoice?.terms || "Due on Receipt",
-      });
-
-      // Set GST information
-      setGstInfo({
-        cgst: invoice?.cgst || 0,
-        cgstAmnt: invoice?.cgstAmnt || 0,
-        sgst: invoice?.sgst || 0,
-        sgstAmnt: invoice?.sgstAmnt || 0,
-        igst: invoice?.igst || 0,
-        igstAmnt: invoice?.igstAmnt || 0,
-      });
-
-      // Map function items - UPDATED to use invoiceFunctionItems
-      const functions =
-        invoice?.invoiceFunctionItems?.map((fn, index) => ({
-          key: index + 1,
-          function: fn?.functionName || "-",
-          date: fn?.functionDate || "-",
-          person: fn?.pax || "0",
-          extra: fn?.extraPax || "0",
-          rate: fn?.ratePerPlate?.toFixed(2) || "0.00",
-          amount: fn?.amount?.toFixed(2) || "0.00",
-        })) || [];
-
-      setFunctionData(functions);
-    } catch (err) {
-      console.error("Error fetching invoice data:", err);
+    if (
+      !invoiceArray ||
+      !Array.isArray(invoiceArray) ||
+      invoiceArray.length === 0
+    ) {
+      console.error("No invoice data found");
+      return null;
     }
-  };
+
+    // Get the first invoice from the array
+    const invoice = invoiceArray[0];
+    const event = invoice?.event || {};
+    const party = event?.party || {};
+
+    // Store full invoice data for WhatsApp sharing
+    setInvoiceData(invoice);
+
+    // Set subtotal and total
+    setSubTotal(invoice?.subTotal || 0);
+    setTotalAmount(invoice?.grandTotal || 0);
+
+    // Set invoice information
+    setInvoiceInfo({
+      invoiceCode: invoice?.invoiceCode || "-",
+      billingName: invoice?.billingname || party?.nameEnglish || "-",
+      quotationNumber: invoice?.quotationCode || "-",
+      invoiceDate: invoice?.createdAt || "-",
+      dueDate: invoice?.duedate || "-",
+      eventDate: event?.eventStartDateTime
+        ? new Date(event.eventStartDateTime).toLocaleDateString("en-GB")
+        : "-",
+      gstNumber: invoice?.gstnumber || party?.gst || "NA",
+      address: invoice?.shipaddress || party?.addressEnglish || "-",
+      notes: invoice?.notes || "",
+      discount: invoice?.discount || 0,
+      terms: invoice?.terms || "Due on Receipt",
+    });
+
+    // Set GST information
+    setGstInfo({
+      cgst: invoice?.cgst || 0,
+      cgstAmnt: invoice?.cgstAmnt || 0,
+      sgst: invoice?.sgst || 0,
+      sgstAmnt: invoice?.sgstAmnt || 0,
+      igst: invoice?.igst || 0,
+      igstAmnt: invoice?.igstAmnt || 0,
+    });
+
+    // Map function items
+    const functions =
+      invoice?.invoiceFunctionItems?.map((fn, index) => ({
+        key: index + 1,
+        function: fn?.functionName || "-",
+        date: fn?.functionDate || "-",
+        person: fn?.pax || "0",
+        extra: fn?.extraPax || "0",
+        rate: fn?.ratePerPlate?.toFixed(2) || "0.00",
+        amount: fn?.amount?.toFixed(2) || "0.00",
+      })) || [];
+
+    setFunctionData(functions);
+
+    // CREATE DATA OBJECT TO PASS TO PARENT - ADD THIS
+    const invoiceDataForParent = {
+      invoiceCode: invoice?.invoiceCode || "-",
+      invoiceNo: invoice?.invoiceCode || "-", // Alias
+      grandTotal: invoice?.grandTotal || 0,
+      invoiceAmount: invoice?.grandTotal || 0, // Alias
+      dueAmount: invoice?.dueAmount || invoice?.grandTotal || 0,
+      eventId: event?.id || id,
+      billingname: invoice?.billingname || party?.nameEnglish || "-",
+      event: event,
+    };
+
+    // CALL PARENT CALLBACK WITH DATA - ADD THIS
+    if (onInvoiceDataLoad) {
+      onInvoiceDataLoad(invoiceDataForParent);
+    }
+
+    // RETURN DATA - ADD THIS
+    return invoiceDataForParent;
+
+  } catch (err) {
+    console.error("Error fetching invoice data:", err);
+    return null;
+  }
+};
 
   useEffect(() => {
-    if (EventId) fetchInvoiceData(EventId);
-  }, [EventId]);
+  const activeEventId = Eventid || EventId;
+  if (activeEventId) {
+    fetchInvoiceData(activeEventId);
+  }
+}, [Eventid, EventId]);
 
-  useEffect(() => {
-    if (Eventid) fetchInvoiceData(Eventid);
-  }, [Eventid]);
 
   return (
     <>
@@ -293,7 +315,10 @@ Thanks!`;
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-4 border-b border-gray-100 gap-4 mt-16">
-          <div className="flex-1">
+          <div className="flex items-center justify-between gap-2 w-full">
+              <h2 className="text-2xl font-bold text-primary">{invoiceInfo.invoiceCode}</h2>
+            </div>
+          <div className="flex-3">
             <p className="text-gray-500 text-xs sm:text-sm break-words">
               {invoiceInfo.address}
             </p>
