@@ -67,7 +67,7 @@ useEffect(() => {
           paymentMode: "Bank Transfer",
           bankId: primaryBank ? primaryBank.id.toString() : "",
           reference: "",
-          totalAmount: invoiceData.dueAmount?.toString() || invoiceData.grandTotal?.toString() || "",
+          totalAmount: "",
         });
       }
     }
@@ -135,16 +135,24 @@ useEffect(() => {
   }
 
   const payAmount = parseFloat(form.totalAmount || 0);
-  const currentDueAmount = parseFloat(invoiceData?.due_amount || 0);
-  
-  const newDueAmount = currentDueAmount - payAmount;
+const currentDueAmount = parseFloat(invoiceData?.due_amount || 0);
+
+let newDueAmount = 0;
+
+if (editPayment) {
+  const oldPayAmount = parseFloat(editPayment.totalAmount || 0);
+
+  newDueAmount = currentDueAmount + oldPayAmount - payAmount;
+} else {
+  newDueAmount = currentDueAmount - payAmount;
+}
 
   if (newDueAmount < 0) {
     Swal.fire({
       title: intl.formatMessage({ id: "COMMON.ERROR", defaultMessage: "Error!" }),
       text: intl.formatMessage({ 
         id: "PAYMENT.AMOUNT_EXCEEDS_DUE", 
-        defaultMessage: `Payment amount cannot exceed due amount of ₹${currentDueAmount.toFixed(2)}` 
+        defaultMessage: `Payment amount cannot exceed receivable amount`
       }),
       icon: "error",
       confirmButtonColor: "#005BA8",
@@ -235,7 +243,7 @@ useEffect(() => {
                 </div>
               </div>
               <div className="mt-2 text-sm text-gray-600">
-  Receivable Amount: <span className="font-semibold">₹{remainingDue>0 ? remainingDue.toFixed(2):invoiceData.grandTotal} </span>
+  Receivable Amount: <span className="font-semibold">₹ {remainingDue.toFixed(2)}</span>
 </div>
 
             </div>
@@ -326,15 +334,24 @@ useEffect(() => {
   placeholder="₹ 0.00"
   value={form.totalAmount}
   onChange={(e) => {
-    const value = e.target.value;
-    setForm({ ...form, totalAmount: value });
+  const value = e.target.value;
+  setForm({ ...form, totalAmount: value });
 
-    
-    const currentDue = parseFloat(invoiceData?.due_amount || 0);
-    const payAmount = parseFloat(value || 0);
-    const remaining = currentDue - payAmount;
-    setRemainingDue(remaining >= 0 ? remaining : 0);
-  }}
+  const currentDue = parseFloat(invoiceData?.due_amount || 0);
+  const payAmount = parseFloat(value || 0);
+
+  let remaining = 0;
+
+  if (editPayment) {
+    const oldPayAmount = parseFloat(editPayment.totalAmount || 0);
+    remaining = currentDue + oldPayAmount - payAmount;
+  } else {
+    remaining = currentDue - payAmount;
+  }
+
+  setRemainingDue(remaining >= 0 ? remaining : 0);
+}}
+
   className="input"
 />
 

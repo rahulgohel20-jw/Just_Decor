@@ -29,9 +29,11 @@ export default function InvoiceViewPage() {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
-  const [editPaymentData, setEditPaymentData] = useState(null); // ADD THIS
-  const [refreshKey, setRefreshKey] = useState(0); // ADD THIS FOR REFRESH
+  const [editPaymentData, setEditPaymentData] = useState(null); 
+  const [refreshKey, setRefreshKey] = useState(0); 
   const [apiDueAmount, setApiDueAmount] = useState(0);
+  const [invoiceRefreshKey, setInvoiceRefreshKey] = useState(0);
+
   
   const pdfPlugin = defaultLayoutPlugin();
 
@@ -40,23 +42,24 @@ export default function InvoiceViewPage() {
   };
 
   const refreshPayments = () => {
-    // Trigger refresh by changing key
     setRefreshKey(prev => prev + 1);
   };
 
-  // ADD THIS HANDLER FOR EDIT
+  const refreshInvoice = () => {
+  setInvoiceRefreshKey(prev => prev + 1);
+};
+
+
   const handleEditPayment = (payment) => {
     setEditPaymentData(payment);
     setIsPaymentOpen(true);
   };
 
-  // ADD THIS HANDLER FOR NEW PAYMENT
   const handleNewPayment = () => {
     setEditPaymentData(null);
     setIsPaymentOpen(true);
   };
 
-  // MODIFY handleClose TO RESET EDIT DATA
   const handleClosePayment = (shouldClose) => {
     setIsPaymentOpen(shouldClose);
     if (!shouldClose) {
@@ -185,17 +188,19 @@ export default function InvoiceViewPage() {
             </div>
 
             <PaymentReceived
-  eventId={activeEventId}
-  refreshKey={refreshKey}
+  salesInvoiceData={invoiceData?.salesInvoiceData}
   onEditPayment={handleEditPayment}
-  onDueAmountLoad={(amount) => setApiDueAmount(amount)}  // ADD
+  
+  onDueAmountLoad={(amount) => setApiDueAmount(amount)}
 />
 
 
             <InvoiceDetail 
   Eventid={activeEventId}
+  refreshKey={invoiceRefreshKey}
   onInvoiceDataLoad={handleInvoiceDataLoad}
 />
+
 
 
           </div>
@@ -254,11 +259,14 @@ export default function InvoiceViewPage() {
   isModalOpen={isPaymentOpen}
   setIsModalOpen={handleClosePayment}
   eventId={activeEventId}
+  refreshData={() => {
+    refreshInvoice();      
+    setIsPaymentOpen(false);
+  }}
   invoiceData={{
     ...invoiceData,
     due_amount: editPaymentData ? editPaymentData.due_amount : apiDueAmount,  // USE apiDueAmount
   }}
-  refreshData={refreshPayments}
   editPayment={editPaymentData}
 />
 
