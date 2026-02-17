@@ -217,6 +217,7 @@ import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleRepor
 import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
 import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
+import Pipeline from "../pages/lead/pipeline";
 import BankDetails from "../pages/master/Bank-Details";
 
 
@@ -261,16 +262,9 @@ const AppRoutingSetup = () => {
             element={<CreateEventPage mode="edit" />}
           />
 
-          <Route
-            path="/Payments"
-            element={< RecivedPayments  />}
-          />
-          <Route
-            path="/account"
-            element={< AccountLedger  />}
-          />
+          <Route path="/Payments" element={<RecivedPayments />} />
+          <Route path="/account" element={<AccountLedger />} />
 
-         
           <Route
             path="/edit-event/:eventId/copy"
             element={<CreateEventPage mode="copy" />}
@@ -401,7 +395,10 @@ const AppRoutingSetup = () => {
           />
           <Route path="/super-Leads" element={<SuperLeads />} />
           <Route path="/super-leads/addlead" element={<AddLeadPage />} />
-          <Route path="/super-leads/lead-details/:id" element={<LeadDetails />} />
+          <Route
+            path="/super-leads/lead-details/:id"
+            element={<LeadDetails />}
+          />
           <Route
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}
@@ -415,6 +412,9 @@ const AppRoutingSetup = () => {
             path="/super-raw-material-type-master"
             element={<SuperRawMaterialType />}
           />
+
+          <Route path="/pipeline" element={<Pipeline />} />
+
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
           <Route
             path="/super-template-name-master"

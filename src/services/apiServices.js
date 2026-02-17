@@ -1230,6 +1230,9 @@ export const GetLeadCode = () => {
 export const DeleteLeadbyID = (id) => {
   return DELETE(`/leadmaster/deleteById?id=${id}`);
 };
+export const DeleteTemplate = (id) => {
+  return DELETE(`/templatemaster/deletebyid?id=${id}`);
+};
 
 export const UpdateleadbyID = (id, payload) => {
   return PUT(`/leadmaster/update?id=${id}`, payload);

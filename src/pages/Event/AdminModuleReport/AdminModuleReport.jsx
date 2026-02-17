@@ -110,7 +110,7 @@ export default function AdminModuleReport() {
           }));
 
           setModules(formattedModules);
-          
+
           // Fetch templates for all modules immediately
           formattedModules.forEach((module) => {
             fetchTemplatesForModule(module.id);
@@ -161,7 +161,7 @@ export default function AdminModuleReport() {
         templates = res.data.data.map((item) => ({
           id: item.id,
           name: item.templateMaster.name,
-          description: `${item.templateMaster.name} - Custom theme template`,
+          description: item.templateMaster.description,
           mappingId: item.templateMappingResponseDto?.id || item.id,
           isDate: item.templateMappingResponseDto?.isDate || 0,
         }));
