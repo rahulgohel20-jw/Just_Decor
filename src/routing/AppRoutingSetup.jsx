@@ -222,6 +222,8 @@ import BankPayment from "../pages/payments/BankPayment";
 import BankRecipet from "../pages/payments/BankRecipet";
 import CashPayment from "../pages/payments/CashPayment";
 import CashRecipet from "../pages/payments/CashRecipet";
+import BankDetails from "../pages/master/Bank-Details";
+
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -367,6 +369,8 @@ const AppRoutingSetup = () => {
             path="/master/raw-material-type-master"
             element={<RawMaterialTypeMaster />}
           />
+
+          <Route path="/master/bank-details" element={<BankDetails />} />
           <Route path="/master/all-members" element={<AllMemberMaster />} />
           <Route path="/superadmin/members" element={<SuperadminMember />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />

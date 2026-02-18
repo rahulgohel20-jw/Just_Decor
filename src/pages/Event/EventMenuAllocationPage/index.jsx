@@ -128,49 +128,47 @@ const getFunctionName = (functionObj) => {
 
 const TopTabs = ({ value, onChange, functions }) => {
   return (
-    <div className="flex gap-3 overflow-x-auto">
-      {functions.map((item) => {
-        const dateTime = item?.functionStartDateTime || "";
-        const parts = dateTime.split(" ");
+    <Container>
+      <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-gray-100 pb-1.5 px-0.5">
+        {functions.map((item) => {
+          const dateTime = item?.functionStartDateTime || "";
+          const parts = dateTime.split(" ");
+          const date = parts[0];
+          const time = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : "";
+          const isActive = value?.id === item.id;
 
-        const date = parts[0]; // 26/12/2025
-        const time = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : "";
-
-        return (
-          <button
-            key={item.id || item.function?.id}
-            onClick={() => onChange(item)}
-            className={
-              "min-w-[96px] rounded-md px-5 py-2 text-sm font-medium transition whitespace-nowrap " +
-              (value?.id === item.id
-                ? "bg-primary text-white shadow"
-                : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50")
-            }
-          >
-            <p className="font-semibold">{getFunctionName(item.function)}</p>
-
-            <p
-              className={
-                value?.id === item.id
-                  ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700  hover:bg-gray-50"
-              }
+          return (
+            <button
+              key={item.id || item.function?.id}
+              onClick={() => onChange(item)}
+              className={`min-w-[100px] max-w-[140px] flex-shrink-0 rounded-lg px-3 py-2 text-xs font-medium transition-all border ${
+                isActive
+                  ? "bg-primary text-white border-primary shadow-md"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary"
+              }`}
             >
-              {date}
-            </p>
-            <p
-              className={
-                value?.id === item.id
-                  ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700  hover:bg-gray-50"
-              }
-            >
-              {time}
-            </p>
-          </button>
-        );
-      })}
-    </div>
+              <p className="font-semibold text-xs truncate text-center">
+                {getFunctionName(item.function)}
+              </p>
+              {date && (
+                <p
+                  className={`text-center mt-0.5 ${isActive ? "text-white/80" : "text-gray-400"}`}
+                >
+                  {date}
+                </p>
+              )}
+              {time && (
+                <p
+                  className={`text-center ${isActive ? "text-white/70" : "text-gray-400"}`}
+                >
+                  {time}
+                </p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </Container>
   );
 };
 
@@ -583,15 +581,17 @@ const TableHeader = ({
   allInsideChecked,
 }) => (
   <div
-    className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-10"
-    style={{ top: "230px" }}
+    className="grid grid-cols-12 items-center gap-2 border-b border-gray-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 sticky z-10 rounded-t-xl"
+    style={{ top: "220px" }}
   >
-    <div className="col-span-2">
+    <div className="col-span-2 text-left">
       <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
     </div>
     <div className="col-span-1 text-center">
       <div className="flex flex-col items-center gap-1">
-        <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef" />
+        <span>
+          <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef" />
+        </span>
         <Checkbox
           checked={allChefChecked}
           onChange={(e) => onChefCheckAll(e.target.checked)}
@@ -600,7 +600,9 @@ const TableHeader = ({
     </div>
     <div className="col-span-2 text-center">
       <div className="flex flex-col items-center gap-1">
-        <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
+        <span>
+          <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
+        </span>
         <Checkbox
           checked={allOutsourceChecked}
           onChange={(e) => onOutsourceCheckAll(e.target.checked)}
@@ -609,7 +611,9 @@ const TableHeader = ({
     </div>
     <div className="col-span-2 text-center">
       <div className="flex flex-col items-center gap-1">
-        <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside kitchen" />
+        <span>
+          <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside" />
+        </span>
         <Checkbox
           checked={allInsideChecked}
           onChange={(e) => onInsideCheckAll(e.target.checked)}
@@ -622,7 +626,7 @@ const TableHeader = ({
     <div className="col-span-2 text-center">
       <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
     </div>
-    <div className="col-span-2">
+    <div className="col-span-2 text-left">
       <FormattedMessage
         id="COMMON.INSTRUCTIONS"
         defaultMessage="Instructions"
@@ -641,14 +645,12 @@ const TableRow = ({ row, onChange, disabled }) => {
   }, [row.personCount]);
 
   const handleCheckboxChange = (type, checked) => {
-    const updated = {
+    onChange({
       ...row,
       chefLabour: type === "chef" ? checked : false,
       outside: type === "outside" ? checked : false,
       inside: type === "inside" ? checked : false,
-    };
-
-    onChange(updated);
+    });
   };
 
   const handlePersonCountChange = (e) => {
@@ -658,55 +660,54 @@ const TableRow = ({ row, onChange, disabled }) => {
 
   const handlePersonCountBlur = () => {
     const value = Number(localPersonCount);
-
     if (value === 0) {
       setHasError(true);
       message.error("Value cannot be zero");
       return;
     }
-
     if (isNaN(value) || value < 0) {
       setHasError(true);
       message.error("Invalid person value");
       return;
     }
-
-    if (value !== row.personCount) {
-      onChange({ ...row, personCount: value });
-    }
+    if (value !== row.personCount) onChange({ ...row, personCount: value });
   };
 
   return (
-    <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
+    <div className="grid grid-cols-12 items-center gap-2 border-b border-gray-100 px-4 py-3 text-sm hover:bg-blue-50/40 transition-colors group">
+      {/* Name */}
       <div className="col-span-2 font-medium text-gray-800">
-        <div className="flex flex-col">
-          <span className="text-xs text-gray-500">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] text-gray-400 uppercase tracking-wide">
             {getDisplayName(row, "categoryName")}
           </span>
-          <span>{getDisplayName(row, "itemName")}</span>
+          <span className="text-sm font-semibold text-gray-800 leading-tight">
+            {getDisplayName(row, "itemName")}
+          </span>
         </div>
       </div>
 
-      <div className="col-span-1 flex justify-center items-center gap-2">
+      {/* Chef */}
+      <div className="col-span-1 flex justify-center items-center gap-1.5">
         <Checkbox
           checked={row.chefLabour}
           disabled={disabled}
           onChange={(e) => handleCheckboxChange("chef", e.target.checked)}
         />
-
         {row.chefLabour && !disabled && (
           <button
             type="button"
-            onClick={() => row.openChefSidebar && row.openChefSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Chef Labour Details"
+            onClick={() => row.openChefSidebar?.()}
+            className="text-primary hover:text-blue-700"
+            title="Edit Chef Labour"
           >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
+            <i className="ki-filled ki-notepad-edit text-sm" />
           </button>
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center items-center gap-2">
+      {/* Outside */}
+      <div className="col-span-2 flex justify-center items-center gap-1.5">
         <Checkbox
           checked={row.outside}
           disabled={disabled}
@@ -715,16 +716,17 @@ const TableRow = ({ row, onChange, disabled }) => {
         {row.outside && (
           <button
             type="button"
-            onClick={() => row.openSidebar && row.openSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Outside Details"
+            onClick={() => row.openSidebar?.()}
+            className="text-primary hover:text-blue-700"
+            title="Edit Outside"
           >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
+            <i className="ki-filled ki-notepad-edit text-sm" />
           </button>
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center items-center gap-2">
+      {/* Inside */}
+      <div className="col-span-2 flex justify-center items-center gap-1.5">
         <Checkbox
           checked={row.inside}
           disabled={disabled}
@@ -733,15 +735,16 @@ const TableRow = ({ row, onChange, disabled }) => {
         {row.inside && (
           <button
             type="button"
-            onClick={() => row.openInsideSidebar && row.openInsideSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Inside Details"
+            onClick={() => row.openInsideSidebar?.()}
+            className="text-primary hover:text-blue-700"
+            title="Edit Inside"
           >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
+            <i className="ki-filled ki-notepad-edit text-sm" />
           </button>
         )}
       </div>
 
+      {/* Person Count */}
       <div className="col-span-1 flex justify-center">
         <Input
           min={0}
@@ -750,10 +753,11 @@ const TableRow = ({ row, onChange, disabled }) => {
           onChange={handlePersonCountChange}
           onBlur={handlePersonCountBlur}
           status={hasError ? "error" : ""}
-          className="w-16 p-1 text-center"
+          className="w-14 text-center text-sm p-1"
         />
       </div>
 
+      {/* Place */}
       <div className="col-span-2">
         <PlaceSelect
           value={row.place}
@@ -761,43 +765,43 @@ const TableRow = ({ row, onChange, disabled }) => {
         />
       </div>
 
+      {/* Instructions */}
       <div className="col-span-2">
         <Input
           size="small"
-          placeholder="Add..."
+          placeholder="Add note..."
           value={row.instructions}
           onChange={(e) => onChange({ ...row, instructions: e.target.value })}
-          className="w-full p-1"
+          className="w-full text-sm"
         />
       </div>
     </div>
   );
 };
-
 const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
   return (
     <div
-      className="sticky bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary px-6 py-4 mb-2 shadow-sm"
-      style={{ top: "280px", zIndex: 5 }}
+      className="sticky bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary px-5 py-3 shadow-sm"
+      style={{ top: "268px", zIndex: 4 }} // ← lowered zIndex below TableHeader (z-10)
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <i className="ki-filled ki-calendar text-primary text-xl"></i>
-            <div>
-              <h3 className="text-lg font-bold text-gray-800 uppercase">
-                {functionName}
-              </h3>
-              <p className="text-sm text-gray-600">{functionDateTime}</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <i className="ki-filled ki-calendar text-primary text-lg" />
+          <div>
+            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
+              {functionName}
+            </h3>
+            {functionDateTime && (
+              <p className="text-xs text-gray-500 mt-0.5">{functionDateTime}</p>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
-          <i className="ki-filled ki-people text-primary"></i>
-          <span className="text-sm font-medium text-gray-700">
+        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-gray-100">
+          <i className="ki-filled ki-people text-primary text-sm" />
+          <span className="text-xs text-gray-500">
             <FormattedMessage id="COMMON.PAX" defaultMessage="Pax:" />
           </span>
-          <span className="text-lg font-bold text-primary">{pax}</span>
+          <span className="text-sm font-bold text-primary">{pax}</span>
         </div>
       </div>
     </div>
@@ -2295,101 +2299,99 @@ const EventMenuAllocationPage = ({ mode }) => {
           </div>
         </div>
 
-        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
-                    defaultMessage="Event ID:"
-                  />
-                </span>
-                <span
-                  className="text-sm font-medium text-gray-900 underline cursor-pointer"
-                  onClick={() => setIsAllCustomerToogleOpen(true)}
+        <div className=" card min-w-full bg-white border border-gray-200 shadow-sm rounded-xl mb-5">
+          <div className="flex flex-wrap items-center justify-between px-5 py-4 gap-4">
+            {/* Event Info Grid */}
+            <div className="flex flex-wrap gap-6 flex-1">
+              {[
+                {
+                  icon: "ki-calendar-tick",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                      defaultMessage="Event ID"
+                    />
+                  ),
+                  value: (
+                    <span
+                      className="underline cursor-pointer text-primary font-semibold"
+                      onClick={() => setIsAllCustomerToogleOpen(true)}
+                    >
+                      {eventData?.eventNo || "-"}
+                    </span>
+                  ),
+                },
+                {
+                  icon: "ki-user",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                      defaultMessage="Party"
+                    />
+                  ),
+                  value: getPartyName(eventData?.party),
+                },
+                {
+                  icon: "ki-geolocation-home",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                      defaultMessage="Event"
+                    />
+                  ),
+                  value: getEventTypeName(eventData?.eventType),
+                },
+                {
+                  icon: "ki-calendar-tick",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                      defaultMessage="Date & Time"
+                    />
+                  ),
+                  value: eventData?.eventStartDateTime || "-",
+                },
+                {
+                  icon: "ki-calendar-tick",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                      defaultMessage="Venue"
+                    />
+                  ),
+                  value: getVenueName(eventData?.venue),
+                },
+              ].map((field, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2.5 min-w-[140px]"
                 >
-                  {eventData?.eventNo || "-"}
-                </span>
-              </div>
+                  <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                    <i
+                      className={`ki-filled ${field.icon} text-success text-sm`}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">{field.label}</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {field.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-user text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
-                    defaultMessage="Party Name:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getPartyName(eventData?.party)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
-                    defaultMessage="Event Name:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getEventTypeName(eventData?.eventType)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
-                    defaultMessage="Event Date & Time:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {eventData?.eventStartDateTime || ""}
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full h-0"></div>
-
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
-                    defaultMessage="Event Venue:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getVenueName(eventData?.venue)}
-                </span>
-              </div>
-            </div>
-
-            <div className="ml-auto flex items-center gap-2">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 className="btn btn-sm btn-primary"
-                title="Save"
                 onClick={handleMainSave}
                 disabled={!hasUnsavedChanges}
               >
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
               </button>
-
               <button
                 className="btn btn-sm btn-primary"
-                title="Sync Raw Material"
                 onClick={handleSyncRawMaterial}
               >
                 <FormattedMessage
@@ -2397,16 +2399,14 @@ const EventMenuAllocationPage = ({ mode }) => {
                   defaultMessage="Sync Raw Material"
                 />
               </button>
-
               <button
-                disabled={true}
-                className="btn btn-sm btn-success"
-                title="Pay Vendor"
+                disabled
+                className="btn btn-sm btn-success opacity-50 cursor-not-allowed"
                 onClick={() => setAllVendor(true)}
               >
                 <img
                   src={toAbsoluteUrl("/media/icons/payall.png")}
-                  className="size-6"
+                  className="size-4"
                   alt=""
                 />
                 <FormattedMessage
@@ -2418,9 +2418,9 @@ const EventMenuAllocationPage = ({ mode }) => {
           </div>
         </div>
 
-        <div className="flex gap-4">
-          <div className="w-[70%] flex flex-col">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-[#FAFAFA] p-3 rounded-lg overflow-x-auto mb-3">
+        <div className="grid grid-cols-10 gap-4">
+          <div className="col-span-7 flex flex-col">
+            <div className="bg-[#FAFAFA] p-3 rounded-lg mb-3">
               <TopTabs
                 value={activeFunction}
                 onChange={handleFunctionChange}
@@ -2430,7 +2430,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                 ]}
               />
             </div>
-
             <div
               className="sticky z-10 bg-white pb-2 rounded-lg shadow-sm mb-3"
               style={{ top: "70px" }}
@@ -2655,9 +2654,9 @@ const EventMenuAllocationPage = ({ mode }) => {
             </div>
           </div>
 
-          <div className="w-[30%]">
+          <div className="col-span-3">
             <div className="sticky bg-white " style={{ top: "70px" }}>
-              <div className="max-h-[calc(100vh-100px)] overflow-y-auto">
+              <div className="max-h-[calc(100vh-100px)] overflow-y-auto no-scrollbar">
                 <OrderSummary
                   groups={orderSummaryGroups}
                   loading={menuLoading}

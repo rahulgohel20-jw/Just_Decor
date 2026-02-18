@@ -1,101 +1,129 @@
-import { Pencil, Trash2, ChevronUp } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { TableComponent } from "@/components/table/TableComponent";
+import { FormattedMessage } from "react-intl";
+import { paymentColumns,  } from "./paymentColumns";
+import { DeleteRecordPayment } from "../../services/apiServices";
+import Swal from "sweetalert2";
 
-export default function PaymentReceived() {
+export default function PaymentReceived({ salesInvoiceData, onEditPayment, onDueAmountLoad,onRefresh }){
+  const [payments, setPayments] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const userId = JSON.parse(localStorage.getItem("userId"));
+  const [due_amount, setDueAmount] = useState(0);
 
-    const payments = [
-        {
-          date: "02/02/2026",
-          totalAmount: "2,00,000",
-          status: "Draft",
-          mode: "Cash",
-          amountPay: "1,00,000",
-        },
-        {
-          date: "02/02/2026",
-          totalAmount: "2,00,000",
-          status: "Draft",
-          mode: "Cash",
-          amountPay: "1,00,000",
-        },
-      ];
-      
+
+ 
+
+
+
+useEffect(() => {
+  if (!salesInvoiceData) {
+    setPayments([]);
+    setDueAmount(0);
+    return;
+  }
+
+  const paymentList = salesInvoiceData?.data || [];
+  const due_amount = salesInvoiceData?.due_amount || 0;
+
+  setDueAmount(due_amount);
+  if (onDueAmountLoad) onDueAmountLoad(due_amount);
+
+  const mapped = paymentList.map((payment, index) => ({
+    sr_no: index + 1,
+    id: payment.id,
+    invoiceNo: payment.invoiceNo || "-",
+    paymentDate: payment.paymentDate
+      ? new Date(payment.paymentDate).toLocaleDateString("en-GB")
+      : "-",
+    totalAmount: payment.totalAmount || 0,
+    due_amount: due_amount || 0,
+    dueAmount: payment.dueAmount || 0,
+    invoiceAmount: payment.invoiceAmount || 0,
+    paymentMode: payment.paymentMode || "-",
+    reference: payment.reference || "-",
+    status: payment.status || "Pending",
+    bankId: payment.bankId || null,
+    _originalData: payment,
+  }));
+
+  setPayments(mapped);
+}, [salesInvoiceData]);
+
+
+
+  const handleEdit = (payment) => {
+  if (onEditPayment) {
+    onEditPayment({
+      ...(payment._originalData || payment),
+      due_amount: payment.due_amount,  
+    });
+  }
+};
+  const handleDelete = async(paymentId) => {
+
+    Swal.fire({
+      title:"Are you sure you want to delete this payment?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    }).then(async (result) => {
+      if (result.isConfirmed) { 
+
+
+    await DeleteRecordPayment(paymentId);
+        Swal.fire(
+          "Deleted!",
+          "Payment has been deleted.",
+          "success"
+        );
+        if (onRefresh) onRefresh();
+        
+      }
+    });
+
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border mb-4 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b bg-gray-50 cursor-pointer hover:bg-gray-100"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-800">
-            Payment Received ({payments.length})
+            <FormattedMessage id="PAYMENT.PAYMENT_RECEIVED" defaultMessage="Payment Received" /> ({payments.length})
           </span>
         </div>
 
-        <ChevronUp size={18} className="text-gray-500 cursor-pointer" />
+        {isExpanded ? (
+          <ChevronUp size={18} className="text-gray-500" />
+        ) : (
+          <ChevronDown size={18} className="text-gray-500" />
+        )}
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] text-sm">
-          <thead className="bg-gray-100 text-gray-600">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Date</th>
-              <th className="px-4 py-3 text-left font-medium">
-                Total Amount #
-              </th>
-              <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 text-left font-medium">Payment Mode</th>
-              <th className="px-4 py-3 text-left font-medium">Amount Pay</th>
-              <th className="px-4 py-3 text-center font-medium">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y">
-            {payments.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="px-4 py-3">{item.date}</td>
-
-                <td className="px-4 py-3 font-medium">
-                  ₹ {item.totalAmount}
-                </td>
-
-                <td className="px-4 py-3">
-                  <span className="px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">
-                    {item.status}
-                  </span>
-                </td>
-
-                <td className="px-4 py-3">{item.mode}</td>
-
-                <td className="px-4 py-3 font-medium">
-                  ₹ {item.amountPay}
-                </td>
-
-                <td className="px-4 py-3">
-                  <div className="flex justify-center gap-2">
-                    <button className="p-1.5 rounded-md border hover:bg-blue-50 text-blue-600">
-                      <Pencil size={16} />
-                    </button>
-
-                    <button className="p-1.5 rounded-md border hover:bg-red-50 text-red-600">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {payments.length === 0 && (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="text-center py-6 text-gray-400"
-                >
-                  No payments found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {isExpanded && (
+        <div className="p-4">
+          {payments.length > 0 ? (
+            <TableComponent
+              columns={paymentColumns(handleEdit, handleDelete)}
+              data={payments}
+              paginationSize={5}
+            />
+          ) : (
+            <div className="text-center py-8 text-gray-400">
+              <FormattedMessage id="PAYMENT.NO_PAYMENTS" defaultMessage="No payments found" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
