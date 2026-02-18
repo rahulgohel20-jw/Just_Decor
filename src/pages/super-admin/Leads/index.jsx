@@ -3,7 +3,7 @@ import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "./constact";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
 import Leaddetailview from "../../../partials/modals/leadmodal/Leaddetailview";
 import FollowUp from "../../../partials/modals/follow-up-modal/Followup";
@@ -18,6 +18,10 @@ import {
   assignMultipleLeadToMember,
   getLeadsByLeadStatus,
   getleadbyleattype,
+  GETstagesleaddatabypipeline,
+  GETallpipeline,
+  MoveLeadToStage,
+  Getstagesbypipeline,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import Swal from "sweetalert2";
@@ -28,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 const SuperLeads = () => {
   const classes = useStyle();
   const navigate = useNavigate();
+  const location = useLocation();
   const intl = useIntl();
   const scrollRef = useRef(null);
 
@@ -55,6 +60,10 @@ const SuperLeads = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerLead, setDrawerLead] = useState(null);
   const [drawerFollowUps, setDrawerFollowUps] = useState([]);
+  const [activePipeline, setActivePipeline] = useState(null); // { id, name }
+  const [pipelineData, setPipelineData] = useState(null);
+  const [pipelines, setPipelines] = useState([]);
+  const [selectedPipelineId, setSelectedPipelineId] = useState("");
 
   // Filter states
   const [selectedLeadStatus, setSelectedLeadStatus] = useState("");
@@ -72,25 +81,12 @@ const SuperLeads = () => {
   const [dndActive, setDndActive] = useState(false);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
 
-  // Lead Status Options
-  const LEAD_STATUS_OPTIONS = [
-    { label: "All Stages", value: "" },
-    { label: "New Inquiry", value: "New Inquiry" },
-    { label: "Cold Lead", value: "Cold Lead" },
-    { label: "Hot Lead", value: "Hot Lead" },
-    { label: "Proposal sent", value: "Proposal sent" },
-    { label: "Client Demo", value: "Client Demo" },
-    { label: " Follow up", value: " Follow up" },
-    { label: "won", value: " won" },
-    { label: "lost", value: "lost" },
-  ];
+  const LEAD_STATUS_OPTIONS = [{ label: "All Stages", value: "" }];
 
   // Lead Type Options
   const LEAD_TYPE_OPTIONS = [
-    { label: "All Types", value: "" },
-    { label: "Hot", value: "Hot" },
-    { label: "Cold", value: "Cold" },
-    { label: "Inquire", value: "Inquire" },
+    { label: "select piplene", value: "" },
+    { label: "sale ", value: "sale" },
   ];
 
   // Stats
@@ -104,6 +100,157 @@ const SuperLeads = () => {
 
   const lang = localStorage.getItem("lang") || "en";
 
+  useEffect(() => {
+    if (location.state?.pipelineId) {
+      setActivePipeline({
+        id: location.state.pipelineId,
+        name: location.state.pipelineName,
+      });
+      fetchPipelineLeads(location.state.pipelineId);
+    }
+  }, []);
+
+  const fetchPipelineLeads = async (pipelineId) => {
+    try {
+      setIsLoadingLeads(true);
+
+      // ✅ Try all common patterns
+      const getStoredUserId = () => {
+        // Direct keys
+        const direct =
+          localStorage.getItem("userId") ||
+          localStorage.getItem("id") ||
+          localStorage.getItem("user_id") ||
+          localStorage.getItem("empId") ||
+          localStorage.getItem("memberId");
+        if (direct) return direct;
+
+        // Nested in JSON object
+        const keys = [
+          "user",
+          "userData",
+          "authUser",
+          "userInfo",
+          "auth",
+          "profile",
+        ];
+        for (const key of keys) {
+          try {
+            const parsed = JSON.parse(localStorage.getItem(key) || "{}");
+            const id =
+              parsed?.id || parsed?.userId || parsed?.user_id || parsed?.empId;
+            if (id) return String(id);
+          } catch {}
+        }
+        return null;
+      };
+
+      const userId = getStoredUserId();
+      console.log("✅ Resolved userId:", userId); // ← check this in console
+
+      if (!userId) {
+        console.error(
+          "❌ userId not found. localStorage keys:",
+          Object.keys(localStorage),
+        );
+        setIsLoadingLeads(false);
+        return;
+      }
+
+      const [leadsRes, stagesRes] = await Promise.all([
+        GETstagesleaddatabypipeline(pipelineId, userId),
+        Getstagesbypipeline(pipelineId, userId),
+      ]);
+
+      const data = leadsRes?.data?.data;
+      const stagesData = stagesRes?.data?.data;
+
+      const stageTypeMap = {};
+      Object.entries(stagesData || {}).forEach(([key, stages]) => {
+        stages.forEach((stage) => {
+          stageTypeMap[stage.stageId] = stage.stageType;
+        });
+      });
+
+      setPipelineData(data);
+      buildBoardFromPipeline(data, stageTypeMap);
+    } catch (err) {
+      console.error("Failed to fetch pipeline leads:", err);
+    } finally {
+      setIsLoadingLeads(false);
+    }
+  };
+  const buildBoardFromPipeline = (data, stageTypeMap = {}) => {
+    const openLead = data?.open_lead || {};
+    const closeLead = data?.close_lead || {};
+
+    const openColumns = Object.entries(openLead).map(([stageName, leads]) => {
+      const stageId = leads[0]?.stageId ?? null;
+      const stageType = stageTypeMap[stageId] ?? "open_stage"; // ← from map
+
+      return {
+        id: `open_${stageName}`,
+        name: stageName,
+        tag: "open",
+        stageId,
+        stageType, // ✅ reliable
+        children: leads.map((lead) => ({
+          ...lead,
+          id: String(lead.leadId),
+          leadId: lead.leadId,
+          title: lead.clientName,
+          subtitle: lead.leadCode,
+          assignedTo: lead.leadAssignName,
+          amount: lead.estimateAmount || 0,
+          city: lead.city || "-",
+          cityName: lead.city || "-",
+          pipelineId: lead.pipelineId,
+        })),
+      };
+    });
+
+    const closeColumns = Object.entries(closeLead).map(([stageName, leads]) => {
+      const stageId = leads[0]?.stageId ?? null;
+      const stageType = stageTypeMap[stageId] ?? "close_stage"; // ← from map
+
+      return {
+        id: `close_${stageName}`,
+        name: stageName,
+        tag: "close",
+        stageId,
+        stageType, // ✅ reliable
+        children: leads.map((lead) => ({
+          ...lead,
+          id: String(lead.leadId),
+          leadId: lead.leadId,
+          title: lead.clientName,
+          subtitle: lead.leadCode,
+          assignedTo: lead.leadAssignName,
+          amount: lead.estimateAmount || 0,
+          city: lead.city || "-",
+          cityName: lead.city || "-",
+          pipelineId: lead.pipelineId,
+        })),
+      };
+    });
+
+    setBoardColumns([...openColumns, ...closeColumns]);
+
+    // flatten for list view
+    const allLeads = [
+      ...Object.values(openLead).flat(),
+      ...Object.values(closeLead).flat(),
+    ].map((lead, index) => ({
+      ...lead,
+      sr_no: index + 1,
+      leadAssign: lead.leadAssignName || "-",
+      productType: lead.planName || "-",
+      cityName: lead.city || lead.cityName || "-",
+      createdAt: lead.createdAt?.split("T")[0],
+    }));
+
+    setTableData(allLeads);
+  };
   const handleOpenDrawer = async (lead) => {
     try {
       const response = await GetLeadByID(lead.leadId);
@@ -123,25 +270,56 @@ const SuperLeads = () => {
     toColumn,
     pendingColumns,
   }) => {
+    console.log("🔍 Full lead object keys:", Object.keys(lead));
+    console.log("🔍 Full lead object:", JSON.stringify(lead, null, 2));
     setMoveLeadPayload({ lead, fromColumn, toColumn, pendingColumns });
     setIsMoveModalOpen(true);
   };
-
-  const handleConfirmMove = (formPayload) => {
-    // 1. Commit the column change that was held in pendingColumns
+  // ✅ Fix - remove the redundant toColumn.tag
+  const handleConfirmMove = async (formPayload) => {
     setBoardColumns(moveLeadPayload.pendingColumns);
 
-    // 2. Persist to backend (optional – adapt to your API)
-    UpdateleadbyID(moveLeadPayload.lead.leadId, {
-      leadStatus: moveLeadPayload.toColumn.name, // or toColumn.id
-      leadAssignId: formPayload.assignedTo
-        ? Number(formPayload.assignedTo)
-        : undefined,
-      leadRemark: formPayload.remarks,
-      // ...spread other required fields from the existing lead
-    }).catch(console.error);
+    const lead = moveLeadPayload.lead;
+    const toColumn = moveLeadPayload.toColumn;
 
-    // 3. Close modal and clear payload
+    const leadId = Number(lead.leadId);
+    const stageId = Number(toColumn.stageId || lead.stageId);
+    const stageType =
+      toColumn.stageType ||
+      (toColumn.tag === "open" ? "open_stage" : "close_stage");
+    // ✅ derive from tag
+    console.log("toColumn.stageType:", toColumn.stageType); // ✅ derive from tag
+
+    const requestDto = formPayload.followUp?.date
+      ? {
+          clientRemarks: formPayload.remarks || "",
+          employeeRemarks: "",
+          followUpDate: formPayload.followUp.date,
+          followUpStatus: "Open",
+          followUpType: formPayload.followUp.type || "Call",
+          id: 0,
+          leadId: leadId,
+          memberId: formPayload.assignedTo ? Number(formPayload.assignedTo) : 0,
+        }
+      : null; // ✅ whole object null if no followup
+
+    try {
+      await MoveLeadToStage(
+        leadId,
+        stageId,
+        stageType, // ✅ "open_stage" or "close_stage"
+        formPayload.remarks || "", // ✅ actual remarks here
+        requestDto, // ✅ null or full object
+      );
+
+      if (activePipeline?.id) {
+        fetchPipelineLeads(activePipeline.id);
+      }
+    } catch (err) {
+      console.error("Move lead failed:", err);
+      Swal.fire("Error", "Failed to move lead. Please try again.", "error");
+    }
+
     setIsMoveModalOpen(false);
     setMoveLeadPayload(null);
   };
@@ -223,7 +401,7 @@ const SuperLeads = () => {
       const status = lead.leadStatus || "Open";
       if (statusGroups[status]) {
         statusGroups[status].children.push({
-          id: lead.leadId.toString(),
+          id: `lead_${lead.leadId}`,
           leadId: lead.leadId,
           title: lead.clientName,
           subtitle: lead.leadCode,
@@ -384,7 +562,10 @@ const SuperLeads = () => {
     setSelectedLeadStatus("");
     setSelectedLeadType("");
     setSearchText("");
-    fetchLeads();
+
+    if (activePipeline?.id) {
+      fetchPipelineLeads(activePipeline.id);
+    }
   };
 
   // Handle Assign Lead
@@ -444,8 +625,8 @@ const SuperLeads = () => {
           handleLeadStatusChange({ target: { value: selectedLeadStatus } });
         } else if (selectedLeadType) {
           handleLeadTypeChange({ target: { value: selectedLeadType } });
-        } else {
-          fetchLeads();
+        } else if (activePipeline?.id) {
+          fetchPipelineLeads(activePipeline.id);
         }
       } else {
         const errorMsg =
@@ -632,8 +813,8 @@ const SuperLeads = () => {
           handleLeadStatusChange({ target: { value: selectedLeadStatus } });
         } else if (selectedLeadType) {
           handleLeadTypeChange({ target: { value: selectedLeadType } });
-        } else {
-          fetchLeads();
+        } else if (activePipeline?.id) {
+          fetchPipelineLeads(activePipeline.id);
         }
       } else {
         const errorMsg = apiData?.msg || "Failed to add follow-up";
@@ -708,53 +889,87 @@ const SuperLeads = () => {
   };
 
   // Fetch Leads
-  const fetchLeads = () => {
-    setIsLoadingLeads(true);
-    const mainId = localStorage.getItem("mainId");
-    GetAllleadmaster(mainId)
-      .then((res) => {
-        const response = res?.data?.data;
+  // const fetchLeads = () => {
+  //   setIsLoadingLeads(true);
 
-        if (response?.["All Leads"]?.length) {
-          const formatted = response["All Leads"].map((item, index) => ({
-            ...item,
-            sr_no: index + 1,
-            leadId: item.id,
-            leadAssign: item.leadAssignName || "-",
-            productType: item.planName || "-",
-            cityName: item.cityName || "-",
-            createdAt: item.createdAt?.split("T")[0],
-          }));
+  //   // Check ALL localStorage keys
+  //   console.log("All localStorage:", { ...localStorage });
 
-          setTableData(formatted);
-          setBoardColumns(transformToBoardData(formatted));
+  //   const mainId = localStorage.getItem("mainId");
+  //   const userId = localStorage.getItem("userId");
+  //   const id = localStorage.getItem("id");
+  //   console.log("mainId:", mainId, "userId:", userId, "id:", id);
 
-          setStats({
-            total: response["All Leads Count"] || 0,
-            hot: response["Hot"] || 0,
-            cold: response["Cold"] || 0,
-            inquire: response["Inquire"] || 0,
-            assigned: response["Lead Assigned"] || 0,
-          });
-        } else {
-          setTableData([]);
-          setBoardColumns([
-            { id: "pending", name: "Pending", children: [] },
-            { id: "open", name: "Open", children: [] },
-            { id: "confirmed", name: "Confirmed", children: [] },
-            { id: "cancel", name: "Cancelled", children: [] },
-            { id: "closed", name: "Closed", children: [] },
-          ]);
+  //   GetAllleadmaster(mainId)
+  //     .then((res) => {
+  //       console.log("✅ API SUCCESS:", res);
+  //       console.log("✅ data:", res?.data?.data);
+
+  //       const response = res?.data?.data;
+  //       if (response?.["All Leads"]?.length) {
+  //         console.log("✅ Leads found:", response["All Leads"].length);
+  //         const formatted = response["All Leads"].map((item, index) => ({
+  //           ...item,
+  //           sr_no: index + 1,
+  //           leadId: item.id,
+  //           leadAssign: item.leadAssignName || "-",
+  //           productType: item.planName || "-",
+  //           cityName: item.cityName || "-",
+  //           createdAt: item.createdAt?.split("T")[0],
+  //         }));
+  //         console.log("✅ formatted[0]:", formatted[0]);
+  //         setTableData(formatted);
+  //         setBoardColumns(transformToBoardData(formatted));
+  //         setStats({
+  //           total: response["All Leads Count"] || 0,
+  //           hot: response["Hot"] || 0,
+  //           cold: response["Cold"] || 0,
+  //           inquire: response["Inquire"] || 0,
+  //           assigned: response["Lead Assigned"] || 0,
+  //         });
+  //       } else {
+  //         console.log("❌ No leads in response, raw response:", response);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.log("❌ API ERROR:", error);
+  //       console.log("❌ Error response:", error?.response?.data);
+  //     })
+  //     .finally(() => setIsLoadingLeads(false));
+  // };
+  useEffect(() => {
+    const loadPipelines = async () => {
+      try {
+        const res = await GETallpipeline();
+        const list = res?.data?.data || [];
+        setPipelines(list);
+
+        // Determine starting pipeline
+        const startPipeline = location.state?.pipelineId
+          ? list.find((p) => p.id === location.state.pipelineId)
+          : list.find((p) => p.id === 1) || list[0];
+
+        if (startPipeline) {
+          setActivePipeline({ id: startPipeline.id, name: startPipeline.name });
+          setSelectedPipelineId(String(startPipeline.id));
+          fetchPipelineLeads(startPipeline.id);
         }
-      })
-      .catch((error) => {
-        console.error("Error fetching leads:", error);
-      })
-      .finally(() => {
-        setIsLoadingLeads(false);
-      });
-  };
+      } catch (err) {
+        console.error("Failed to load pipelines:", err);
+      }
+    };
 
+    loadPipelines();
+  }, []);
+  const handlePipelineChange = (e) => {
+    const pipelineId = Number(e.target.value);
+    setSelectedPipelineId(String(pipelineId));
+    const found = pipelines.find((p) => p.id === pipelineId);
+    if (found) {
+      setActivePipeline({ id: found.id, name: found.name });
+      fetchPipelineLeads(found.id);
+    }
+  };
   // Delete Lead Handler
   const handleDeleteLead = (id) => {
     Swal.fire({
@@ -775,8 +990,8 @@ const SuperLeads = () => {
               handleLeadStatusChange({ target: { value: selectedLeadStatus } });
             } else if (selectedLeadType) {
               handleLeadTypeChange({ target: { value: selectedLeadType } });
-            } else {
-              fetchLeads();
+            } else if (activePipeline?.id) {
+              fetchPipelineLeads(activePipeline.id);
             }
           })
           .catch((err) => {
@@ -818,10 +1033,6 @@ const SuperLeads = () => {
       setIsViewModalOpen(true);
     }
   };
-
-  useEffect(() => {
-    fetchLeads();
-  }, []);
 
   return (
     <Fragment>
@@ -900,7 +1111,25 @@ const SuperLeads = () => {
             </div>
           </div>
         </div>
-
+        {/* Add this just above the FILTER ROW */}
+        {/* {activePipeline && (
+          <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <i className="ki-filled ki-abstract-26 text-blue-600"></i>
+            <span className="text-sm font-medium text-blue-800">
+              Pipeline: <strong>{activePipeline.name}</strong>
+            </span>
+            <button
+              onClick={() => {
+                setActivePipeline(null);
+                setPipelineData(null);
+                fetchLeads(); // back to all leads
+              }}
+              className="ml-auto text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            >
+              <i className="ki-filled ki-cross-circle"></i> Clear Pipeline
+            </button>
+          </div>
+        )} */}
         {/* FILTER ROW */}
         <div className="bg-white p-4 rounded-lg shadow-sm border mb-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -922,7 +1151,7 @@ const SuperLeads = () => {
               <select
                 value={selectedLeadStatus}
                 onChange={handleLeadStatusChange}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="px-2 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                 disabled={isFilterLoading}
               >
                 {LEAD_STATUS_OPTIONS.map((option) => (
@@ -930,6 +1159,23 @@ const SuperLeads = () => {
                     {option.label}
                   </option>
                 ))}
+              </select>
+              <select
+                value={selectedPipelineId}
+                onChange={handlePipelineChange}
+                className="px-2 py-2 border border-gray-300 rounded-md"
+              >
+                {pipelines.length === 0 ? (
+                  <option value="">Loading pipelines...</option>
+                ) : (
+                  pipelines.map((pipeline) => (
+                    <option key={pipeline.id} value={String(pipeline.id)}>
+                      {pipeline.name ||
+                        pipeline.pipelineName ||
+                        "Unnamed Pipeline"}
+                    </option>
+                  ))
+                )}
               </select>
 
               {/* Lead Type Filter */}
@@ -1085,20 +1331,6 @@ const SuperLeads = () => {
             </div>
 
             {/* Scroll Buttons for Board View */}
-            <div className="flex justify-end items-center gap-2">
-              <button
-                onClick={scrollLeft}
-                className="btn btn-light btn-sm px-3"
-              >
-                <i className="ki-filled ki-arrow-left"></i> Prev
-              </button>
-              <button
-                onClick={scrollRight}
-                className="btn btn-light btn-sm px-3"
-              >
-                Next <i className="ki-filled ki-arrow-right"></i>
-              </button>
-            </div>
           </div>
         )}
 
@@ -1107,7 +1339,7 @@ const SuperLeads = () => {
           {viewMode === 0 ? (
             /* Board View */
             <div
-              className="flex-1 flex flex-wrap space-x-4 cursor-grab overflow-x-hidden flex-shrink-0"
+              className="flex-1 flex flex-nowrap space-x-4 cursor-grab overflow-x-auto flex-shrink-0"
               ref={scrollRef}
               onMouseDown={onPointerDown}
               onMouseMove={onPointerMove}

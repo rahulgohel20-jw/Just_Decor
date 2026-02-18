@@ -95,21 +95,18 @@ const SortableColumn = ({
             </span>
           </small>
         </div>
-        <button className="btn btn-sm btn-icon btn-light btn-clear">
-          <i className="ki-filled ki-dots-horizontal"></i>
-        </button>
       </div>
 
       {/* Cards List - scrollable */}
       <div className="overflow-y-auto flex-1 scrollbar-hide p-3">
         {column.children && column.children.length > 0 ? (
           <SortableContext
-            items={[column.id, ...column.children.map((task) => task.id)]}
+            items={column.children.map((task) => task.id)}
             strategy={rectSortingStrategy}
           >
             {column.children.map((task) => (
               <SortableItem
-                key={task.id}
+                key={`${column.id}_${task.id}`} // ← unique per column
                 task={task}
                 onViewLead={onViewLead}
                 onEditLead={onEditLead}
