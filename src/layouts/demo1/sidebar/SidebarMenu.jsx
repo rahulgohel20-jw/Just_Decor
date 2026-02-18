@@ -76,13 +76,13 @@ const SidebarMenu = () => {
               accordionLinkGap[0],
               linkPl,
               linkPr,
-              linkPy
+              linkPy,
             )}
           >
             <MenuIcon
               className={clsx(
                 "items-start text-gray-500 dark:text-gray-400",
-                iconWidth
+                iconWidth,
               )}
             >
               {item.icon && <KeenIcon icon={item.icon} className={iconSize} />}
@@ -98,7 +98,7 @@ const SidebarMenu = () => {
               "relative before:absolute before:top-0 before:bottom-0 before:border-s before:border-gray-200",
               itemsGap,
               accordionBorderLeft[0],
-              accordionPl[0]
+              accordionPl[0],
             )}
           >
             {buildMenuItemChildren(item.children, index, 1)}
@@ -116,13 +116,13 @@ const SidebarMenu = () => {
             accordionLinkGap[0],
             linkPy,
             linkPl,
-            linkPr
+            linkPr,
           )}
         >
           <MenuIcon
             className={clsx(
               "items-start text-gray-600 dark:text-gray-500",
-              iconWidth
+              iconWidth,
             )}
           >
             {item.icon && <KeenIcon icon={item.icon} className={iconSize} />}
@@ -143,7 +143,7 @@ const SidebarMenu = () => {
           accordionLinkGap[0],
           linkPy,
           linkPl,
-          linkPr
+          linkPr,
         )}
       >
         <span
@@ -158,7 +158,7 @@ const SidebarMenu = () => {
           <MenuIcon
             className={clsx(
               "items-start text-gray-500 dark:text-gray-400",
-              iconWidth
+              iconWidth,
             )}
           >
             {item.icon && <KeenIcon icon={item.icon} className={iconSize} />}
@@ -176,7 +176,7 @@ const SidebarMenu = () => {
     items.map((item, idx) =>
       item.disabled
         ? buildMenuItemChildDisabled(item, idx, level)
-        : buildMenuItemChild(item, idx, level)
+        : buildMenuItemChild(item, idx, level),
     );
 
   const buildMenuItemChild = (item, index, level = 0) => {
@@ -192,11 +192,11 @@ const SidebarMenu = () => {
               accordionLinkGap[level],
               accordionLinkPl,
               linkPr,
-              subLinkPy
+              subLinkPy,
             )}
           >
             {buildMenuBullet()}
-            <MenuTitle className="text-3sm font-normal text-gray-800 menu-link-hover:!text-primary">
+            <MenuTitle className="text-sm font-normal text-gray-800 menu-link-hover:!text-primary">
               {item.title}
             </MenuTitle>
             {buildMenuArrow()}
@@ -207,13 +207,13 @@ const SidebarMenu = () => {
                 "relative before:absolute before:border-s before:border-gray-200",
               itemsGap,
               !item.collapse && accordionBorderLeft[level],
-              !item.collapse && accordionPl[level]
+              !item.collapse && accordionPl[level],
             )}
           >
             {buildMenuItemChildren(
               item.children,
               index,
-              item.collapse ? level : level + 1
+              item.collapse ? level : level + 1,
             )}
           </MenuSub>
         </MenuItem>
@@ -229,7 +229,7 @@ const SidebarMenu = () => {
             accordionLinkGap[level],
             accordionLinkPl,
             linkPr,
-            subLinkPy
+            subLinkPy,
           )}
         >
           {buildMenuBullet()}
@@ -249,7 +249,7 @@ const SidebarMenu = () => {
           accordionLinkGap[level],
           accordionLinkPl,
           linkPr,
-          subLinkPy
+          subLinkPy,
         )}
       >
         <span
@@ -277,7 +277,7 @@ const SidebarMenu = () => {
         className={clsx(
           "uppercase text-2sm font-medium text-gray-500",
           linkPl,
-          linkPr
+          linkPr,
         )}
       >
         {item.heading}
