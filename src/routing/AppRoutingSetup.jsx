@@ -218,7 +218,10 @@ import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
 import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
 import Pipeline from "../pages/lead/pipeline";
-
+import BankPayment from "../pages/payments/BankPayment";
+import BankRecipet from "../pages/payments/BankRecipet";
+import CashPayment from "../pages/payments/CashPayment";
+import CashRecipet from "../pages/payments/CashRecipet";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -399,6 +402,10 @@ const AppRoutingSetup = () => {
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}
           />
+          <Route path="/bank-payment" element={<BankPayment />} />
+          <Route path="/bank-recipet" element={<BankRecipet />} />
+          <Route path="/cash-payment" element={<CashPayment />} />
+          <Route path="/cash-recipet" element={<CashRecipet />} />
 
           <Route path="/pages-master" element={<PageMaster />} />
           <Route path="/extrapayment" element={<ExtraPaymentMaster />} />

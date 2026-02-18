@@ -38,6 +38,8 @@ const MenuReport = ({
   agencyType,
   isAdminModuleReport = false, // ✅ NEW PROP
 }) => {
+  console.log(isAdminModuleReport);
+
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
 
@@ -101,6 +103,8 @@ const MenuReport = ({
         if (config.isDate === 1) {
           setisDateStatus(1);
         }
+
+        console.log(config.isAgency);
 
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
