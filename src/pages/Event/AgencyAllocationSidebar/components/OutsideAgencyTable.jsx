@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import BaseInput from "../ui/BaseInput";
 import BaseSelect from "../ui/BaseSelect";
 import { OutsideContactName, GetUnitData } from "@/services/apiServices";
@@ -11,10 +11,34 @@ export default function OutsideAgencyTable({
   vendorRefreshTrigger = 0,
   isAllFunctions,
 }) {
-  const [localMenuItems, setLocalMenuItems] = useState(menuItems);
+  const [localMenuItems, setLocalMenuItems] = useState(() =>
+    initMenuItems(menuItems),
+  );
   const [vendors, setVendors] = useState([]);
   const [loadingVendors, setLoadingVendors] = useState(false);
   const [unit, setUnit] = useState([]);
+
+  // ✅ Track the last menuItems we synced from, by reference
+  const prevMenuItemsRef = useRef(menuItems);
+
+  // ✅ Always-fresh ref for localMenuItems — fixes stale closure in onBlur
+  const localMenuItemsRef = useRef([]);
+
+  function initMenuItems(items) {
+    return (items || []).map((menuItem) => ({
+      ...menuItem,
+      eventFunctionMenuAllocations: menuItem.eventFunctionMenuAllocations?.map(
+        (allocation) => ({
+          ...allocation,
+          quantity:
+            allocation.quantity && allocation.quantity > 0
+              ? allocation.quantity
+              : (menuItem.personCount ?? ""),
+          isQuantityEdited: allocation.isQuantityEdited ?? false,
+        }),
+      ),
+    }));
+  }
 
   useEffect(() => {
     fetchVendor();
@@ -37,7 +61,6 @@ export default function OutsideAgencyTable({
       setLoadingVendors(true);
       const data = await OutsideContactName(6, localStorage.getItem("userId"));
       const vendorList = data?.data?.data["Party Details"] || [];
-
       setVendors(vendorList);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -47,57 +70,59 @@ export default function OutsideAgencyTable({
     }
   };
 
+  // ✅ Only re-sync from parent when menuItems reference actually changes
+  // (i.e. new data loaded from API), NOT on every parent render
   useEffect(() => {
-    const updatedMenuItems = menuItems.map((menuItem) => ({
-      ...menuItem,
-      eventFunctionMenuAllocations: menuItem.eventFunctionMenuAllocations?.map(
-        (allocation) => ({
-          ...allocation,
-          quantity:
-            allocation.quantity && allocation.quantity > 0
-              ? allocation.quantity
-              : (menuItem.personCount ?? ""),
-          isQuantityEdited: allocation.isQuantityEdited ?? false,
-        }),
-      ),
-    }));
-
-    setLocalMenuItems(updatedMenuItems);
+    if (menuItems === prevMenuItemsRef.current) return; // same ref = skip
+    prevMenuItemsRef.current = menuItems;
+    setLocalMenuItems(initMenuItems(menuItems));
   }, [menuItems]);
 
+  // ✅ Keep ref in sync with every localMenuItems update
+  useEffect(() => {
+    localMenuItemsRef.current = localMenuItems;
+  }, [localMenuItems]);
+
+  // ✅ Update local state only — no parent notification while typing
   const handleAllocationChange = (menuIndex, allocationIndex, field, value) => {
-    const updatedMenuItems = [...localMenuItems];
-    const updatedAllocations = [
-      ...updatedMenuItems[menuIndex].eventFunctionMenuAllocations,
-    ];
+    setLocalMenuItems((prev) => {
+      const updatedMenuItems = [...prev];
+      const updatedAllocations = [
+        ...updatedMenuItems[menuIndex].eventFunctionMenuAllocations,
+      ];
 
-    updatedAllocations[allocationIndex] = {
-      ...updatedAllocations[allocationIndex],
-      [field]: value,
-    };
+      updatedAllocations[allocationIndex] = {
+        ...updatedAllocations[allocationIndex],
+        [field]: value,
+      };
 
-    // Update pax ONLY
-    if (field === "pax") {
+      if (field === "pax") {
+        updatedMenuItems[menuIndex] = {
+          ...updatedMenuItems[menuIndex],
+          personCount: value,
+        };
+      }
+
+      const allocation = updatedAllocations[allocationIndex];
+      const qty = parseFloat(allocation.quantity) || 0;
+      const price = parseFloat(allocation.price) || 0;
+      updatedAllocations[allocationIndex].totalPrice = qty * price;
+
       updatedMenuItems[menuIndex] = {
         ...updatedMenuItems[menuIndex],
-        personCount: value,
+        eventFunctionMenuAllocations: updatedAllocations,
       };
-    }
 
-    // Recalculate total price (ONLY quantity × price)
-    const allocation = updatedAllocations[allocationIndex];
-    const qty = parseFloat(allocation.quantity) || 0;
-    const price = parseFloat(allocation.price) || 0;
+      // ✅ Also update ref immediately so onBlur sees fresh data
+      localMenuItemsRef.current = updatedMenuItems;
 
-    updatedAllocations[allocationIndex].totalPrice = qty * price;
+      return updatedMenuItems;
+    });
+  };
 
-    updatedMenuItems[menuIndex] = {
-      ...updatedMenuItems[menuIndex],
-      eventFunctionMenuAllocations: updatedAllocations,
-    };
-
-    setLocalMenuItems(updatedMenuItems);
-    onUpdate(menuIndex, updatedMenuItems[menuIndex]);
+  // ✅ Read from ref — always has the latest value, never stale
+  const handleAllocationBlur = (menuIndex) => {
+    onUpdate(menuIndex, localMenuItemsRef.current[menuIndex]);
   };
 
   const handleCheckboxChange = (menuIndex, allocationIndex, isChecked) => {
@@ -128,11 +153,7 @@ export default function OutsideAgencyTable({
     localMenuItems.length > 0 &&
     localMenuItems.every((menuItem, menuIndex) => {
       const allocations = menuItem?.eventFunctionMenuAllocations;
-
-      if (!Array.isArray(allocations) || allocations.length === 0) {
-        return false;
-      }
-
+      if (!Array.isArray(allocations) || allocations.length === 0) return false;
       return allocations.every((_, allocationIndex) => {
         const itemKey = `${menuIndex}-${allocationIndex}`;
         return selectedItems[itemKey] === true;
@@ -218,8 +239,7 @@ export default function OutsideAgencyTable({
                         />
                       </td>
                       <td className="p-3">{rowNumber}</td>
-                      
-                      {/* Show function name if viewing all functions */}
+
                       {isAllFunctions && (
                         <td className="p-3">
                           <div className="text-xs">
@@ -243,20 +263,20 @@ export default function OutsideAgencyTable({
                       <td className="p-2">
                         <BaseSelect
                           value={allocation.partyId || ""}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             handleAllocationChange(
                               menuIndex,
                               allocationIndex,
                               "partyId",
                               e.target.value,
-                            )
-                          }
+                            );
+                            setTimeout(() => handleAllocationBlur(menuIndex), 0);
+                          }}
                           disabled={loadingVendors}
                         >
                           <option value="">
                             {loadingVendors ? "Loading..." : "Select contact"}
                           </option>
-
                           {allocation.partyId &&
                             !vendors.some(
                               (v) =>
@@ -266,7 +286,6 @@ export default function OutsideAgencyTable({
                                 {allocation.partyName || "Selected contact"}
                               </option>
                             )}
-
                           {vendors.map((vendor) => (
                             <option key={vendor.id} value={vendor.id}>
                               {vendor.nameEnglish}
@@ -288,22 +307,24 @@ export default function OutsideAgencyTable({
                               e.target.value,
                             )
                           }
+                          onBlur={() => handleAllocationBlur(menuIndex)}
                         />
                       </td>
                       <td className="p-2">
                         <BaseSelect
                           value={allocation.unitId || menuItem.unitId || ""}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             handleAllocationChange(
                               menuIndex,
                               allocationIndex,
                               "unitId",
                               e.target.value,
-                            )
-                          }
+                            );
+                            // selects have no blur delay needed, notify immediately
+                            setTimeout(() => handleAllocationBlur(menuIndex), 0);
+                          }}
                         >
                           <option value="">Select Unit</option>
-
                           {(allocation.unitId || menuItem.unitId) &&
                             !unit.some(
                               (u) =>
@@ -318,7 +339,6 @@ export default function OutsideAgencyTable({
                                   "Selected unit"}
                               </option>
                             )}
-
                           {unit.map((u) => (
                             <option key={u.id} value={u.id}>
                               {u.nameEnglish}
@@ -339,6 +359,7 @@ export default function OutsideAgencyTable({
                               e.target.value,
                             )
                           }
+                          onBlur={() => handleAllocationBlur(menuIndex)}
                         />
                       </td>
                       <td className="p-2">
@@ -354,6 +375,7 @@ export default function OutsideAgencyTable({
                               e.target.value,
                             )
                           }
+                          onBlur={() => handleAllocationBlur(menuIndex)}
                         />
                       </td>
                       <td className="p-2">
