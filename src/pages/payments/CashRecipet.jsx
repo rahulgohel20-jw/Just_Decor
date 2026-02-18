@@ -1,9 +1,8 @@
 import { Fragment, useState } from "react";
 import { Container } from "@/components/container";
 import { TableComponent } from "@/components/table/TableComponent";
-import AddContact from "@/partials/modals/add-company/AddCompany";
 import { columns, defaultData } from "./cashrecipetconstant";
-
+import CreateCashRecipet from "./CreateCashRecipet";
 const CashRecipet = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,7 +27,7 @@ const CashRecipet = () => {
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
-          <h1 className="text-3xl font-bold text-[#111827]">Cash Receipt</h1>
+          <h1 className="text-3xl font-bold text-[#111827]"> Receipts</h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 justify-between mb-4">
@@ -52,7 +51,10 @@ const CashRecipet = () => {
         />
       </Container>
       {/* AddContact */}
-      <AddContact isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <CreateCashRecipet
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </Fragment>
   );
 };

@@ -21,17 +21,31 @@ export const columns = [
     ),
   },
   {
+    accessorKey: "due",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Due" column={column} />
+    ),
+  },
+  {
     accessorKey: "total",
     header: ({ column }) => (
       <DataGridColumnHeader title="Total" column={column} />
     ),
   },
   {
+    accessorKey: "modeofpayment",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Mode Of Payment" column={column} />
+    ),
+  },
+
+  {
     accessorKey: "remarks",
     header: ({ column }) => (
       <DataGridColumnHeader title="Remarks" column={column} />
     ),
   },
+
   {
     accessorKey: "action",
     header: "Action",
@@ -71,6 +85,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    modeofpayment: "CR",
+    due: "100",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
   {
@@ -79,6 +95,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "100",
+    modeofpayment: "BR",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
   {
@@ -87,6 +105,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "100",
+    modeofpayment: "BR",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
   {
@@ -95,6 +115,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "100",
+    modeofpayment: "BR",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
   {
@@ -103,6 +125,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "100",
+    modeofpayment: "BR",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
   {
@@ -111,6 +135,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "100",
+    modeofpayment: "CR",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
   {
@@ -119,6 +145,8 @@ export const defaultData = [
     voucherdate: "22106/26",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "100",
+    modeofpayment: "CR",
     remarks: "PAID PAYMENT AGAINST MONTH OF JAN, FEB, & MARCH.- 25",
   },
 ];
