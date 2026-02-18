@@ -8,6 +8,158 @@ import React, {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toAbsoluteUrl } from "@/utils";
 
+// ✅ Extracted into its own component so it never remounts on parent re-render
+const ItemRow = ({
+  item,
+  idx,
+  catName,
+  functionId,
+  showRates,
+  onRateChange,
+  onOpenItemNotes,
+  onRemove,
+  onInstructionsChange,
+  displayItemName,
+  isOpen,
+  isAutoFocus,
+  onToggleInstruction,
+  initialInstruction,
+  syncToken, // ✅ only changes when a REAL external reset happens (lang change / functionId change)
+}) => {
+  const [instruction, setInstruction] = useState(initialInstruction || "");
+  const prevSyncToken = useRef(syncToken);
+
+  // ✅ Only reset when syncToken actually changes (language switch, function switch)
+  // NOT on every parent render — this is what was breaking typing
+  useEffect(() => {
+    if (syncToken !== prevSyncToken.current) {
+      prevSyncToken.current = syncToken;
+      setInstruction(initialInstruction || "");
+    }
+  }, [syncToken, initialInstruction]);
+
+  return (
+    <Draggable
+      key={item.id}
+      draggableId={`item-${item.id}`}
+      index={idx}
+    >
+      {(provItem, snap) => (
+        <div
+          ref={provItem.innerRef}
+          {...provItem.draggableProps}
+          className={`relative bg-[#EEF3F7] p-2 rounded-lg transition-shadow ${
+            snap.isDragging ? "shadow-lg ring-2 ring-blue-400" : ""
+          }`}
+        >
+          {/* TOP ROW */}
+          <div
+            {...provItem.dragHandleProps}
+            className="flex items-center justify-between"
+          >
+            {/* LEFT AREA */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
+                <img
+                  src={
+                    item?.imagePath &&
+                    typeof item.imagePath === "string" &&
+                    item.imagePath.trim() !== "" &&
+                    item.imagePath !== "null" &&
+                    item.imagePath !== "undefined" &&
+                    !item.imagePath.toLowerCase().includes("/null") &&
+                    /\.(jpg|jpeg|png|webp|gif)$/i.test(item.imagePath)
+                      ? item.imagePath
+                      : toAbsoluteUrl("/media/menu/noImage.jpg")
+                  }
+                  alt="Images"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-md text-black">{displayItemName}</span>
+
+                {showRates && (
+                  <label className="flex items-center gap-1 mt-1">
+                    <span className="text-gray-500 text-xs">Rate:</span>
+                    <input
+                      type="text"
+                      value={item.rate}
+                      min={0}
+                      onChange={(e) =>
+                        onRateChange(
+                          functionId,
+                          catName,
+                          item.id,
+                          Number(e.target.value),
+                        )
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-16 h-6 rounded border border-gray-300 bg-white text-xs p-1"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* RIGHT AREA */}
+            <div className="flex items-center gap-1 text-gray-600">
+              <img
+                className="w-4 h-4 cursor-pointer"
+                src={toAbsoluteUrl("/media/menu/notes.png")}
+                alt="notes"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenItemNotes(item.id);
+                }}
+              />
+              <button
+                type="button"
+                className="text-red-500 hover:bg-gray-200 rounded p-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(functionId, catName, item.id);
+                }}
+              >
+                <i className="ki-filled ki-trash text-[18px]" />
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleInstruction(item.id);
+            }}
+            className="text-xs text-[#005BA8] mt-2 hover:underline"
+          >
+            {isOpen ? "Hide instructions" : "Show instructions"}
+          </button>
+
+          {/* ✅ Textarea stays mounted in this component — no remount on typing */}
+          {isOpen && (
+            <textarea
+              rows={2}
+              placeholder="Add instructions..."
+              value={instruction}
+              onChange={(e) => {
+                const value = e.target.value;
+                setInstruction(value);
+                onInstructionsChange(functionId, catName, item.id, value);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm resize-none"
+              autoFocus={isAutoFocus}
+            />
+          )}
+        </div>
+      )}
+    </Draggable>
+  );
+};
+
 const SelectedItems = ({
   functionId,
   data = { categoriesOrder: [], categories: {} },
@@ -30,33 +182,25 @@ const SelectedItems = ({
     localStorage.getItem("lang") || "en",
   );
 
-  // Track all item IDs to detect which specific item was added
   const previousItemIdsRef = useRef(new Set());
   const isInitialMountRef = useRef(true);
   const hasLoadedInitialDataRef = useRef(false);
+
   const getNotesByLang = (itemNotes) => {
     const lang = localStorage.getItem("lang") || "en";
-
     if (!itemNotes) return "";
-
     if (lang === "hi") return itemNotes.hindi || itemNotes.english || "";
     if (lang === "gu") return itemNotes.gujarati || itemNotes.english || "";
-
     return itemNotes.english || "";
   };
 
   useEffect(() => {
-    // Initialize itemInstructions from loaded itemNotes
     const instructions = {};
-
     Object.keys(categories).forEach((catName) => {
       const items = categories[catName] || [];
       items.forEach((item) => {
         if (item.itemNotes) {
-          // Get the current language
           const lang = localStorage.getItem("lang") || "en";
-
-          // Set the instruction based on language
           if (lang === "hi") {
             instructions[item.id] =
               item.itemNotes.hindi || item.itemNotes.english || "";
@@ -69,15 +213,11 @@ const SelectedItems = ({
         }
       });
     });
-
     setItemInstructions(instructions);
   }, [categories, currentLanguage]);
 
-  // OPTIONAL: If you want to auto-expand items that have notes
-  // (otherwise users need to click "Show instructions")
   useEffect(() => {
     const openItems = {};
-
     Object.keys(categories).forEach((catName) => {
       const items = categories[catName] || [];
       items.forEach((item) => {
@@ -89,15 +229,12 @@ const SelectedItems = ({
               : lang === "gu"
                 ? item.itemNotes.gujarati || item.itemNotes.english || ""
                 : item.itemNotes.english || "";
-
-          // Auto-open if notes exist
           if (noteText.trim()) {
             openItems[item.id] = true;
           }
         }
       });
     });
-
     setManuallyOpenItems((prev) => ({ ...prev, ...openItems }));
   }, [categories, currentLanguage]);
 
@@ -113,13 +250,10 @@ const SelectedItems = ({
     let newItemId = null;
     let newItemCategory = null;
 
-    // Collect all current item IDs and find the new one
     categoriesOrder.forEach((cat) => {
       const items = categories[cat] || [];
       items.forEach((item) => {
         currentItemIds.add(item.id);
-
-        // Check if this item is new (not in previous set)
         if (!previousItemIdsRef.current.has(item.id)) {
           newItemId = item.id;
           newItemCategory = cat;
@@ -127,33 +261,17 @@ const SelectedItems = ({
       });
     });
 
-    // 🔥 Only auto-open for NEW items, NOT on initial page load
     if (newItemId && newItemCategory && hasLoadedInitialDataRef.current) {
-      // 1️⃣ Close ALL categories except the one with the new item
-      setExpandedCategories({
-        [newItemCategory]: true,
-      });
-
-      // 2️⃣ Close ALL item instructions except the newly added one
-      setManuallyOpenItems({
-        [newItemId]: true,
-      });
-
-      // 3️⃣ Set auto-focus for the newly added item
+      setExpandedCategories({ [newItemCategory]: true });
+      setManuallyOpenItems({ [newItemId]: true });
       setAutoOpenItemId(newItemId);
-
-      // Clear autoOpenItemId after a short delay
-      setTimeout(() => {
-        setAutoOpenItemId(null);
-      }, 100);
+      setTimeout(() => setAutoOpenItemId(null), 100);
     }
 
-    // Mark that initial data has been loaded
     if (!hasLoadedInitialDataRef.current && currentItemIds.size > 0) {
       hasLoadedInitialDataRef.current = true;
     }
 
-    // Update the ref with current item IDs
     previousItemIdsRef.current = currentItemIds;
   }, [categories, categoriesOrder]);
 
@@ -187,7 +305,6 @@ const SelectedItems = ({
     };
   }, [currentLanguage]);
 
-  // Initialize all categories as expanded on mount (only once)
   useEffect(() => {
     if (isInitialMountRef.current) {
       const defaults = {};
@@ -199,7 +316,6 @@ const SelectedItems = ({
     }
   }, [categoriesOrder]);
 
-  // Helper function to get localized item name
   const getLocalizedItemName = useMemo(() => {
     return (item) => {
       const languageMap = {
@@ -207,10 +323,7 @@ const SelectedItems = ({
         hi: "nameHindi",
         gu: "nameGujarati",
       };
-
       const field = languageMap[currentLanguage] || "nameEnglish";
-
-      // Try multiple possible field names
       return (
         item[field] ||
         item.nameEnglish ||
@@ -225,9 +338,7 @@ const SelectedItems = ({
     return (categoryName) => {
       const items = categories[categoryName] || [];
       if (items.length === 0) return categoryName;
-
       const firstItem = items[0];
-
       const languageMap = {
         en: firstItem.menuCategoryName || categoryName,
         hi:
@@ -239,7 +350,6 @@ const SelectedItems = ({
           firstItem.menuCategoryName ||
           categoryName,
       };
-
       return languageMap[currentLanguage] || categoryName;
     };
   }, [currentLanguage, categories]);
@@ -250,9 +360,6 @@ const SelectedItems = ({
       [catName]: !prev[catName],
     }));
   }, []);
-
-  const getCategoryDroppableId = (cat) => `cat-${cat}`;
-  const getItemDraggableId = (itemId) => `item-${itemId}`;
 
   const internalOnDragEnd = useCallback(
     (result) => {
@@ -317,317 +424,140 @@ const SelectedItems = ({
   const { totalItems, totalRate } = useMemo(() => {
     let itemCount = 0;
     let rateSum = 0;
-
     categoriesOrder.forEach((catName) => {
-      let items = categories[catName] || [];
-
-      items = [...items].sort((a, b) => {
-        const A = a.isPackageItem ? 0 : 1;
-        const B = b.isPackageItem ? 0 : 1;
-        return A - B;
-      });
-
+      const items = categories[catName] || [];
       itemCount += items.length;
       items.forEach((item) => {
         rateSum += Number(item.rate) || 0;
       });
     });
-
     return { totalItems: itemCount, totalRate: rateSum };
   }, [categoriesOrder, categories]);
 
-  const rendered = useMemo(() => {
-    if (!categoriesOrder || categoriesOrder.length === 0) {
-      return (
-        <div className="p-4 text-center text-sm text-gray-500">
-          No items selected for this function.
-        </div>
-      );
-    }
-
+  if (!categoriesOrder || categoriesOrder.length === 0) {
     return (
-      <DragDropContext onDragEnd={internalOnDragEnd}>
-        <Droppable droppableId="categories-droppable" type="CATEGORY">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className="space-y-3 p-3"
-            >
-              {categoriesOrder.map((catName, catIdx) => {
-                const items = categories[catName] || [];
-                const displayCategoryName = getLocalizedCategoryName(catName);
-
-                return (
-                  <Draggable
-                    key={catName}
-                    draggableId={`cat-${catName}`}
-                    index={catIdx}
-                  >
-                    {(provCat) => (
-                      <div
-                        ref={provCat.innerRef}
-                        {...provCat.draggableProps}
-                        className="bg-white border rounded-xl shadow-sm p-3"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span
-                              {...provCat.dragHandleProps}
-                              className="text-[#64748B] text-[22px] cursor-grab"
-                            >
-                              ⋮⋮
-                            </span>
-                            <p className="font-medium">{displayCategoryName}</p>
-                          </div>
-
-                          <div className="flex items-center gap-1 text-gray-500">
-                            <img
-                              className="w-4 h-4 cursor-pointer"
-                              src={toAbsoluteUrl("/media/menu/notes.png")}
-                              alt="notes"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onOpenCategoryNotes(catName);
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => toggleCategory(catName)}
-                              className="p-1 rounded hover:bg-gray-100"
-                            >
-                              {expandedCategories[catName] ? (
-                                <i className="ki-filled ki-down text-[18px]" />
-                              ) : (
-                                <i className="ki-filled ki-up text-[18px]" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-
-                        {expandedCategories[catName] && (
-                          <Droppable
-                            droppableId={getCategoryDroppableId(catName)}
-                            type="ITEM"
-                          >
-                            {(provItems, snapshot) => (
-                              <div
-                                ref={provItems.innerRef}
-                                {...provItems.droppableProps}
-                                className={`space-y-2 min-h-[40px] rounded-lg transition-all duration-300 overflow-hidden ${
-                                  snapshot.isDraggingOver ? "bg-blue-50" : ""
-                                }`}
-                              >
-                                {items.map((item, idx) => {
-                                  const displayItemName =
-                                    getLocalizedItemName(item);
-
-                                  return (
-                                    <Draggable
-                                      key={item.id}
-                                      draggableId={getItemDraggableId(item.id)}
-                                      index={idx}
-                                    >
-                                      {(provItem, snap) => (
-                                        <div
-                                          ref={provItem.innerRef}
-                                          {...provItem.draggableProps}
-                                          className={`relative bg-[#EEF3F7] p-2 rounded-lg transition-shadow ${
-                                            snap.isDragging
-                                              ? "shadow-lg ring-2 ring-blue-400"
-                                              : ""
-                                          }`}
-                                        >
-                                          {/* TOP ROW */}
-                                          <div
-                                            {...provItem.dragHandleProps}
-                                            className="flex items-center justify-between"
-                                          >
-                                            {/* LEFT AREA: Icon + Title + (Rate if enabled) */}
-                                            <div className="flex items-center gap-3">
-                                              <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden">
-                                                <img
-                                                  src={
-                                                    item?.imagePath &&
-                                                    typeof item.imagePath ===
-                                                      "string" &&
-                                                    item.imagePath.trim() !==
-                                                      "" &&
-                                                    item.imagePath !== "null" &&
-                                                    item.imagePath !==
-                                                      "undefined" &&
-                                                    !item.imagePath
-                                                      .toLowerCase()
-                                                      .includes("/null") &&
-                                                    /\.(jpg|jpeg|png|webp|gif)$/i.test(
-                                                      item.imagePath,
-                                                    )
-                                                      ? item.imagePath
-                                                      : toAbsoluteUrl(
-                                                          "/media/menu/noImage.jpg",
-                                                        )
-                                                  }
-                                                  alt="Images"
-                                                  className="w-full h-full object-cover"
-                                                />
-                                              </div>
-
-                                              <div className="flex flex-col">
-                                                <span className="text-md text-black">
-                                                  {displayItemName}
-                                                </span>
-
-                                                {showRates && (
-                                                  <label className="flex items-center gap-1 mt-1">
-                                                    <span className="text-gray-500 text-xs">
-                                                      Rate:
-                                                    </span>
-                                                    <input
-                                                      type="text"
-                                                      value={item.rate}
-                                                      min={0}
-                                                      onChange={(e) =>
-                                                        onRateChange(
-                                                          functionId,
-                                                          catName,
-                                                          item.id,
-                                                          Number(
-                                                            e.target.value,
-                                                          ),
-                                                        )
-                                                      }
-                                                      onClick={(e) =>
-                                                        e.stopPropagation()
-                                                      }
-                                                      className="w-16 h-6 rounded border border-gray-300 bg-white text-xs p-1"
-                                                    />
-                                                  </label>
-                                                )}
-                                              </div>
-                                            </div>
-
-                                            {/* RIGHT AREA: Notes & Delete */}
-                                            <div className="flex items-center gap-1 text-gray-600">
-                                              <img
-                                                className="w-4 h-4 cursor-pointer"
-                                                src={toAbsoluteUrl(
-                                                  "/media/menu/notes.png",
-                                                )}
-                                                alt="notes"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  onOpenItemNotes(item.id);
-                                                }}
-                                              />
-                                              <button
-                                                type="button"
-                                                className="text-red-500 hover:bg-gray-200 rounded p-1"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  onRemove(
-                                                    functionId,
-                                                    catName,
-                                                    item.id,
-                                                  );
-                                                }}
-                                              >
-                                                <i className="ki-filled ki-trash text-[18px]" />
-                                              </button>
-                                            </div>
-                                          </div>
-
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              toggleInstruction(item.id);
-                                            }}
-                                            className="text-xs text-[#005BA8] mt-2 hover:underline "
-                                          >
-                                            {manuallyOpenItems[item.id]
-                                              ? "Hide instructions"
-                                              : "Show instructions"}
-                                          </button>
-
-                                          {manuallyOpenItems[item.id] && (
-                                            <textarea
-                                              rows={2}
-                                              placeholder="Add instructions..."
-                                              value={
-                                                itemInstructions[item.id] || ""
-                                              }
-                                              onChange={(e) => {
-                                                const value = e.target.value;
-
-                                                // update local typing immediately
-                                                setItemInstructions((prev) => ({
-                                                  ...prev,
-                                                  [item.id]: value,
-                                                }));
-
-                                                // update parent (API / state)
-                                                onInstructionsChange(
-                                                  functionId,
-                                                  catName,
-                                                  item.id,
-                                                  value,
-                                                );
-                                              }}
-                                              onClick={(e) =>
-                                                e.stopPropagation()
-                                              }
-                                              className="w-full mt-2 bg-white border border-gray-200 rounded-md p-2 text-sm resize-none"
-                                              autoFocus={
-                                                autoOpenItemId === item.id
-                                              }
-                                            />
-                                          )}
-                                        </div>
-                                      )}
-                                    </Draggable>
-                                  );
-                                })}
-                                {provItems.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    )}
-                  </Draggable>
-                );
-              })}
-
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <div className="w-full flex flex-col h-full overflow-hidden">
+        <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="p-4 text-center text-sm text-gray-500">
+            No items selected for this function.
+          </div>
+        </div>
+      </div>
     );
-  }, [
-    categoriesOrder,
-    categories,
-    expandedCategories,
-    functionId,
-    onRemove,
-    showRates,
-    onRateChange,
-    onInstructionsChange,
-    currentLanguage,
-    getLocalizedItemName,
-    getLocalizedCategoryName,
-    manuallyOpenItems,
-    autoOpenItemId,
-    toggleInstruction,
-    onOpenItemNotes,
-    onOpenCategoryNotes,
-    internalOnDragEnd,
-    toggleCategory,
-  ]);
+  }
 
   return (
     <div className="w-full flex flex-col h-full overflow-hidden">
-      <div className="flex-1 overflow-y-auto no-scrollbar">{rendered}</div>
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        {/* ✅ DragDropContext is NOT inside useMemo — prevents textarea remounting */}
+        <DragDropContext onDragEnd={internalOnDragEnd}>
+          <Droppable droppableId="categories-droppable" type="CATEGORY">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-3 p-3"
+              >
+                {categoriesOrder.map((catName, catIdx) => {
+                  const items = categories[catName] || [];
+                  const displayCategoryName = getLocalizedCategoryName(catName);
+
+                  return (
+                    <Draggable
+                      key={catName}
+                      draggableId={`cat-${catName}`}
+                      index={catIdx}
+                    >
+                      {(provCat) => (
+                        <div
+                          ref={provCat.innerRef}
+                          {...provCat.draggableProps}
+                          className="bg-white border rounded-xl shadow-sm p-3"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <span
+                                {...provCat.dragHandleProps}
+                                className="text-[#64748B] text-[22px] cursor-grab"
+                              >
+                                ⋮⋮
+                              </span>
+                              <p className="font-medium">{displayCategoryName}</p>
+                            </div>
+
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <img
+                                className="w-4 h-4 cursor-pointer"
+                                src={toAbsoluteUrl("/media/menu/notes.png")}
+                                alt="notes"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOpenCategoryNotes(catName);
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => toggleCategory(catName)}
+                                className="p-1 rounded hover:bg-gray-100"
+                              >
+                                {expandedCategories[catName] ? (
+                                  <i className="ki-filled ki-down text-[18px]" />
+                                ) : (
+                                  <i className="ki-filled ki-up text-[18px]" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          {expandedCategories[catName] && (
+                            <Droppable
+                              droppableId={`cat-${catName}`}
+                              type="ITEM"
+                            >
+                              {(provItems, snapshot) => (
+                                <div
+                                  ref={provItems.innerRef}
+                                  {...provItems.droppableProps}
+                                  className={`space-y-2 min-h-[40px] rounded-lg transition-all duration-300 overflow-hidden ${
+                                    snapshot.isDraggingOver ? "bg-blue-50" : ""
+                                  }`}
+                                >
+                                  {items.map((item, idx) => (
+                                    <ItemRow
+                                      key={item.id}
+                                      item={item}
+                                      idx={idx}
+                                      catName={catName}
+                                      functionId={functionId}
+                                      showRates={showRates}
+                                      onRateChange={onRateChange}
+                                      onOpenItemNotes={onOpenItemNotes}
+                                      onRemove={onRemove}
+                                      onInstructionsChange={onInstructionsChange}
+                                      displayItemName={getLocalizedItemName(item)}
+                                      isOpen={!!manuallyOpenItems[item.id]}
+                                      isAutoFocus={autoOpenItemId === item.id}
+                                      onToggleInstruction={toggleInstruction}
+                                      initialInstruction={itemInstructions[item.id] || ""}
+                                      syncToken={`${functionId}__${currentLanguage}`}
+                                    />
+                                  ))}
+                                  {provItems.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          )}
+                        </div>
+                      )}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
 
       <div className="border-t bg-white p-3 mt-auto">
         <div className="flex items-center justify-between text-sm">
@@ -635,7 +565,6 @@ const SelectedItems = ({
             Total Items:{" "}
             <span className="font-semibold text-gray-900">{totalItems}</span>
           </span>
-
           <span className="text-gray-700 font-medium">
             Total:{" "}
             <span className="font-semibold text-gray-900">

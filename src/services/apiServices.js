@@ -1638,6 +1638,27 @@ export const GetCopyMenuPlanning = (
   );
 };
 
+export const AddBankDetails = (data) => {
+  return POST(`bankdetails/add`, data);
+};
+
+export const GetBankDetails = (id) => {
+  return GET(`bankdetails/getbyuserid?userId=${id}`);
+};
+
+export const AddRecordPayment = (data) => {
+  return POST(`salesinvoice/add`, data);
+};
+
+export const GetRecordPayments = (id,eventId) => {
+  return GET(`salesinvoice/getbyeventidanduserid?userId=${id}&eventId=${eventId}`);
+};
+
+export const DeleteRecordPayment = (id) => {
+  return DELETE(`salesinvoice/delete?salesInvoiceid=${id}`);
+};
+
+
 export const CreatePipeline = (payload) => {
   return POST(`/pipeline/add`, payload);
 };

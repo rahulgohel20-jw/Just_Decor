@@ -15,18 +15,21 @@ export default function OutsideAgencySection({
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  // ✅ Track which items had PAX changes
   const changedPaxItemsRef = useRef(new Set());
   const initialMenuItemsRef = useRef([]);
+
+  // ✅ Keep a ref always in sync with menuItems state
+  // so callbacks can read latest value without being deps
+  const menuItemsRef = useRef([]);
+  useEffect(() => {
+    menuItemsRef.current = menuItems;
+  }, [menuItems]);
 
   useEffect(() => {
     if (data && Array.isArray(data)) {
       if (isAllFunctions) {
-        // For all functions, flatten all menuAllocation arrays from all functions
         const allMenuItems = data.flatMap((functionData, functionIndex) => {
           const allocations = functionData?.menuAllocation || [];
-
-          // Add function metadata to each menu item
           return allocations.map((allocation) => ({
             ...allocation,
             _functionIndex: functionIndex,
@@ -40,14 +43,10 @@ export default function OutsideAgencySection({
         });
 
         setMenuItems(allMenuItems);
-        // ✅ Store initial state
         initialMenuItemsRef.current = JSON.parse(JSON.stringify(allMenuItems));
-        console.log("📊 All Functions - Total items:", allMenuItems.length);
       } else {
-        // For single function, use existing logic
         const allocations = data[0]?.menuAllocation || [];
         setMenuItems(allocations);
-        // ✅ Store initial state
         initialMenuItemsRef.current = JSON.parse(JSON.stringify(allocations));
       }
     } else {
@@ -55,7 +54,6 @@ export default function OutsideAgencySection({
       initialMenuItemsRef.current = [];
     }
 
-    // ✅ Clear PAX change tracking when data changes
     changedPaxItemsRef.current.clear();
   }, [data, isAllFunctions]);
 
@@ -75,7 +73,6 @@ export default function OutsideAgencySection({
 
   const handleAllocate = useCallback(
     (allocationData) => {
-      // Check if items are selected
       const hasSelectedItems = Object.values(selectedItems).some(Boolean);
 
       if (!hasSelectedItems) {
@@ -87,7 +84,6 @@ export default function OutsideAgencySection({
         return false;
       }
 
-      // Check if at least one field is provided
       if (!allocationData.partyId && !allocationData.pax) {
         Swal.fire({
           title: "Warning",
@@ -99,17 +95,16 @@ export default function OutsideAgencySection({
 
       let allocatedCount = 0;
 
-      // Update menu items with only the fields that were provided
-      const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
+      // ✅ Read from ref — no stale closure, no dep needed
+      const current = menuItemsRef.current;
+
+      const updatedMenuItems = current.map((menuItem, menuIndex) => {
         const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
           (allocation, allocationIndex) => {
             const itemKey = `${menuIndex}-${allocationIndex}`;
 
-            // Only update if this item is selected
             if (selectedItems[itemKey]) {
               allocatedCount++;
-
-              // Only update fields that were provided
               const updates = {};
 
               if (allocationData.partyId !== undefined) {
@@ -121,29 +116,21 @@ export default function OutsideAgencySection({
                 updates.pax = allocationData.pax;
               }
 
-              return {
-                ...allocation,
-                ...updates,
-              };
+              return { ...allocation, ...updates };
             }
 
-            // Return unchanged if not selected
             return allocation;
           },
         );
 
-        // Check if any allocations in this menu item were updated
         const hasUpdatedAllocations =
           menuItem.eventFunctionMenuAllocations.some((_, allocationIndex) => {
             const itemKey = `${menuIndex}-${allocationIndex}`;
             return selectedItems[itemKey];
           });
 
-        // ✅ Track PAX change if pax was updated
         if (hasUpdatedAllocations && allocationData.pax !== undefined) {
           const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
-
-          // Check if PAX actually changed
           const initialItem = initialMenuItemsRef.current[menuIndex];
           if (initialItem && initialItem.personCount !== allocationData.pax) {
             changedPaxItemsRef.current.add(itemKey);
@@ -153,7 +140,6 @@ export default function OutsideAgencySection({
         return {
           ...menuItem,
           eventFunctionMenuAllocations: updatedAllocations,
-          // Only update personCount if pax was provided and this menu item had selected allocations
           ...(hasUpdatedAllocations &&
             allocationData.pax !== undefined && {
               personCount: allocationData.pax,
@@ -162,12 +148,6 @@ export default function OutsideAgencySection({
       });
 
       setMenuItems(updatedMenuItems);
-
-      if (onDataUpdate) {
-        onDataUpdate(updatedMenuItems);
-      }
-
-      // Clear selections after successful allocation
       setSelectedItems({});
 
       Swal.fire({
@@ -180,38 +160,41 @@ export default function OutsideAgencySection({
 
       return true;
     },
-    [menuItems, selectedItems, onDataUpdate],
+    // ✅ removed menuItems from deps — reads from ref instead
+    [selectedItems],
   );
 
-  const handleMenuItemUpdate = useCallback(
-    (menuIndex, updatedMenuItem) => {
-      const updatedData = [...menuItems];
+  // ✅ KEY FIX: Update internal state only, do NOT call onDataUpdate here.
+  // onDataUpdate (parent notification) only happens on Save.
+  // This prevents the parent from re-rendering and passing a new menuItems
+  // prop reference back down, which was resetting the child's local input state.
+  const handleMenuItemUpdate = useCallback((menuIndex, updatedMenuItem) => {
+    const initialItem = initialMenuItemsRef.current[menuIndex];
+    if (
+      initialItem &&
+      initialItem.personCount !== updatedMenuItem.personCount
+    ) {
+      const itemKey = `${updatedMenuItem.menuItemId}-${updatedMenuItem.menuCategoryId}-${updatedMenuItem.eventFunctionId}`;
+      changedPaxItemsRef.current.add(itemKey);
+    }
 
-      // ✅ Track PAX change if personCount changed
-      const initialItem = initialMenuItemsRef.current[menuIndex];
-      if (
-        initialItem &&
-        initialItem.personCount !== updatedMenuItem.personCount
-      ) {
-        const itemKey = `${updatedMenuItem.menuItemId}-${updatedMenuItem.menuCategoryId}-${updatedMenuItem.eventFunctionId}`;
-        changedPaxItemsRef.current.add(itemKey);
-      }
-
+    // ✅ Use functional update — no stale closure, no menuItems dep needed
+    setMenuItems((prev) => {
+      const updatedData = [...prev];
       updatedData[menuIndex] = updatedMenuItem;
-      setMenuItems(updatedData);
+      return updatedData;
+    });
 
-      if (onDataUpdate) {
-        onDataUpdate(updatedData);
-      }
-    },
-    [menuItems, onDataUpdate],
-  );
+    // ✅ DO NOT call onDataUpdate here — calling it causes parent re-render
+    // → new menuItems prop → child useEffect resets inputs.
+    // Parent gets latest data via buildPayload() on Save.
+  }, []); // ✅ empty deps — stable reference, never recreated
 
   const buildPayload = useCallback(() => {
     const userId = Number(localStorage.getItem("userId"));
 
-    return menuItems.map((menuItem) => {
-      // ✅ Check if this item had a PAX change
+    // ✅ Read from ref for latest data
+    return menuItemsRef.current.map((menuItem) => {
       const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
       const isPaxChange = changedPaxItemsRef.current.has(itemKey);
 
@@ -227,11 +210,10 @@ export default function OutsideAgencySection({
         menuItemId: menuItem.menuItemId || 0,
         personCount: menuItem.personCount || 0,
         oldPersonCount: menuItem.oldPersonCount || 0,
-        isPaxChange: isPaxChange, // ✅ Add isPaxChange flag
+        isPaxChange,
         place: menuItem.place || "",
         menuItemRawMaterials: [],
         userId,
-
         menuAllocationOrders:
           menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
             id: allocation.id || 0,
@@ -252,14 +234,13 @@ export default function OutsideAgencySection({
           })) || [],
       };
     });
-  }, [menuItems]);
+  }, []); // ✅ reads from ref, no deps needed
 
   const handleSave = async () => {
     try {
       setSaving(true);
 
       const payload = buildPayload();
-
       const res = await MenuAllocationSave(payload);
 
       if (res?.data?.success === true) {
@@ -271,11 +252,15 @@ export default function OutsideAgencySection({
           showConfirmButton: false,
         });
 
-        // ✅ Clear PAX change tracking after successful save
         changedPaxItemsRef.current.clear();
+        initialMenuItemsRef.current = JSON.parse(
+          JSON.stringify(menuItemsRef.current),
+        );
 
-        // ✅ Update initial state to current state
-        initialMenuItemsRef.current = JSON.parse(JSON.stringify(menuItems));
+        // ✅ Notify parent ONLY on successful save
+        if (onDataUpdate) {
+          onDataUpdate(menuItemsRef.current);
+        }
 
         close?.();
       } else {

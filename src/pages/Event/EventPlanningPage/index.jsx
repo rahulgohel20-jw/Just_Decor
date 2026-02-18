@@ -33,7 +33,10 @@ import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 import EditPaxModal from "./components/EditPaxModal";
 import CopyMenuPlanning from "../../../partials/modals/copy-menuplanning/CopyMenuPlanning";
 import { GetCopyMenuPlanning } from "../../../services/apiServices";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 const EventPlanningPage = ({ mode }) => {
+  const scrollRef = useRef(null);
   const selectedItemsPanelRef = useRef(null);
   let { eventId } = useParams();
   const navigate = useNavigate();
@@ -77,8 +80,17 @@ const EventPlanningPage = ({ mode }) => {
   const [isDirty, setIsDirty] = useState(false);
 
   const [isCopyMenuModalOpen, setIsCopyMenuModalOpen] = useState(false);
-const [copiedFunctionData, setCopiedFunctionData] = useState(null);
-  
+  const [copiedFunctionData, setCopiedFunctionData] = useState(null);
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 250;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const [selectedCategoryInfo, setSelectedCategoryInfo] = useState({
     id: 0,
     nameEnglish: "All",
@@ -116,83 +128,76 @@ const [copiedFunctionData, setCopiedFunctionData] = useState(null);
     };
   };
 
-const handleCopyMenuFromFunction = async (selectedFunctionData) => {
-  try {
-    const oldEventFunctionId = selectedFunctionData.id;
-    const activeEventFunctionId = selectedFunction;
+  const handleCopyMenuFromFunction = async (selectedFunctionData) => {
+    try {
+      const oldEventFunctionId = selectedFunctionData.id;
+      const activeEventFunctionId = selectedFunction;
 
-    Swal.fire({
-      title: "Copying Menu...",
-      text: "Please wait while we copy the menu preparation",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
+      Swal.fire({
+        title: "Copying Menu...",
+        text: "Please wait while we copy the menu preparation",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
-    const copyResp = await GetCopyMenuPlanning(
-      activeEventFunctionId,
-      oldEventFunctionId
-    );
+      const copyResp = await GetCopyMenuPlanning(
+        activeEventFunctionId,
+        oldEventFunctionId,
+      );
 
-    if (!copyResp?.data?.success) {
+      if (!copyResp?.data?.success) {
+        Swal.fire({
+          icon: "error",
+          title: "Copy Failed",
+          text: copyResp?.data?.msg || "Failed to copy menu preparation.",
+        });
+        return;
+      }
+
+      // ✅ CRITICAL STEP: Clear old bucket first
+      setSelectedByFunction((prev) => ({
+        ...prev,
+        [activeEventFunctionId]: undefined,
+      }));
+
+      // ✅ Force useEffect to re-trigger load
+      setSelectedFunction(null);
+
+      setTimeout(() => {
+        setSelectedFunction(activeEventFunctionId);
+      }, 0);
+
+      setHasExistingData(true);
+      setIsDirty(false);
+      setIsCopyMenuModalOpen(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Menu Copied Successfully!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
       Swal.fire({
         icon: "error",
-        title: "Copy Failed",
-        text: copyResp?.data?.msg || "Failed to copy menu preparation.",
+        title: "Failed to Copy",
+        text:
+          err?.response?.data?.msg ||
+          "Something went wrong while copying the menu.",
       });
-      return;
     }
+  };
 
-    // ✅ CRITICAL STEP: Clear old bucket first
-    setSelectedByFunction((prev) => ({
-      ...prev,
-      [activeEventFunctionId]: undefined,
-    }));
-
-    // ✅ Force useEffect to re-trigger load
-    setSelectedFunction(null);
-
-    setTimeout(() => {
-      setSelectedFunction(activeEventFunctionId);
-    }, 0);
-
-    setHasExistingData(true);
-    setIsDirty(false);
-    setIsCopyMenuModalOpen(false);
-
-    Swal.fire({
-      icon: "success",
-      title: "Menu Copied Successfully!",
-      timer: 1500,
-      showConfirmButton: false,
+  useEffect(() => {
+    console.log("🟢 selectedByFunction changed:", {
+      selectedFunction,
+      hasData: !!selectedByFunction[selectedFunction],
+      categories: selectedByFunction[selectedFunction]?.categoriesOrder || [],
+      itemCount: Object.values(
+        selectedByFunction[selectedFunction]?.categories || {},
+      ).flat().length,
     });
-
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Failed to Copy",
-      text:
-        err?.response?.data?.msg ||
-        "Something went wrong while copying the menu.",
-    });
-  }
-};
-
-
-
-useEffect(() => {
-  console.log('🟢 selectedByFunction changed:', {
-    selectedFunction,
-    hasData: !!selectedByFunction[selectedFunction],
-    categories: selectedByFunction[selectedFunction]?.categoriesOrder || [],
-    itemCount: Object.values(selectedByFunction[selectedFunction]?.categories || {})
-      .flat()
-      .length
-  });
-}, [selectedByFunction, selectedFunction]);
-
-
-
-
+  }, [selectedByFunction, selectedFunction]);
 
   const handleFunctionChange = async (newFunctionId) => {
     if (isDirty) {
@@ -473,25 +478,30 @@ useEffect(() => {
   }, [selectedFunction, loadSavedMenuPrep]);
 
   const getSelectedIdsForFunction = useCallback(
-  (functionId) => {
-    const bucket = selectedByFunction[functionId];
-    if (!bucket) {
-      console.log('🔴 No bucket found for function:', functionId);
-      return new Set();
-    }
+    (functionId) => {
+      const bucket = selectedByFunction[functionId];
+      if (!bucket) {
+        console.log("🔴 No bucket found for function:", functionId);
+        return new Set();
+      }
 
-    const ids = Object.values(bucket.categories)
-      .flat()
-      .map((i) => Number(i.id));
+      const ids = Object.values(bucket.categories)
+        .flat()
+        .map((i) => Number(i.id));
 
-    const idSet = new Set([...ids, ...ids.map(String)]);
-    
-    console.log('🟢 Selected IDs for function', functionId, ':', Array.from(idSet));
-    
-    return idSet;
-  },
-  [selectedByFunction],
-);
+      const idSet = new Set([...ids, ...ids.map(String)]);
+
+      console.log(
+        "🟢 Selected IDs for function",
+        functionId,
+        ":",
+        Array.from(idSet),
+      );
+
+      return idSet;
+    },
+    [selectedByFunction],
+  );
 
   const onToggleSelectItem = useCallback(
     (menuItem, overrideCategoryName) => {
@@ -1134,7 +1144,7 @@ useEffect(() => {
         denyButtonText: "Switch Without Saving",
         cancelButtonText: "Cancel",
       });
-  
+
       if (result.isConfirmed) {
         await handleSaveOrUpdate();
         setSelectedEventId(newEventId);
@@ -1264,7 +1274,10 @@ useEffect(() => {
                     <span className="text-sm font-semibold text-gray-900">
                       Event No:
                     </span>
-                    <span className="font-semibold text-sm text-primary underline cursor-pointer" onClick={() => setIsAllCustomerToogleOpen(true)}>
+                    <span
+                      className="font-semibold text-sm text-primary underline cursor-pointer"
+                      onClick={() => setIsAllCustomerToogleOpen(true)}
+                    >
                       {eventData?.eventNo}
                     </span>
                   </div>
@@ -1392,21 +1405,17 @@ useEffect(() => {
                       }}
                     />
                   </div>
-                      
+
                   <button
-  className="btn w-48 flex items-center justify-center gap-2 
+                    className="btn w-48 flex items-center justify-center gap-2 
              text-white bg-primary font-semibold 
              border border-transparent
              hover:!bg-white hover:!text-primary hover:!border-primary"
-  onClick={() => setIsCopyMenuModalOpen(true)
-    
-  }
->
-  <NotebookPen className="w-4 h-4" />
-  Copy Menu Planning
-</button>
-
-
+                    onClick={() => setIsCopyMenuModalOpen(true)}
+                  >
+                    <NotebookPen className="w-4 h-4" />
+                    Copy Menu Planning
+                  </button>
                 </div>
               </div>
             </div>
@@ -1414,13 +1423,25 @@ useEffect(() => {
 
           {/* functions + package controls */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-1">
-            <div className="lg:col-span-2">
-              <div className="flex gap-3 border rounded overflow-x-auto no-scrollbar py-2 px-2 text-gray-500 bg-gray-200">
+            <div className="lg:col-span-2 relative">
+              {/* LEFT ARROW */}
+              <button
+                onClick={() => scroll("left")}
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-primary shadow-md rounded-full p-1 hover:bg-gray-100"
+              >
+                <ChevronLeft size={18} className="text-white" />
+              </button>
+
+              {/* SCROLLABLE FUNCTIONS */}
+              <div
+                ref={scrollRef}
+                className="flex gap-3 border rounded overflow-x-auto no-scrollbar py-2 px-8 text-gray-500 bg-gray-200 scroll-smooth"
+              >
                 {eventData?.eventFunctions?.map((func) => (
                   <div
                     key={func.id}
-                    onClick={() => handleFunctionChange(func.id)} // ✅ Changed this line
-                    className="cursor-pointer"
+                    onClick={() => handleFunctionChange(func.id)}
+                    className="cursor-pointer flex-shrink-0"
                   >
                     <FunctionCard
                       functionData={func}
@@ -1429,6 +1450,14 @@ useEffect(() => {
                   </div>
                 ))}
               </div>
+
+              {/* RIGHT ARROW */}
+              <button
+                onClick={() => scroll("right")}
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-primary shadow-md rounded-full p-1 hover:bg-gray-100"
+              >
+                <ChevronRight size={18} className="text-white" />
+              </button>
             </div>
 
             <div className="flex flex-wrap items-center  gap-2 p-2 border rounded bg-gray-200">
@@ -1725,13 +1754,12 @@ useEffect(() => {
         onEventSelect={handleEventSelect}
       />
       <CopyMenuPlanning
-  isOpen={isCopyMenuModalOpen}
-  onClose={() => setIsCopyMenuModalOpen(false)}
-  onCopyFunction={handleCopyMenuFromFunction}
-  currentEventId={eventId}
-  currentFunctionId={selectedFunction}
-  
-/>
+        isOpen={isCopyMenuModalOpen}
+        onClose={() => setIsCopyMenuModalOpen(false)}
+        onCopyFunction={handleCopyMenuFromFunction}
+        currentEventId={eventId}
+        currentFunctionId={selectedFunction}
+      />
     </Fragment>
   );
 };

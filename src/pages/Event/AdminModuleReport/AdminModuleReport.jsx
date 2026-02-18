@@ -28,6 +28,7 @@ export default function AdminModuleReport() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [agencyType, setAgencyType] = useState("");
 
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
@@ -192,6 +193,18 @@ export default function AdminModuleReport() {
     setSelectedTemplateIdForReport(template.id);
     setSelectedTemplateName(template.name);
     setSelectedTemplateIsDate(template.isDate || 0);
+
+    const selectedModule = modules.find((m) => m.id === moduleId);
+
+    if (selectedModule?.nameEnglish === "Chef Agency Theme") {
+      setAgencyType("chef");
+    } else if (selectedModule?.nameEnglish === "Labour Agency Theme") {
+      setAgencyType("labour");
+    } else if (selectedModule?.nameEnglish === "Outside Agency Theme") {
+      setAgencyType("outside");
+    } else {
+      setAgencyType("");
+    }
 
     setIsMenuReportOpen(true);
   };
@@ -432,7 +445,8 @@ export default function AdminModuleReport() {
         isNamePlateTheme={false}
         startDate={startDate}
         endDate={endDate}
-        isAdminModuleReport={true}
+        isAdminModuleReport={false}
+        agencyType={agencyType}
       />
     </Fragment>
   );

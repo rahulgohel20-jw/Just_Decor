@@ -15,11 +15,7 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select } from "antd";
-import {
-  CalendarOutlined,
-  TeamOutlined,
-  AppstoreOutlined,
-} from "@ant-design/icons";
+import { TeamOutlined, AppstoreOutlined } from "@ant-design/icons";
 
 const MenuReport = ({
   isModalOpen,
@@ -36,11 +32,10 @@ const MenuReport = ({
   startDate: adminStartDate,
   endDate: adminEndDate,
   agencyType,
-  isAdminModuleReport = false, // ✅ NEW PROP
+  isAdminModuleReport = false,
 }) => {
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
-
   const [visibleOptions, setVisibleOptions] = useState([]);
   const [reportType, setReportType] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("english");
@@ -51,26 +46,65 @@ const MenuReport = ({
   const [isDropdownStatus, setisDropdownStatus] = useState();
   const [showAgencyDropdown, setShowAgencyDropdown] = useState(false);
   const [showItemDropdown, setShowItemDropdown] = useState(false);
-
   const [isDateStatus, setisDateStatus] = useState();
-
-  // Filter states
   const [agencies, setAgencies] = useState([]);
   const [items, setItems] = useState([]);
-
   const [selectedAgency, setSelectedAgency] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loadingFilters, setLoadingFilters] = useState(false);
 
-  const SIZE_LABELS = {
-    size1: "A4",
-    size2: "A6",
-  };
+ 
+  useEffect(() => {
+    if (!pdfUrl) return;
 
-  /* ---------------- FETCH CONFIG ---------------- */
+    const originalPrint = window.print;
 
+    window.print = async () => {
+      window.print = originalPrint;
+
+      try {
+        const response = await fetch(pdfUrl);
+        if (!response.ok) throw new Error("Failed to fetch PDF");
+
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText =
+          "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;";
+        iframe.src = blobUrl;
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          setTimeout(() => {
+            try {
+              iframe.contentWindow.focus();
+              iframe.contentWindow.print();
+            } catch {
+              window.open(blobUrl, "_blank");
+            }
+            setTimeout(() => {
+              document.body.removeChild(iframe);
+              URL.revokeObjectURL(blobUrl);
+              // Re-hook for next print click
+              window.print = interceptedPrint;
+            }, 3000);
+          }, 800);
+        };
+      } catch {
+        window.open(pdfUrl, "_blank");
+        window.print = interceptedPrint;
+      }
+    };
+
+    const interceptedPrint = window.print;
+
+    return () => {
+      window.print = originalPrint;
+    };
+  }, [pdfUrl]);
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
 
@@ -82,25 +116,23 @@ const MenuReport = ({
 
         setReportType(config.type);
 
-        // ✅ UPDATED LOGIC: Hide agency/item dropdowns for Admin Module
         if (isAdminModuleReport || agencyType == null) {
           setisDropdownStatus(0);
           setShowAgencyDropdown(false);
           setShowItemDropdown(false);
         } else if (config.isAgency === 1 && config.isItem === 1) {
           setisDropdownStatus(1);
-          setShowAgencyDropdown(config.isAgency === 1);
-          setShowItemDropdown(config.isItem === 1);
+          setShowAgencyDropdown(true);
+          setShowItemDropdown(true);
         } else if (config.isAgency === 1) {
           setisDropdownStatus(1);
-          setShowAgencyDropdown(config.isAgency === 1);
+          setShowAgencyDropdown(true);
         } else if (config.isItem === 1) {
           setisDropdownStatus(1);
-          setShowItemDropdown(config.isItem === 1);
+          setShowItemDropdown(true);
         }
-        if (config.isDate === 1) {
-          setisDateStatus(1);
-        }
+
+        if (config.isDate === 1) setisDateStatus(1);
 
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
@@ -114,14 +146,8 @@ const MenuReport = ({
           isCombo: config.isCombo === 0,
           partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
-          size1: {
-            label: config.size1,
-            enabled: Boolean(config.size1 === 1),
-          },
-          size2: {
-            label: config.size2,
-            enabled: Boolean(config.size2 === 0),
-          },
+          size1: { label: config.size1, enabled: Boolean(config.size1 === 1) },
+          size2: { label: config.size2, enabled: Boolean(config.size2 === 0) },
           isWithPrice: config.isWithPrice === 0,
         });
 
@@ -153,34 +179,22 @@ const MenuReport = ({
     fetchConfig();
   }, [isModalOpen, mappingId, moduleId, isAdminModuleReport, agencyType]);
 
-  /* ---------------- FETCH AGENCIES (INITIAL LOAD) ---------------- */
   useEffect(() => {
-    // ✅ Don't fetch agencies if this is Admin Module Report
     if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
 
     const fetchAgencies = async () => {
       setLoadingFilters(true);
       try {
-        // ✅ Fetch agencies with empty partyIds initially
-        const agencyRes = await GetAgenciesForReportFilter(
-          eventFunctionId,
-          eventId,
-          agencyType,
-        );
-
+        const agencyRes = await GetAgenciesForReportFilter(eventFunctionId, eventId, agencyType);
         if (agencyRes?.data?.success && agencyRes?.data?.data) {
           const agencyList = agencyRes.data.data;
-
           setAgencies(agencyList);
-
-          const allAgencyIds = agencyList.map((a) => a.id);
-          setSelectedAgency(allAgencyIds);
+          setSelectedAgency(agencyList.map((a) => a.id));
         } else {
           setAgencies([]);
           setSelectedAgency([]);
         }
       } catch (err) {
-        console.error("Agency fetch error", err);
         errorMsgPopup("Failed to load agencies");
         setAgencies([]);
       } finally {
@@ -189,23 +203,10 @@ const MenuReport = ({
     };
 
     fetchAgencies();
-  }, [
-    isModalOpen,
-    isDropdownStatus,
-    eventFunctionId,
-    eventId,
-    agencyType,
-    isAdminModuleReport,
-  ]);
+  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, agencyType, isAdminModuleReport]);
 
-  /* ---------------- FETCH ITEMS (WHEN AGENCY CHANGES) ---------------- */
   useEffect(() => {
-    if (
-      !isModalOpen ||
-      isDropdownStatus !== 1 ||
-      selectedAgency.length === 0 ||
-      isAdminModuleReport
-    ) {
+    if (!isModalOpen || isDropdownStatus !== 1 || selectedAgency.length === 0 || isAdminModuleReport) {
       setItems([]);
       setSelectedItems([]);
       return;
@@ -214,21 +215,13 @@ const MenuReport = ({
     const fetchItemsByAgency = async () => {
       setLoadingFilters(true);
       try {
-        console.log("📦 Fetching items for agencies:", selectedAgency);
-
-        const itemsRes = await GetSelectedItemsForReportFilter(
-          eventFunctionId,
-          eventId,
-          selectedAgency, // ✅ partyIds passed here
-        );
-
+        const itemsRes = await GetSelectedItemsForReportFilter(eventFunctionId, eventId, selectedAgency);
         if (itemsRes?.data?.success && itemsRes?.data?.data) {
           setItems(itemsRes.data.data);
         } else {
           setItems([]);
         }
       } catch (err) {
-        console.error("Items fetch error", err);
         errorMsgPopup("Failed to load items");
         setItems([]);
       } finally {
@@ -237,14 +230,7 @@ const MenuReport = ({
     };
 
     fetchItemsByAgency();
-  }, [
-    isModalOpen,
-    isDropdownStatus,
-    eventFunctionId,
-    eventId,
-    selectedAgency,
-    isAdminModuleReport,
-  ]);
+  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, selectedAgency, isAdminModuleReport]);
 
   const formatAdminDate = (dateString) => {
     if (!dateString) return null;
@@ -255,75 +241,27 @@ const MenuReport = ({
   const toggleAll = (checked) => {
     setOptions((prev) => {
       const updated = { ...prev };
-
       visibleOptions.forEach((key) => {
-        if (key !== "size1" && key !== "size2") {
-          updated[key] = checked;
-        }
+        if (key !== "size1" && key !== "size2") updated[key] = checked;
       });
-
       return updated;
     });
   };
 
   const toggleOne = (key) => {
     setOptions((prev) => {
-      // Handle mutually exclusive sizes
-      if (key === "size1") {
-        return {
-          ...prev,
-          size1: {
-            ...prev.size1,
-            enabled: true,
-          },
-          size2: {
-            ...prev.size2,
-            enabled: false,
-          },
-        };
-      }
-
-      if (key === "size2") {
-        return {
-          ...prev,
-          size1: {
-            ...prev.size1,
-            enabled: false,
-          },
-          size2: {
-            ...prev.size2,
-            enabled: true,
-          },
-        };
-      }
-
-      // Normal toggle for other options
+      if (key === "size1") return { ...prev, size1: { ...prev.size1, enabled: true }, size2: { ...prev.size2, enabled: false } };
+      if (key === "size2") return { ...prev, size1: { ...prev.size1, enabled: false }, size2: { ...prev.size2, enabled: true } };
       return { ...prev, [key]: !prev[key] };
     });
   };
 
-  const isCheckAll =
-    visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
-
-  const formatDate = (date) => {
-    if (!date) return null;
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+  const isCheckAll = visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
   const handleReport = async () => {
-    if (isNamePlateTheme) {
-      setShowNamePlateUI(true);
-      return;
-    }
+    if (isNamePlateTheme) { setShowNamePlateUI(true); return; }
 
-    const pageSize = options.size1?.enabled
-      ? options.size1.label
-      : options.size2?.enabled
-        ? options.size2.label
-        : "";
+    const pageSize = options.size1?.enabled ? options.size1.label : options.size2?.enabled ? options.size2.label : "";
 
     const payload = {
       eventId,
@@ -331,12 +269,7 @@ const MenuReport = ({
       adminTemplateModuleId: selectedTemplateId ?? 0,
       type: reportType || null,
       userId,
-      lang:
-        selectedLanguage === "english"
-          ? 0
-          : selectedLanguage === "hindi"
-            ? 1
-            : 2,
+      lang: selectedLanguage === "english" ? 0 : selectedLanguage === "hindi" ? 1 : 2,
       isCategoryImage: options.categoryImage,
       isCategoryInstruction: options.categoryInstruction,
       isCategorySlogan: options.categorySlogan,
@@ -352,12 +285,8 @@ const MenuReport = ({
       isWithPrice: options.isWithPrice,
       agencyId: selectedAgency,
       itemId: selectedItems,
-      ...(adminStartDate && {
-        startDate: formatAdminDate(adminStartDate),
-      }),
-      ...(adminEndDate && {
-        endDate: formatAdminDate(adminEndDate),
-      }),
+      ...(adminStartDate && { startDate: formatAdminDate(adminStartDate) }),
+      ...(adminEndDate && { endDate: formatAdminDate(adminEndDate) }),
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
@@ -370,12 +299,10 @@ const MenuReport = ({
       if (Array.isArray(value)) {
         value.forEach((v) => formData.append(`${key}[]`, v));
       } else {
-        formData.append(
-          key,
-          value === true ? "1" : value === false ? "0" : value,
-        );
+        formData.append(key, value === true ? "1" : value === false ? "0" : value);
       }
     });
+
     setLoading(true);
     try {
       const { data } = await AddExclusiveReport(formData);
@@ -396,38 +323,27 @@ const MenuReport = ({
     setPdfUrl(null);
     setShowNamePlateUI(false);
     setIsModalOpen(false);
-    // Reset filters
     setSelectedAgency([]);
     setSelectedItems([]);
     setStartDate(null);
     setEndDate(null);
   };
 
-  const handleWhatsAppShare = (pdfUrl) => {
+  const handleWhatsAppShare = () => {
     const name = eventName || "there";
     const mobile = PartyNumber || "";
     if (!mobile) return alert("Mobile number not available");
-
     const message = `Hi ${name},\nPlease find the attached PDF.\n\n${pdfUrl}`;
-    window.open(
-      `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`,
-      "_blank",
-    );
+    window.open(`https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`, "_blank");
   };
 
   const Toggle = ({ checked, onChange }) => (
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-        checked ? "bg-blue-600" : "bg-gray-300"
-      }`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${checked ? "bg-blue-600" : "bg-gray-300"}`}
     >
-      <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-          checked ? "translate-x-5" : "translate-x-1"
-        }`}
-      />
+      <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${checked ? "translate-x-5" : "translate-x-1"}`} />
     </button>
   );
 
@@ -440,16 +356,10 @@ const MenuReport = ({
       footer={
         pdfUrl ? (
           <div className="flex justify-end gap-2">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
-            >
+            <button onClick={handleClose} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
               Close
             </button>
-            <button
-              onClick={() => handleWhatsAppShare(pdfUrl)}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            >
+            <button onClick={handleWhatsAppShare} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
               Share on WhatsApp
             </button>
           </div>
@@ -457,11 +367,7 @@ const MenuReport = ({
           <button
             onClick={handleReport}
             disabled={loading}
-            className={`px-6 py-2 text-white rounded transition ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#005BA8] hover:bg-[#004a8d]"
-            }`}
+            className={`px-6 py-2 text-white rounded transition ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#005BA8] hover:bg-[#004a8d]"}`}
           >
             {loading ? "Generating..." : "Generate Report"}
           </button>
@@ -472,21 +378,14 @@ const MenuReport = ({
         <NamePlateReport onClose={() => setShowNamePlateUI(false)} />
       ) : !pdfUrl ? (
         <div className="space-y-6">
-          {/* Language Selector */}
           <div>
-            <label className="block font-medium mb-2 text-gray-700">
-              Select Language
-            </label>
+            <label className="block font-medium mb-2 text-gray-700">Select Language</label>
             <div className="flex border rounded-lg overflow-hidden shadow-sm">
               {["english", "hindi", "gujarati"].map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setSelectedLanguage(lang)}
-                  className={`flex-1 py-2.5 font-medium transition ${
-                    selectedLanguage === lang
-                      ? "bg-[#005BA8] text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`flex-1 py-2.5 font-medium transition ${selectedLanguage === lang ? "bg-[#005BA8] text-white" : "bg-white text-gray-700 hover:bg-gray-50"}`}
                 >
                   {lang.charAt(0).toUpperCase() + lang.slice(1)}
                 </button>
@@ -494,114 +393,59 @@ const MenuReport = ({
             </div>
           </div>
 
-          {/* ✅ UPDATED: Only show filter section if NOT admin module report */}
-          {!isAdminModuleReport &&
-            (isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
-              <div className=" p-5 rounded-xl border-2 ">
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Dropdowns */}
-                  {showAgencyDropdown && (
-                    <>
-                      <div className="relative">
+          {!isAdminModuleReport && (isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
+            <div className="p-5 rounded-xl border-2">
+              <div className="grid grid-cols-2 gap-4">
+                {showAgencyDropdown && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                        <TeamOutlined className="mr-1" />Agency
+                      </label>
+                      <Select
+                        mode="multiple" value={selectedAgency} onChange={setSelectedAgency}
+                        placeholder="Select agencies..." className="w-full" size="large"
+                        loading={loadingFilters} showSearch optionFilterProp="children"
+                        filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
+                        options={agencies.map((a) => ({ value: a.id, label: a.nameEnglish }))}
+                        maxTagCount="responsive" allowClear
+                      />
+                    </div>
+                    {showItemDropdown && (
+                      <div>
                         <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                          <TeamOutlined className="mr-1" />
-                          Agency
+                          <AppstoreOutlined className="mr-1" />Items
                         </label>
                         <Select
-                          mode="multiple"
-                          value={selectedAgency}
-                          onChange={setSelectedAgency}
-                          placeholder="Select agencies..."
-                          className="w-full custom-select"
-                          size="large"
-                          loading={loadingFilters}
-                          showSearch
-                          optionFilterProp="children"
-                          filterOption={(input, option) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase())
-                          }
-                          options={agencies.map((agency) => ({
-                            value: agency.id,
-                            label: agency.nameEnglish,
-                          }))}
-                          maxTagCount="responsive"
-                          allowClear
+                          mode="multiple" value={selectedItems} onChange={setSelectedItems}
+                          placeholder="Select items..." className="w-full" size="large"
+                          loading={loadingFilters} showSearch optionFilterProp="children"
+                          filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
+                          options={items.map((i) => ({ value: i.id, label: i.nameEnglish }))}
+                          maxTagCount="responsive" allowClear disabled={selectedAgency.length === 0}
                         />
                       </div>
-
-                      {showItemDropdown && (
-                        <div className="relative">
-                          <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                            <AppstoreOutlined className="mr-1" />
-                            Items
-                          </label>
-                          <Select
-                            mode="multiple"
-                            value={selectedItems}
-                            onChange={setSelectedItems}
-                            placeholder="Select items..."
-                            className="w-full custom-select"
-                            size="large"
-                            loading={loadingFilters}
-                            showSearch
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            options={items.map((item) => ({
-                              value: item.id,
-                              label: item.nameEnglish,
-                            }))}
-                            maxTagCount="responsive"
-                            allowClear
-                            disabled={selectedAgency.length === 0}
-                            style={{
-                              borderRadius: "8px",
-                            }}
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                    )}
+                  </>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-          {/* Report Options */}
           {!isNamePlateTheme && (
             <>
               <div className="flex justify-between items-center border-b pb-3 mb-3">
-                <span className="font-semibold text-gray-700">
-                  Check All Options
-                </span>
-                <Toggle
-                  checked={isCheckAll}
-                  onChange={() => toggleAll(!isCheckAll)}
-                />
+                <span className="font-semibold text-gray-700">Check All Options</span>
+                <Toggle checked={isCheckAll} onChange={() => toggleAll(!isCheckAll)} />
               </div>
-
               <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                 {visibleOptions.map((key) => (
-                  <div
-                    key={key}
-                    className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition"
-                  >
+                  <div key={key} className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
                     <span className="capitalize text-gray-700">
-                      {key === "size1" || key === "size2"
-                        ? `Size ${options[key]?.label}`
-                        : key.replace(/([A-Z])/g, " $1")}
+                      {key === "size1" || key === "size2" ? `Size ${options[key]?.label}` : key.replace(/([A-Z])/g, " $1")}
                     </span>
-
                     <Toggle
-                      checked={
-                        key === "size1" || key === "size2"
-                          ? options[key]?.enabled
-                          : options[key]
-                      }
+                      checked={key === "size1" || key === "size2" ? options[key]?.enabled : options[key]}
                       onChange={() => toggleOne(key)}
                     />
                   </div>
@@ -613,7 +457,10 @@ const MenuReport = ({
       ) : (
         <div style={{ height: "80vh" }}>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} />
+            <Viewer
+              fileUrl={pdfUrl}
+              plugins={[pdfPlugin]}
+            />
           </Worker>
         </div>
       )}
