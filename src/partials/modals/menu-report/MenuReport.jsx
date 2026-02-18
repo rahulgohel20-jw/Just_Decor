@@ -11,6 +11,7 @@ import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { getAllPagesNumbers } from "@react-pdf-viewer/print";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -38,9 +39,13 @@ const MenuReport = ({
   agencyType,
   isAdminModuleReport = false, // ✅ NEW PROP
 }) => {
-  console.log(isAdminModuleReport);
-
-  const pdfPlugin = defaultLayoutPlugin();
+  const pdfPlugin = defaultLayoutPlugin({
+    toolbarPlugin: {
+      printPlugin: {
+        setPages: getAllPagesNumbers, // ✅ Forces ALL pages to print
+      },
+    },
+  });
   const userId = localStorage.getItem("userId");
 
   const [visibleOptions, setVisibleOptions] = useState([]);
@@ -617,7 +622,12 @@ const MenuReport = ({
       ) : (
         <div style={{ height: "80vh" }}>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} />
+            <Viewer
+              fileUrl={pdfUrl}
+              plugins={[pdfPlugin]}
+              renderMode="canvas"
+              defaultScale={1.3}
+            />
           </Worker>
         </div>
       )}
