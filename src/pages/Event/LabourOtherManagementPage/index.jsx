@@ -940,7 +940,7 @@ useEffect(() => {
     setSelectedEventId(newEventId);
     setIsAllCustomerToogleOpen(false);
     navigate(`/labour-and-other-management/${newEventId}`);
-};
+  };
   return (
     <Fragment>
       <Container>
@@ -1106,7 +1106,10 @@ useEffect(() => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900 underline cursor-pointer"  onClick={() => setIsAllCustomerToogleOpen(true)}>
+                <span
+                  className="text-sm font-medium text-gray-900 underline cursor-pointer"
+                  onClick={() => setIsAllCustomerToogleOpen(true)}
+                >
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -1419,10 +1422,10 @@ useEffect(() => {
           refreshData={FetchLabourShift}
         />
         <AllCustomerToogle
-        isModalOpen={isAllCustomerToogleOpen}
-        setIsModalOpen={setIsAllCustomerToogleOpen}
-        onEventSelect={handleEventSelect}
-      />
+          isModalOpen={isAllCustomerToogleOpen}
+          setIsModalOpen={setIsAllCustomerToogleOpen}
+          onEventSelect={handleEventSelect}
+        />
         <MenuReport
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}

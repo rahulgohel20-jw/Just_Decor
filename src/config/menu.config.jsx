@@ -6,7 +6,7 @@ export const disableMenuItems = (menuItems) => {
     return {
       ...item,
       disabled: !isPlanPage,
-      statusLabel: isPlanPage ? undefined : "Locked 🔒",
+      statusLabel: isPlanPage ? undefined : "Locked",
       children: item.children ? disableMenuItems(item.children) : undefined,
     };
   });
@@ -455,7 +455,7 @@ export const allMenuItems = [
   {
     title: (
       <>
-        <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Payments" />
+        <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Account" />
         <span
           className="text-primary"
           style={{ marginLeft: "8px", fontSize: "12px" }}
@@ -465,27 +465,62 @@ export const allMenuItems = [
       </>
     ),
     icon: "ki-filled ki-bank text-primary",
-    // children: [
-    //   {
-    //     title: (
-    //       <FormattedMessage
-    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
-    //         defaultMessage="Account Ledger"
-    //       />
-    //     ),
-    //     path: "/account",
-    //   },
-    //   {
-    //     title: (
-    //       <FormattedMessage
-    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
-    //         defaultMessage="Payments"
-    //       />
-    //     ),
-    //     path: "/Payments",
-    //   },
-
-    // ]
+    children: [
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Bank Payment"
+          />
+        ),
+        path: "/bank-payment",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Bank Receipt"
+          />
+        ),
+        path: "/bank-recipet",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Cash Payment"
+          />
+        ),
+        path: "/cash-payment",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Cash Receipt"
+          />
+        ),
+        path: "/cash-recipet",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Account Ledger"
+          />
+        ),
+        path: "/account",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CHANGESIDEARRAWMATIRAL"
+            defaultMessage="Payments"
+          />
+        ),
+        path: "/Payments",
+      },
+    ],
   },
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
