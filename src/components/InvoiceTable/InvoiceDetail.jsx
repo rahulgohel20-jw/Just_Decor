@@ -214,14 +214,11 @@ Thanks!`;
     const event = invoice?.event || {};
     const party = event?.party || {};
 
-    // Store full invoice data for WhatsApp sharing
     setInvoiceData(invoice);
 
-    // Set subtotal and total
     setSubTotal(invoice?.subTotal || 0);
     setTotalAmount(invoice?.grandTotal || 0);
 
-    // Set invoice information
     setInvoiceInfo({
       invoiceCode: invoice?.invoiceCode || "-",
       billingName: invoice?.billingname || party?.nameEnglish || "-",
