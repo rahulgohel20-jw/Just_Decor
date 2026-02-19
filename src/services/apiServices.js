@@ -1577,7 +1577,7 @@ export const GETcrockerycutlerygetByRawMaterialCat = (
   );
 };
 
-export const assignMultipleLeadToMember = (leadId_list, memberId) => {
+export const assignMultipleLeadToMember = (leadId_list, memberId, closeDate = "", description = "") => {
   const leadIds = Array.isArray(leadId_list) ? leadId_list : [];
   if (leadIds.length === 0) {
     console.error("❌ No lead IDs provided");
@@ -1593,9 +1593,9 @@ export const assignMultipleLeadToMember = (leadId_list, memberId) => {
     });
   }
 
-  // Create query parameters: leadId=3&leadId=4&memberId=15
+  // Create query parameters: leadId=3&leadId=4&memberId=15&closeDate=...&description=...
   const leadIdParams = leadIds.map((id) => `leadId=${id}`).join("&");
-  const finalUrl = `/leadmaster/assignMultipleLeadToMember?${leadIdParams}&memberId=${memberId}`;
+  const finalUrl = `/leadmaster/assignMultipleLeadToMember?${leadIdParams}&memberId=${memberId}&closeDate=${encodeURIComponent(closeDate)}&description=${encodeURIComponent(description)}`;
 
   console.log("✅ Final URL:", finalUrl);
 
