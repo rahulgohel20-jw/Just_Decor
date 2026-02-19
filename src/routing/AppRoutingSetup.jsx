@@ -153,6 +153,7 @@ import EstimatePage from "@/pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
 import StateSearchForm from "@/pages/StateSearch";
 import AllUser from "@/pages/master/user-master/alluser";
+import AllVendor from "../pages/master/user-master/vendor";
 import AllPlan from "@/pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
 import RawMaterialMaster from "@/pages/master/raw-material-category";
@@ -384,6 +385,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/godown" element={<GodownMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/vendors" element={<AllVendor />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route path="/allreports/:eventId" element={<AllReports />} />
