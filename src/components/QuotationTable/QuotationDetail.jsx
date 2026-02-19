@@ -228,7 +228,7 @@ const QuotationDetail = ({ Eventid }) => {
     const userId = localStorage.getItem("userId");
     const activeEventId = Eventid || EventId;
 
-    GetQuotationReport(activeEventId, userId)
+    GetQuotationReport(activeEventId, userId, 0)
       .then((response) => {
         if (response.data) {
           const pdfPath = response.data?.report_path;

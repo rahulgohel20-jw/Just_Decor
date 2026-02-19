@@ -19,10 +19,14 @@ import { Task } from "./Task";
 
 const SortableItem = ({
   task,
+  column, // ✅ receive column
   onViewLead,
-  onEditLead,
+
+  onEditLead, // ✅ make sure received
   onDeleteLead,
   onFollowUp,
+  onLeadDropped, // ✅ receive onLeadDropped
+  columns, // ✅ receive columns
 }) => {
   const {
     attributes,
@@ -58,6 +62,15 @@ const SortableItem = ({
         onEditLead={onEditLead}
         onDeleteLead={onDeleteLead}
         onFollowUp={onFollowUp}
+        onMoveLead={(lead) => {
+          // ✅ properly use column and onLeadDropped from closure
+          onLeadDropped?.({
+            lead,
+            fromColumn: column,
+            toColumn: column, // user picks destination in modal
+            pendingColumns: columns,
+          });
+        }}
       />
     </div>
   );
@@ -65,10 +78,12 @@ const SortableItem = ({
 
 const SortableColumn = ({
   column,
+  columns, // ✅ receive all columns
   onViewLead,
   onEditLead,
   onDeleteLead,
   onFollowUp,
+  onLeadDropped, // ✅ receive onLeadDropped
 }) => {
   const { setNodeRef, attributes, listeners } = useSortable({ id: column.id });
 
@@ -106,12 +121,15 @@ const SortableColumn = ({
           >
             {column.children.map((task) => (
               <SortableItem
-                key={`${column.id}_${task.id}`} // ← unique per column
+                key={`${column.id}_${task.id}`}
                 task={task}
+                column={column} // ✅ pass column
+                columns={columns} // ✅ pass all columns
                 onViewLead={onViewLead}
                 onEditLead={onEditLead}
                 onDeleteLead={onDeleteLead}
                 onFollowUp={onFollowUp}
+                onLeadDropped={onLeadDropped} // ✅ pass onLeadDropped
               />
             ))}
           </SortableContext>
@@ -145,15 +163,10 @@ export const DragAndDrop = ({
   onEditLead,
   onDeleteLead,
   onFollowUp,
-  onLeadDropped, // ← NEW: fires when a card moves to a different column
+  onLeadDropped,
 }) => {
   const [activeTask, setActiveTask] = useState(null);
-
-  // Track which column the drag started from
   const dragSourceColumnRef = useRef(null);
-
-  // Keep a snapshot of columns BEFORE the drag started
-  // so we can revert if the modal is cancelled
   const snapshotColumnsRef = useRef(null);
 
   const sensors = useSensors(
@@ -165,31 +178,22 @@ export const DragAndDrop = ({
     }),
   );
 
-  const findColumnByTaskId = (taskId) => {
-    return columns.find((col) =>
-      col.children?.some((task) => task.id === taskId),
-    );
-  };
+  const findColumnByTaskId = (taskId) =>
+    columns.find((col) => col.children?.some((task) => task.id === taskId));
 
-  const findColumnById = (id) => {
-    return columns.find(
+  const findColumnById = (id) =>
+    columns.find(
       (col) => col.id === id || col.children?.some((task) => task.id === id),
     );
-  };
 
   const handleDragStart = (event) => {
     const { active } = event;
-
-    // Find and store the source column before anything moves
     const sourceCol = findColumnByTaskId(active.id);
     dragSourceColumnRef.current = sourceCol ? { ...sourceCol } : null;
-
-    // Snapshot current columns so we can revert on cancel
     snapshotColumnsRef.current = columns.map((col) => ({
       ...col,
       children: [...(col.children || [])],
     }));
-
     const task = columns
       .flatMap((col) => col.children || [])
       .find((task) => task.id === active.id);
@@ -199,17 +203,13 @@ export const DragAndDrop = ({
   const handleDragOver = (event) => {
     const { active, over } = event;
     if (!over) return;
-
     const activeCol = findColumnByTaskId(active.id);
     if (!activeCol) return;
-
     const overCol = findColumnById(over.id);
     if (!overCol) return;
-
     const activeIndex = activeCol.children.findIndex((i) => i.id === active.id);
     const task = activeCol.children[activeIndex];
 
-    // Intra-column reorder — always commit immediately (no modal needed)
     if (activeCol.id === overCol.id) {
       const overIndex = overCol.children.findIndex((i) => i.id === over.id);
       if (overIndex !== -1 && activeIndex !== overIndex) {
@@ -218,81 +218,65 @@ export const DragAndDrop = ({
           activeIndex,
           overIndex,
         );
-        const updatedCols = columns.map((col) =>
-          col.id === activeCol.id ? { ...col, children: newChildren } : col,
+        setColumns(
+          columns.map((col) =>
+            col.id === activeCol.id ? { ...col, children: newChildren } : col,
+          ),
         );
-        setColumns(updatedCols);
       }
       return;
     }
 
-    // Inter-column drag: update columns visually while dragging
-    // (will be confirmed or reverted in handleDragEnd)
     const newActiveChildren = [...activeCol.children];
     newActiveChildren.splice(activeIndex, 1);
     const newOverChildren = [...overCol.children, task];
-
-    const updatedCols = columns.map((col) => {
-      if (col.id === activeCol.id)
-        return { ...col, children: newActiveChildren };
-      if (col.id === overCol.id) return { ...col, children: newOverChildren };
-      return col;
-    });
-
-    setColumns(updatedCols);
+    setColumns(
+      columns.map((col) => {
+        if (col.id === activeCol.id)
+          return { ...col, children: newActiveChildren };
+        if (col.id === overCol.id) return { ...col, children: newOverChildren };
+        return col;
+      }),
+    );
   };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-
     setActiveTask(null);
     setDndActive(false);
 
     if (!over) {
-      // Dropped outside — revert to snapshot
-      if (snapshotColumnsRef.current) {
-        setColumns(snapshotColumnsRef.current);
-      }
+      if (snapshotColumnsRef.current) setColumns(snapshotColumnsRef.current);
       dragSourceColumnRef.current = null;
       snapshotColumnsRef.current = null;
       return;
     }
 
     const sourceColumn = dragSourceColumnRef.current;
-
-    // Find destination column in the CURRENT (visually updated) columns
     const destColumn = findColumnById(over.id);
 
-    // Cross-column drop detected
     if (
       sourceColumn &&
       destColumn &&
       sourceColumn.id !== destColumn.id &&
       onLeadDropped
     ) {
-      // Find the dragged task
       const droppedTask = columns
         .flatMap((col) => col.children || [])
         .find((t) => t.id === active.id);
 
-      // current columns already have the card in the new column (from handleDragOver)
-      // pass them as pendingColumns so SuperLeads can commit them on confirm
       const pendingColumns = columns.map((col) => ({
         ...col,
         children: [...(col.children || [])],
       }));
 
-      // Revert columns back to snapshot until user confirms in modal
-      if (snapshotColumnsRef.current) {
-        setColumns(snapshotColumnsRef.current);
-      }
+      if (snapshotColumnsRef.current) setColumns(snapshotColumnsRef.current);
 
-      // Fire the modal
       onLeadDropped({
         lead: droppedTask,
         fromColumn: { id: sourceColumn.id, name: sourceColumn.name },
         toColumn: { id: destColumn.id, name: destColumn.name },
-        pendingColumns, // SuperLeads will apply this on confirm
+        pendingColumns,
       });
     }
 
@@ -301,10 +285,7 @@ export const DragAndDrop = ({
   };
 
   const handleDragCancel = () => {
-    // Revert to snapshot on cancel
-    if (snapshotColumnsRef.current) {
-      setColumns(snapshotColumnsRef.current);
-    }
+    if (snapshotColumnsRef.current) setColumns(snapshotColumnsRef.current);
     setActiveTask(null);
     setDndActive(false);
     dragSourceColumnRef.current = null;
@@ -328,10 +309,12 @@ export const DragAndDrop = ({
           <SortableColumn
             key={column.id}
             column={column}
+            columns={columns} // ✅ pass all columns
             onViewLead={onViewLead}
             onEditLead={onEditLead}
             onDeleteLead={onDeleteLead}
             onFollowUp={onFollowUp}
+            onLeadDropped={onLeadDropped} // ✅ pass onLeadDropped
           />
         ))}
       </div>

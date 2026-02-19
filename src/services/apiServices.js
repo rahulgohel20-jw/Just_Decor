@@ -1638,6 +1638,27 @@ export const GetCopyMenuPlanning = (
   );
 };
 
+export const AddBankDetails = (data) => {
+  return POST(`bankdetails/add`, data);
+};
+
+export const GetBankDetails = (id) => {
+  return GET(`bankdetails/getbyuserid?userId=${id}`);
+};
+
+export const AddRecordPayment = (data) => {
+  return POST(`salesinvoice/add`, data);
+};
+
+export const GetRecordPayments = (id,eventId) => {
+  return GET(`salesinvoice/getbyeventidanduserid?userId=${id}&eventId=${eventId}`);
+};
+
+export const DeleteRecordPayment = (id) => {
+  return DELETE(`salesinvoice/delete?salesInvoiceid=${id}`);
+};
+
+
 export const CreatePipeline = (payload) => {
   return POST(`/pipeline/add`, payload);
 };
@@ -1659,12 +1680,12 @@ export const Getstagesbypipeline = (pipelineId , userId ) => {
   return GET(`pipeline/getstagebypipelineid?pipelineId=${pipelineId}&userId=${userId}`);
 };
 
-export const MoveLeadToStage = (leadId, stageId, stageType, remark, requestDto) => {
-  let url = `leadmaster/changeleadstage?leadId=${leadId}&stageId=${stageId}&stageType=${stageType}`;
+export const MoveLeadToStage = (leadId, stageId, stageType, assignId,remark, requestDto) => {
+  let url = `leadmaster/changeleadstage?leadId=${leadId}&stageId=${stageId}&stageType=${stageType}&assignId=${assignId}`;
   
   if (remark && remark.trim()) {
     url += `&remark=${encodeURIComponent(remark.trim())}`;
   }
 
-  return POST(url, requestDto);
+  return PUT(url, requestDto);
 };

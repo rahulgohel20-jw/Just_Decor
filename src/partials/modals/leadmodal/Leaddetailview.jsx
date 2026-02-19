@@ -26,6 +26,20 @@ const Leaddetailview = ({
   const formatDate = (dateStr) => {
     if (!dateStr) return "NA";
     try {
+      // Handle "DD/MM/YYYY" or "DD/MM/YYYY HH:MM AM/PM"
+      if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) {
+        const [datePart, ...rest] = dateStr.split(" ");
+        const [day, month, year] = datePart.split("/");
+        const isoDate = new Date(`${year}-${month}-${day} ${rest.join(" ")}`);
+        return isoDate.toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
       return new Date(dateStr).toLocaleString("en-IN", {
         day: "2-digit",
         month: "short",
@@ -38,7 +52,6 @@ const Leaddetailview = ({
       return dateStr;
     }
   };
-
   const stagePillColor = (name = "") => {
     const n = name.toLowerCase();
     if (n.includes("hot")) return { bg: "#EFF6FF", text: "#2563EB" };
@@ -303,120 +316,184 @@ const Leaddetailview = ({
   };
 
   /* ── Tab: Follow-Up ──────────────────────────────── */
-  const FollowUpTab = () => (
-    <div className="flex flex-col flex-1 overflow-hidden">
-      {/* New Follow-up button */}
-      <div className="px-4 pt-3 pb-2">
-        <button
-          onClick={() => setIsFollowUpModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#EA580C"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-            <line x1="12" y1="15" x2="12" y2="19" />
-            <line x1="10" y1="17" x2="14" y2="17" />
-          </svg>
-          New Follow-up
-        </button>
-      </div>
+  const FollowUpTab = () => {
+    // ✅ Parse "DD/MM/YYYY HH:MM AM/PM" or ISO dates safely
+    const parseFollowUpDate = (dateStr) => {
+      if (!dateStr) return null;
+      if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) {
+        const [datePart, time, meridiem] = dateStr.split(" ");
+        const [day, month, year] = datePart.split("/");
+        return new Date(
+          `${year}-${month}-${day} ${time || ""} ${meridiem || ""}`.trim(),
+        );
+      }
+      return new Date(dateStr);
+    };
 
-      {/* Follow-up list */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {followUps.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
+    const formatFollowUpDate = (dateStr) => {
+      const d = parseFollowUpDate(dateStr);
+      if (!d || isNaN(d)) return dateStr || "—";
+      return d.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    const formatFollowUpTime = (dateStr) => {
+      const d = parseFollowUpDate(dateStr);
+      if (!d || isNaN(d)) return "";
+      return d.toLocaleTimeString("en-IN", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    };
+
+    return (
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* New Follow-up button */}
+        {/* <div className="px-4 pt-3 pb-2">
+          <button
+            onClick={() => setIsFollowUpModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm"
+          >
             <svg
-              width="72"
-              height="72"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#9CA3AF"
-              strokeWidth="1"
+              stroke="#EA580C"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <polyline points="9 15 11 17 15 13" strokeWidth="1.5" />
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <line x1="12" y1="15" x2="12" y2="19" />
+              <line x1="10" y1="17" x2="14" y2="17" />
             </svg>
-            <p className="text-lg font-semibold text-gray-700">
-              No Follow-up Here
-            </p>
-            <p className="text-sm text-gray-400 text-center max-w-[220px]">
-              It seems that you don't have any follow-up in this list
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3 mt-1">
-            {followUps.map((fu, i) => {
-              const colors = followUpColor(fu.followUpType);
-              return (
-                <div
-                  key={fu.id || i}
-                  className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span
-                      className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                      style={{ backgroundColor: colors.bg, color: colors.text }}
-                    >
-                      {colors.icon} {fu.followUpType || "Follow-up"}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {fu.followUpDate
-                        ? new Date(fu.followUpDate).toLocaleDateString(
-                            "en-IN",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            },
-                          )
-                        : "—"}
-                    </span>
-                  </div>
-                  {fu.clientRemarks && (
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {fu.clientRemarks}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between mt-2">
-                    <span
-                      className="text-xs px-2 py-0.5 rounded-full font-medium"
-                      style={{
-                        backgroundColor:
-                          fu.followUpStatus === "Open" ? "#EFF6FF" : "#F0FDF4",
-                        color:
-                          fu.followUpStatus === "Open" ? "#2563EB" : "#16A34A",
-                      }}
-                    >
-                      {fu.followUpStatus || "Open"}
-                    </span>
-                    {fu.employeeRemarks && (
-                      <span className="text-xs text-gray-400 italic truncate max-w-[140px]">
-                        {fu.employeeRemarks}
+            New Follow-up
+          </button>
+        </div> */}
+
+        {/* Follow-up list */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          {followUps.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <svg
+                width="72"
+                height="72"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#9CA3AF"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <polyline points="9 15 11 17 15 13" strokeWidth="1.5" />
+              </svg>
+              <p className="text-lg font-semibold text-gray-700">
+                No Follow-up Here
+              </p>
+              <p className="text-sm text-gray-400 text-center max-w-[220px]">
+                It seems that you don't have any follow-up in this list
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 mt-1">
+              {followUps.map((fu, i) => {
+                const colors = followUpColor(fu.followUpType);
+                return (
+                  <div
+                    key={fu.id || i}
+                    className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm"
+                  >
+                    {/* Row 1: Type badge + Date */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span
+                        className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: colors.bg,
+                          color: colors.text,
+                        }}
+                      >
+                        {colors.icon} {fu.followUpType || "Follow-up"}
                       </span>
+                      <div className="text-right">
+                        <p className="text-xs font-medium text-gray-600">
+                          {formatFollowUpDate(fu.followUpDate)}
+                        </p>
+                        {formatFollowUpTime(fu.followUpDate) && (
+                          <p className="text-[10px] text-gray-400">
+                            {formatFollowUpTime(fu.followUpDate)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Client Remarks */}
+                    {fu.clientRemarks && (
+                      <p className="text-sm text-gray-600 leading-relaxed mb-2">
+                        {fu.clientRemarks}
+                      </p>
+                    )}
+
+                    {/* Row 2: Status + Assigned member */}
+                    <div className="flex items-center justify-between mt-1">
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full font-medium"
+                        style={{
+                          backgroundColor:
+                            fu.followUpStatus === "Open"
+                              ? "#EFF6FF"
+                              : "#F0FDF4",
+                          color:
+                            fu.followUpStatus === "Open"
+                              ? "#2563EB"
+                              : "#16A34A",
+                        }}
+                      >
+                        {fu.followUpStatus || "Open"}
+                      </span>
+
+                      {/* ✅ Show memberName (assigned person) */}
+                      {fu.memberName && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center text-[10px] font-bold text-green-700">
+                            {fu.memberName[0]?.toUpperCase()}
+                          </span>
+                          {fu.memberName}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Employee Remarks */}
+                    {fu.employeeRemarks && (
+                      <p className="text-xs text-gray-400 italic mt-1.5 truncate">
+                        {fu.employeeRemarks}
+                      </p>
+                    )}
+
+                    {/* Created at */}
+                    {fu.createdAt && (
+                      <p className="text-[10px] text-gray-300 mt-1.5">
+                        Added: {fu.createdAt}
+                      </p>
                     )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   /* ── render ──────────────────────────────────────── */
   return (

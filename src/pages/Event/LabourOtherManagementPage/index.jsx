@@ -1,4 +1,11 @@
-import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
+import {
+  Fragment,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { Container } from "@/components/container";
 import { toAbsoluteUrl } from "@/utils/Assets";
 
@@ -88,6 +95,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [activeRowId, setActiveRowId] = useState(null);
+  const activeRowIdRef = useRef(null);
 
   const [contactTypeId, setContactTypeId] = useState(2);
   const [concatId, setConcatId] = useState(2);
@@ -222,28 +230,35 @@ const LabourOtherManagementPage = ({ mode }) => {
   };
 
   const handleVendorAdded = async () => {
-    if (!activeRowId) return;
+    const lockedRowId = activeRowId;
+    if (!lockedRowId) return;
 
-    const categoryId = rowCategoryMap[activeRowId];
+    const categoryId = rowCategoryMap[lockedRowId];
     if (!categoryId) return;
 
-    const res = await GetPartyMasterByCatId(categoryId, userId);
-    const updatedContacts = res?.data?.data?.["Party Details"] || [];
+    try {
+      const res = await GetPartyMasterByCatId(categoryId, userId);
+      const updatedContacts = res?.data?.data?.["Party Details"] || [];
 
-    setAllContacts((prev) => ({
-      ...prev,
-      [categoryId]: updatedContacts,
-    }));
+      // ✅ Update allContactsRef directly — no state change = no effect trigger
+      allContactsRef.current = {
+        ...allContactsRef.current,
+        [categoryId]: updatedContacts,
+      };
 
-    setFilteredContacts((prev) => {
-      const updated = { ...prev };
-      Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
-        if (catId === categoryId) {
-          updated[rowId] = updatedContacts;
-        }
+      // ✅ Only update filteredContacts for affected rows — targeted, no full reset
+      setFilteredContacts((prev) => {
+        const updated = { ...prev };
+        Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
+          if (catId === categoryId) {
+            updated[rowId] = updatedContacts;
+          }
+        });
+        return updated;
       });
-      return updated;
-    });
+    } catch (e) {
+      console.error("Error refreshing vendor list:", e);
+    }
   };
 
   const activeFunction = useMemo(
@@ -307,6 +322,10 @@ const LabourOtherManagementPage = ({ mode }) => {
   };
 
   useEffect(() => {
+    activeRowIdRef.current = activeRowId;
+  }, [activeRowId]);
+
+  useEffect(() => {
     const fetchContacts = async () => {
       if (!userId || !labourCategories.length) return;
 
@@ -359,6 +378,15 @@ const LabourOtherManagementPage = ({ mode }) => {
     fetchEventData();
   }, [eventId]);
 
+  const allContactsRef = useRef(allContacts);
+  useEffect(() => {
+    allContactsRef.current = allContacts;
+  }, [allContacts]);
+
+  // Then change fetchLaborDetails (defined inside the useEffect) to read
+  // from allContactsRef.current instead of allContacts directly.
+  // AND remove allContacts from the dependency array:
+
   useEffect(() => {
     const fetchLaborDetails = async () => {
       if (!eventData || !activeTab) return;
@@ -366,7 +394,6 @@ const LabourOtherManagementPage = ({ mode }) => {
       const functionObj = eventData.eventFunctions.find(
         (fn) => fn.id === activeTab,
       );
-
       if (!functionObj) return;
 
       try {
@@ -378,15 +405,13 @@ const LabourOtherManagementPage = ({ mode }) => {
         const formattedRows = [];
         const newShiftRows = {};
 
-        // ✅ Process each labor entry with nested shifts
         laborData.forEach((item) => {
           const rowId = `server-${item.id}`;
-
-          // Store category and contact mappings
           categoryMap[rowId] = item.labortypeid;
-          contactMap[rowId] = allContacts[item.labortypeid] || [];
 
-          // Create parent row (one per labor type + contact combination)
+          // ✅ Read from ref, not from closure — always fresh, not a dep
+          contactMap[rowId] = allContactsRef.current[item.labortypeid] || [];
+
           formattedRows.push({
             id: rowId,
             isSaved: true,
@@ -397,7 +422,7 @@ const LabourOtherManagementPage = ({ mode }) => {
               "",
             contact:
               item.contactname ||
-              Object.values(allContacts)
+              Object.values(allContactsRef.current)
                 .flat()
                 .find((c) => c.id === item.contactid)?.nameEnglish ||
               "",
@@ -407,7 +432,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             notesHindi: item.labourShift?.[0]?.notesHindi || "",
           });
 
-          // ✅ Create shift rows from nested labourShift array
           if (item.labourShift && Array.isArray(item.labourShift)) {
             newShiftRows[rowId] = item.labourShift.map((shift, index) => ({
               id: `shift-${item.id}-${index}`,
@@ -424,49 +448,33 @@ const LabourOtherManagementPage = ({ mode }) => {
           }
         });
 
-        // ✅ Update all states
-        // ✅ Update all states
         setLabourData(formattedRows);
         setRowCategoryMap(categoryMap);
         setFilteredContacts(contactMap);
         setShiftRows(newShiftRows);
 
-        // ✅ AUTO-EXPAND THE FIRST ROW (whether it has shifts or not)
         if (formattedRows.length > 0) {
           setExpandedRows({ [formattedRows[0].id]: true });
         }
-
-        // ✅ Auto-expand rows that have shifts
-        // const expandedState = {};
-        // Object.keys(newShiftRows).forEach((rowId) => {
-        //   if (newShiftRows[rowId]?.length > 0) {
-        //     expandedState[rowId] = true;
-        //   }
-        // });
-        // setExpandedRows(expandedState);
       } catch (err) {
         console.error("Error fetching labour details:", err);
       }
     };
 
-    if (
-      eventData &&
-      activeTab &&
-      labourCategories.length &&
-      Object.keys(allContacts).length
-    ) {
+    if (eventData && activeTab && labourCategories.length) {
       fetchLaborDetails();
     }
-  }, [eventData, activeTab, labourCategories, allContacts]);
+    // ✅ allContacts is NOT here — changing contacts no longer wipes your rows
+  }, [eventData, activeTab, labourCategories]);
 
   useEffect(() => {
     setFilteredContacts((prev) => {
       const updated = { ...prev };
-
       Object.entries(rowCategoryMap).forEach(([rowId, categoryId]) => {
-        updated[rowId] = allContacts[categoryId] || [];
+        if (!updated[rowId] || updated[rowId].length === 0) {
+          updated[rowId] = allContacts[categoryId] || [];
+        }
       });
-
       return updated;
     });
   }, [allContacts, rowCategoryMap]);
@@ -933,7 +941,7 @@ const LabourOtherManagementPage = ({ mode }) => {
     setSelectedEventId(newEventId);
     setIsAllCustomerToogleOpen(false);
     navigate(`/labour-and-other-management/${newEventId}`);
-};
+  };
   return (
     <Fragment>
       <Container>
@@ -1099,7 +1107,10 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900 underline cursor-pointer"  onClick={() => setIsAllCustomerToogleOpen(true)}>
+                <span
+                  className="text-sm font-medium text-gray-900 underline cursor-pointer"
+                  onClick={() => setIsAllCustomerToogleOpen(true)}
+                >
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -1314,8 +1325,14 @@ const LabourOtherManagementPage = ({ mode }) => {
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
             onOpenAddVendor={() => {
-              if (!activeRowId && labourData.length) {
-                setActiveRowId(labourData[labourData.length - 1].id);
+              const rowId =
+                activeRowId ||
+                (labourData.length
+                  ? labourData[labourData.length - 1].id
+                  : null);
+              if (rowId) {
+                activeRowIdRef.current = rowId; // ← lock it
+                setActiveRowId(rowId);
               }
               setIsMemberModalOpen(true);
             }}
@@ -1407,10 +1424,10 @@ const LabourOtherManagementPage = ({ mode }) => {
           refreshData={FetchLabourShift}
         />
         <AllCustomerToogle
-        isModalOpen={isAllCustomerToogleOpen}
-        setIsModalOpen={setIsAllCustomerToogleOpen}
-        onEventSelect={handleEventSelect}
-      />
+          isModalOpen={isAllCustomerToogleOpen}
+          setIsModalOpen={setIsAllCustomerToogleOpen}
+          onEventSelect={handleEventSelect}
+        />
         <MenuReport
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}

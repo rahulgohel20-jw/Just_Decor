@@ -14,6 +14,7 @@ const MoveLeadModal = ({
   toColumn,
   managers = [],
 }) => {
+  const isManualMove = fromColumn?.id === toColumn?.id;
   /* ── state ───────────────────────────────────────── */
   const [selectedAssignee, setSelectedAssignee] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -25,9 +26,9 @@ const MoveLeadModal = ({
   const [followUpReminders, setFollowUpReminders] = useState([]);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
-
-  // ← ADD THIS LINE:
   const [internalManagers, setInternalManagers] = useState([]);
+  const [selectedToColumn, setSelectedToColumn] = useState("");
+  const [allColumns, setAllColumns] = useState([]);
 
   // Attachment
 
@@ -39,8 +40,8 @@ const MoveLeadModal = ({
       setFollowUpDate(null);
       setFollowUpReminders([]);
       setAttachedFile(null);
+      setSelectedToColumn("");
 
-      // Fetch managers FIRST, then set the pre-selected value
       Fetchmanager(1)
         .then((res) => {
           if (res?.data?.data?.userDetails) {
@@ -49,8 +50,6 @@ const MoveLeadModal = ({
               label: man.firstName || "-",
             }));
             setInternalManagers(list);
-
-            // ← Set assignee AFTER list is ready so the option exists
             setSelectedAssignee(
               lead.leadAssignId ? String(lead.leadAssignId) : "",
             );
@@ -62,20 +61,7 @@ const MoveLeadModal = ({
         });
     }
   }, [isOpen, lead]);
-  // Reset on open
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedAssignee("");
-      setRemarks("");
-      setFollowUpOpen(false);
-      setFollowUpType("Call");
-      setFollowUpDate(null);
-      setFollowUpReminders([]);
-      setAttachedFile(null);
-    }
-  }, [isOpen]);
 
-  /* ── helpers ─────────────────────────────────────── */
   const FOLLOW_UP_TYPES = ["Call", "WhatsApp", "Email"];
 
   const stagePillColor = (name = "") => {
@@ -92,18 +78,37 @@ const MoveLeadModal = ({
   };
 
   const handleConfirm = () => {
+    // ✅ For manual move, use selectedToColumn; for DnD use toColumn
+    const resolvedToColumn = isManualMove
+      ? { id: selectedToColumn, name: selectedToColumn }
+      : toColumn;
+
+    if (isManualMove && !selectedToColumn) {
+      alert("Please select a destination stage.");
+      return;
+    }
+
+    // ✅ Format followUpDate
+    const formattedFollowUpDate = followUpDate
+      ? followUpDate.includes(" ")
+        ? followUpDate
+        : `${followUpDate} 12:00 AM`
+      : null;
+
     onConfirm?.({
       leadId: lead?.leadId || lead?.id,
-      toStatus: toColumn?.id,
-      assignedTo: selectedAssignee, // ← this is the manager ID
+      toStatus: resolvedToColumn?.id,
+      toColumn: resolvedToColumn, // ✅ pass resolved toColumn
+      assignedTo: selectedAssignee,
       remarks,
-      followUp: followUpOpen
-        ? {
-            type: followUpType,
-            date: followUpDate,
-            reminders: followUpReminders,
-          }
-        : null,
+      followUp:
+        followUpOpen && formattedFollowUpDate
+          ? {
+              type: followUpType,
+              date: formattedFollowUpDate,
+              reminders: followUpReminders,
+            }
+          : null,
       attachment: attachedFile,
     });
   };
@@ -210,34 +215,82 @@ const MoveLeadModal = ({
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
               <span className="font-semibold text-gray-700">Pipeline : </span>
-              Sales Pipeline
+              {lead?.pipelineName || lead?.pipeline || "—"}
             </p>
-            <div className="flex items-center justify-center gap-8 mt-3">
-              <span
-                className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
-                style={{ backgroundColor: stagePillColor(fromColumn?.name) }}
-              >
-                {fromColumn?.name || "—"}
-              </span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-              <span
-                className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
-                style={{ backgroundColor: stagePillColor(toColumn?.name) }}
-              >
-                {toColumn?.name || "—"}
-              </span>
+            {/* Lead meta + stage pills */}
+            <div className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3">
+              {isManualMove ? (
+                // ✅ Manual move — show FROM pill + destination dropdown
+                <div className="flex items-center justify-center gap-4 mt-3">
+                  <span
+                    className="px-4 py-1.5 rounded-full text-white text-sm font-semibold flex-shrink-0"
+                    style={{
+                      backgroundColor: stagePillColor(fromColumn?.name),
+                    }}
+                  >
+                    {fromColumn?.name || "—"}
+                  </span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#9CA3AF"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                  {/* ✅ Destination stage selector — pass allColumns from parent */}
+                  <select
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-400"
+                    value={selectedToColumn}
+                    onChange={(e) => setSelectedToColumn(e.target.value)}
+                  >
+                    <option value="">Select Stage</option>
+                    {(managers.__columns || [])
+                      .filter((col) => col.name !== fromColumn?.name)
+                      .map((col) => (
+                        <option key={col.id} value={col.name}>
+                          {col.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              ) : (
+                // ✅ DnD move — show fixed FROM → TO pills (unchanged)
+                <div className="flex items-center justify-center gap-8 mt-3">
+                  <span
+                    className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
+                    style={{
+                      backgroundColor: stagePillColor(fromColumn?.name),
+                    }}
+                  >
+                    {fromColumn?.name || "—"}
+                  </span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#9CA3AF"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                  <span
+                    className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
+                    style={{ backgroundColor: stagePillColor(toColumn?.name) }}
+                  >
+                    {toColumn?.name || "—"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -9,7 +9,7 @@ import { Fragment } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, ReceiptEuro } from "lucide-react";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 const { Option } = Select;
@@ -253,6 +253,7 @@ export default function AddLeadPage() {
         planName: editData.planName || "",
         overallRemark: editData.overallRemark || "",
         followUpDetails: editData.followUpDetails || [],
+        leadTitle: editData.leadTitle || "",
       });
 
       if (editData.followUpDetails && editData.followUpDetails.length > 0) {
@@ -268,6 +269,60 @@ export default function AddLeadPage() {
         }));
         setFollowUps(normalized);
       }
+      // ✅ REPLACE WITH THIS:
+      if (editData.pipelineId) {
+        setSelectedPipeline(editData.pipelineId);
+
+        const userId =
+          localStorage.getItem("userId") || localStorage.getItem("id");
+
+        Getstagesbypipeline(editData.pipelineId, userId)
+          .then((res) => {
+            const data = res?.data?.data || {};
+            const allStages = Object.values(data).flat();
+            const stageOptions = allStages.map((stage) => ({
+              label: stage.stageName,
+              value: stage.stageId,
+              stageType: stage.stageType,
+            }));
+            setOpenStages(stageOptions); // ✅ populate dropdown
+
+            // ✅ Now set stage AFTER options are ready
+            const stageId = editData.openStageId || editData.closeStageId;
+            if (stageId) {
+              setSelectedStageId(stageId);
+              if (editData.openStageId) {
+                setOpenStageId(editData.openStageId);
+                setCloseStageId(0);
+              } else {
+                setCloseStageId(editData.closeStageId);
+                setOpenStageId(0);
+              }
+            }
+          })
+          .catch(console.error);
+      }
+      // ✅ Pre-populate estimate amount
+      // ✅ Fix estimate amount - check editData directly
+      if (
+        editData.estimateAmount !== undefined &&
+        editData.estimateAmount !== null &&
+        editData.estimateAmount !== ""
+      ) {
+        setEstimateAmount(String(editData.estimateAmount));
+      }
+      if (editData.leadFollowUpDate) {
+        const parsed = dayjs(editData.leadFollowUpDate, [
+          "YYYY-MM-DD HH:mm:ss", // ✅ API format: "2026-02-04 00:00:00"
+          "DD/MM/YYYY", // ✅ mapped format: "04/02/2026"
+          "YYYY-MM-DD",
+        ]);
+        if (parsed.isValid()) {
+          setFollowupDate(parsed);
+        }
+      }
+
+      // ✅ Pre-populate follow-up date
     } else {
       const loadLeadCode = async () => {
         try {
@@ -360,6 +415,14 @@ export default function AddLeadPage() {
   };
 
   const handleSaveLead = async () => {
+    if (!leadData.clientName) {
+      Swal.fire("Validation", "Please select a client name.", "warning");
+      return;
+    }
+    if (!leadData.contactNumber) {
+      Swal.fir("Validation", "Please select a Contcatname.", "warning");
+      return;
+    }
     if (!selectedPipeline) {
       Swal.fire("Validation", "Please select a Pipeline.", "warning");
       return;
@@ -500,7 +563,7 @@ export default function AddLeadPage() {
       .then((res) => {
         const data = res?.data?.data || [];
         const mapped = data.map((p) => ({
-          label: p.pipelineName,
+          label: p.name || p.pipelineName || "Unnamed", // ✅ p.name first
           value: p.id,
         }));
         setPipelines(mapped);
@@ -513,29 +576,25 @@ export default function AddLeadPage() {
   };
   // handlePipelineChange - pass userId here
   const handlePipelineChange = async (value) => {
-    setSelectedPipeline(value);
+    setSelectedPipeline(value); // ✅ set FIRST
     setSelectedStageId(undefined);
     setOpenStageId(undefined);
     setCloseStageId(undefined);
-    setLeadData((prev) => ({ ...prev, leadType: undefined }));
     setOpenStages([]);
 
     if (!value) return;
 
-    const userId = localStorage.getItem("userId") || localStorage.getItem("id"); // ✅ get here
+    const userId = localStorage.getItem("userId") || localStorage.getItem("id");
 
     try {
-      const res = await Getstagesbypipeline(value, userId); // ✅ pass here
+      const res = await Getstagesbypipeline(value, userId);
       const data = res?.data?.data || {};
-
       const allStages = Object.values(data).flat();
-
       const stageOptions = allStages.map((stage) => ({
         label: stage.stageName,
         value: stage.stageId,
         stageType: stage.stageType,
       }));
-
       setOpenStages(stageOptions);
     } catch (err) {
       console.error("Failed to fetch pipeline stages:", err);
@@ -851,7 +910,7 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Client Name
+                      Client Name <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="Enter Guest Name"
@@ -863,6 +922,11 @@ export default function AddLeadPage() {
                         })
                       }
                     />
+                    {!leadData.clientName && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        client Name is required
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -883,7 +947,7 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Number
+                      Contact Number <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="Enter Contact Number"
@@ -895,6 +959,11 @@ export default function AddLeadPage() {
                         })
                       }
                     />
+                    {!leadData.contactNumber && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        contact name is required
+                      </span>
+                    )}
                   </div>
 
                   <div>

@@ -29,6 +29,27 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { DragAndDrop } from "@/components/drag-and-drop/DragAndDrop";
 import { Badge } from "@/components/ui/badge";
 
+const formatFollowUpDateForAPI = (dateStr) => {
+  if (!dateStr) return "";
+
+  // ✅ ADD THIS - Handle "YYYY-MM-DD HH:mm:ss" → "DD/MM/YYYY 12:00 AM"
+  if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/.test(dateStr)) {
+    const [datePart] = dateStr.split(" ");
+    const [y, m, d] = datePart.split("-");
+    return `${d}/${m}/${y} 12:00 AM`;
+  }
+
+  // existing cases below unchanged ↓
+  if (/\d{2}\/\d{2}\/\d{4}\s+\d/.test(dateStr)) return dateStr;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split("-");
+    return `${d}/${m}/${y} 12:00 AM`;
+  }
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+    return `${dateStr} 12:00 AM`;
+  }
+  return dateStr;
+};
 const SuperLeads = () => {
   const classes = useStyle();
   const navigate = useNavigate();
@@ -114,18 +135,15 @@ const SuperLeads = () => {
     try {
       setIsLoadingLeads(true);
 
-      // ✅ Try all common patterns
       const getStoredUserId = () => {
-        // Direct keys
         const direct =
-          localStorage.getItem("userId") ||
+          localStorage.getItem("mainId") ||
           localStorage.getItem("id") ||
           localStorage.getItem("user_id") ||
           localStorage.getItem("empId") ||
           localStorage.getItem("memberId");
         if (direct) return direct;
 
-        // Nested in JSON object
         const keys = [
           "user",
           "userData",
@@ -146,13 +164,8 @@ const SuperLeads = () => {
       };
 
       const userId = getStoredUserId();
-      console.log("✅ Resolved userId:", userId); // ← check this in console
-
       if (!userId) {
-        console.error(
-          "❌ userId not found. localStorage keys:",
-          Object.keys(localStorage),
-        );
+        console.error("❌ userId not found.");
         setIsLoadingLeads(false);
         return;
       }
@@ -165,35 +178,67 @@ const SuperLeads = () => {
       const data = leadsRes?.data?.data;
       const stagesData = stagesRes?.data?.data;
 
-      const stageTypeMap = {};
-      Object.entries(stagesData || {}).forEach(([key, stages]) => {
+      // ✅ Build TWO maps:
+      // 1. stageId → stageType  (for leads that already have a stageId)
+      // 2. stageName → { stageId, stageType }  (for matching columns by name, including empty ones)
+      const stageIdToTypeMap = {};
+      const stageNameToMetaMap = {};
+
+      Object.entries(stagesData || {}).forEach(([groupKey, stages]) => {
         stages.forEach((stage) => {
-          stageTypeMap[stage.stageId] = stage.stageType;
+          stageIdToTypeMap[stage.stageId] = stage.stageType;
+          // stageName is the key used in open_lead / close_lead objects
+          const normalizedName = stage.stageName?.toLowerCase().trim();
+          stageNameToMetaMap[normalizedName] = {
+            stageId: stage.stageId,
+            stageType: stage.stageType,
+          };
         });
       });
 
+      console.log("✅ stageNameToMetaMap:", stageNameToMetaMap);
+
       setPipelineData(data);
-      buildBoardFromPipeline(data, stageTypeMap);
+      buildBoardFromPipeline(
+        data,
+        stageIdToTypeMap,
+        stageNameToMetaMap,
+        activePipeline?.name || "",
+      );
     } catch (err) {
       console.error("Failed to fetch pipeline leads:", err);
     } finally {
       setIsLoadingLeads(false);
     }
   };
-  const buildBoardFromPipeline = (data, stageTypeMap = {}) => {
+  const buildBoardFromPipeline = (
+    data,
+    stageIdToTypeMap = {},
+    stageNameToMetaMap = {},
+    pipelineName = "",
+  ) => {
     const openLead = data?.open_lead || {};
     const closeLead = data?.close_lead || {};
 
     const openColumns = Object.entries(openLead).map(([stageName, leads]) => {
-      const stageId = leads[0]?.stageId ?? null;
-      const stageType = stageTypeMap[stageId] ?? "open_stage"; // ← from map
+      // ✅ First try to get stageId/stageType from the stageNameToMetaMap (reliable, works even with 0 leads)
+      const metaFromName = stageNameToMetaMap[stageName?.toLowerCase().trim()];
+      const stageId = metaFromName?.stageId ?? leads[0]?.stageId ?? null;
+      const stageType =
+        metaFromName?.stageType ??
+        stageIdToTypeMap[leads[0]?.stageId] ??
+        "open_stage";
+
+      console.log(
+        `✅ Open stage "${stageName}" → stageId: ${stageId}, stageType: ${stageType}`,
+      );
 
       return {
         id: `open_${stageName}`,
         name: stageName,
         tag: "open",
         stageId,
-        stageType, // ✅ reliable
+        stageType,
         children: leads.map((lead) => ({
           ...lead,
           id: String(lead.leadId),
@@ -205,20 +250,34 @@ const SuperLeads = () => {
           city: lead.city || "-",
           cityName: lead.city || "-",
           pipelineId: lead.pipelineId,
+          createdAt: lead.leadCreatedAt || null, // was createdAt (null in API)
+          updatedAt: lead.leadUpdatedAt || null, // was updatedAt (null in API)
+          closeDate: lead.leadFollowUpDate || "NA",
+          stage: lead.stage || stageName,
+          pipelineName: lead.pipelineName || activePipeline?.name || "-",
         })),
       };
     });
 
     const closeColumns = Object.entries(closeLead).map(([stageName, leads]) => {
-      const stageId = leads[0]?.stageId ?? null;
-      const stageType = stageTypeMap[stageId] ?? "close_stage"; // ← from map
+      // ✅ Same fix for close stages
+      const metaFromName = stageNameToMetaMap[stageName?.toLowerCase().trim()];
+      const stageId = metaFromName?.stageId ?? leads[0]?.stageId ?? null;
+      const stageType =
+        metaFromName?.stageType ??
+        stageIdToTypeMap[leads[0]?.stageId] ??
+        "close_stage";
+
+      console.log(
+        `✅ Close stage "${stageName}" → stageId: ${stageId}, stageType: ${stageType}`,
+      );
 
       return {
         id: `close_${stageName}`,
         name: stageName,
         tag: "close",
         stageId,
-        stageType, // ✅ reliable
+        stageType,
         children: leads.map((lead) => ({
           ...lead,
           id: String(lead.leadId),
@@ -230,13 +289,17 @@ const SuperLeads = () => {
           city: lead.city || "-",
           cityName: lead.city || "-",
           pipelineId: lead.pipelineId,
+          createdAt: lead.leadCreatedAt || null,
+          updatedAt: lead.leadUpdatedAt || null,
+          closeDate: lead.leadFollowUpDate || "NA",
+          stage: lead.stage || stageName,
+          pipelineName: lead.pipelineName || pipelineName || "-",
         })),
       };
     });
 
     setBoardColumns([...openColumns, ...closeColumns]);
 
-    // flatten for list view
     const allLeads = [
       ...Object.values(openLead).flat(),
       ...Object.values(closeLead).flat(),
@@ -247,6 +310,7 @@ const SuperLeads = () => {
       productType: lead.planName || "-",
       cityName: lead.city || lead.cityName || "-",
       createdAt: lead.createdAt?.split("T")[0],
+      stage: lead.stage || "-",
     }));
 
     setTableData(allLeads);
@@ -255,8 +319,41 @@ const SuperLeads = () => {
     try {
       const response = await GetLeadByID(lead.leadId);
       const fullLeadData = response?.data?.data?.[0] || lead;
-      setDrawerLead(fullLeadData);
-      setDrawerFollowUps(fullLeadData.followUpDetails || []);
+
+      const mappedLead = {
+        ...fullLeadData,
+        leadId: fullLeadData.id,
+        title: fullLeadData.clientName,
+        subtitle: fullLeadData.leadCode,
+        assignedTo: fullLeadData.leadAssignName || "-",
+        city: fullLeadData.cityName || "-",
+        closeDate: fullLeadData.leadFollowUpDate || "NA",
+        pipelineName: fullLeadData.pipelineName || "-",
+        openStageName: fullLeadData.openStageName || "-", // ✅
+        createdAt: fullLeadData.createdAt || "N/A",
+        updatedAt: fullLeadData.createdAt || "N/A",
+        amount: fullLeadData.estimateAmount || 0,
+        estimateAmount: fullLeadData.estimateAmount || 0,
+      };
+
+      // ✅ Map followUpDetails correctly from API
+      const mappedFollowUps = (fullLeadData.followUpDetails || []).map(
+        (fu) => ({
+          id: fu.id,
+          followUpType: fu.followUpType || "Call",
+          followUpStatus: fu.followUpStatus || "Open",
+          followUpDate: fu.followUpDate || "", // "24/02/2026 12:00 AM"
+          clientRemarks: fu.clientRemarks || "",
+          employeeRemarks: fu.employeeRemarks || "",
+          createdAt: fu.createdAt || "", // "19/02/2026 12:16 PM"
+          leadId: fu.leadId,
+          memberId: fu.memberId,
+          memberName: fu.memberName || "", // ✅ "Digvijay Shree"
+        }),
+      );
+
+      setDrawerLead(mappedLead);
+      setDrawerFollowUps(mappedFollowUps); // ✅ properly mapped
       setIsDrawerOpen(true);
     } catch {
       setDrawerLead(lead);
@@ -270,14 +367,48 @@ const SuperLeads = () => {
     toColumn,
     pendingColumns,
   }) => {
-    console.log("🔍 Full lead object keys:", Object.keys(lead));
-    console.log("🔍 Full lead object:", JSON.stringify(lead, null, 2));
-    setMoveLeadPayload({ lead, fromColumn, toColumn, pendingColumns });
+    // ✅ Look up correct column from boardColumns state using name match
+    const correctFromColumn =
+      boardColumns.find(
+        (col) =>
+          col.name?.toLowerCase().trim() ===
+          fromColumn.name?.toLowerCase().trim(),
+      ) || fromColumn;
+
+    const correctToColumn =
+      boardColumns.find(
+        (col) =>
+          col.name?.toLowerCase().trim() ===
+          toColumn.name?.toLowerCase().trim(),
+      ) || toColumn;
+
+    console.log(
+      "FROM resolved:",
+      correctFromColumn.name,
+      correctFromColumn.stageId,
+      correctFromColumn.stageType,
+    );
+    console.log(
+      "TO resolved:",
+      correctToColumn.name,
+      correctToColumn.stageId,
+      correctToColumn.stageType,
+    );
+
+    setMoveLeadPayload({
+      lead,
+      fromColumn: correctFromColumn,
+      toColumn: correctToColumn,
+      pendingColumns,
+    });
     setIsMoveModalOpen(true);
   };
+
   // ✅ Fix - remove the redundant toColumn.tag
   const handleConfirmMove = async (formPayload) => {
     setBoardColumns(moveLeadPayload.pendingColumns);
+
+    // ✅ Helper to format date to "DD/MM/YYYY 12:00 AM"
 
     const lead = moveLeadPayload.lead;
     const toColumn = moveLeadPayload.toColumn;
@@ -287,29 +418,44 @@ const SuperLeads = () => {
     const stageType =
       toColumn.stageType ||
       (toColumn.tag === "open" ? "open_stage" : "close_stage");
-    // ✅ derive from tag
-    console.log("toColumn.stageType:", toColumn.stageType); // ✅ derive from tag
 
+    // ✅ assignId and remark are query params - NOT in body
+    const assignId = formPayload.assignedTo
+      ? Number(formPayload.assignedTo)
+      : null;
+    const remark = formPayload.remarks || "";
+
+    // ✅ requestDto is body - only follow-up fields, null if no follow-up
+    // ✅ requestDto always has data - empty strings/0 if no follow-up selected
     const requestDto = formPayload.followUp?.date
       ? {
           clientRemarks: formPayload.remarks || "",
           employeeRemarks: "",
-          followUpDate: formPayload.followUp.date,
+          followUpDate: formatFollowUpDateForAPI(formPayload.followUp.date), // ✅ "24/02/2026 12:00 AM"
           followUpStatus: "Open",
           followUpType: formPayload.followUp.type || "Call",
           id: 0,
           leadId: leadId,
           memberId: formPayload.assignedTo ? Number(formPayload.assignedTo) : 0,
         }
-      : null; // ✅ whole object null if no followup
-
+      : {
+          clientRemarks: "",
+          employeeRemarks: "",
+          followUpDate: "",
+          followUpStatus: "",
+          followUpType: "",
+          id: 0,
+          leadId: 0,
+          memberId: 0,
+        };
     try {
       await MoveLeadToStage(
         leadId,
         stageId,
-        stageType, // ✅ "open_stage" or "close_stage"
-        formPayload.remarks || "", // ✅ actual remarks here
-        requestDto, // ✅ null or full object
+        stageType,
+        assignId, // ✅ query param
+        remark, // ✅ query param
+        requestDto, // ✅ body (null if no follow-up)
       );
 
       if (activePipeline?.id) {
@@ -751,22 +897,25 @@ const SuperLeads = () => {
       const newFollowUp = {
         id: 0,
         leadId: selectedLeadForFollowUp.leadId,
-        followUpType: followUpData.followUpType || followUpData.followType,
+        followUpType:
+          followUpData.followUpType || followUpData.followType || "Call",
         followUpStatus: followUpData.followUpStatus || "Open",
-        followUpDate: followUpData.followupDate || followUpData.followUpDate,
+        followUpDate: formatFollowUpDateForAPI(
+          followUpData.followupDate || followUpData.followUpDate,
+        ),
         clientRemarks:
-          followUpData.description || followUpData.clientRemarks || "",
+          followUpData.clientRemarks || followUpData.description || "",
         employeeRemarks: followUpData.employeeRemarks || "",
-        memberId: followUpData.managerId || 0,
+        memberId: followUpData.memberId || followUpData.managerId || 0, // ✅ AddFollowUpModal sends memberId
       };
 
       const existingFollowUps = (fullLeadData.followUpDetails || []).map(
         (fu) => ({
           id: fu.id ? Number(fu.id) : 0,
           leadId: selectedLeadForFollowUp.leadId,
-          followUpType: fu.followUpType || fu.followType || "",
+          followUpType: fu.followUpType || "",
           followUpStatus: fu.followUpStatus || "Open",
-          followUpDate: fu.followUpDate || fu.followupDate || "",
+          followUpDate: fu.followUpDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
           memberId: fu.memberId || 0,
@@ -794,6 +943,24 @@ const SuperLeads = () => {
         planId: fullLeadData.planId ? Number(fullLeadData.planId) : 0,
         selectPrefix: fullLeadData.selectPrefix || "",
         stateId: fullLeadData.stateId ? Number(fullLeadData.stateId) : 0,
+
+        // ✅ ADD THESE — pipeline and stage fields were missing
+        pipelineId: fullLeadData.pipelineId
+          ? Number(fullLeadData.pipelineId)
+          : 0,
+        openStageId: fullLeadData.openStageId
+          ? Number(fullLeadData.openStageId)
+          : 0,
+        openStageName: fullLeadData.openStageName || "",
+        closeStageId: fullLeadData.closeStageId
+          ? Number(fullLeadData.closeStageId)
+          : 0,
+        closeStageName: fullLeadData.closeStageName || "",
+        leadTitle: fullLeadData.leadTitle || "",
+        leadFollowUpDate: formatFollowUpDateForAPI(
+          fullLeadData.leadFollowUpDate || "",
+        ).split(" ")[0],
+
         followUpDetails: allFollowUps,
       };
 
@@ -809,11 +976,7 @@ const SuperLeads = () => {
         Swal.fire("Success", "Follow-up added successfully!", "success");
         await refreshFollowUps();
 
-        if (selectedLeadStatus) {
-          handleLeadStatusChange({ target: { value: selectedLeadStatus } });
-        } else if (selectedLeadType) {
-          handleLeadTypeChange({ target: { value: selectedLeadType } });
-        } else if (activePipeline?.id) {
+        if (activePipeline?.id) {
           fetchPipelineLeads(activePipeline.id);
         }
       } else {
@@ -854,6 +1017,7 @@ const SuperLeads = () => {
           followUpDate: fu.followUpDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          memberId: fu.memberId || 0,
           createdAt: fu.createdAt || null,
         }),
       );
@@ -878,6 +1042,16 @@ const SuperLeads = () => {
         overallRemark: fullLeadData.overallRemark,
         productType: fullLeadData.planId,
         followUpDetails: mappedFollowUps,
+        pipelineId: fullLeadData.pipelineId,
+        pipelineName: fullLeadData.pipelineName,
+        openStageId: fullLeadData.openStageId,
+        openStageName: fullLeadData.openStageName,
+        closeStageId: fullLeadData.closeStageId,
+        leadTitle: fullLeadData.leadTitle || "",
+        leadFollowUpDate: fullLeadData.leadFollowUpDate || "",
+        followUpDetails: mappedFollowUps,
+        // In handleEditLead (index.jsx) - ensure it's always a string:
+        estimateAmount: String(fullLeadData.estimateAmount ?? ""), // ✅ handles 0 too
       };
 
       navigate("/super-leads/addlead", { state: { leadData: mappedData } });
@@ -888,55 +1062,6 @@ const SuperLeads = () => {
     }
   };
 
-  // Fetch Leads
-  // const fetchLeads = () => {
-  //   setIsLoadingLeads(true);
-
-  //   // Check ALL localStorage keys
-  //   console.log("All localStorage:", { ...localStorage });
-
-  //   const mainId = localStorage.getItem("mainId");
-  //   const userId = localStorage.getItem("userId");
-  //   const id = localStorage.getItem("id");
-  //   console.log("mainId:", mainId, "userId:", userId, "id:", id);
-
-  //   GetAllleadmaster(mainId)
-  //     .then((res) => {
-  //       console.log("✅ API SUCCESS:", res);
-  //       console.log("✅ data:", res?.data?.data);
-
-  //       const response = res?.data?.data;
-  //       if (response?.["All Leads"]?.length) {
-  //         console.log("✅ Leads found:", response["All Leads"].length);
-  //         const formatted = response["All Leads"].map((item, index) => ({
-  //           ...item,
-  //           sr_no: index + 1,
-  //           leadId: item.id,
-  //           leadAssign: item.leadAssignName || "-",
-  //           productType: item.planName || "-",
-  //           cityName: item.cityName || "-",
-  //           createdAt: item.createdAt?.split("T")[0],
-  //         }));
-  //         console.log("✅ formatted[0]:", formatted[0]);
-  //         setTableData(formatted);
-  //         setBoardColumns(transformToBoardData(formatted));
-  //         setStats({
-  //           total: response["All Leads Count"] || 0,
-  //           hot: response["Hot"] || 0,
-  //           cold: response["Cold"] || 0,
-  //           inquire: response["Inquire"] || 0,
-  //           assigned: response["Lead Assigned"] || 0,
-  //         });
-  //       } else {
-  //         console.log("❌ No leads in response, raw response:", response);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.log("❌ API ERROR:", error);
-  //       console.log("❌ Error response:", error?.response?.data);
-  //     })
-  //     .finally(() => setIsLoadingLeads(false));
-  // };
   useEffect(() => {
     const loadPipelines = async () => {
       try {
@@ -1424,6 +1549,7 @@ const SuperLeads = () => {
             fromColumn={moveLeadPayload.fromColumn}
             toColumn={moveLeadPayload.toColumn}
             managers={managers}
+            boardColumns={boardColumns}
           />
         )}
 

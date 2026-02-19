@@ -218,6 +218,9 @@ import RecivedPayments from "../pages/payments/RecivedPayments";
 import AccountLedger from "../pages/payments/AccountLedger";
 import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
 import Pipeline from "../pages/lead/pipeline";
+import BankPayment from "../pages/payments/BankPayment";
+import CashRecipet from "../pages/payments/CashRecipet";
+import BankDetails from "../pages/master/Bank-Details";
 import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
 import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
 
@@ -366,6 +369,8 @@ const AppRoutingSetup = () => {
             path="/master/raw-material-type-master"
             element={<RawMaterialTypeMaster />}
           />
+
+          <Route path="/master/bank-details" element={<BankDetails />} />
           <Route path="/master/all-members" element={<AllMemberMaster />} />
           <Route path="/superadmin/members" element={<SuperadminMember />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />
@@ -401,6 +406,8 @@ const AppRoutingSetup = () => {
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}
           />
+          <Route path="/bank-payment" element={<BankPayment />} />
+          <Route path="/cash-recipet" element={<CashRecipet />} />
 
           <Route path="/pages-master" element={<PageMaster />} />
           <Route path="/extrapayment" element={<ExtraPaymentMaster />} />

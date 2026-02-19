@@ -6,7 +6,7 @@ export const disableMenuItems = (menuItems) => {
     return {
       ...item,
       disabled: !isPlanPage,
-      statusLabel: isPlanPage ? undefined : "Locked 🔒",
+      statusLabel: isPlanPage ? undefined : "Locked",
       children: item.children ? disableMenuItems(item.children) : undefined,
     };
   });
@@ -155,6 +155,17 @@ export const allMenuItems = [
         ),
         path: "/master/custom-package",
         pageName: "Menu Packages",
+      },
+
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMSIDEBAR_BANK_DETAILS"
+            defaultMessage="Bank Details"
+          />
+        ),
+        path: "/master/bank-details",
+        pageName: "Bank Details",
       },
 
       {
@@ -444,7 +455,7 @@ export const allMenuItems = [
   {
     title: (
       <>
-        <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Payments" />
+        <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Account" />
         <span
           className="text-primary"
           style={{ marginLeft: "8px", fontSize: "12px" }}
@@ -455,6 +466,26 @@ export const allMenuItems = [
     ),
     icon: "ki-filled ki-bank text-primary",
     // children: [
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Credit"
+    //       />
+    //     ),
+    //     path: "/bank-payment",
+    //   },
+
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Debit"
+    //       />
+    //     ),
+    //     path: "/cash-recipet",
+    //   },
+
     //   {
     //     title: (
     //       <FormattedMessage
@@ -473,8 +504,7 @@ export const allMenuItems = [
     //     ),
     //     path: "/Payments",
     //   },
-
-    // ]
+    // ],
   },
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
