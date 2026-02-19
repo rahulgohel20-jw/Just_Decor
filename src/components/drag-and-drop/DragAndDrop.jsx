@@ -88,8 +88,11 @@ const SortableColumn = ({
   const { setNodeRef, attributes, listeners } = useSortable({ id: column.id });
 
   const leadCount = column.children?.length || 0;
-  const totalAmount = 0;
 
+  const totalAmount = (column.children || []).reduce((sum, lead) => {
+    const amt = Number(lead.estimateAmount || lead.amount || 0);
+    return sum + amt;
+  }, 0);
   return (
     <div
       ref={setNodeRef}
@@ -106,7 +109,8 @@ const SortableColumn = ({
           <small className="text-xs">
             {leadCount} leads{" "}
             <span className="font-semibold text-success">
-              &#8377;{totalAmount}/-
+              {/* ✅ Format with Indian locale */}
+              &#8377;{Number(totalAmount).toLocaleString("en-IN")}/-
             </span>
           </small>
         </div>
