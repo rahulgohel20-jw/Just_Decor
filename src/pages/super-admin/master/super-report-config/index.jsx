@@ -49,6 +49,7 @@ const SuperReportConfig = () => {
         isItemColumn: item.isItemColumn,
         isItemPage: item.isItemPage,
         isCombo: item.isCombo,
+        isRawMaterialCat: item.isRawMaterialCat,
       }));
 
       setTableData(mapped);
