@@ -1662,3 +1662,30 @@ export const DeleteRecordPayment = (id) => {
 export const CreatePipeline = (payload) => {
   return POST(`/pipeline/add`, payload);
 };
+
+export const deletepipeline = (pipelineId) => {
+  return DELETE(`/pipeline/delete?pipelineId=${pipelineId}`); 
+};
+
+export const GETallpipeline = () => {
+  return GET(`pipeline/getall`);
+
+};
+
+export const GETstagesleaddatabypipeline = (pipelineId ,userId) => {
+  return GET(`pipeline/getstageleaddatabypipelineid?pipelineId=${pipelineId}&userId=${userId}`);
+};
+
+export const Getstagesbypipeline = (pipelineId , userId ) => {
+  return GET(`pipeline/getstagebypipelineid?pipelineId=${pipelineId}&userId=${userId}`);
+};
+
+export const MoveLeadToStage = (leadId, stageId, stageType, assignId,remark, requestDto) => {
+  let url = `leadmaster/changeleadstage?leadId=${leadId}&stageId=${stageId}&stageType=${stageType}&assignId=${assignId}`;
+  
+  if (remark && remark.trim()) {
+    url += `&remark=${encodeURIComponent(remark.trim())}`;
+  }
+
+  return PUT(url, requestDto);
+};

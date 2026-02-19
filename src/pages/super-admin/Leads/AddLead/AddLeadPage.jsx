@@ -9,12 +9,13 @@ import { Fragment } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, ReceiptEuro } from "lucide-react";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 const { Option } = Select;
 
 import {
+  GETallpipeline,
   AddLead,
   fetchStatesByCountry,
   fetchCitiesByState,
@@ -23,6 +24,7 @@ import {
   GetAllPlans,
   UpdateleadbyID,
   GetFilteredFollowUps,
+  Getstagesbypipeline,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
@@ -43,6 +45,15 @@ export default function AddLeadPage() {
   const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
   const [selectedGetLead, setSelectedGetLead] = useState("");
   const [followupDate, setFollowupDate] = useState(null);
+  const [pipelines, setPipelines] = useState([]);
+  const [selectedPipeline, setSelectedPipeline] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+  const [estimateAmount, setEstimateAmount] = useState("");
+  const [openStageId, setOpenStageId] = useState(undefined);
+  const [closeStageId, setCloseStageId] = useState(undefined);
+  const [openStages, setOpenStages] = useState([]);
+  const [closeStages, setCloseStages] = useState([]);
+  const [selectedStageId, setSelectedStageId] = useState(undefined);
 
   const [customRangeCreatedAt, setCustomRangeCreatedAt] = useState({
     start: "",
@@ -61,7 +72,6 @@ export default function AddLeadPage() {
     leadType: "",
     leadStatus: "",
     leadSource: "",
-    leadRemark: "",
     leadAssign: "",
     leadAssignName: "",
     selectPrefix: "",
@@ -78,6 +88,9 @@ export default function AddLeadPage() {
     overallRemark: "",
     plan: "",
     planName: "",
+    leadTitle: "", // ✅ for Lead Title
+    leadRemark: "", // ✅ for Lead Remarks
+    estimateAmount: "",
     followUpDetails: [],
   });
 
@@ -220,7 +233,7 @@ export default function AddLeadPage() {
       setLeadData({
         id: editData.id || 0,
         leadCode: editData.leadCode || "",
-        leadType: editData.leadType || "",
+        leadType: "",
         leadStatus: editData.leadStatus || "",
         leadSource: editData.leadSource || "",
         leadRemark: editData.leadRemark || "",
@@ -240,6 +253,7 @@ export default function AddLeadPage() {
         planName: editData.planName || "",
         overallRemark: editData.overallRemark || "",
         followUpDetails: editData.followUpDetails || [],
+        leadTitle: editData.leadTitle || "",
       });
 
       if (editData.followUpDetails && editData.followUpDetails.length > 0) {
@@ -255,6 +269,60 @@ export default function AddLeadPage() {
         }));
         setFollowUps(normalized);
       }
+      // ✅ REPLACE WITH THIS:
+      if (editData.pipelineId) {
+        setSelectedPipeline(editData.pipelineId);
+
+        const userId =
+          localStorage.getItem("userId") || localStorage.getItem("id");
+
+        Getstagesbypipeline(editData.pipelineId, userId)
+          .then((res) => {
+            const data = res?.data?.data || {};
+            const allStages = Object.values(data).flat();
+            const stageOptions = allStages.map((stage) => ({
+              label: stage.stageName,
+              value: stage.stageId,
+              stageType: stage.stageType,
+            }));
+            setOpenStages(stageOptions); // ✅ populate dropdown
+
+            // ✅ Now set stage AFTER options are ready
+            const stageId = editData.openStageId || editData.closeStageId;
+            if (stageId) {
+              setSelectedStageId(stageId);
+              if (editData.openStageId) {
+                setOpenStageId(editData.openStageId);
+                setCloseStageId(0);
+              } else {
+                setCloseStageId(editData.closeStageId);
+                setOpenStageId(0);
+              }
+            }
+          })
+          .catch(console.error);
+      }
+      // ✅ Pre-populate estimate amount
+      // ✅ Fix estimate amount - check editData directly
+      if (
+        editData.estimateAmount !== undefined &&
+        editData.estimateAmount !== null &&
+        editData.estimateAmount !== ""
+      ) {
+        setEstimateAmount(String(editData.estimateAmount));
+      }
+      if (editData.leadFollowUpDate) {
+        const parsed = dayjs(editData.leadFollowUpDate, [
+          "YYYY-MM-DD HH:mm:ss", // ✅ API format: "2026-02-04 00:00:00"
+          "DD/MM/YYYY", // ✅ mapped format: "04/02/2026"
+          "YYYY-MM-DD",
+        ]);
+        if (parsed.isValid()) {
+          setFollowupDate(parsed);
+        }
+      }
+
+      // ✅ Pre-populate follow-up date
     } else {
       const loadLeadCode = async () => {
         try {
@@ -347,6 +415,42 @@ export default function AddLeadPage() {
   };
 
   const handleSaveLead = async () => {
+    if (!leadData.clientName) {
+      Swal.fire("Validation", "Please select a client name.", "warning");
+      return;
+    }
+    if (!leadData.contactNumber) {
+      Swal.fir("Validation", "Please select a Contcatname.", "warning");
+      return;
+    }
+    if (!selectedPipeline) {
+      Swal.fire("Validation", "Please select a Pipeline.", "warning");
+      return;
+    }
+    if (!selectedStageId) {
+      Swal.fire("Validation", "Please select a Lead Stage.", "warning");
+      return;
+    }
+    if (!leadData.leadAssign) {
+      Swal.fire("Validation", "Please assign a Lead.", "warning");
+      return;
+    }
+    if (!leadData.plan) {
+      Swal.fire("Validation", "Please select a Product Type.", "warning");
+      return;
+    }
+    if (!followupDate) {
+      Swal.fire("Validation", "Please select a Follow-up Date.", "warning");
+      return;
+    }
+    if (!leadData.state) {
+      Swal.fire("Validation", "Please select a State.", "warning");
+      return;
+    }
+    if (!leadData.city) {
+      Swal.fire("Validation", "Please select a City.", "warning");
+      return;
+    }
     try {
       const finalLeadId = isEditMode ? Number(leadData.id) : 0;
 
@@ -354,16 +458,22 @@ export default function AddLeadPage() {
         address: leadData.address || "",
         cityId: leadData.city ? Number(leadData.city) : 0,
         clientName: leadData.clientName || "",
+        closeStageId: closeStageId ? Number(closeStageId) : 0,
         contactNumber: leadData.contactNumber || "",
         emailId: leadData.emailId || "",
+        estimateAmount: estimateAmount ? Number(estimateAmount) : 0,
         leadAssignId: leadData.leadAssign ? Number(leadData.leadAssign) : 0,
         leadCode: leadData.leadCode || "",
+        leadFollowUpDate: followupDate ? followupDate.format("DD/MM/YYYY") : "", // ✅ Lead-level follow-up date
         leadRemark: leadData.leadRemark || "",
         leadSource: leadData.leadSource || "",
         leadStatus: leadData.leadStatus || "",
-        leadType: leadData.leadType || "",
+        leadType: "",
+        leadTitle: leadData.leadTitle || "",
+        openStageId: openStageId ? Number(openStageId) : 0,
         overallRemark: leadData.overallRemark || "",
         pinCode: leadData.pinCode || "",
+        pipelineId: selectedPipeline ? Number(selectedPipeline) : 0,
         planId: leadData.plan ? Number(leadData.plan) : 0,
         selectPrefix: leadData.selectPrefix || "",
         stateId: leadData.state ? Number(leadData.state) : 0,
@@ -371,12 +481,12 @@ export default function AddLeadPage() {
         followUpDetails: followUps.map((fu) => ({
           id: fu.id ? Number(fu.id) : 0,
           leadId: finalLeadId,
-          followUpType: fu.followUpType || fu.followType || "",
+          followUpType: fu.followUpType || "",
           followUpStatus: fu.followUpStatus || "Open",
-          followUpDate: fu.followUpDate || fu.followupDate || "",
+          followUpDate: fu.followUpDate || "", // ✅ Individual follow-up date (different from leadFollowUpDate)
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
-          memberId: fu.memberId || 0, // ✅ FIXED - use fu.memberId instead of fu.managerId
+          memberId: fu.memberId || 0,
         })),
       };
 
@@ -443,6 +553,54 @@ export default function AddLeadPage() {
     );
   });
 
+  useEffect(() => {
+    fetchPipelines();
+  }, []);
+
+  const fetchPipelines = () => {
+    setLoading(true);
+    GETallpipeline()
+      .then((res) => {
+        const data = res?.data?.data || [];
+        const mapped = data.map((p) => ({
+          label: p.name || p.pipelineName || "Unnamed", // ✅ p.name first
+          value: p.id,
+        }));
+        setPipelines(mapped);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch pipelines:", err);
+        setPipelines([]);
+      })
+      .finally(() => setLoading(false));
+  };
+  // handlePipelineChange - pass userId here
+  const handlePipelineChange = async (value) => {
+    setSelectedPipeline(value); // ✅ set FIRST
+    setSelectedStageId(undefined);
+    setOpenStageId(undefined);
+    setCloseStageId(undefined);
+    setOpenStages([]);
+
+    if (!value) return;
+
+    const userId = localStorage.getItem("userId") || localStorage.getItem("id");
+
+    try {
+      const res = await Getstagesbypipeline(value, userId);
+      const data = res?.data?.data || {};
+      const allStages = Object.values(data).flat();
+      const stageOptions = allStages.map((stage) => ({
+        label: stage.stageName,
+        value: stage.stageId,
+        stageType: stage.stageType,
+      }));
+      setOpenStages(stageOptions);
+    } catch (err) {
+      console.error("Failed to fetch pipeline stages:", err);
+      setOpenStages([]);
+    }
+  };
   return (
     <Fragment>
       <Container>
@@ -482,63 +640,85 @@ export default function AddLeadPage() {
                       readOnly
                     />
                   </div>
+                  {/* Select Pipeline - Required */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Stages
+                      Select Pipeline <span className="text-red-500">*</span>
                     </label>
-
                     <Select
-                      showSearch // ✅ Makes it searchable
-                      optionFilterProp="children" // ✅ Search by option text
-                      placeholder="-- Select Lead Type --"
-                      value={leadData.leadType || undefined}
-                      onChange={(value) =>
-                        setLeadData({ ...leadData, leadType: value })
-                      }
+                      showSearch
+                      optionFilterProp="label"
+                      placeholder="-- Select Pipeline --"
                       className="w-full"
-                    >
-                      <Select.Option value="New Inquiry">
-                        New Inquiry
-                      </Select.Option>
+                      value={selectedPipeline}
+                      onChange={handlePipelineChange}
+                      options={pipelines}
+                      status={!selectedPipeline ? "error" : ""}
+                    />
+                    {!selectedPipeline && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Pipeline is required
+                      </span>
+                    )}
+                  </div>
 
-                      <Select.Option value="Hot Lead">Hot Lead</Select.Option>
-
-                      <Select.Option value="Cold lead">Cold Lead</Select.Option>
-
-                      <Select.Option value="proposal sent">
-                        Proposal sent
-                      </Select.Option>
-
-                      <Select.Option value="lclient dmeo">
-                        Client Demo
-                      </Select.Option>
-
-                      <Select.Option value="follow up">Follow up</Select.Option>
-
-                      <Select.Option value="won">Won</Select.Option>
-
-                      <Select.Option value="Lost">Lost</Select.Option>
-                    </Select>
+                  {/* Lead Stages - Required, disabled until pipeline selected */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Lead Stages <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      showSearch
+                      optionFilterProp="label"
+                      placeholder={
+                        !selectedPipeline
+                          ? "Select pipeline first"
+                          : "-- Select Lead Stage --"
+                      }
+                      value={selectedStageId}
+                      onChange={(value, option) => {
+                        setSelectedStageId(value);
+                        setLeadData((prev) => ({ ...prev, leadType: null }));
+                        if (option.stageType === "open_stage") {
+                          setOpenStageId(value);
+                          setCloseStageId(0);
+                        } else {
+                          setCloseStageId(value);
+                          setOpenStageId(0);
+                        }
+                      }}
+                      className="w-full"
+                      disabled={!selectedPipeline}
+                      status={
+                        selectedPipeline && !selectedStageId ? "error" : ""
+                      }
+                      options={openStages}
+                    />
+                    {selectedPipeline && !selectedStageId && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Lead Stage is required
+                      </span>
+                    )}
                   </div>
                   {/* <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Status
-                    </label>
-                    <Select
-                      placeholder="-- Select Lead Status --"
-                      value={leadData.leadStatus || undefined}
-                      onChange={(value) =>
-                        setLeadData({ ...leadData, leadStatus: value })
-                      }
-                      className="w-full"
-                    >
-                      <Select.Option value="Pending">Pending</Select.Option>
-                      <Select.Option value="Confirmed">Confirmed</Select.Option>
-                      <Select.Option value="Cancel">Cancel</Select.Option>
-                      <Select.Option value="Open">Open</Select.Option>
-                      <Select.Option value="Closed">Closed</Select.Option>
-                    </Select>
-                  </div> */}
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Lead Status
+                      </label>
+                      <Select
+                        placeholder="-- Select Lead Status --"
+                        value={leadData.leadStatus || undefined}
+                        onChange={(value) =>
+                          setLeadData({ ...leadData, leadStatus: value })
+                        }
+                        className="w-full"
+                      >
+                        <Select.Option value="Pending">Pending</Select.Option>
+                        <Select.Option value="Confirmed">Confirmed</Select.Option>
+                        <Select.Option value="Cancel">Cancel</Select.Option>
+                        <Select.Option value="Open">Open</Select.Option>
+                        <Select.Option value="Closed">Closed</Select.Option>
+                      </Select>
+                    </div> */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Source
@@ -580,39 +760,40 @@ export default function AddLeadPage() {
                       />
                     )}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {" "}
                       Lead Title
                     </label>
                     <Input
-                      placeholder="Initial notes..."
-                      value={leadData.leadRemark}
+                      placeholder="Enter lead title..."
+                      value={leadData.leadTitle}
                       onChange={(e) =>
-                        setLeadData({
-                          ...leadData,
-                          leadRemark: e.target.value,
-                        })
+                        setLeadData({ ...leadData, leadTitle: e.target.value })
                       }
                     />
                   </div>
                   <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Follow-up Date
+                      Lead Close Date <span className="text-red-500">*</span>
                     </label>
-
                     <DatePicker
                       value={followupDate}
                       onChange={(date) => setFollowupDate(date)}
                       format="DD-MM-YYYY"
                       placeholder="Select follow-up date"
                       className="w-full h-[30px]"
+                      status={!followupDate ? "error" : ""}
                     />
+                    {!followupDate && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Follow-up Date is required
+                      </span>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Assign
+                      <span className="text-red-500">*</span>
                     </label>
                     <Select
                       showSearch // ✅ Enable search
@@ -624,11 +805,18 @@ export default function AddLeadPage() {
                       }
                       className="w-full"
                       options={managers}
+                      status={!leadData.leadAssign ? "error" : ""}
                     />
+
+                    {!leadData.leadAssign && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Lead Assign is required
+                      </span>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Type
+                      Product Type <span className="text-red-500">*</span>
                     </label>
                     <Select
                       showSearch // ✅ Enable search
@@ -640,51 +828,36 @@ export default function AddLeadPage() {
                         setLeadData({ ...leadData, plan: value })
                       }
                       options={plans}
+                      status={!leadData.plan ? "error" : ""}
                     />
+
+                    {!leadData.plan && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Product Type is required
+                      </span>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Estimate Amount
                     </label>
                     <Input
-                      placeholder="Initial notes..."
-                      value={leadData.leadRemark}
-                      onChange={(e) =>
-                        setLeadData({
-                          ...leadData,
-                          leadRemark: e.target.value,
-                        })
-                      }
+                      type="number"
+                      placeholder="Enter estimate amount..."
+                      value={estimateAmount}
+                      onChange={(e) => setEstimateAmount(e.target.value)}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Pipeline
-                    </label>
-                    <Select
-                      showSearch
-                      optionFilterProp="label"
-                      placeholder="-- Select Pipeline --"
-                      className="w-full"
-                      value={leadData.plan || undefined}
-                      onChange={(value) =>
-                        setLeadData({ ...leadData, plan: value })
-                      }
-                      options={plans}
-                    />
-                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Remarks
                     </label>
                     <Input
-                      placeholder="Initial notes..."
+                      placeholder="Enter remarks..."
                       value={leadData.leadRemark}
                       onChange={(e) =>
-                        setLeadData({
-                          ...leadData,
-                          leadRemark: e.target.value,
-                        })
+                        setLeadData({ ...leadData, leadRemark: e.target.value })
                       }
                     />
                   </div>
@@ -698,8 +871,8 @@ export default function AddLeadPage() {
                       rows={4}
                       placeholder="Enter description here..."
                       className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm 
-               focus:outline-none focus:ring-2 focus:ring-blue-500 
-               focus:border-blue-500 transition duration-200 resize-none"
+                focus:outline-none focus:ring-2 focus:ring-blue-500 
+                focus:border-blue-500 transition duration-200 resize-none"
                     ></textarea>
                   </div>
                 </div>
@@ -737,7 +910,7 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Client Name
+                      Client Name <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="Enter Guest Name"
@@ -749,6 +922,11 @@ export default function AddLeadPage() {
                         })
                       }
                     />
+                    {!leadData.clientName && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        client Name is required
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -769,7 +947,7 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Number
+                      Contact Number <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="Enter Contact Number"
@@ -781,6 +959,11 @@ export default function AddLeadPage() {
                         })
                       }
                     />
+                    {!leadData.contactNumber && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        contact name is required
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -817,13 +1000,14 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      State
+                      State <span className="text-red-500">*</span>
                     </label>
                     <Select
                       placeholder="-- Select State --"
                       value={leadData.state || undefined}
                       onChange={handleStateChange}
                       className="w-full"
+                      status={!leadData.state ? "error" : ""}
                     >
                       {states.map((state) => (
                         <Select.Option key={state.id} value={state.id}>
@@ -831,11 +1015,16 @@ export default function AddLeadPage() {
                         </Select.Option>
                       ))}
                     </Select>
+                    {!leadData.state && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        State is required
+                      </span>
+                    )}
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City
+                      City <span className="text-red-500">*</span>
                     </label>
                     <Select
                       placeholder="-- Select City --"
@@ -844,6 +1033,7 @@ export default function AddLeadPage() {
                         setLeadData({ ...leadData, city: value })
                       }
                       className="w-full"
+                      status={!leadData.city ? "error" : ""}
                     >
                       {cities.map((city) => (
                         <Select.Option key={city.id} value={city.id}>
@@ -851,6 +1041,11 @@ export default function AddLeadPage() {
                         </Select.Option>
                       ))}
                     </Select>
+                    {!leadData.city && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        City is required
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -1110,58 +1305,58 @@ export default function AddLeadPage() {
                                 </div>
                               </div>
                               {/* <Select
-                                value={item.followUpStatus}
-                                className="w-[120px]"
-                                optionLabelProp="label" 
-                                onChange={(value) => {
-                                  setFollowUps((prev) =>
-                                    prev.map((fu, i) =>
-                                      i === index
-                                        ? { ...fu, followUpStatus: value }
-                                        : fu,
-                                    ),
-                                  );
-                                }}
-                              >
-                                <Option
-                                  value="Open"
-                                  label={
+                                  value={item.followUpStatus}
+                                  className="w-[120px]"
+                                  optionLabelProp="label" 
+                                  onChange={(value) => {
+                                    setFollowUps((prev) =>
+                                      prev.map((fu, i) =>
+                                        i === index
+                                          ? { ...fu, followUpStatus: value }
+                                          : fu,
+                                      ),
+                                    );
+                                  }}
+                                >
+                                  <Option
+                                    value="Open"
+                                    label={
+                                      <span className="px-2 py-1 rounded text-white bg-green-500">
+                                        Open
+                                      </span>
+                                    }
+                                  >
                                     <span className="px-2 py-1 rounded text-white bg-green-500">
                                       Open
                                     </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-green-500">
-                                    Open
-                                  </span>
-                                </Option>
+                                  </Option>
 
-                                <Option
-                                  value="Closed"
-                                  label={
+                                  <Option
+                                    value="Closed"
+                                    label={
+                                      <span className="px-2 py-1 rounded text-white bg-red-500">
+                                        Closed
+                                      </span>
+                                    }
+                                  >
                                     <span className="px-2 py-1 rounded text-white bg-red-500">
                                       Closed
                                     </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-red-500">
-                                    Closed
-                                  </span>
-                                </Option>
+                                  </Option>
 
-                                <Option
-                                  value="Pending"
-                                  label={
+                                  <Option
+                                    value="Pending"
+                                    label={
+                                      <span className="px-2 py-1 rounded text-white bg-yellow-500">
+                                        Pending
+                                      </span>
+                                    }
+                                  >
                                     <span className="px-2 py-1 rounded text-white bg-yellow-500">
                                       Pending
                                     </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-yellow-500">
-                                    Pending
-                                  </span>
-                                </Option>
-                              </Select> */}
+                                  </Option>
+                                </Select> */}
                             </div>
 
                             <hr className="my-3 border-gray-300" />

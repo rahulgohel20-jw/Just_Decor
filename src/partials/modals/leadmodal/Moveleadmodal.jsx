@@ -3,6 +3,7 @@ import { DatePicker as AntDatePicker } from "antd";
 import dayjs from "dayjs";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import FollowupRemindersModal from "./Followupremindersmodal ";
+import { Fetchmanager } from "@/services/apiServices";
 
 const MoveLeadModal = ({
   isOpen,
@@ -13,6 +14,7 @@ const MoveLeadModal = ({
   toColumn,
   managers = [],
 }) => {
+  const isManualMove = fromColumn?.id === toColumn?.id;
   /* ── state ───────────────────────────────────────── */
   const [selectedAssignee, setSelectedAssignee] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -23,24 +25,43 @@ const MoveLeadModal = ({
   const [followUpDate, setFollowUpDate] = useState(null);
   const [followUpReminders, setFollowUpReminders] = useState([]);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [internalManagers, setInternalManagers] = useState([]);
+  const [selectedToColumn, setSelectedToColumn] = useState("");
+  const [allColumns, setAllColumns] = useState([]);
 
   // Attachment
-  const [attachedFile, setAttachedFile] = useState(null);
 
-  // Reset on open
   useEffect(() => {
-    if (isOpen) {
-      setSelectedAssignee("");
+    if (isOpen && lead) {
       setRemarks("");
       setFollowUpOpen(false);
       setFollowUpType("Call");
       setFollowUpDate(null);
       setFollowUpReminders([]);
       setAttachedFile(null);
-    }
-  }, [isOpen]);
+      setSelectedToColumn("");
 
-  /* ── helpers ─────────────────────────────────────── */
+      Fetchmanager(1)
+        .then((res) => {
+          if (res?.data?.data?.userDetails) {
+            const list = res.data.data.userDetails.map((man) => ({
+              value: String(man.id),
+              label: man.firstName || "-",
+            }));
+            setInternalManagers(list);
+            setSelectedAssignee(
+              lead.leadAssignId ? String(lead.leadAssignId) : "",
+            );
+          }
+        })
+        .catch(() => {
+          setInternalManagers([]);
+          setSelectedAssignee("");
+        });
+    }
+  }, [isOpen, lead]);
+
   const FOLLOW_UP_TYPES = ["Call", "WhatsApp", "Email"];
 
   const stagePillColor = (name = "") => {
@@ -57,18 +78,37 @@ const MoveLeadModal = ({
   };
 
   const handleConfirm = () => {
+    // ✅ For manual move, use selectedToColumn; for DnD use toColumn
+    const resolvedToColumn = isManualMove
+      ? { id: selectedToColumn, name: selectedToColumn }
+      : toColumn;
+
+    if (isManualMove && !selectedToColumn) {
+      alert("Please select a destination stage.");
+      return;
+    }
+
+    // ✅ Format followUpDate
+    const formattedFollowUpDate = followUpDate
+      ? followUpDate.includes(" ")
+        ? followUpDate
+        : `${followUpDate} 12:00 AM`
+      : null;
+
     onConfirm?.({
-      leadId: lead?.leadId,
-      toStatus: toColumn?.id,
+      leadId: lead?.leadId || lead?.id,
+      toStatus: resolvedToColumn?.id,
+      toColumn: resolvedToColumn, // ✅ pass resolved toColumn
       assignedTo: selectedAssignee,
       remarks,
-      followUp: followUpOpen
-        ? {
-            type: followUpType,
-            date: followUpDate,
-            reminders: followUpReminders,
-          }
-        : null,
+      followUp:
+        followUpOpen && formattedFollowUpDate
+          ? {
+              type: followUpType,
+              date: formattedFollowUpDate,
+              reminders: followUpReminders,
+            }
+          : null,
       attachment: attachedFile,
     });
   };
@@ -175,34 +215,82 @@ const MoveLeadModal = ({
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
               <span className="font-semibold text-gray-700">Pipeline : </span>
-              Sales Pipeline
+              {lead?.pipelineName || lead?.pipeline || "—"}
             </p>
-            <div className="flex items-center justify-center gap-8 mt-3">
-              <span
-                className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
-                style={{ backgroundColor: stagePillColor(fromColumn?.name) }}
-              >
-                {fromColumn?.name || "—"}
-              </span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-              <span
-                className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
-                style={{ backgroundColor: stagePillColor(toColumn?.name) }}
-              >
-                {toColumn?.name || "—"}
-              </span>
+            {/* Lead meta + stage pills */}
+            <div className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3">
+              {isManualMove ? (
+                // ✅ Manual move — show FROM pill + destination dropdown
+                <div className="flex items-center justify-center gap-4 mt-3">
+                  <span
+                    className="px-4 py-1.5 rounded-full text-white text-sm font-semibold flex-shrink-0"
+                    style={{
+                      backgroundColor: stagePillColor(fromColumn?.name),
+                    }}
+                  >
+                    {fromColumn?.name || "—"}
+                  </span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#9CA3AF"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                  {/* ✅ Destination stage selector — pass allColumns from parent */}
+                  <select
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-400"
+                    value={selectedToColumn}
+                    onChange={(e) => setSelectedToColumn(e.target.value)}
+                  >
+                    <option value="">Select Stage</option>
+                    {(managers.__columns || [])
+                      .filter((col) => col.name !== fromColumn?.name)
+                      .map((col) => (
+                        <option key={col.id} value={col.name}>
+                          {col.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              ) : (
+                // ✅ DnD move — show fixed FROM → TO pills (unchanged)
+                <div className="flex items-center justify-center gap-8 mt-3">
+                  <span
+                    className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
+                    style={{
+                      backgroundColor: stagePillColor(fromColumn?.name),
+                    }}
+                  >
+                    {fromColumn?.name || "—"}
+                  </span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#9CA3AF"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                  <span
+                    className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
+                    style={{ backgroundColor: stagePillColor(toColumn?.name) }}
+                  >
+                    {toColumn?.name || "—"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -210,12 +298,12 @@ const MoveLeadModal = ({
           <div className="flex flex-col">
             <label className="form-label mb-1">Assign To</label>
             <select
-              className="select pe-7.5"
+              className="select border border-gray-300 rounded-lg px-3 py-2 text-sm"
               value={selectedAssignee}
               onChange={(e) => setSelectedAssignee(e.target.value)}
             >
-              <option value="">Select assignee…</option>
-              {managers.map((m) => (
+              <option value="">Select Member</option>
+              {internalManagers.map((m) => (
                 <option key={m.value} value={m.value}>
                   {m.label}
                 </option>
@@ -264,130 +352,95 @@ const MoveLeadModal = ({
             </button>
 
             {/* Accordion body */}
+            {/* Accordion body */}
             {followUpOpen && (
-              <div className="bg-white flex flex-col border-t border-gray-100">
-                {/* ── Follow-up Type row (Image 2 style) ── */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                  <span className="text-sm font-medium text-gray-700">
-                    Follow-up Type
-                  </span>
-                  <div className="flex items-center gap-2">
+              <div className="bg-white flex flex-col border-t border-gray-100 px-4 py-4 gap-4">
+                {/* Customer Name */}
+                {/* Customer Name - readonly, pre-filled */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-800">
+                    Customer Name
+                  </label>
+                  <input
+                    type="text"
+                    className="input border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50"
+                    value={lead?.clientName || lead?.title || ""}
+                  />
+                </div>
+
+                {/* Assign Member */}
+                {/* Assign Member */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-800">
+                    Assign Member
+                  </label>
+                  <select
+                    className="select border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    value={selectedAssignee}
+                    onChange={(e) => setSelectedAssignee(e.target.value)}
+                  >
+                    <option value="">Select Member</option>
+                    {internalManagers.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Show current assignee as hint */}
+                </div>
+
+                {/* Follow Up Description */}
+                <textarea
+                  rows={4}
+                  className="textarea border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  placeholder="Follow Up Description"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                />
+
+                {/* Follow Up Type */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-gray-800">
+                    Follow Up Type
+                  </label>
+                  <div className="flex gap-3">
                     {FOLLOW_UP_TYPES.map((type) => (
                       <button
                         key={type}
                         type="button"
                         onClick={() => setFollowUpType(type)}
-                        className={`btn btn-sm rounded-full px-4 py-1.5 text-sm font-medium transition-all flex items-center gap-1 ${
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
                           followUpType === type
-                            ? "text-white"
+                            ? "bg-green-500 text-white"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
-                        style={
-                          followUpType === type
-                            ? { backgroundColor: "#22C55E" }
-                            : {}
-                        }
                       >
-                        {followUpType === type && (
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="white"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        )}
                         {type}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* ── Followup Date row (Image 2 style) ── */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50">
-                  <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#6B7280"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                  </div>
+                {/* Followup Date */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-800">
+                    Followup Date
+                  </label>
                   <AntDatePicker
-                    className="input flex-1"
-                    style={{ width: "100%" }}
-                    value={followUpDate ? dayjs(followUpDate) : null}
-                    onChange={(date) =>
-                      setFollowUpDate(date ? date.toISOString() : null)
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    value={
+                      followUpDate ? dayjs(followUpDate, "DD/MM/YYYY") : null
                     }
+                    onChange={(date) =>
+                      setFollowUpDate(
+                        date ? dayjs(date).format("DD/MM/YYYY") : null,
+                      )
+                    }
+                    format="DD/MM/YYYY"
                     getPopupContainer={() => document.body}
-                    placeholder="Followup Date"
-                    bordered={false}
+                    placeholder="Select date"
                   />
                 </div>
-
-                {/* ── Add Followup Reminders row (Image 2 style) ── */}
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                  onClick={() => setIsRemindersModalOpen(true)}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Clock icon */}
-                    <div className="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#6B7280"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-700">
-                        Add Followup Reminders
-                      </span>
-                      {followUpReminders.length > 0 && (
-                        <span className="text-xs text-green-600 font-medium">
-                          {followUpReminders.length} reminder
-                          {followUpReminders.length > 1 ? "s" : ""} set
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#9CA3AF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
               </div>
             )}
           </div>

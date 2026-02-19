@@ -22,6 +22,7 @@ const Task = ({
   onEditLead,
   onDeleteLead,
   onFollowUp,
+  onMoveLead,
 }) => {
   const { isRTL } = useLanguage();
 
@@ -185,7 +186,12 @@ const Task = ({
                         </MenuLink>
                       </MenuItem>
 
-                      <MenuItem>
+                      <MenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMoveLead?.(item); // ✅ ADD THIS
+                        }}
+                      >
                         <MenuLink>
                           <MenuIcon>
                             <KeenIcon icon="ki-filled ki-copy" />
@@ -267,8 +273,11 @@ const Task = ({
                 <KeenIcon icon="geolocation" className="text-success" />
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-600 mb-0.5">City:</span>
+
                   <p className="text-sm font-medium text-gray-700 leading-none mt-0.5">
-                    {item.city || item.cityName || "NA"}
+                    {item.city && item.city !== "null"
+                      ? item.city
+                      : item.cityName || "NA"}
                   </p>
                 </div>
               </div>
@@ -292,19 +301,6 @@ const Task = ({
           </div>
 
           {/* Follow-up Stats */}
-          <div className="flex items-center gap-2 text-xs">
-            <KeenIcon icon="calendar-2" className="text-gray-500" />
-            <span className="text-gray-700">Follow-up:</span>
-            {followUpCounts.overdue > 0 && (
-              <span className="text-danger font-medium">
-                Overdue: {followUpCounts.overdue}
-              </span>
-            )}
-            <span className="text-gray-600">Open: {followUpCounts.open}</span>
-            <span className="text-gray-600">
-              Closed: {followUpCounts.closed}
-            </span>
-          </div>
 
           <hr />
 

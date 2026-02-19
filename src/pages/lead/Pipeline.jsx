@@ -1,6 +1,9 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Container } from "@/components/container";
+import { deletepipeline, GETallpipeline } from "@/services/apiServices";
 import Addpipeline from "./Addpipeline";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 import {
   DndContext,
@@ -19,46 +22,8 @@ import {
 
 import { CSS } from "@dnd-kit/utilities";
 
-const initialPipelines = [
-  {
-    id: "1",
-    name: "Sales Pipeline",
-    date: "Apr 14, 2025",
-    createdBy: "Manan Gandhi",
-  },
-  {
-    id: "2",
-    name: "Social media",
-    date: "Jun 10, 2025",
-    createdBy: "Manan Gandhi",
-  },
-  {
-    id: "3",
-    name: "My pipeline",
-    date: "Jun 23, 2025",
-    createdBy: "Manan Gandhi",
-  },
-  {
-    id: "4",
-    name: "My pipeline",
-    date: "Jun 23, 2025",
-    createdBy: "Manan Gandhi",
-  },
-  {
-    id: "5",
-    name: "My pipeline",
-    date: "Jun 23, 2025",
-    createdBy: "Manan Gandhi",
-  },
-  {
-    id: "6",
-    name: "My pipeline",
-    date: "Jun 23, 2025",
-    createdBy: "Manan Gandhi",
-  },
-];
-
-const SortableItem = ({ item }) => {
+// ✅ onDelete passed as prop
+const SortableItem = ({ item, onDelete, onView }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id });
 
@@ -77,21 +42,31 @@ const SortableItem = ({ item }) => {
     >
       {/* Left Content */}
       <div>
-        <h4 className="font-semibold text-gray-800">{item.name}</h4>
+        <h4 className="font-semibold text-gray-800">{item.pipelineName}</h4>
         <p className="text-sm text-gray-500 mt-1">
-          Created At: {item.date} | Created by: {item.createdBy}
+          Created At: {item.createdAt} | Created by: {item.createdBy}
         </p>
       </div>
 
       {/* Right Section */}
       <div className="flex gap-3 items-center">
+        {/* View Button */}
         <button
-          className="px-2 py-1 text-xl font-medium 
-                     text-primary 
-                     rounded-lg"
+          onClick={() => onView(item)}
+          className="px-2 py-1 text-xl font-medium text-primary rounded-lg"
         >
           <i className="ki-filled ki-eye"></i>
         </button>
+
+        {/* Delete Button */}
+        <button
+          onClick={() => onDelete(item.id)}
+          className="px-2 py-1 text-xl font-medium text-red-500 
+                     hover:text-red-700 rounded-lg"
+        >
+          <i className="ki-filled ki-trash"></i>
+        </button>
+
         {/* Drag Handle */}
         <button
           {...attributes}
@@ -108,9 +83,33 @@ const SortableItem = ({ item }) => {
 
 const Pipeline = () => {
   const [ismodalopen, setIsModalOpen] = useState(false);
-  const [pipelines, setPipelines] = useState(initialPipelines);
+  const [pipelines, setPipelines] = useState([]);
+  const [loading, setLoading] = useState(false); // ✅ loading state
+  const navigate = useNavigate();
 
   const sensors = useSensors(useSensor(PointerSensor));
+
+  // ✅ Fetch all pipelines on mount
+  useEffect(() => {
+    fetchPipelines();
+  }, []);
+
+  const fetchPipelines = () => {
+    setLoading(true);
+    GETallpipeline()
+      .then((res) => {
+        console.log("Pipelines fetched:", res);
+        const data = res?.data?.data || [];
+        setPipelines(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch pipelines:", err);
+        setPipelines([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -124,6 +123,56 @@ const Pipeline = () => {
     }
   };
 
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deletepipeline(id)
+          .then((res) => {
+            // ✅ CHECK BACKEND SUCCESS FLAG
+            if (res?.data?.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: res?.data?.msg || "Pipeline deleted successfully",
+              });
+
+              fetchPipelines(); // safer refresh
+            } else {
+              // ❌ BACKEND FAILED BUT HTTP 200
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: res?.data?.msg || "Delete failed",
+              });
+            }
+          })
+          .catch((err) => {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: err?.response?.data?.msg || "Failed to delete pipeline",
+            });
+          });
+      }
+    });
+  };
+
+  const handleView = (pipeline) => {
+    navigate("/super-leads", {
+      state: {
+        pipelineId: pipeline.id,
+        pipelineName: pipeline.pipelineName,
+      },
+    });
+  };
   return (
     <Fragment>
       <Container>
@@ -147,27 +196,45 @@ const Pipeline = () => {
           </button>
         </div>
 
-        {/* Drag & Drop List */}
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={pipelines.map((i) => i.id)}
-            strategy={verticalListSortingStrategy}
+        {/* ✅ Loading state */}
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : pipelines.length === 0 ? (
+          // ✅ Empty state
+          <div className="text-center py-10 text-gray-400">
+            No pipelines found. Create one!
+          </div>
+        ) : (
+          // ✅ Drag & Drop List
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <div className="space-y-3">
-              {pipelines.map((item) => (
-                <SortableItem key={item.id} item={item} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={pipelines.map((i) => i.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-3">
+                {pipelines.map((item) => (
+                  <SortableItem
+                    key={item.id}
+                    item={item}
+                    onDelete={handleDelete}
+                    onView={handleView}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
 
         <Addpipeline
           isModalOpen={ismodalopen}
           setIsModalOpen={setIsModalOpen}
+          onSuccess={fetchPipelines} // ✅ refresh list after create
         />
       </Container>
     </Fragment>
