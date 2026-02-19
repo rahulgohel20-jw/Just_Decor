@@ -28,6 +28,7 @@ const defaultOptions = {
   isItemColumn: false,
   isItemPage: false,
   isCombo: false,
+  isRawMaterialCat: false,
 };
 
 const optionLabels = {
@@ -50,6 +51,7 @@ const optionLabels = {
   isItemColumn: "Is Item Column",
   isItemPage: "Is Item Page",
   isCombo: "Is Combo",
+  isRawMaterialCat: "Is Rawmaterial Category",
 };
 
 const AddReportConfig = ({
@@ -167,6 +169,7 @@ const AddReportConfig = ({
             isItemColumn: !!data.isItemColumn,
             isItemPage: !!data.isItemPage,
             isCombo: !!data.isCombo,
+            isRawMaterialCat: !!data.isRawMaterialCat,
           });
         }
       } catch (error) {
@@ -259,6 +262,7 @@ const AddReportConfig = ({
       size1: options.size1,
       size2: options.size2,
       isCombo: booleanToNumber(options.isCombo),
+      isRawMaterialCat: booleanToNumber(options.isRawMaterialCat),
     };
 
     try {
