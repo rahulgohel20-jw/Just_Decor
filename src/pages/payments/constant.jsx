@@ -26,16 +26,30 @@ export const columns = [
       <DataGridColumnHeader title="Account Name" column={column} />
     ),
   },
-  {
-    accessorKey: "total",
-    header: ({ column }) => (
-      <DataGridColumnHeader title="Total" column={column} />
-    ),
-  },
+
   {
     accessorKey: "chequeno",
     header: ({ column }) => (
       <DataGridColumnHeader title="Cheque No" column={column} />
+    ),
+  },
+  {
+    accessorKey: "modeofpayment",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Mode Of Payment" column={column} />
+    ),
+  },
+  {
+    accessorKey: "due",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Due" column={column} />
+    ),
+  },
+
+  {
+    accessorKey: "total",
+    header: ({ column }) => (
+      <DataGridColumnHeader title="Total" column={column} />
     ),
   },
   {
@@ -78,7 +92,9 @@ export const defaultData = [
     bankname: "HDFC",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "500",
     chequeno: "00006",
+    modeofpayment: "BP",
   },
   {
     id: 2,
@@ -87,7 +103,9 @@ export const defaultData = [
     bankname: "HDFC",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "500",
     chequeno: "00006",
+    modeofpayment: "CP",
   },
   {
     id: 3,
@@ -96,7 +114,9 @@ export const defaultData = [
     bankname: "HDFC",
     accountname: "Gopal Caterers",
     total: 1500,
+    due: "500",
     chequeno: "00006",
+    modeofpayment: "BP",
   },
   {
     id: 4,
@@ -106,6 +126,8 @@ export const defaultData = [
     accountname: "Gopal Caterers",
     total: 1500,
     chequeno: "00006",
+    due: "500",
+    modeofpayment: "BP",
   },
   {
     id: 5,
@@ -115,6 +137,8 @@ export const defaultData = [
     accountname: "Gopal Caterers",
     total: 1500,
     chequeno: "00006",
+    due: "500",
+    modeofpayment: "BP",
   },
   {
     id: 6,
@@ -124,6 +148,8 @@ export const defaultData = [
     accountname: "Gopal Caterers",
     total: 1500,
     chequeno: "00006",
+    due: "500",
+    modeofpayment: "BP",
   },
   {
     id: 7,
@@ -133,5 +159,7 @@ export const defaultData = [
     accountname: "Gopal Caterers",
     total: 1500,
     chequeno: "00006",
+    due: "500",
+    modeofpayment: "CP",
   },
 ];

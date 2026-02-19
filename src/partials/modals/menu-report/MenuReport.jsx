@@ -11,6 +11,7 @@ import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { getAllPagesNumbers } from "@react-pdf-viewer/print";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -55,7 +56,6 @@ const MenuReport = ({
   const [endDate, setEndDate] = useState(null);
   const [loadingFilters, setLoadingFilters] = useState(false);
 
- 
   useEffect(() => {
     if (!pdfUrl) return;
 
@@ -185,7 +185,11 @@ const MenuReport = ({
     const fetchAgencies = async () => {
       setLoadingFilters(true);
       try {
-        const agencyRes = await GetAgenciesForReportFilter(eventFunctionId, eventId, agencyType);
+        const agencyRes = await GetAgenciesForReportFilter(
+          eventFunctionId,
+          eventId,
+          agencyType,
+        );
         if (agencyRes?.data?.success && agencyRes?.data?.data) {
           const agencyList = agencyRes.data.data;
           setAgencies(agencyList);
@@ -203,10 +207,22 @@ const MenuReport = ({
     };
 
     fetchAgencies();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, agencyType, isAdminModuleReport]);
+  }, [
+    isModalOpen,
+    isDropdownStatus,
+    eventFunctionId,
+    eventId,
+    agencyType,
+    isAdminModuleReport,
+  ]);
 
   useEffect(() => {
-    if (!isModalOpen || isDropdownStatus !== 1 || selectedAgency.length === 0 || isAdminModuleReport) {
+    if (
+      !isModalOpen ||
+      isDropdownStatus !== 1 ||
+      selectedAgency.length === 0 ||
+      isAdminModuleReport
+    ) {
       setItems([]);
       setSelectedItems([]);
       return;
@@ -215,7 +231,11 @@ const MenuReport = ({
     const fetchItemsByAgency = async () => {
       setLoadingFilters(true);
       try {
-        const itemsRes = await GetSelectedItemsForReportFilter(eventFunctionId, eventId, selectedAgency);
+        const itemsRes = await GetSelectedItemsForReportFilter(
+          eventFunctionId,
+          eventId,
+          selectedAgency,
+        );
         if (itemsRes?.data?.success && itemsRes?.data?.data) {
           setItems(itemsRes.data.data);
         } else {
@@ -230,7 +250,14 @@ const MenuReport = ({
     };
 
     fetchItemsByAgency();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, selectedAgency, isAdminModuleReport]);
+  }, [
+    isModalOpen,
+    isDropdownStatus,
+    eventFunctionId,
+    eventId,
+    selectedAgency,
+    isAdminModuleReport,
+  ]);
 
   const formatAdminDate = (dateString) => {
     if (!dateString) return null;
@@ -250,18 +277,36 @@ const MenuReport = ({
 
   const toggleOne = (key) => {
     setOptions((prev) => {
-      if (key === "size1") return { ...prev, size1: { ...prev.size1, enabled: true }, size2: { ...prev.size2, enabled: false } };
-      if (key === "size2") return { ...prev, size1: { ...prev.size1, enabled: false }, size2: { ...prev.size2, enabled: true } };
+      if (key === "size1")
+        return {
+          ...prev,
+          size1: { ...prev.size1, enabled: true },
+          size2: { ...prev.size2, enabled: false },
+        };
+      if (key === "size2")
+        return {
+          ...prev,
+          size1: { ...prev.size1, enabled: false },
+          size2: { ...prev.size2, enabled: true },
+        };
       return { ...prev, [key]: !prev[key] };
     });
   };
 
-  const isCheckAll = visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
+  const isCheckAll =
+    visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
   const handleReport = async () => {
-    if (isNamePlateTheme) { setShowNamePlateUI(true); return; }
+    if (isNamePlateTheme) {
+      setShowNamePlateUI(true);
+      return;
+    }
 
-    const pageSize = options.size1?.enabled ? options.size1.label : options.size2?.enabled ? options.size2.label : "";
+    const pageSize = options.size1?.enabled
+      ? options.size1.label
+      : options.size2?.enabled
+        ? options.size2.label
+        : "";
 
     const payload = {
       eventId,
@@ -269,7 +314,12 @@ const MenuReport = ({
       adminTemplateModuleId: selectedTemplateId ?? 0,
       type: reportType || null,
       userId,
-      lang: selectedLanguage === "english" ? 0 : selectedLanguage === "hindi" ? 1 : 2,
+      lang:
+        selectedLanguage === "english"
+          ? 0
+          : selectedLanguage === "hindi"
+            ? 1
+            : 2,
       isCategoryImage: options.categoryImage,
       isCategoryInstruction: options.categoryInstruction,
       isCategorySlogan: options.categorySlogan,
@@ -299,7 +349,10 @@ const MenuReport = ({
       if (Array.isArray(value)) {
         value.forEach((v) => formData.append(`${key}[]`, v));
       } else {
-        formData.append(key, value === true ? "1" : value === false ? "0" : value);
+        formData.append(
+          key,
+          value === true ? "1" : value === false ? "0" : value,
+        );
       }
     });
 
@@ -334,7 +387,10 @@ const MenuReport = ({
     const mobile = PartyNumber || "";
     if (!mobile) return alert("Mobile number not available");
     const message = `Hi ${name},\nPlease find the attached PDF.\n\n${pdfUrl}`;
-    window.open(`https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`, "_blank");
+    window.open(
+      `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`,
+      "_blank",
+    );
   };
 
   const Toggle = ({ checked, onChange }) => (
@@ -343,7 +399,9 @@ const MenuReport = ({
       onClick={onChange}
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${checked ? "bg-blue-600" : "bg-gray-300"}`}
     >
-      <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${checked ? "translate-x-5" : "translate-x-1"}`} />
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${checked ? "translate-x-5" : "translate-x-1"}`}
+      />
     </button>
   );
 
@@ -356,10 +414,16 @@ const MenuReport = ({
       footer={
         pdfUrl ? (
           <div className="flex justify-end gap-2">
-            <button onClick={handleClose} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+            >
               Close
             </button>
-            <button onClick={handleWhatsAppShare} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+            <button
+              onClick={handleWhatsAppShare}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+            >
               Share on WhatsApp
             </button>
           </div>
@@ -379,7 +443,9 @@ const MenuReport = ({
       ) : !pdfUrl ? (
         <div className="space-y-6">
           <div>
-            <label className="block font-medium mb-2 text-gray-700">Select Language</label>
+            <label className="block font-medium mb-2 text-gray-700">
+              Select Language
+            </label>
             <div className="flex border rounded-lg overflow-hidden shadow-sm">
               {["english", "hindi", "gujarati"].map((lang) => (
                 <button
@@ -393,59 +459,105 @@ const MenuReport = ({
             </div>
           </div>
 
-          {!isAdminModuleReport && (isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
-            <div className="p-5 rounded-xl border-2">
-              <div className="grid grid-cols-2 gap-4">
-                {showAgencyDropdown && (
-                  <>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        <TeamOutlined className="mr-1" />Agency
-                      </label>
-                      <Select
-                        mode="multiple" value={selectedAgency} onChange={setSelectedAgency}
-                        placeholder="Select agencies..." className="w-full" size="large"
-                        loading={loadingFilters} showSearch optionFilterProp="children"
-                        filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
-                        options={agencies.map((a) => ({ value: a.id, label: a.nameEnglish }))}
-                        maxTagCount="responsive" allowClear
-                      />
-                    </div>
-                    {showItemDropdown && (
+          {!isAdminModuleReport &&
+            (isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
+              <div className="p-5 rounded-xl border-2">
+                <div className="grid grid-cols-2 gap-4">
+                  {showAgencyDropdown && (
+                    <>
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                          <AppstoreOutlined className="mr-1" />Items
+                          <TeamOutlined className="mr-1" />
+                          Agency
                         </label>
                         <Select
-                          mode="multiple" value={selectedItems} onChange={setSelectedItems}
-                          placeholder="Select items..." className="w-full" size="large"
-                          loading={loadingFilters} showSearch optionFilterProp="children"
-                          filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
-                          options={items.map((i) => ({ value: i.id, label: i.nameEnglish }))}
-                          maxTagCount="responsive" allowClear disabled={selectedAgency.length === 0}
+                          mode="multiple"
+                          value={selectedAgency}
+                          onChange={setSelectedAgency}
+                          placeholder="Select agencies..."
+                          className="w-full"
+                          size="large"
+                          loading={loadingFilters}
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          options={agencies.map((a) => ({
+                            value: a.id,
+                            label: a.nameEnglish,
+                          }))}
+                          maxTagCount="responsive"
+                          allowClear
                         />
                       </div>
-                    )}
-                  </>
-                )}
+                      {showItemDropdown && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                            <AppstoreOutlined className="mr-1" />
+                            Items
+                          </label>
+                          <Select
+                            mode="multiple"
+                            value={selectedItems}
+                            onChange={setSelectedItems}
+                            placeholder="Select items..."
+                            className="w-full"
+                            size="large"
+                            loading={loadingFilters}
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={items.map((i) => ({
+                              value: i.id,
+                              label: i.nameEnglish,
+                            }))}
+                            maxTagCount="responsive"
+                            allowClear
+                            disabled={selectedAgency.length === 0}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {!isNamePlateTheme && (
             <>
               <div className="flex justify-between items-center border-b pb-3 mb-3">
-                <span className="font-semibold text-gray-700">Check All Options</span>
-                <Toggle checked={isCheckAll} onChange={() => toggleAll(!isCheckAll)} />
+                <span className="font-semibold text-gray-700">
+                  Check All Options
+                </span>
+                <Toggle
+                  checked={isCheckAll}
+                  onChange={() => toggleAll(!isCheckAll)}
+                />
               </div>
               <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                 {visibleOptions.map((key) => (
-                  <div key={key} className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition">
+                  <div
+                    key={key}
+                    className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition"
+                  >
                     <span className="capitalize text-gray-700">
-                      {key === "size1" || key === "size2" ? `Size ${options[key]?.label}` : key.replace(/([A-Z])/g, " $1")}
+                      {key === "size1" || key === "size2"
+                        ? `Size ${options[key]?.label}`
+                        : key.replace(/([A-Z])/g, " $1")}
                     </span>
                     <Toggle
-                      checked={key === "size1" || key === "size2" ? options[key]?.enabled : options[key]}
+                      checked={
+                        key === "size1" || key === "size2"
+                          ? options[key]?.enabled
+                          : options[key]
+                      }
                       onChange={() => toggleOne(key)}
                     />
                   </div>
@@ -457,10 +569,7 @@ const MenuReport = ({
       ) : (
         <div style={{ height: "80vh" }}>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <Viewer
-              fileUrl={pdfUrl}
-              plugins={[pdfPlugin]}
-            />
+            <Viewer fileUrl={pdfUrl} plugins={[pdfPlugin]} />
           </Worker>
         </div>
       )}
