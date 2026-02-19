@@ -1,11 +1,4 @@
-import {
-  Fragment,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import { Fragment, useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Container } from "@/components/container";
 import { toAbsoluteUrl } from "@/utils/Assets";
 
@@ -43,6 +36,7 @@ import {
   AddUpdateLabor,
   GetEventLaborDetails,
   GetAllLabourShift,
+  GetEventLabourBySupplier,
 } from "@/services/apiServices";
 import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
@@ -95,7 +89,7 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [activeRowId, setActiveRowId] = useState(null);
-  const activeRowIdRef = useRef(null);
+  const activeRowIdRef = useRef(null);   
 
   const [contactTypeId, setContactTypeId] = useState(2);
   const [concatId, setConcatId] = useState(2);
@@ -230,41 +224,99 @@ const LabourOtherManagementPage = ({ mode }) => {
   };
 
   const handleVendorAdded = async () => {
-    const lockedRowId = activeRowId;
-    if (!lockedRowId) return;
+  const lockedRowId = activeRowId;
+  if (!lockedRowId) return;
 
-    const categoryId = rowCategoryMap[lockedRowId];
-    if (!categoryId) return;
+  const categoryId = rowCategoryMap[lockedRowId];
+  if (!categoryId) return;
 
-    try {
-      const res = await GetPartyMasterByCatId(categoryId, userId);
-      const updatedContacts = res?.data?.data?.["Party Details"] || [];
+  try {
+    const res = await GetPartyMasterByCatId(categoryId, userId);
+    const updatedContacts = res?.data?.data?.["Party Details"] || [];
 
-      // ✅ Update allContactsRef directly — no state change = no effect trigger
-      allContactsRef.current = {
-        ...allContactsRef.current,
-        [categoryId]: updatedContacts,
-      };
+    // ✅ Update allContactsRef directly — no state change = no effect trigger
+    allContactsRef.current = {
+      ...allContactsRef.current,
+      [categoryId]: updatedContacts,
+    };
 
-      // ✅ Only update filteredContacts for affected rows — targeted, no full reset
-      setFilteredContacts((prev) => {
-        const updated = { ...prev };
-        Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
-          if (catId === categoryId) {
-            updated[rowId] = updatedContacts;
-          }
-        });
-        return updated;
+    // ✅ Only update filteredContacts for affected rows — targeted, no full reset
+    setFilteredContacts((prev) => {
+      const updated = { ...prev };
+      Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
+        if (catId === categoryId) {
+          updated[rowId] = updatedContacts;
+        }
       });
-    } catch (e) {
-      console.error("Error refreshing vendor list:", e);
-    }
-  };
+      return updated;
+    });
+  } catch (e) {
+    console.error("Error refreshing vendor list:", e);
+  }
+};
+
 
   const activeFunction = useMemo(
     () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
     [eventData, activeTab],
   );
+
+ const handleWhatsAppClick = useCallback(async (row, shift) => {
+  try {
+    const res = await GetEventLabourBySupplier(
+      activeFunction?.id,
+      eventData?.id,
+      row.contactId,
+    );
+
+    const data = res?.data?.data?.eventLabor?.[0];
+    if (!data) return;
+
+    const mobile = data.mobileNo || "";
+    if (!mobile) {
+      Swal.fire({ icon: "warning", title: "No mobile number found!" });
+      return;
+    }
+
+    const venue = eventData?.venue?.nameEnglish || "";
+    const notes = row.notesEnglish || "";
+
+    let shiftsToSend = [];
+
+    if (shift) {
+      shiftsToSend = [shift];
+    } else {
+      shiftsToSend = data.labourShift || [];
+    }
+
+    const shiftLines = shiftsToSend.map((s) => {
+      const shiftName = (s.laborshift || s.shift || "")
+        .replace(/^\w/, (c) => c.toUpperCase());
+      const qty = s.qty ?? s.quantity ?? "";
+      const dateStr = (s.labordatetime || s.dateTime)
+        ? dayjs(
+            s.labordatetime || s.dateTime,
+            "DD/MM/YYYY hh:mm A",
+          ).format("DD.MM.YYYY")
+        : "";
+
+      return `${shiftName} :\n qty-${qty}, date-(${dateStr})`;
+    }).join("\n");
+
+    const message =
+      `TO, ${data.contactname}\n` +
+      `Required : ${data.labortypename}\n` +
+      `Venue : ${venue}\n` +
+      shiftLines +
+      (notes ? `\nNotes : ${notes}` : "");
+
+    const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch (err) {
+    console.error("WhatsApp error:", err);
+    Swal.fire({ icon: "error", title: "Failed to fetch labour details" });
+  }
+}, [activeFunction?.id, eventData]);
 
   const filteredLabourData = useMemo(
     () =>
@@ -322,8 +374,12 @@ const LabourOtherManagementPage = ({ mode }) => {
   };
 
   useEffect(() => {
-    activeRowIdRef.current = activeRowId;
-  }, [activeRowId]);
+  activeRowIdRef.current = activeRowId;
+}, [activeRowId]);
+
+
+
+
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -379,105 +435,105 @@ const LabourOtherManagementPage = ({ mode }) => {
   }, [eventId]);
 
   const allContactsRef = useRef(allContacts);
-  useEffect(() => {
-    allContactsRef.current = allContacts;
-  }, [allContacts]);
+useEffect(() => {
+  allContactsRef.current = allContacts;
+}, [allContacts]);
 
-  // Then change fetchLaborDetails (defined inside the useEffect) to read
-  // from allContactsRef.current instead of allContacts directly.
-  // AND remove allContacts from the dependency array:
+// Then change fetchLaborDetails (defined inside the useEffect) to read
+// from allContactsRef.current instead of allContacts directly.
+// AND remove allContacts from the dependency array:
 
-  useEffect(() => {
-    const fetchLaborDetails = async () => {
-      if (!eventData || !activeTab) return;
+useEffect(() => {
+  const fetchLaborDetails = async () => {
+    if (!eventData || !activeTab) return;
 
-      const functionObj = eventData.eventFunctions.find(
-        (fn) => fn.id === activeTab,
-      );
-      if (!functionObj) return;
+    const functionObj = eventData.eventFunctions.find(
+      (fn) => fn.id === activeTab,
+    );
+    if (!functionObj) return;
 
-      try {
-        const res = await GetEventLaborDetails(functionObj.id, eventData.id);
-        const laborData = res?.data?.data?.eventLabor || [];
+    try {
+      const res = await GetEventLaborDetails(functionObj.id, eventData.id);
+      const laborData = res?.data?.data?.eventLabor || [];
 
-        const categoryMap = {};
-        const contactMap = {};
-        const formattedRows = [];
-        const newShiftRows = {};
+      const categoryMap = {};
+      const contactMap = {};
+      const formattedRows = [];
+      const newShiftRows = {};
 
-        laborData.forEach((item) => {
-          const rowId = `server-${item.id}`;
-          categoryMap[rowId] = item.labortypeid;
+      laborData.forEach((item) => {
+        const rowId = `server-${item.id}`;
+        categoryMap[rowId] = item.labortypeid;
 
-          // ✅ Read from ref, not from closure — always fresh, not a dep
-          contactMap[rowId] = allContactsRef.current[item.labortypeid] || [];
+        // ✅ Read from ref, not from closure — always fresh, not a dep
+        contactMap[rowId] = allContactsRef.current[item.labortypeid] || [];
 
-          formattedRows.push({
-            id: rowId,
-            isSaved: true,
-            labourType:
-              item.labortypename ||
-              labourCategories.find((c) => c.id === item.labortypeid)
-                ?.nameEnglish ||
-              "",
-            contact:
-              item.contactname ||
-              Object.values(allContactsRef.current)
-                .flat()
-                .find((c) => c.id === item.contactid)?.nameEnglish ||
-              "",
-            contactId: item.contactid,
-            notesEnglish: item.labourShift?.[0]?.notesEnglish || "",
-            notesGujarati: item.labourShift?.[0]?.notesGujarati || "",
-            notesHindi: item.labourShift?.[0]?.notesHindi || "",
-          });
-
-          if (item.labourShift && Array.isArray(item.labourShift)) {
-            newShiftRows[rowId] = item.labourShift.map((shift, index) => ({
-              id: `shift-${item.id}-${index}`,
-              shift: shift.laborshift || "",
-              dateTime: parseDate(
-                shift.labordatetime,
-                eventData?.eventStartDateTime,
-              ),
-              price: shift.price || "",
-              quantity: shift.qty || "",
-              total: shift.totalprice || "",
-              place: shift.place || "At Venue",
-            }));
-          }
+        formattedRows.push({
+          id: rowId,
+          isSaved: true,
+          labourType:
+            item.labortypename ||
+            labourCategories.find((c) => c.id === item.labortypeid)
+              ?.nameEnglish ||
+            "",
+          contact:
+            item.contactname ||
+            Object.values(allContactsRef.current)
+              .flat()
+              .find((c) => c.id === item.contactid)?.nameEnglish ||
+            "",
+          contactId: item.contactid,
+          notesEnglish: item.labourShift?.[0]?.notesEnglish || "",
+          notesGujarati: item.labourShift?.[0]?.notesGujarati || "",
+          notesHindi: item.labourShift?.[0]?.notesHindi || "",
         });
 
-        setLabourData(formattedRows);
-        setRowCategoryMap(categoryMap);
-        setFilteredContacts(contactMap);
-        setShiftRows(newShiftRows);
-
-        if (formattedRows.length > 0) {
-          setExpandedRows({ [formattedRows[0].id]: true });
-        }
-      } catch (err) {
-        console.error("Error fetching labour details:", err);
-      }
-    };
-
-    if (eventData && activeTab && labourCategories.length) {
-      fetchLaborDetails();
-    }
-    // ✅ allContacts is NOT here — changing contacts no longer wipes your rows
-  }, [eventData, activeTab, labourCategories]);
-
-  useEffect(() => {
-    setFilteredContacts((prev) => {
-      const updated = { ...prev };
-      Object.entries(rowCategoryMap).forEach(([rowId, categoryId]) => {
-        if (!updated[rowId] || updated[rowId].length === 0) {
-          updated[rowId] = allContacts[categoryId] || [];
+        if (item.labourShift && Array.isArray(item.labourShift)) {
+          newShiftRows[rowId] = item.labourShift.map((shift, index) => ({
+            id: `shift-${item.id}-${index}`,
+            shift: shift.laborshift || "",
+            dateTime: parseDate(
+              shift.labordatetime,
+              eventData?.eventStartDateTime,
+            ),
+            price: shift.price || "",
+            quantity: shift.qty || "",
+            total: shift.totalprice || "",
+            place: shift.place || "At Venue",
+          }));
         }
       });
-      return updated;
+
+      setLabourData(formattedRows);
+      setRowCategoryMap(categoryMap);
+      setFilteredContacts(contactMap);
+      setShiftRows(newShiftRows);
+
+      if (formattedRows.length > 0) {
+        setExpandedRows({ [formattedRows[0].id]: true });
+      }
+    } catch (err) {
+      console.error("Error fetching labour details:", err);
+    }
+  };
+
+  if (eventData && activeTab && labourCategories.length) {
+    fetchLaborDetails();
+  }
+  // ✅ allContacts is NOT here — changing contacts no longer wipes your rows
+}, [eventData, activeTab, labourCategories]);
+
+  useEffect(() => {
+  setFilteredContacts((prev) => {
+    const updated = { ...prev };
+    Object.entries(rowCategoryMap).forEach(([rowId, categoryId]) => {
+      if (!updated[rowId] || updated[rowId].length === 0) {
+        updated[rowId] = allContacts[categoryId] || [];
+      }
     });
-  }, [allContacts, rowCategoryMap]);
+    return updated;
+  });
+}, [allContacts, rowCategoryMap]);
 
   const handleRowChange = useCallback((id, field, value) => {
     setHasUnsavedChanges(true);
@@ -1324,19 +1380,19 @@ const LabourOtherManagementPage = ({ mode }) => {
             setActiveRowId={setActiveRowId}
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
-            onOpenAddVendor={() => {
-              const rowId =
-                activeRowId ||
-                (labourData.length
-                  ? labourData[labourData.length - 1].id
-                  : null);
-              if (rowId) {
-                activeRowIdRef.current = rowId; // ← lock it
-                setActiveRowId(rowId);
-              }
-              setIsMemberModalOpen(true);
-            }}
+
+           onOpenAddVendor={() => {
+  const rowId = activeRowId || (labourData.length ? labourData[labourData.length - 1].id : null);
+  if (rowId) {
+    activeRowIdRef.current = rowId;   // ← lock it
+    setActiveRowId(rowId);
+  }
+  setIsMemberModalOpen(true);
+}}
+
+            onWhatsAppClick={handleWhatsAppClick}
             onOpenAddLabourShift={handleOpenAddLabourShift}
+            
           />
         )}
         {/* Modals */}
@@ -1490,14 +1546,13 @@ const LabourTable = ({
   onOpenAddLabourModal,
   onOpenAddVendor,
   onOpenAddLabourShift,
+  onWhatsAppClick,
 }) => {
   const toggleRowExpansion = (rowId) => {
     setExpandedRows((prev) => {
-      // If clicking the same row that's open, close it
       if (prev[rowId]) {
         return {};
       }
-      // Otherwise, close all and open only this one
       return { [rowId]: true };
     });
   };
@@ -1821,7 +1876,22 @@ const LabourTable = ({
                     readOnly
                   />
                 </div>
+                 
                 <div className="col-span-2 flex items-center justify-center gap-2">
+
+                  <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            title="WhatsApp"
+            onClick={() => onWhatsAppClick(row, null)}
+          >
+            <svg
+              className="w-5 h-5 text-green-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg>
+          </button>
                   <button
                     className="p-2 hover:bg-red-100 rounded-full transition"
                     onClick={() => onDelete(row.id)}
@@ -1905,6 +1975,7 @@ const LabourTable = ({
                     onViewDetails={onViewDetails}
                     onAddNotes={onAddNotes}
                     row={row}
+                    onWhatsAppClick={onWhatsAppClick}  
                   />
                 ))}
 
@@ -1961,6 +2032,7 @@ const ShiftRow = ({
   onViewDetails,
   onAddNotes,
   row,
+  onWhatsAppClick,
 }) => {
   const parseDateToObject = (dateString) => {
     if (!dateString) return null;
@@ -2081,18 +2153,7 @@ const ShiftRow = ({
           >
             <FileText className="w-4 h-4 text-blue-600" />
           </button>
-          <button
-            className="p-2 hover:bg-gray-200 rounded-full transition"
-            title="WhatsApp"
-          >
-            <svg
-              className="w-4 h-4 text-green-600"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-            </svg>
-          </button>
+         
           <button
             className="p-2 hover:bg-red-100 rounded-full transition"
             onClick={() => onDelete(parentRowId, shift.id)}
@@ -2207,18 +2268,7 @@ const ShiftRow = ({
           >
             <FileText className="w-4 h-4 text-blue-600" />
           </button>
-          <button
-            className="p-2 hover:bg-gray-200 rounded-full transition"
-            title="WhatsApp"
-          >
-            <svg
-              className="w-4 h-4 text-green-600"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-            </svg>
-          </button>
+          
           <button
             className="p-2 hover:bg-red-100 rounded-full transition"
             onClick={() => onDelete(parentRowId, shift.id)}
@@ -2410,9 +2460,7 @@ const LabourRow = ({
           >
             <i className="ki-filled ki-notepad text-primary"></i>
           </button>
-          <button className="btn btn-sm btn-icon btn-clear">
-            <i className="ki-filled ki-whatsapp text-green-600"></i>
-          </button>
+          
           <button
             className="btn btn-sm btn-icon btn-clear"
             onClick={() => onDelete(row.id)}
