@@ -702,6 +702,7 @@ export const superAdminMenuItems = [
       },
     ],
   },
+
   {
     title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Leads" />,
     icon: "ki-filled ki-abstract-26 text-primary",
@@ -718,10 +719,31 @@ export const superAdminMenuItems = [
       },
       {
         title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Employee Dashbaord"
+          />
+        ),
+        path: "/superadmin/employeedashboard",
+        pageName: "Employee Dashbaord",
+      },
+
+      {
+        title: (
           <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
         ),
         path: "/super-leads",
         pageName: "Leads",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Follow Up"
+          />
+        ),
+        path: "/superadmin/lead/followup",
+        pageName: "Follow Up",
       },
     ],
   },

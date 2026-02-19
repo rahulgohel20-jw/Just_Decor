@@ -63,14 +63,59 @@ export const columns = (
     header: "Client Name",
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
-  {
-    accessorKey: "leadType",
-    header: "Lead Type",
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  },
+
   {
     accessorKey: "leadAssign",
     header: "Lead Assign",
+    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  },
+
+  // {
+  //   id: "leadStatus",
+  //   accessorKey: "leadStatus",
+  //   header: "Lead Status",
+  //   cell: ({ row }) => {
+  //     const status = row.original.leadStatus;
+
+  //     const getStatusStyle = (status) => {
+  //       switch (status?.toLowerCase()) {
+  //         case "pending":
+  //           return "bg-yellow-100 text-yellow-700 border-yellow-300";
+  //         case "confirmed":
+  //           return "bg-green-100 text-green-700 border-green-300";
+  //         case "cancel":
+  //         case "cancelled":
+  //           return "bg-red-100 text-red-700 border-red-300";
+  //         case "open":
+  //           return "bg-blue-100 text-blue-700 border-blue-300";
+  //         case "closed":
+  //           return "bg-gray-100 text-gray-700 border-gray-300";
+  //         default:
+  //           return "bg-gray-100 text-gray-600 border-gray-300";
+  //       }
+  //     };
+
+  //     return (
+  //       <span
+  //         className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusStyle(status)}`}
+  //       >
+  //         {status || "N/A"}
+  //       </span>
+  //     );
+  //   },
+  //   meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  //   },
+  {
+    accessorKey: "stage",
+    header: "Stage",
+    cell: ({ row }) => {
+      const stage = row.original.stage || row.original.openStageName || "-";
+      return (
+        <span className="px-3 py-1 text-xs font-medium rounded-full border bg-blue-100 text-blue-700 border-blue-300">
+          {stage}
+        </span>
+      );
+    },
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
@@ -78,42 +123,6 @@ export const columns = (
     header: "Product Type",
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
-  {
-    id: "leadStatus",
-    accessorKey: "leadStatus",
-    header: "Lead Status",
-    cell: ({ row }) => {
-      const status = row.original.leadStatus;
-
-      const getStatusStyle = (status) => {
-        switch (status?.toLowerCase()) {
-          case "pending":
-            return "bg-yellow-100 text-yellow-700 border-yellow-300";
-          case "confirmed":
-            return "bg-green-100 text-green-700 border-green-300";
-          case "cancel":
-          case "cancelled":
-            return "bg-red-100 text-red-700 border-red-300";
-          case "open":
-            return "bg-blue-100 text-blue-700 border-blue-300";
-          case "closed":
-            return "bg-gray-100 text-gray-700 border-gray-300";
-          default:
-            return "bg-gray-100 text-gray-600 border-gray-300";
-        }
-      };
-
-      return (
-        <span
-          className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusStyle(status)}`}
-        >
-          {status || "N/A"}
-        </span>
-      );
-    },
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  },
-
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,

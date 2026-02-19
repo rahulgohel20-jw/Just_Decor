@@ -168,13 +168,11 @@ const FollowUp = ({
                             </span>
                           </div>
                           <div className="flex items-center gap-1 text-sm mt-1">
-                            <span className="text-gray-500">created At:</span>
+                            <span className="text-gray-500">Created At:</span>
                             <span className="text-gray-900 font-medium">
-                              {new Date(item.createdAt).toLocaleDateString(
-                                "en-GB",
-                              )}{" "}
+                              {item.createdAt || "N/A"}
                             </span>
-                          </div>{" "}
+                          </div>
                         </div>
 
                         {/* Status Dropdown */}
@@ -226,6 +224,7 @@ const FollowUp = ({
           onSave={handleSaveFromAddModal}
           clientName={clientName}
           viewOnlyFollowUp={null}
+          defaultManager={leadData.leadAssignId}
         />
       )}
     </>

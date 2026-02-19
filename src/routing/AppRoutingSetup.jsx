@@ -221,6 +221,8 @@ import Pipeline from "../pages/lead/pipeline";
 import BankPayment from "../pages/payments/BankPayment";
 import CashRecipet from "../pages/payments/CashRecipet";
 import BankDetails from "../pages/master/Bank-Details";
+import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
+import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
 
 const AppRoutingSetup = () => {
   return (
@@ -528,6 +530,11 @@ const AppRoutingSetup = () => {
           <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
           {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
+          <Route
+            path="/superadmin/employeedashboard"
+            element={<EmployeeDashboard />}
+          />
+          <Route path="/superadmin/lead/followup" element={<FollowUpPage />} />
           <Route
             path="/public-profile/profiles/default"
             element={<ProfileDefaultPage />}

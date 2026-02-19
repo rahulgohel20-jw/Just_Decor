@@ -9,6 +9,7 @@ export default function AddFollowUpModal({
   onSave,
   clientName,
   viewOnlyFollowUp,
+  defaultManager,
 }) {
   const [customerName, setCustomerName] = useState("");
   const [managers, setManagers] = useState([]);
@@ -17,6 +18,21 @@ export default function AddFollowUpModal({
   const [description, setDescription] = useState("");
   const [followType, setFollowType] = useState("Call");
   const [followupDate, setFollowupDate] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Priority 1 → View FollowUp (Edit/View mode)
+    if (viewOnlyFollowUp?.memberId) {
+      setSelectedManager(Number(viewOnlyFollowUp.memberId));
+    }
+    // Priority 2 → Lead Assign Id (Default from Lead)
+    else if (defaultManager) {
+      setSelectedManager(Number(defaultManager));
+    } else {
+      setSelectedManager(null);
+    }
+  }, [isOpen, viewOnlyFollowUp, defaultManager]);
 
   // Determine if modal is view-only
   const isViewOnly = !!viewOnlyFollowUp;
@@ -112,10 +128,12 @@ export default function AddFollowUpModal({
           <Select
             placeholder="Select Member"
             options={managers}
-            value={selectedManager}
+            value={selectedManager || undefined}
             onChange={(value) => setSelectedManager(value)}
             disabled={isViewOnly}
             className="w-full"
+            showSearch
+            optionFilterProp="label"
           />
         </div>
 

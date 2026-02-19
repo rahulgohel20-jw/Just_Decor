@@ -9,6 +9,8 @@ export default function AddFollowUpModal({
   onSave,
   clientName,
   viewOnlyFollowUp,
+  defaultManager,
+  zIndex,
 }) {
   const [customerName, setCustomerName] = useState("");
   const [managers, setManagers] = useState([]);
@@ -20,6 +22,16 @@ export default function AddFollowUpModal({
 
   // Determine if modal is view-only
   const isViewOnly = !!viewOnlyFollowUp;
+
+  useEffect(() => {
+    if (isOpen) {
+      if (viewOnlyFollowUp?.memberId) {
+        setSelectedManager(viewOnlyFollowUp.memberId);
+      } else if (defaultManager) {
+        setSelectedManager(defaultManager); // ✅ AUTO SELECT
+      }
+    }
+  }, [isOpen, defaultManager, viewOnlyFollowUp]);
 
   useEffect(() => {
     const FetchManager = () => {
@@ -74,7 +86,7 @@ export default function AddFollowUpModal({
       description: description,
       followUpType: followType,
       followupDate: dayjs(followupDate).format("DD/MM/YYYY hh:mm A"),
-      managerId: selectedManager, // 👈 added
+      memberId: selectedManager, // 👈 added
     });
 
     setCustomerName("");
@@ -94,6 +106,7 @@ export default function AddFollowUpModal({
       footer={null}
       centered
       width={700}
+      zIndex={zIndex || 1100}
     >
       <div className="space-y-5 p-2">
         {/* Customer Name */}
