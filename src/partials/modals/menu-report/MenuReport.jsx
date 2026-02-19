@@ -6,14 +6,13 @@ import {
   GetReportConfiguration,
   GetAgenciesForReportFilter,
   GetSelectedItemsForReportFilter,
+  GetAllRawMaterialAllocationCategory,
 } from "@/services/apiServices";
 import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import { getAllPagesNumbers } from "@react-pdf-viewer/print";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select } from "antd";
 import { TeamOutlined, AppstoreOutlined } from "@ant-design/icons";
@@ -46,11 +45,14 @@ const MenuReport = ({
   const [showNamePlateUI, setShowNamePlateUI] = useState(false);
   const [isDropdownStatus, setisDropdownStatus] = useState();
   const [showAgencyDropdown, setShowAgencyDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showItemDropdown, setShowItemDropdown] = useState(false);
   const [isDateStatus, setisDateStatus] = useState();
   const [agencies, setAgencies] = useState([]);
+  const [category, setCategory] = useState([]);
   const [items, setItems] = useState([]);
   const [selectedAgency, setSelectedAgency] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -115,6 +117,12 @@ const MenuReport = ({
         if (!config) return;
 
         setReportType(config.type);
+        if (config.isRawMaterialCat === 1) {
+          setisDropdownStatus(1);
+          setShowCategoryDropdown(true);
+          setShowAgencyDropdown(false);
+          setShowItemDropdown(false);
+        }
 
         if (isAdminModuleReport || agencyType == null) {
           setisDropdownStatus(0);
@@ -215,6 +223,33 @@ const MenuReport = ({
     agencyType,
     isAdminModuleReport,
   ]);
+
+  useEffect(() => {
+    if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
+
+    const fetchcategory = async () => {
+      setLoadingFilters(true);
+      try {
+        const categoryres = await GetAllRawMaterialAllocationCategory(eventId);
+        if (categoryres?.data?.success && categoryres?.data?.data) {
+          const categoryList =
+            categoryres.data.data["Raw Material Category Details"];
+          setCategory(categoryList);
+          setSelectedCategory(categoryList.map((a) => a.id));
+        } else {
+          setCategory([]);
+          setSelectedCategory([]);
+        }
+      } catch (err) {
+        errorMsgPopup("Failed to load agencies");
+        setCategory([]);
+      } finally {
+        setLoadingFilters(false);
+      }
+    };
+
+    fetchcategory();
+  }, [isModalOpen, isDropdownStatus, eventId, isAdminModuleReport]);
 
   useEffect(() => {
     if (
@@ -335,6 +370,7 @@ const MenuReport = ({
       isWithPrice: options.isWithPrice,
       agencyId: selectedAgency,
       itemId: selectedItems,
+      rawMaterialCatIds: selectedCategory,
       ...(adminStartDate && { startDate: formatAdminDate(adminStartDate) }),
       ...(adminEndDate && { endDate: formatAdminDate(adminEndDate) }),
     };
@@ -460,7 +496,10 @@ const MenuReport = ({
           </div>
 
           {!isAdminModuleReport &&
-            (isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
+            (isDateStatus === 1 ||
+              showAgencyDropdown ||
+              showItemDropdown ||
+              showCategoryDropdown) && (
               <div className="p-5 rounded-xl border-2">
                 <div className="grid grid-cols-2 gap-4">
                   {showAgencyDropdown && (
@@ -525,6 +564,37 @@ const MenuReport = ({
                         </div>
                       )}
                     </>
+                  )}
+                  {showCategoryDropdown && (
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                        <AppstoreOutlined className="mr-1" />
+                        Category
+                      </label>
+                      <Select
+                        mode="multiple"
+                        value={selectedCategory}
+                        onChange={setSelectedCategory}
+                        placeholder="Select items..."
+                        className="w-full"
+                        size="large"
+                        loading={loadingFilters}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={category.map((i) => ({
+                          value: i.id,
+                          label: i.nameEnglish,
+                        }))}
+                        maxTagCount="responsive"
+                        allowClear
+                        disabled={setSelectedCategory.length === 0}
+                      />
+                    </div>
                   )}
                 </div>
               </div>
