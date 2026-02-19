@@ -88,12 +88,13 @@ const RecivePayment = () => {
               <thead className="bg-[#f9fafb] border-b border-[#e5e7eb]">
                 <tr className="text-[11px] text-[#6b7280] uppercase tracking-wide">
                   <th className="px-5 py-3 text-left">SRNO</th>
+                  <th className="px-5 py-3 text-left">Vendor Name</th>
+                  <th className="px-5 py-3 text-left">Party Name</th>
+                  <th className="px-5 py-3 text-left"> Mode of Payment</th>
                   <th className="px-5 py-3 text-left">Date</th>
-
-                  <th className="px-5 py-3 text-left">Receive Status</th>
                   <th className="px-5 py-3 text-left">Bill #</th>
                   <th className="px-5 py-3 text-right">Pay Amount</th>
-
+                  <th className="px-5 py-3 text-left">Receive Status</th>
                   <th className="px-5 py-3 text-center">Actions</th>
                 </tr>
               </thead>
@@ -102,6 +103,9 @@ const RecivePayment = () => {
                 {[
                   {
                     srno: 1,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 24, 2023",
                     bill: "INV-00124",
                     status: "Completed",
@@ -110,6 +114,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 2,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 23, 2023",
                     bill: "INV-00123",
                     status: "Completed",
@@ -118,6 +125,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 3,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 22, 2023",
                     bill: "INV-00122",
                     status: "Completed",
@@ -126,6 +136,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 4,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 21, 2023",
                     bill: "INV-00121",
                     status: "Completed",
@@ -134,6 +147,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 5,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 21, 2023",
                     bill: "INV-00121",
                     status: "Completed",
@@ -142,6 +158,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 6,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 21, 2023",
                     bill: "INV-00121",
                     status: "Completed",
@@ -150,6 +169,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 7,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 21, 2023",
                     bill: "INV-00121",
                     status: "Completed",
@@ -158,6 +180,9 @@ const RecivePayment = () => {
                   },
                   {
                     srno: 8,
+                    vendorname: "Swapnil",
+                    partyname: "Manan Gandhi",
+                    modeofpayment: "cp",
                     date: "Oct 21, 2023",
                     bill: "INV-00121",
                     status: "Completed",
@@ -170,9 +195,24 @@ const RecivePayment = () => {
                       {row.srno}
                     </td>
                     <td className="px-5 py-[14px] text-[#374151]">
+                      {row.vendorname}
+                    </td>
+                    <td className="px-5 py-[14px] text-[#374151]">
+                      {row.partyname}
+                    </td>
+                    <td className="px-5 py-[14px] text-[#374151] text-center">
+                      {row.modeofpayment}
+                    </td>
+                    <td className="px-5 py-[14px] text-[#374151]">
                       {row.date}
                     </td>
 
+                    <td className="px-5 py-[14px] text-primary font-medium">
+                      {row.bill}
+                    </td>
+                    <td className="px-5 py-[14px] text-right font-medium text-[#111827]">
+                      {row.amount}
+                    </td>
                     <td className="px-5 py-[14px]">
                       <span
                         className={`inline-flex items-center gap-1 px-3 py-[2px] rounded-full text-[11px] font-medium
@@ -187,13 +227,6 @@ const RecivePayment = () => {
                         ● {row.status}
                       </span>
                     </td>
-                    <td className="px-5 py-[14px] text-primary font-medium">
-                      {row.bill}
-                    </td>
-                    <td className="px-5 py-[14px] text-right font-medium text-[#111827]">
-                      {row.amount}
-                    </td>
-
                     <td className="px-5 py-[14px]">
                       <div className="flex justify-center gap-3 text-[#9ca3af]">
                         <Printer size={16} />
