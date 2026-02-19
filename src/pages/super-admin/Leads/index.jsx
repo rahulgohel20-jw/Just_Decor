@@ -1049,7 +1049,6 @@ const SuperLeads = () => {
         closeStageId: fullLeadData.closeStageId,
         leadTitle: fullLeadData.leadTitle || "",
         leadFollowUpDate: fullLeadData.leadFollowUpDate || "",
-        followUpDetails: mappedFollowUps,
         // In handleEditLead (index.jsx) - ensure it's always a string:
         estimateAmount: String(fullLeadData.estimateAmount ?? ""), // ✅ handles 0 too
       };

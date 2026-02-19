@@ -592,19 +592,23 @@ export const superAdminMenuItems = [
   },
   {
     title: (
-      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member List" />
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member " />
     ),
     icon: "ki-filled ki-user text-primary",
     path: "/master/user-master/",
-    pageName: "Member List",
+    pageName: "Members",
   },
   {
-    title: (
-      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Employe List" />
-    ),
+    title: <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Vendor" />,
+    icon: "ki-filled ki-users text-primary",
+    path: "/vendors",
+    pageName: "Vendors",
+  },
+  {
+    title: <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Users" />,
     icon: "ki-filled ki-users text-primary",
     path: "/superadmin/members",
-    pageName: "Employe List",
+    pageName: "Users",
   },
   {
     title: (

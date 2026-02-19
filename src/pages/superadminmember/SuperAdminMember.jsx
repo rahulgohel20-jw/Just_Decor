@@ -157,14 +157,20 @@ const MemberProfile = () => {
     if (!memberData) return { totalPaid: 0, remaining: 0, percentage: 0 };
 
     const planPrice = memberData.userPlan?.plan?.price || 0;
+
     const totalPaid =
       memberData.downPayment?.reduce((sum, payment) => {
         return payment.paymentDone ? sum + payment.amount : sum;
       }, 0) || 0;
 
-    const remaining = planPrice - totalPaid;
+    // Prevent negative remaining
+    const remaining = Math.max(planPrice - totalPaid, 0);
+
+    // Cap percentage at 100%
     const percentage =
-      planPrice > 0 ? ((totalPaid / planPrice) * 100).toFixed(0) : 0;
+      planPrice > 0
+        ? Math.min((totalPaid / planPrice) * 100, 100).toFixed(0)
+        : 0;
 
     return { totalPaid, remaining, percentage };
   };
@@ -296,7 +302,7 @@ const MemberProfile = () => {
                   onError={(e) => {
                     console.error("❌ LOGO LOAD FAILED:", memberData?.logo);
                     e.currentTarget.src = toAbsoluteUrl(
-                      "/media/menu/noImage.jpg"
+                      "/media/menu/noImage.jpg",
                     );
                   }}
                   onLoad={() => {}}
@@ -475,7 +481,7 @@ const MemberProfile = () => {
                                 onClick={() =>
                                   handleDeleteAssignedTheme(
                                     theme.id,
-                                    theme.themeName
+                                    theme.themeName,
                                   )
                                 }
                                 className="opacity-0 group-hover:opacity-100 transition-opacity ml-1"
@@ -671,11 +677,17 @@ const MemberProfile = () => {
                           {memberData.firstName} {memberData.lastName}
                         </span>
                         <span>-</span>
-                        <div className="px-3 py-1 bg-red-100 rounded-lg">
-                          <span className="text-red-600 text-sm">
+                        <div
+                          className={`px-3 py-1 rounded-lg ${remaining === 0 ? "bg-green-100" : "bg-red-100"}`}
+                        >
+                          <span
+                            className={`${remaining === 0 ? "text-green-600" : "text-red-600"} text-sm`}
+                          >
                             Remaining amount: ₹{remaining}
                           </span>
-                          <span className="px-2 text-red-900">
+                          <span
+                            className={`${remaining === 0 ? "text-green-600" : "text-red-600"} px-2`}
+                          >
                             ({percentage}%)
                           </span>
                         </div>
@@ -1070,7 +1082,7 @@ const MemberProfile = () => {
                               <td className="py-3 px-3">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(
-                                    amc.status
+                                    amc.status,
                                   )}`}
                                 >
                                   {amc.status}
@@ -1183,7 +1195,7 @@ const MemberProfile = () => {
                               <td className="py-3 px-3">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(
-                                    refund.refundType
+                                    refund.refundType,
                                   )}`}
                                 >
                                   {refund.refundType || "-"}

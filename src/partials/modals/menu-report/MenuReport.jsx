@@ -128,16 +128,20 @@ const MenuReport = ({
           setisDropdownStatus(0);
           setShowAgencyDropdown(false);
           setShowItemDropdown(false);
+          setShowCategoryDropdown(false);
         } else if (config.isAgency === 1 && config.isItem === 1) {
           setisDropdownStatus(1);
           setShowAgencyDropdown(true);
           setShowItemDropdown(true);
+          setShowCategoryDropdown(false);
         } else if (config.isAgency === 1) {
           setisDropdownStatus(1);
           setShowAgencyDropdown(true);
+          setShowCategoryDropdown(false);
         } else if (config.isItem === 1) {
           setisDropdownStatus(1);
           setShowItemDropdown(true);
+          setShowCategoryDropdown(false);
         }
 
         if (config.isDate === 1) setisDateStatus(1);
