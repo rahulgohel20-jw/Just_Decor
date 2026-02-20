@@ -53,27 +53,14 @@ export const columns = (
     },
     {
       accessorKey: "database",
-      header: "Database",
-      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+      header: "Category Type",
+      meta: { headerClassName: "w-[25%]", cellClassName: "w-[25%]" },
     },
     {
-      accessorKey: "theme",
-      header: "Themes",
-      cell: ({ row }) => {
-        const userId = row.original.id;
-
-        return (
-          <button
-            onClick={() => onThemeClick(userId)}
-            className="font-medium px-4 py-1 rounded text-white bg-blue-600"
-          >
-            Select Theme
-          </button>
-        );
-      },
-      meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
+      accessorKey: "companysize",
+      header: "Company Size",
+      meta: { headerClassName: "w-[25%]", cellClassName: "w-[25%]" },
     },
-
     {
       accessorKey: "createdAt",
       header: "Created At",
@@ -94,22 +81,7 @@ export const columns = (
       },
       meta: { headerClassName: "w-[6%]", cellClassName: "w-[6%]" },
     },
-    {
-      accessorKey: "call",
-      header: "Call",
-      meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center justify-center gap-1">
-            <Tooltip title="Call File">
-              <button className="btn btn-sm btn-icon btn-clear">
-                <i className="ki-filled ki-call text-success"></i>
-              </button>
-            </Tooltip>
-          </div>
-        );
-      },
-    },
+
     {
       accessorKey: "isApprove",
       header: "Approved",
@@ -165,12 +137,6 @@ export const columns = (
                 }}
               >
                 <i className="ki-filled ki-user text-success"></i>
-              </button>
-            </Tooltip>
-
-            <Tooltip title="Letter">
-              <button className="btn btn-sm btn-icon btn-clear">
-                <i className="ki-filled ki-note-2"></i>
               </button>
             </Tooltip>
           </div>
