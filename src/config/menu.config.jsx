@@ -731,6 +731,26 @@ export const superAdminMenuItems = [
         path: "/superadmin/employeedashboard",
         pageName: "Employee Dashbaord",
       },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Employee Performance"
+          />
+        ),
+        path: "/superadmin/employeeperformance",
+        pageName: "Employee Performance",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Team Performance"
+          />
+        ),
+        path: "/superadmin/teamperformance",
+        pageName: "Team Performance",
+      },
 
       {
         title: (
