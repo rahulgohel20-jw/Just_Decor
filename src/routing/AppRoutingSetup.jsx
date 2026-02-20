@@ -224,7 +224,9 @@ import CashRecipet from "../pages/payments/CashRecipet";
 import BankDetails from "../pages/master/Bank-Details";
 import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
 import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
-
+import EmployeePerformance from "../pages/super-admin/employeeDashboard/Employeeperformance";
+import TeamPerformance from "../pages/super-admin/employeeDashboard/Teamperformance";
+import VendorSignup from "../vendorsignup/VendorSignup";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -233,6 +235,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<ClientDashboard />} />
+          <Route path="/vendor" element={<VendorSignup />} />
           <Route path="/super-dashboard" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
@@ -421,6 +424,15 @@ const AppRoutingSetup = () => {
           />
 
           <Route path="/pipeline" element={<Pipeline />} />
+
+          <Route
+            path="/superadmin/employeeperformance"
+            element={<EmployeePerformance />}
+          />
+          <Route
+            path="/superadmin/teamperformance"
+            element={<TeamPerformance />}
+          />
 
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
           <Route
