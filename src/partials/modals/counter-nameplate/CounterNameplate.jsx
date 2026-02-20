@@ -21,6 +21,7 @@ const CounterNameplate = ({
   eventId,
   eventFunctionId,
   selectedTemplateId,
+  withLogo = false,
 }) => {
   const pdfPlugin = defaultLayoutPlugin({
     toolbarPlugin: {
@@ -214,6 +215,7 @@ const CounterNameplate = ({
       formData.append("lang", currentlang);
       formData.append("userId", userId);
       formData.append("twoLanugage", twoLanugage);
+      formData.append("withLogo", withLogo ? 1 : 0);
 
       const res = await GenerateNamePlateReport(formData);
       const url = res.data?.report_path;
@@ -235,7 +237,7 @@ const CounterNameplate = ({
     <CustomModal
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
-      title="Counter Name Plate Report"
+      title={withLogo ? "Counter Name Plate With Logo Report" : "Counter Name Plate Report"}
       width={1000}
       footer={
       <div className="flex justify-between items-center px-6 py-4 border-t bg-white">

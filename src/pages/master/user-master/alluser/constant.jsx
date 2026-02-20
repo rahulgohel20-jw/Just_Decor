@@ -11,13 +11,13 @@ export const columns = (
   cell: ({ getValue, row }) => {
     const value = getValue();
     const userId = row.original.id;
-    const isDue = row.original.dueAmount > 0;
+    const isDue = row.original.dueAmount <= 0; 
 
     return (
       <button
         onClick={() => navigate(`/Superadmin-member/${userId}`)}
         className={`font-medium hover:underline ${
-          isDue ? "text-red-600" : "text-green-600"
+          isDue ? "text-green-600" : "text-red-600"
         }`}
       >
         {value}

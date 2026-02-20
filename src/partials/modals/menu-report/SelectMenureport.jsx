@@ -40,11 +40,12 @@ export default function SelectMenureport({
   const [eventName, setEventName] = useState("");
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
-  const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
+  const [isNamePlateTheme, setIsNamePlateTheme] = useState(1); // NEW STATE
   const [openNamePlate, setOpenNamePlate] = useState(false);
   const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
   const [isCostingReportOpen, setIsCostingReportOpen] = useState(false);
   const [agencyType, setAgencyType] = useState(null);
+  const [isModalOpenWithLogo, setIsModalOpenWithLogo] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -284,6 +285,15 @@ export default function SelectMenureport({
       setIsModalOpen(true);
       return;
     }
+
+    if (
+  isNamePlateTheme &&
+  template.isNamePlate &&
+  template.namePlateType === "Counter Name Plate With Logo"
+) {
+  setIsModalOpenWithLogo(true);
+  return;
+}
 
     // 🔄 BACKEND WORKAROUND: Backend sends "Table Menu" but it's actually Main Standy data
     // So when backend says "Table Menu" → Open MainStandyMenuReport
@@ -655,6 +665,17 @@ export default function SelectMenureport({
         adminTemplatemoduleId={selectedModuleId || activeTab}
         selectedTemplateId={selectedTemplateId}
       />
+
+      <CounterNameplate
+  isModalOpen={isModalOpenWithLogo}
+  setIsModalOpen={setIsModalOpenWithLogo}
+  eventId={finalEventId}
+  eventFunctionId={selectedFunctionId}
+  currentlang={currentlang}
+  adminTemplatemoduleId={selectedModuleId || activeTab}
+  selectedTemplateId={selectedTemplateId}
+  withLogo={true}
+/>
       {openNamePlateTest && (
         <MainStandyMenuReport
           isModalOpen={openNamePlateTest}
