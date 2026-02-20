@@ -604,23 +604,8 @@ export const superAdminMenuItems = [
     path: "/vendors",
     pageName: "Vendors",
   },
-  {
-    title: <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Users" />,
-    icon: "ki-filled ki-users text-primary",
-    path: "/superadmin/members",
-    pageName: "Users",
-  },
-  {
-    title: (
-      <FormattedMessage
-        id="COMMON.DEPARTMENTSIDEBAR"
-        defaultMessage="Department"
-      />
-    ),
-    icon: "ki-filled ki-users text-primary",
-    path: "/master/role",
-    pageName: "Department",
-  },
+  
+  
   {
     title: (
       <FormattedMessage id="COMMON.MASTER" defaultMessage="Superadmin Master" />
@@ -723,37 +708,6 @@ export const superAdminMenuItems = [
       },
       {
         title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage="Employee Dashbaord"
-          />
-        ),
-        path: "/superadmin/employeedashboard",
-        pageName: "Employee Dashbaord",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage="Employee Performance"
-          />
-        ),
-        path: "/superadmin/employeeperformance",
-        pageName: "Employee Performance",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage="Team Performance"
-          />
-        ),
-        path: "/superadmin/teamperformance",
-        pageName: "Team Performance",
-      },
-
-      {
-        title: (
           <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
         ),
         path: "/super-leads",
@@ -768,6 +722,55 @@ export const superAdminMenuItems = [
         ),
         path: "/superadmin/lead/followup",
         pageName: "Follow Up",
+      },
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.CONTACT_TYPE"
+      //       defaultMessage="Employee Dashbaord"
+      //     />
+      //   ),
+      //   path: "/superadmin/employeedashboard",
+      //   pageName: "Employee Dashbaord",
+      // },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Employee Dashboard"
+          />
+        ),
+        path: "/superadmin/teamperformance",
+        pageName: "Empoloyee Dashboard",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage=" Performance"
+          />
+        ),
+        path: "/superadmin/employeeperformance",
+        pageName: " Performance",
+      },
+      {
+        title: (
+          <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Users" />
+        ),
+        icon: "ki-filled ki-users text-primary",
+        path: "/superadmin/members",
+        pageName: "Users",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.DEPARTMENTSIDEBAR"
+            defaultMessage="Department"
+          />
+        ),
+        icon: "ki-filled ki-users text-primary",
+        path: "/master/role",
+        pageName: "Department",
       },
     ],
   },

@@ -235,13 +235,13 @@ export default function TeamPerformance() {
   const [sortBy, setSortBy] = useState("Completed Tasks");
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen  text-gray-900">
       <main className="px-9 py-8">
         {/* ── Header ── */}
         <div className="flex items-start justify-between mb-7">
           <div>
             <h1 className="text-3xl font-bold tracking-tight leading-none m-0">
-              Team Performance
+              DashBoard
             </h1>
             <p className="text-sm text-gray-400 mt-1 mb-0">
               Monitor team productivity and quality metrics
@@ -249,10 +249,7 @@ export default function TeamPerformance() {
           </div>
           <div className="flex gap-2.5">
       
-            <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-              <Settings2 size={14} />
-              Configure Thresholds
-            </button>
+           
           </div>
         </div>
 

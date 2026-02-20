@@ -480,18 +480,16 @@ export default function EmployeePerformance() {
   const paginated = filtered.slice((page - 1) * showCount, page * showCount);
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6 space-y-6  min-h-screen">
       {/* ── Page Header ── */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between px-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Employee Performance</h1>
+          <h1 className="text-2xl font-bold text-gray-800"> Performance</h1>
           <p className="text-gray-500 text-sm mt-1">
             Monitor Employee productivity and quality metrics
           </p>
         </div>
-        <Button icon={<SettingOutlined />} className="flex items-center gap-1">
-          Configure Thresholds
-        </Button>
+        
       </div>
 
       {/* ── Summary Cards ── */}
