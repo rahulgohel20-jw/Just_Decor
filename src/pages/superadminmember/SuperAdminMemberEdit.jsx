@@ -111,6 +111,8 @@ const SuperAdminMemberEdit = () => {
     preFix: "",
     reportingManagerId: "",
     SalesId: "",
+    services: "",  
+  type: "",
   });
 
   const [downPayments, setDownPayments] = useState([
@@ -330,6 +332,8 @@ const SuperAdminMemberEdit = () => {
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
             SalesId: user.SalesId || "",
+            services: user.services || "",
+type: user.type || "",
           }));
           // Remarks
           setRemarks({
@@ -347,11 +351,10 @@ const SuperAdminMemberEdit = () => {
 
             setSelectedPlanDetails(planData);
 
-            // Set plan details state - basePrice is read-only from planBaseAmount, price is editable from planAmount
             setPlanDetails({
               planId: user.userPlan.plan.id,
-              basePrice: user.userPlan.planBaseAmount || "", // Read-only base amount
-              price: user.userPlan.planAmount || "", // Editable price
+              basePrice: user.userPlan.planBaseAmount || "", 
+              price: user.userPlan.planAmount || "", 
               validDate: user.userPlan.validDate
                 ? user.userPlan.validDate.split("/").reverse().join("-")
                 : "",
@@ -899,6 +902,8 @@ const SuperAdminMemberEdit = () => {
       formData.append("preFix", memberDetails.preFix || "");
       formData.append("managerId", memberDetails.reportingManagerId || "");
       formData.append("SalesId", memberDetails.SalesId || "");
+      formData.append("services", memberDetails.services || "");
+formData.append("type", memberDetails.type || "");
 
       // Remarks text
       formData.append("managerReq", remarks.managerReq);
@@ -1022,8 +1027,7 @@ const SuperAdminMemberEdit = () => {
           );
         });
 
-      // ✅ Plan Details
-      // ✅ Plan Details
+      
       if (planDetails.planId) {
         formData.append("planId", planDetails.planId);
         formData.append("planAmount", planDetails.price || 0); // Editable price
@@ -1179,6 +1183,24 @@ const SuperAdminMemberEdit = () => {
                   onChange={(v) => handleMemberChange("profile", v)}
                 />
               </div>
+
+              <div>
+  <label className="block mb-1 text-sm">Services</label>
+  <Input
+    value={memberDetails.services}
+    onChange={(e) => handleMemberChange("services", e.target.value)}
+    placeholder="Enter services"
+  />
+</div>
+
+<div>
+  <label className="block mb-1 text-sm">Type</label>
+  <Input
+    value={memberDetails.type}
+    onChange={(e) => handleMemberChange("type", e.target.value)}
+    placeholder="Enter type"
+  />
+</div>
             </div>
           </section>
           {/* plandetai */}
@@ -1200,16 +1222,7 @@ const SuperAdminMemberEdit = () => {
               </div>
 
               {/* Base Amount (Read-only) */}
-              <div>
-                <label className="text-sm">Plan Base Amount </label>
-                <Input
-                  type="number"
-                  value={planDetails.basePrice}
-                  disabled
-                  placeholder="Plan base amount"
-                  className="bg-gray-50"
-                />
-              </div>
+              
 
               {/* Price (Editable) */}
               <div>
@@ -1221,8 +1234,20 @@ const SuperAdminMemberEdit = () => {
                     handlePlanDetailsChange("price", e.target.value)
                   }
                   placeholder="Enter plan price"
+                  readOnly
                 />
               </div>
+
+              <div>
+  <label className="text-sm">Plan Base Amount</label>
+  <Input
+    type="number"
+    value={planDetails.basePrice}
+    onChange={(e) => handlePlanDetailsChange("basePrice", e.target.value)}
+    placeholder="Plan base amount"
+    className="bg-gray-50"
+  />
+</div>
             </div>
           </section>
           {/* other */}
