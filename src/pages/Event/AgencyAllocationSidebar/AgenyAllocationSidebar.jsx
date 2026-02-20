@@ -139,7 +139,6 @@ export default function AgencyAllocationSidebar({
                     const itemKey = `${category.id}-${idx}`;
                     const savedItem = savedCategorySelections[itemKey];
                     if (savedItem) {
-                      console.log("🟢 Restoring item:", category.menuItemName, savedItem);
                       return {
                         ...item,
                         isSelected: savedItem.isSelected,
@@ -168,7 +167,6 @@ export default function AgencyAllocationSidebar({
     [eventId, eventFunctionId],
   );
 
-  // ✅ Reset and fetch on modal open
   useEffect(() => {
     if (open) {
       setTab("chef");
@@ -177,7 +175,6 @@ export default function AgencyAllocationSidebar({
     }
   }, [open, fetchAllocationData]);
 
-  // ✅ Handle tab change
   const handleTabClick = useCallback(
     (selectedTab) => {
       if (selectedTab === tab) return;
@@ -188,7 +185,6 @@ export default function AgencyAllocationSidebar({
     [tab, fetchAllocationData],
   );
 
-  // ✅ Memoized section component renderer
   const renderSection = useMemo(() => {
     if (loading) {
       return (
