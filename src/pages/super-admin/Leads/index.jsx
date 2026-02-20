@@ -130,6 +130,7 @@ const SuperLeads = () => {
     lostCount: 0,
     totalAmount: 0,
     openAmount: 0,
+    coldAmount:0,
   });
   const lang = localStorage.getItem("lang") || "en";
 
@@ -260,6 +261,7 @@ const SuperLeads = () => {
         wonAmount: data?.won_lead_amount || "0",
         totalAmount: data?.total_amount || "0",
         openAmount: data?.oprn_lead_amount || "0",
+        coldAmount: data?.cold_lead_amount || "0"
       });
       const stagesData = stagesRes?.data?.data;
 
@@ -1419,9 +1421,7 @@ const SuperLeads = () => {
             <div>
               <p className="text-gray-600 text-sm font-medium">Hot Leads</p>
               <p className="text-3xl font-semibold mt-1">{stats.hot}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                ₹{Number(stats.hotAmount).toLocaleString("en-IN")}/-
-              </p>
+            
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#FEE2E2] flex items-center justify-center">
               <img
@@ -1436,9 +1436,7 @@ const SuperLeads = () => {
             <div>
               <p className="text-gray-600 text-sm font-medium">Won Leads</p>
               <p className="text-3xl font-semibold mt-1">{stats.wonCount}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                ₹{Number(stats.wonAmount).toLocaleString("en-IN")}/-
-              </p>
+            
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#FEF9C3] flex items-center justify-center">
               <img
@@ -1453,9 +1451,7 @@ const SuperLeads = () => {
             <div>
               <p className="text-gray-600 text-sm font-medium">Lost Leads</p>
               <p className="text-3xl font-semibold mt-1">{stats.lostCount}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                ₹{Number(stats.lostAmount).toLocaleString("en-IN")}/-
-              </p>
+            
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#F3E8FF] flex items-center justify-center">
               <img
@@ -1609,12 +1605,12 @@ const SuperLeads = () => {
                   <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
-                      Total: <strong>{stats.total}</strong>
+                      Cold : <strong>{stats.total}</strong>
                     </span>
                     <span>
                       Amount:{" "}
                       <strong>
-                        ₹{Number(stats.totalAmount).toLocaleString("en-IN")}/-
+                        ₹{Number(stats.coldAmount).toLocaleString("en-IN")}/-
                       </strong>
                     </span>
                   </span>
