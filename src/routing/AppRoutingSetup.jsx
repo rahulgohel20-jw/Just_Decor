@@ -224,7 +224,7 @@ import CashRecipet from "../pages/payments/CashRecipet";
 import BankDetails from "../pages/master/Bank-Details";
 import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
 import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
-
+import VendorSignup from "../vendorsignup/VendorSignup";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -233,6 +233,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<ClientDashboard />} />
+          <Route path="/vendor" element={<VendorSignup />} />
           <Route path="/super-dashboard" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />

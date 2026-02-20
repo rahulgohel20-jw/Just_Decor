@@ -148,7 +148,7 @@ const AllVendor = () => {
           style={{ width: 250 }}
         />
 
-        <Link to="/auth/signup">
+        <Link to="/vendor">
           <button className="btn btn-primary flex items-center gap-1">
             <i className="ki-filled ki-plus"></i> Add Vendor
           </button>
