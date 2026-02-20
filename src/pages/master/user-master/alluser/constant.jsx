@@ -1,34 +1,37 @@
 import { Tooltip } from "antd";
-import AssignTheme from "../theme";
 export const columns = (
-  onEdit,
-  handleApprove,
   navigate,
   onThemeClick,
   handleApproveOtp
 ) => {
   return [
-    {
-      accessorKey: "userCode",
-      header: "User Code",
-      cell: ({ getValue, row }) => {
-        const value = getValue();
-        const userId = row.original.id;
-        return (
-          <button
-            onClick={() => navigate(`/Superadmin-member/${userId}`)}
-            className="text-blue-600 hover:underline font-medium"
-          >
-            {value}
-          </button>
-        );
-      },
-      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-    },
+   {
+  accessorKey: "userCode",
+  header: "User Code",
+  cell: ({ getValue, row }) => {
+    const value = getValue();
+    const userId = row.original.id;
+    const isDue = row.original.dueAmount > 0;
+
+    return (
+      <button
+        onClick={() => navigate(`/Superadmin-member/${userId}`)}
+        className={`font-medium hover:underline ${
+          isDue ? "text-red-600" : "text-green-600"
+        }`}
+      >
+        {value}
+      </button>
+    );
+  },
+},
     {
       accessorKey: "companyName",
       header: "Company",
-      meta: { headerClassName: "w-[20%]", cellClassName: "w-[20%]" },
+      meta:
+
+        { headerClassName: "w-[20%]", cellClassName: "w-[20%]" },
+       
     },
     {
       accessorKey: "fullName",
