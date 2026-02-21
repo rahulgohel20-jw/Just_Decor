@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DatePicker as AntDatePicker } from "antd";
 import dayjs from "dayjs";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
@@ -16,6 +16,7 @@ const MoveLeadModal = ({
   boardColumns = [],
 }) => {
   const isManualMove = fromColumn?.id === toColumn?.id;
+
   /* ── state ───────────────────────────────────────── */
   const [selectedAssignee, setSelectedAssignee] = useState("");
   const [remarks, setRemarks] = useState("");
@@ -29,9 +30,11 @@ const MoveLeadModal = ({
   const [attachedFile, setAttachedFile] = useState(null);
   const [internalManagers, setInternalManagers] = useState([]);
   const [selectedToColumn, setSelectedToColumn] = useState("");
-  const [allColumns, setAllColumns] = useState([]);
 
-  // Attachment
+  // ── Voice Note state ──
+  const [isRecording, setIsRecording] = useState(false);
+  const [voiceError, setVoiceError] = useState("");
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && lead) {
@@ -42,6 +45,8 @@ const MoveLeadModal = ({
       setFollowUpReminders([]);
       setAttachedFile(null);
       setSelectedToColumn("");
+      setVoiceError("");
+      stopRecording();
 
       Fetchmanager(1)
         .then((res) => {
@@ -61,7 +66,77 @@ const MoveLeadModal = ({
           setSelectedAssignee("");
         });
     }
+
+    // Cleanup on modal close
+    return () => {
+      stopRecording();
+    };
   }, [isOpen, lead]);
+
+  /* ── Voice Note helpers ── */
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (_) {}
+      recognitionRef.current = null;
+    }
+    setIsRecording(false);
+  };
+
+  const toggleVoiceNote = () => {
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
+
+    // Check browser support
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setVoiceError("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    setVoiceError("");
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US"; // Change to desired language
+    recognition.interimResults = false; // Only final results
+    recognition.continuous = false; // Stop after one phrase (set true for continuous)
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join(" ");
+
+      // Append transcribed text to existing remarks
+      setRemarks((prev) => (prev ? `${prev} ${transcript}` : transcript));
+    };
+
+    recognition.onerror = (event) => {
+      setVoiceError(
+        event.error === "not-allowed"
+          ? "Microphone permission denied. Please allow access."
+          : `Voice error: ${event.error}`,
+      );
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
 
   const FOLLOW_UP_TYPES = ["Call", "WhatsApp", "Email"];
 
@@ -79,13 +154,14 @@ const MoveLeadModal = ({
   };
 
   const handleConfirm = () => {
-    // ✅ Block if manual move and no stage selected yet
+    // Stop any ongoing recording before confirming
+    stopRecording();
+
     if (isManualMove && !selectedToColumn) {
       alert("Please select a destination stage first.");
       return;
     }
 
-    // ✅ Resolve full column with stageId/stageType from boardColumns
     const resolvedToColumn = isManualMove
       ? boardColumns.find((col) => col.name === selectedToColumn) || {
           id: selectedToColumn,
@@ -102,7 +178,7 @@ const MoveLeadModal = ({
     onConfirm?.({
       leadId: lead?.leadId || lead?.id,
       toStatus: resolvedToColumn?.id,
-      toColumn: resolvedToColumn, // ✅ full object with stageId, stageType
+      toColumn: resolvedToColumn,
       assignedTo: selectedAssignee,
       remarks,
       followUp:
@@ -122,7 +198,10 @@ const MoveLeadModal = ({
     <>
       <CustomModal
         open={isOpen}
-        onClose={onClose}
+        onClose={() => {
+          stopRecording();
+          onClose();
+        }}
         title="Move Lead"
         width={520}
         footer={
@@ -161,27 +240,69 @@ const MoveLeadModal = ({
                   {attachedFile.name}
                 </span>
               )}
+
+              {/* ── Voice Note Button ── */}
               <button
                 type="button"
-                className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-                title="Voice note"
+                onClick={toggleVoiceNote}
+                className={`flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
+                  isRecording
+                    ? "bg-red-100 hover:bg-red-200 ring-2 ring-red-400 ring-offset-1"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
+                title={isRecording ? "Stop recording" : "Start voice note"}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#6B7280"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" y1="19" x2="12" y2="23" />
-                  <line x1="8" y1="23" x2="16" y2="23" />
-                </svg>
+                {isRecording ? (
+                  /* Animated recording icon */
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="#EF4444"
+                    stroke="#EF4444"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ animation: "pulse 1s infinite" }}
+                  >
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
+                ) : (
+                  /* Mic icon */
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#6B7280"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                )}
               </button>
+
+              {/* Recording indicator label */}
+              {isRecording && (
+                <span className="text-xs text-red-500 font-medium animate-pulse">
+                  Listening…
+                </span>
+              )}
+
+              {/* Error message */}
+              {voiceError && !isRecording && (
+                <span
+                  className="text-xs text-red-500 max-w-[140px] truncate"
+                  title={voiceError}
+                >
+                  {voiceError}
+                </span>
+              )}
             </div>
 
             {/* Right: CTA */}
@@ -217,14 +338,12 @@ const MoveLeadModal = ({
               <span className="font-semibold text-gray-700">Title : </span>
               {lead?.title || lead?.clientName || "—"}
             </p>
-            <p className="text-sm text-gray-500 mt-0.5">
+            {/* <p className="text-sm text-gray-500 mt-0.5">
               <span className="font-semibold text-gray-700">Pipeline : </span>
               {lead?.pipelineName || lead?.pipeline || "—"}
-            </p>
-            {/* Lead meta + stage pills */}
+            </p> */}
             <div className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3">
               {isManualMove ? (
-                // ✅ Manual move — show FROM pill + destination dropdown
                 <div className="flex items-center justify-center gap-4 mt-3">
                   <span
                     className="px-4 py-1.5 rounded-full text-white text-sm font-semibold flex-shrink-0"
@@ -247,7 +366,6 @@ const MoveLeadModal = ({
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />
                   </svg>
-                  {/* ✅ Destination stage selector — pass allColumns from parent */}
                   <select
                     className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-400"
                     value={selectedToColumn}
@@ -264,7 +382,6 @@ const MoveLeadModal = ({
                   </select>
                 </div>
               ) : (
-                // ✅ DnD move — show fixed FROM → TO pills (unchanged)
                 <div className="flex items-center justify-center gap-8 mt-3">
                   <span
                     className="px-4 py-1.5 rounded-full text-white text-sm font-semibold"
@@ -315,13 +432,27 @@ const MoveLeadModal = ({
             </select>
           </div>
 
-          {/* Remarks */}
+          {/* Remarks — voice transcription lands here */}
           <div className="flex flex-col">
-            <label className="form-label mb-1">Remarks</label>
+            <label className="form-label mb-1 flex items-center gap-2">
+              Remarks
+              {isRecording && (
+                <span className="inline-flex items-center gap-1 text-xs text-red-500 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block" />
+                  Recording…
+                </span>
+              )}
+            </label>
             <textarea
               rows={3}
-              className="textarea h-full"
-              placeholder="Add a remark…"
+              className={`textarea h-full transition-all duration-200 ${
+                isRecording ? "ring-2 ring-red-400 border-red-300" : ""
+              }`}
+              placeholder={
+                isRecording
+                  ? "Speak now… your words will appear here"
+                  : "Add a remark…"
+              }
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
             />
@@ -329,7 +460,6 @@ const MoveLeadModal = ({
 
           {/* ── Follow-up accordion ── */}
           <div className="border border-gray-200 rounded-xl overflow-hidden">
-            {/* Accordion trigger */}
             <button
               type="button"
               className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
@@ -355,12 +485,8 @@ const MoveLeadModal = ({
               />
             </button>
 
-            {/* Accordion body */}
-            {/* Accordion body */}
             {followUpOpen && (
               <div className="bg-white flex flex-col border-t border-gray-100 px-4 py-4 gap-4">
-                {/* Customer Name */}
-                {/* Customer Name - readonly, pre-filled */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-800">
                     Customer Name
@@ -369,11 +495,10 @@ const MoveLeadModal = ({
                     type="text"
                     className="input border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50"
                     value={lead?.clientName || lead?.title || ""}
+                    readOnly
                   />
                 </div>
 
-                {/* Assign Member */}
-                {/* Assign Member */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-800">
                     Assign Member
@@ -390,10 +515,8 @@ const MoveLeadModal = ({
                       </option>
                     ))}
                   </select>
-                  {/* Show current assignee as hint */}
                 </div>
 
-                {/* Follow Up Description */}
                 <textarea
                   rows={4}
                   className="textarea border border-gray-300 rounded-lg px-3 py-2 text-sm"
@@ -402,7 +525,6 @@ const MoveLeadModal = ({
                   onChange={(e) => setRemarks(e.target.value)}
                 />
 
-                {/* Follow Up Type */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-gray-800">
                     Follow Up Type
@@ -425,24 +547,26 @@ const MoveLeadModal = ({
                   </div>
                 </div>
 
-                {/* Followup Date */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-800">
-                    Followup Date
+                    Followup Date & Time
                   </label>
                   <AntDatePicker
+                    showTime={{ format: "hh:mm A", use12Hours: true }}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     value={
-                      followUpDate ? dayjs(followUpDate, "DD/MM/YYYY") : null
+                      followUpDate
+                        ? dayjs(followUpDate, "DD/MM/YYYY hh:mm A")
+                        : null
                     }
                     onChange={(date) =>
                       setFollowUpDate(
-                        date ? dayjs(date).format("DD/MM/YYYY") : null,
+                        date ? dayjs(date).format("DD/MM/YYYY hh:mm A") : null,
                       )
                     }
-                    format="DD/MM/YYYY"
+                    format="DD/MM/YYYY hh:mm A"
                     getPopupContainer={() => document.body}
-                    placeholder="Select date"
+                    placeholder="Select date & time"
                   />
                 </div>
               </div>
@@ -451,7 +575,6 @@ const MoveLeadModal = ({
         </div>
       </CustomModal>
 
-      {/* Reminders sub-modal */}
       <FollowupRemindersModal
         isOpen={isRemindersModalOpen}
         onClose={() => setIsRemindersModalOpen(false)}
