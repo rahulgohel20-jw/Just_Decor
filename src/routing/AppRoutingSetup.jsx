@@ -153,6 +153,7 @@ import EstimatePage from "@/pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
 import StateSearchForm from "@/pages/StateSearch";
 import AllUser from "@/pages/master/user-master/alluser";
+import AllVendor from "../pages/master/user-master/vendor";
 import AllPlan from "@/pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
 import RawMaterialMaster from "@/pages/master/raw-material-category";
@@ -223,7 +224,9 @@ import CashRecipet from "../pages/payments/CashRecipet";
 import BankDetails from "../pages/master/Bank-Details";
 import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
 import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
-
+import EmployeePerformance from "../pages/super-admin/employeeDashboard/Employeeperformance";
+import TeamPerformance from "../pages/super-admin/employeeDashboard/Teamperformance";
+import VendorSignup from "../vendorsignup/VendorSignup";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -232,6 +235,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<ClientDashboard />} />
+          <Route path="/vendor" element={<VendorSignup />} />
           <Route path="/super-dashboard" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
@@ -384,6 +388,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/godown" element={<GodownMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/vendors" element={<AllVendor />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route path="/allreports/:eventId" element={<AllReports />} />
@@ -419,6 +424,15 @@ const AppRoutingSetup = () => {
           />
 
           <Route path="/pipeline" element={<Pipeline />} />
+
+          <Route
+            path="/superadmin/employeeperformance"
+            element={<EmployeePerformance />}
+          />
+          <Route
+            path="/superadmin/teamperformance"
+            element={<TeamPerformance />}
+          />
 
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
           <Route

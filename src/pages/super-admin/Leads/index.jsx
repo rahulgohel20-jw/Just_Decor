@@ -85,11 +85,20 @@ const SuperLeads = () => {
   const [pipelineData, setPipelineData] = useState(null);
   const [pipelines, setPipelines] = useState([]);
   const [selectedPipelineId, setSelectedPipelineId] = useState("");
+  const [assignCloseDate, setAssignCloseDate] = useState("");
+  const [assignDescription, setAssignDescription] = useState("");
+  // Add this state near the top with other states
+  const [noPipelines, setNoPipelines] = useState(false);
 
   // Filter states
   const [selectedLeadStatus, setSelectedLeadStatus] = useState("");
   const [selectedLeadType, setSelectedLeadType] = useState("");
   const [isFilterLoading, setIsFilterLoading] = useState(false);
+  const [stages, setStages] = useState([]);
+  const [selectedStageId, setSelectedStageId] = useState("");
+  const [isStagesLoading, setIsStagesLoading] = useState(false);
+  const [filteredByStage, setFilteredByStage] = useState(null);
+  const [selectedAssignId, setSelectedAssignId] = useState("");
 
   // Board view states - Initialize with empty structure
   const [boardColumns, setBoardColumns] = useState([
@@ -105,10 +114,7 @@ const SuperLeads = () => {
   const LEAD_STATUS_OPTIONS = [{ label: "All Stages", value: "" }];
 
   // Lead Type Options
-  const LEAD_TYPE_OPTIONS = [
-    { label: "select piplene", value: "" },
-    { label: "sale ", value: "sale" },
-  ];
+  const LEAD_TYPE_OPTIONS = [{ label: "select piplene", value: "" }];
 
   // Stats
   const [stats, setStats] = useState({
@@ -117,10 +123,76 @@ const SuperLeads = () => {
     cold: 0,
     inquire: 0,
     assigned: 0,
+    hotAmount: 0,
+    lostAmount: 0,
+    wonCount: 0,
+    wonAmount: 0,
+    lostCount: 0,
+    totalAmount: 0,
+    openAmount: 0,
+    coldAmount:0,
   });
-
   const lang = localStorage.getItem("lang") || "en";
 
+  const fetchStagesForPipeline = async (pipelineId) => {
+    try {
+      setIsStagesLoading(true);
+      setSelectedStageId(""); // reset stage on pipeline change
+
+      const getStoredUserId = () => {
+        const direct =
+          localStorage.getItem("mainId") ||
+          localStorage.getItem("id") ||
+          localStorage.getItem("user_id") ||
+          localStorage.getItem("empId") ||
+          localStorage.getItem("memberId");
+        if (direct) return direct;
+        const keys = [
+          "user",
+          "userData",
+          "authUser",
+          "userInfo",
+          "auth",
+          "profile",
+        ];
+        for (const key of keys) {
+          try {
+            const parsed = JSON.parse(localStorage.getItem(key) || "{}");
+            const id =
+              parsed?.id || parsed?.userId || parsed?.user_id || parsed?.empId;
+            if (id) return String(id);
+          } catch {}
+        }
+        return null;
+      };
+
+      const userId = getStoredUserId();
+      if (!userId) return;
+
+      const stagesRes = await Getstagesbypipeline(pipelineId, userId);
+      const stagesData = stagesRes?.data?.data || {};
+
+      // Flatten all stages from open/close groups into one list
+      const allStages = [];
+      Object.entries(stagesData).forEach(([groupKey, stageList]) => {
+        stageList.forEach((stage) => {
+          allStages.push({
+            id: stage.stageId,
+            name: stage.stageName,
+            type: stage.stageType,
+            group: groupKey,
+          });
+        });
+      });
+
+      setStages(allStages);
+    } catch (err) {
+      console.error("Failed to fetch stages:", err);
+      setStages([]);
+    } finally {
+      setIsStagesLoading(false);
+    }
+  };
   useEffect(() => {
     if (location.state?.pipelineId) {
       setActivePipeline({
@@ -131,7 +203,8 @@ const SuperLeads = () => {
     }
   }, []);
 
-  const fetchPipelineLeads = async (pipelineId) => {
+  // pipelineleaddata
+  const fetchPipelineLeads = async (pipelineId, pipelineNameParam = "") => {
     try {
       setIsLoadingLeads(true);
 
@@ -176,9 +249,22 @@ const SuperLeads = () => {
       ]);
 
       const data = leadsRes?.data?.data;
+      setStats({
+        total: Number(data?.total_lead_count || 0),
+        hot: Number(data?.hot_lead_count || 0),
+        cold: Number(data?.cold_lead_count || 0),
+        inquire: Number(data?.open_lead_count || 0),
+        wonCount: Number(data?.won_lead_count || 0),
+        lostCount: Number(data?.lost_lead_count || 0),
+        hotAmount: data?.hot_lead_amount || "0",
+        lostAmount: data?.lost_lead_amount || "0",
+        wonAmount: data?.won_lead_amount || "0",
+        totalAmount: data?.total_amount || "0",
+        openAmount: data?.oprn_lead_amount || "0",
+        coldAmount: data?.cold_lead_amount || "0"
+      });
       const stagesData = stagesRes?.data?.data;
 
-      // ✅ Build TWO maps:
       // 1. stageId → stageType  (for leads that already have a stageId)
       // 2. stageName → { stageId, stageType }  (for matching columns by name, including empty ones)
       const stageIdToTypeMap = {};
@@ -203,7 +289,7 @@ const SuperLeads = () => {
         data,
         stageIdToTypeMap,
         stageNameToMetaMap,
-        activePipeline?.name || "",
+        pipelineNameParam,
       );
     } catch (err) {
       console.error("Failed to fetch pipeline leads:", err);
@@ -211,6 +297,7 @@ const SuperLeads = () => {
       setIsLoadingLeads(false);
     }
   };
+
   const buildBoardFromPipeline = (
     data,
     stageIdToTypeMap = {},
@@ -254,7 +341,7 @@ const SuperLeads = () => {
           updatedAt: lead.leadUpdatedAt || null, // was updatedAt (null in API)
           closeDate: lead.leadFollowUpDate || "NA",
           stage: lead.stage || stageName,
-          pipelineName: lead.pipelineName || activePipeline?.name || "-",
+          pipelineName: lead.pipelineName || pipelineName || "-",
         })),
       };
     });
@@ -300,6 +387,10 @@ const SuperLeads = () => {
 
     setBoardColumns([...openColumns, ...closeColumns]);
 
+    const finalColumns = [...openColumns, ...closeColumns];
+    originalBoardColumnsRef.current = finalColumns; // ✅ save backup
+    setBoardColumns(finalColumns);
+
     const allLeads = [
       ...Object.values(openLead).flat(),
       ...Object.values(closeLead).flat(),
@@ -315,6 +406,7 @@ const SuperLeads = () => {
 
     setTableData(allLeads);
   };
+
   const handleOpenDrawer = async (lead) => {
     try {
       const response = await GetLeadByID(lead.leadId);
@@ -361,6 +453,7 @@ const SuperLeads = () => {
       setIsDrawerOpen(true);
     }
   };
+
   const handleLeadDropped = ({
     lead,
     fromColumn,
@@ -406,12 +499,18 @@ const SuperLeads = () => {
 
   // ✅ Fix - remove the redundant toColumn.tag
   const handleConfirmMove = async (formPayload) => {
-    setBoardColumns(moveLeadPayload.pendingColumns);
-
-    // ✅ Helper to format date to "DD/MM/YYYY 12:00 AM"
-
     const lead = moveLeadPayload.lead;
-    const toColumn = moveLeadPayload.toColumn;
+
+    // ✅ Use formPayload.toColumn (resolved in modal) for manual move
+    // For DnD, use moveLeadPayload.toColumn
+    const toColumn = formPayload.toColumn?.stageId
+      ? formPayload.toColumn // ✅ manual move — already resolved with stageId
+      : moveLeadPayload.toColumn; // ✅ DnD — already has stageId from boardColumns
+
+    // ✅ Only apply pendingColumns for DnD (manual move has no pendingColumns)
+    if (moveLeadPayload.pendingColumns?.length) {
+      setBoardColumns(moveLeadPayload.pendingColumns);
+    }
 
     const leadId = Number(lead.leadId);
     const stageId = Number(toColumn.stageId || lead.stageId);
@@ -419,19 +518,16 @@ const SuperLeads = () => {
       toColumn.stageType ||
       (toColumn.tag === "open" ? "open_stage" : "close_stage");
 
-    // ✅ assignId and remark are query params - NOT in body
     const assignId = formPayload.assignedTo
       ? Number(formPayload.assignedTo)
       : null;
     const remark = formPayload.remarks || "";
 
-    // ✅ requestDto is body - only follow-up fields, null if no follow-up
-    // ✅ requestDto always has data - empty strings/0 if no follow-up selected
     const requestDto = formPayload.followUp?.date
       ? {
           clientRemarks: formPayload.remarks || "",
           employeeRemarks: "",
-          followUpDate: formatFollowUpDateForAPI(formPayload.followUp.date), // ✅ "24/02/2026 12:00 AM"
+          followUpDate: formatFollowUpDateForAPI(formPayload.followUp.date),
           followUpStatus: "Open",
           followUpType: formPayload.followUp.type || "Call",
           id: 0,
@@ -448,18 +544,18 @@ const SuperLeads = () => {
           leadId: 0,
           memberId: 0,
         };
+
     try {
       await MoveLeadToStage(
         leadId,
         stageId,
         stageType,
-        assignId, // ✅ query param
-        remark, // ✅ query param
-        requestDto, // ✅ body (null if no follow-up)
+        assignId,
+        remark,
+        requestDto,
       );
-
       if (activePipeline?.id) {
-        fetchPipelineLeads(activePipeline.id);
+        fetchPipelineLeads(activePipeline.id, activePipeline.name);
       }
     } catch (err) {
       console.error("Move lead failed:", err);
@@ -475,7 +571,7 @@ const SuperLeads = () => {
     // Columns are NOT updated → drop is effectively cancelled
   };
   // Filter data based on search only
-  const filteredData = tableData.filter((item) => {
+  const filteredData = (filteredByStage ?? tableData).filter((item) => {
     const search = searchText.toLowerCase();
     return (
       item.clientName?.toLowerCase().includes(search) ||
@@ -508,6 +604,7 @@ const SuperLeads = () => {
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollStart = useRef(0);
+  const originalBoardColumnsRef = useRef([]);
 
   const onPointerDown = (e) => {
     isDragging.current = true;
@@ -574,28 +671,23 @@ const SuperLeads = () => {
   };
 
   // Fetch Managers
+  // ✅ Load once on mount — available for filter dropdown AND assign modal
   useEffect(() => {
-    const FetchManager = () => {
-      Fetchmanager(1)
-        .then((res) => {
-          if (res?.data?.data?.userDetails) {
-            const managerList = res.data.data.userDetails.map((man) => ({
-              value: man.id,
-              label: man.firstName || "-",
-            }));
-            setManagers(managerList);
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to fetch managers:", err);
-          setManagers([]);
-        });
-    };
-
-    if (isAssignModalOpen) {
-      FetchManager();
-    }
-  }, [isAssignModalOpen]);
+    Fetchmanager(1)
+      .then((res) => {
+        if (res?.data?.data?.userDetails) {
+          const managerList = res.data.data.userDetails.map((man) => ({
+            value: man.id,
+            label: man.firstName || "-",
+          }));
+          setManagers(managerList);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch managers:", err);
+        setManagers([]);
+      });
+  }, []); // ← empty array, runs once
 
   // Handle Lead Status Filter Change
   const handleLeadStatusChange = async (e) => {
@@ -707,9 +799,26 @@ const SuperLeads = () => {
   const handleClearFilters = () => {
     setSelectedLeadStatus("");
     setSelectedLeadType("");
+    setSelectedStageId("");
+    setSelectedAssignId("");
+    setFilteredByStage(null);
     setSearchText("");
 
-    if (activePipeline?.id) {
+    // ✅ Restore from ref instantly, no API call
+    if (originalBoardColumnsRef.current.length > 0) {
+      setBoardColumns(originalBoardColumnsRef.current);
+      const allLeads = originalBoardColumnsRef.current
+        .flatMap((col) => col.children)
+        .map((lead, index) => ({
+          ...lead,
+          sr_no: index + 1,
+          leadAssign: lead.leadAssignName || "-",
+          productType: lead.planName || "-",
+          cityName: lead.city || lead.cityName || "-",
+          stage: lead.stage || "-",
+        }));
+      setTableData(allLeads);
+    } else if (activePipeline?.id) {
       fetchPipelineLeads(activePipeline.id);
     }
   };
@@ -733,7 +842,23 @@ const SuperLeads = () => {
       Swal.fire({
         icon: "warning",
         title: "No Manager Selected",
-        text: "Please select a manager to assign the leads.",
+        text: "Please select a manager.",
+      });
+      return;
+    }
+    if (!assignCloseDate) {
+      Swal.fire({
+        icon: "warning",
+        title: "Close Date Required",
+        text: "Please select a close date.",
+      });
+      return;
+    }
+    if (!assignDescription) {
+      Swal.fire({
+        icon: "warning",
+        title: "Description Required",
+        text: "Please enter a description.",
       });
       return;
     }
@@ -741,7 +866,6 @@ const SuperLeads = () => {
     try {
       Swal.fire({
         title: "Assigning...",
-        text: "Please wait while we assign the leads.",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
@@ -749,42 +873,36 @@ const SuperLeads = () => {
       const response = await assignMultipleLeadToMember(
         selectedRows,
         Number(selectedManager),
+        assignCloseDate, // ✅ new
+        assignDescription, // ✅ new
       );
 
       Swal.close();
-
       const apiData = response?.data || response;
-      const isSuccess = apiData?.success === true;
 
-      if (isSuccess) {
+      if (apiData?.success === true) {
         Swal.fire({
           icon: "success",
           title: "Success!",
           text: `${selectedRows.length} lead(s) assigned successfully.`,
         });
 
+        // ✅ Reset all
         setIsAssignModalOpen(false);
         setSelectedManager("");
         setSelectedRows([]);
+        setAssignCloseDate("");
+        setAssignDescription("");
 
-        if (selectedLeadStatus) {
-          handleLeadStatusChange({ target: { value: selectedLeadStatus } });
-        } else if (selectedLeadType) {
-          handleLeadTypeChange({ target: { value: selectedLeadType } });
-        } else if (activePipeline?.id) {
-          fetchPipelineLeads(activePipeline.id);
-        }
+        if (activePipeline?.id) fetchPipelineLeads(activePipeline.id);
       } else {
-        const errorMsg =
-          apiData?.msg || apiData?.message || "Failed to assign leads";
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: errorMsg,
+          text: apiData?.msg || apiData?.message || "Failed to assign leads",
         });
       }
     } catch (error) {
-      console.error("Error assigning leads:", error);
       Swal.close();
       Swal.fire({
         icon: "error",
@@ -792,7 +910,7 @@ const SuperLeads = () => {
         text:
           error.response?.data?.message ||
           error.message ||
-          "Failed to assign leads. Please try again.",
+          "Failed to assign leads.",
       });
     }
   };
@@ -1049,7 +1167,6 @@ const SuperLeads = () => {
         closeStageId: fullLeadData.closeStageId,
         leadTitle: fullLeadData.leadTitle || "",
         leadFollowUpDate: fullLeadData.leadFollowUpDate || "",
-        followUpDetails: mappedFollowUps,
         // In handleEditLead (index.jsx) - ensure it's always a string:
         estimateAmount: String(fullLeadData.estimateAmount ?? ""), // ✅ handles 0 too
       };
@@ -1069,7 +1186,14 @@ const SuperLeads = () => {
         const list = res?.data?.data || [];
         setPipelines(list);
 
-        // Determine starting pipeline
+        // ✅ No pipelines found
+        if (list.length === 0) {
+          setNoPipelines(true);
+          setIsLoadingLeads(false);
+          return;
+        }
+
+        setNoPipelines(false); // ✅ reset if pipelines exist
         const startPipeline = location.state?.pipelineId
           ? list.find((p) => p.id === location.state.pipelineId)
           : list.find((p) => p.id === 1) || list[0];
@@ -1077,15 +1201,18 @@ const SuperLeads = () => {
         if (startPipeline) {
           setActivePipeline({ id: startPipeline.id, name: startPipeline.name });
           setSelectedPipelineId(String(startPipeline.id));
-          fetchPipelineLeads(startPipeline.id);
+          fetchPipelineLeads(startPipeline.id, startPipeline.name);
+          fetchStagesForPipeline(startPipeline.id);
         }
       } catch (err) {
         console.error("Failed to load pipelines:", err);
+        setNoPipelines(true);
+        setIsLoadingLeads(false);
       }
     };
-
     loadPipelines();
   }, []);
+
   const handlePipelineChange = (e) => {
     const pipelineId = Number(e.target.value);
     setSelectedPipelineId(String(pipelineId));
@@ -1093,6 +1220,8 @@ const SuperLeads = () => {
     if (found) {
       setActivePipeline({ id: found.id, name: found.name });
       fetchPipelineLeads(found.id);
+      fetchPipelineLeads(found.id, found.name);
+      fetchStagesForPipeline(found.id);
     }
   };
   // Delete Lead Handler
@@ -1159,6 +1288,99 @@ const SuperLeads = () => {
     }
   };
 
+  // filter
+  const handleStageChange = (e) => {
+    const stageId = e.target.value;
+    setSelectedStageId(stageId);
+    setSelectedAssignId(""); // reset member filter when stage changes
+
+    if (!stageId) {
+      setFilteredByStage(null);
+      // ✅ Restore from ref — no API call
+      if (originalBoardColumnsRef.current.length > 0) {
+        setBoardColumns(originalBoardColumnsRef.current);
+        const allLeads = originalBoardColumnsRef.current
+          .flatMap((col) => col.children)
+          .map((lead, index) => ({
+            ...lead,
+            sr_no: index + 1,
+            leadAssign: lead.leadAssignName || "-",
+            productType: lead.planName || "-",
+            cityName: lead.city || lead.cityName || "-",
+            stage: lead.stage || "-",
+          }));
+        setTableData(allLeads);
+      }
+      return;
+    }
+
+    // ✅ Filter tableData for list view
+    const filtered = originalBoardColumnsRef.current
+      .flatMap((col) => col.children)
+      .filter((lead) => String(lead.stageId) === String(stageId));
+    setFilteredByStage(filtered);
+
+    // ✅ Filter board — show only matching stage column, empty the rest
+    setBoardColumns(
+      originalBoardColumnsRef.current.map((col) =>
+        String(col.stageId) === String(stageId)
+          ? col
+          : { ...col, children: [] },
+      ),
+    );
+  };
+
+  const handleMemberChange = (e) => {
+    const assignId = e.target.value;
+    setSelectedAssignId(assignId);
+    setSelectedStageId(""); // reset stage filter
+
+    if (!assignId) {
+      // ✅ Restore full board from already-fetched data
+      if (originalBoardColumnsRef.current.length > 0) {
+        setBoardColumns(originalBoardColumnsRef.current);
+      }
+      // ✅ Restore full table data
+      const allLeads = originalBoardColumnsRef.current.flatMap((col) =>
+        col.children.map((lead, index) => ({
+          ...lead,
+          sr_no: index + 1,
+          leadAssign: lead.leadAssignName || "-",
+          productType: lead.planName || "-",
+          cityName: lead.city || lead.cityName || "-",
+          stage: lead.stage || "-",
+        })),
+      );
+      setTableData(allLeads);
+      setFilteredByStage(null);
+      return;
+    }
+
+    // ✅ Filter boardColumns from ref (no API call)
+    const filteredColumns = originalBoardColumnsRef.current.map((col) => ({
+      ...col,
+      children: col.children.filter(
+        (lead) => String(lead.leadAssignId) === String(assignId),
+      ),
+    }));
+    setBoardColumns(filteredColumns);
+
+    // ✅ Filter tableData from ref for list view
+    const filteredLeads = originalBoardColumnsRef.current
+      .flatMap((col) => col.children)
+      .filter((lead) => String(lead.leadAssignId) === String(assignId))
+      .map((lead, index) => ({
+        ...lead,
+        sr_no: index + 1,
+        leadAssign: lead.leadAssignName || "-",
+        productType: lead.planName || "-",
+        cityName: lead.city || lead.cityName || "-",
+        stage: lead.stage || "-",
+      }));
+
+    setTableData(filteredLeads);
+    setFilteredByStage(null);
+  };
   return (
     <Fragment>
       <div className="w-full max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1177,12 +1399,13 @@ const SuperLeads = () => {
             ]}
           />
         </div>
-
-        {/* TOP STATS CARDS */}
+        {/* TOPCARD */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Total Leads</p>
+              <p className="text-gray-600 text-sm font-medium">
+                Total New Inquire Leads
+              </p>
               <p className="text-3xl font-semibold mt-1">{stats.total}</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -1198,6 +1421,7 @@ const SuperLeads = () => {
             <div>
               <p className="text-gray-600 text-sm font-medium">Hot Leads</p>
               <p className="text-3xl font-semibold mt-1">{stats.hot}</p>
+            
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#FEE2E2] flex items-center justify-center">
               <img
@@ -1210,8 +1434,9 @@ const SuperLeads = () => {
 
           <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Cold Leads</p>
-              <p className="text-3xl font-semibold mt-1">{stats.cold}</p>
+              <p className="text-gray-600 text-sm font-medium">Won Leads</p>
+              <p className="text-3xl font-semibold mt-1">{stats.wonCount}</p>
+            
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#FEF9C3] flex items-center justify-center">
               <img
@@ -1224,8 +1449,9 @@ const SuperLeads = () => {
 
           <div className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Inquire Leads</p>
-              <p className="text-3xl font-semibold mt-1">{stats.inquire}</p>
+              <p className="text-gray-600 text-sm font-medium">Lost Leads</p>
+              <p className="text-3xl font-semibold mt-1">{stats.lostCount}</p>
+            
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#F3E8FF] flex items-center justify-center">
               <img
@@ -1236,25 +1462,7 @@ const SuperLeads = () => {
             </div>
           </div>
         </div>
-        {/* Add this just above the FILTER ROW */}
-        {/* {activePipeline && (
-          <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <i className="ki-filled ki-abstract-26 text-blue-600"></i>
-            <span className="text-sm font-medium text-blue-800">
-              Pipeline: <strong>{activePipeline.name}</strong>
-            </span>
-            <button
-              onClick={() => {
-                setActivePipeline(null);
-                setPipelineData(null);
-                fetchLeads(); // back to all leads
-              }}
-              className="ml-auto text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              <i className="ki-filled ki-cross-circle"></i> Clear Pipeline
-            </button>
-          </div>
-        )} */}
+
         {/* FILTER ROW */}
         <div className="bg-white p-4 rounded-lg shadow-sm border mb-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1271,20 +1479,7 @@ const SuperLeads = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                 />
               </div>
-
-              {/* Lead Status Filter */}
-              <select
-                value={selectedLeadStatus}
-                onChange={handleLeadStatusChange}
-                className="px-2 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={isFilterLoading}
-              >
-                {LEAD_STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              {/* Pipeline Select */}
               <select
                 value={selectedPipelineId}
                 onChange={handlePipelineChange}
@@ -1303,10 +1498,42 @@ const SuperLeads = () => {
                 )}
               </select>
 
-              {/* Lead Type Filter */}
-
+              {/* Stage Select — dynamic based on selected pipeline */}
+              <select
+                value={selectedStageId}
+                onChange={handleStageChange}
+                className="px-2 py-2 border border-gray-300 rounded-md"
+                disabled={isStagesLoading || stages.length === 0}
+              >
+                <option value="">
+                  {isStagesLoading ? "Loading stages..." : "All Stages"}
+                </option>
+                {stages.map((stage) => (
+                  <option key={stage.id} value={String(stage.id)}>
+                    {stage.name}
+                  </option>
+                ))}
+              </select>
+              {/* Member / Assign Filter */}
+              <select
+                value={selectedAssignId}
+                onChange={handleMemberChange}
+                className="px-2 py-2 border border-gray-300 rounded-md"
+                disabled={isFilterLoading}
+              >
+                <option value="">All Members</option>
+                {managers.map((member) => (
+                  <option key={member.value} value={String(member.value)}>
+                    {member.label}
+                  </option>
+                ))}
+              </select>
               {/* Clear Filters Button */}
-              {(selectedLeadStatus || selectedLeadType || searchText) && (
+              {(selectedLeadStatus ||
+                selectedLeadType ||
+                selectedStageId ||
+                selectedAssignId ||
+                searchText) && (
                 <button
                   onClick={handleClearFilters}
                   className="px-3 py-2 text-gray-600 hover:text-gray-800 flex items-center gap-2"
@@ -1368,87 +1595,80 @@ const SuperLeads = () => {
 
         {/* Status Summary Badges - Only show in Board View */}
         {viewMode === 0 && (
-          <div className="flex flex-wrap justify-between items-end gap-2 mb-3">
+          <div className="flex flex-wrap justify-center items-end gap-2 mb-3">
             <div className="flex flex-wrap gap-2">
               <Badge
-                className="badge badge-outline badge-success text-xs"
+                className="badge badge-outline badge-info text-xs"
                 title="Total Leads"
               >
                 <span className="flex items-center">
                   <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
-                      Total: <strong>{stats.total}</strong>
+                      Cold : <strong>{stats.total}</strong>
                     </span>
                     <span>
-                      Amount: <strong>&#8377;0/-</strong>
+                      Amount:{" "}
+                      <strong>
+                        ₹{Number(stats.coldAmount).toLocaleString("en-IN")}/-
+                      </strong>
                     </span>
                   </span>
                 </span>
               </Badge>
               <Badge
-                className="badge badge-outline badge-dark text-xs"
-                title="Open Leads"
+                className="badge badge-outline bg-yellow-100 text-xs"
+                title="Hot Leads"
               >
                 <span className="flex items-center">
-                  <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
-                  <span className="flex flex-col">
+                  <i className="ki-filled ki-chart-line-up text-black  text-sm me-2"></i>
+                  <span className="flex flex-col text-black">
                     <span>
-                      Open:{" "}
-                      <strong>
-                        {
-                          filteredData.filter((l) => l.leadStatus === "Open")
-                            .length
-                        }
-                      </strong>
+                      Hot: <strong>{stats.hot}</strong>
                     </span>
                     <span>
-                      Amount: <strong>&#8377;0/-</strong>
+                      Amount:{" "}
+                      <strong>
+                        ₹{Number(stats.hotAmount).toLocaleString("en-IN")}/-
+                      </strong>
                     </span>
                   </span>
                 </span>
               </Badge>
               <Badge
-                className="badge badge-outline badge-info text-xs"
-                title="Confirmed Leads"
+                className="badge badge-outline badge-success text-xs"
+                title="Won Leads"
               >
                 <span className="flex items-center">
                   <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
-                      Confirmed:{" "}
-                      <strong>
-                        {
-                          filteredData.filter(
-                            (l) => l.leadStatus === "confirmed",
-                          ).length
-                        }
-                      </strong>
+                      Won: <strong>{stats.wonCount}</strong>
                     </span>
                     <span>
-                      Amount: <strong>&#8377;0/-</strong>
+                      Amount:{" "}
+                      <strong>
+                        ₹{Number(stats.wonAmount).toLocaleString("en-IN")}/-
+                      </strong>
                     </span>
                   </span>
                 </span>
               </Badge>
               <Badge
                 className="badge badge-outline badge-danger text-xs"
-                title="Cancelled Leads"
+                title="Lost Leads"
               >
                 <span className="flex items-center">
                   <i className="ki-filled ki-chart-line-up text-sm me-2"></i>
                   <span className="flex flex-col">
                     <span>
-                      Cancelled:{" "}
-                      <strong>
-                        {
-                          filteredData.filter((l) => l.leadStatus === "Cancel")
-                            .length
-                        }
-                      </strong>
+                      Lost: <strong>{stats.lostCount}</strong>
                     </span>
                     <span>
-                      Amount: <strong>&#8377;0/-</strong>
+                      Amount:{" "}
+                      <strong>
+                        ₹{Number(stats.lostAmount).toLocaleString("en-IN")}/-
+                      </strong>
                     </span>
                   </span>
                 </span>
@@ -1460,8 +1680,44 @@ const SuperLeads = () => {
         )}
 
         {/* View Content */}
+        {/* View Content */}
         <div className="w-full">
-          {viewMode === 0 ? (
+          {noPipelines ? (
+            // ✅ Empty state — no pipelines
+            <div className="flex flex-col items-center justify-center py-24 bg-white rounded-xl border border-dashed border-gray-300">
+              <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-5">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#3B82F6"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <path d="M17.5 14v6M14.5 17h6" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                No Pipelines Found
+              </h3>
+              <p className="text-gray-500 text-sm text-center max-w-sm mb-6">
+                You don't have any pipelines set up yet. Create a pipeline to
+                start organizing and tracking your leads efficiently.
+              </p>
+              <button
+                onClick={() => navigate("/pipeline")}
+                className="bg-primary text-white px-6 py-2.5 rounded-lg shadow flex items-center gap-2 hover:bg-primary-dark transition font-medium"
+              >
+                <i className="ki-filled ki-plus text-base"></i>
+                Add Pipeline
+              </button>
+            </div>
+          ) : viewMode === 0 ? (
             /* Board View */
             <div
               className="flex-1 flex flex-nowrap space-x-4 cursor-grab overflow-x-auto flex-shrink-0"
@@ -1484,9 +1740,9 @@ const SuperLeads = () => {
               ) : (
                 <DragAndDrop
                   columns={boardColumns}
-                  setColumns={setBoardColumns} // keep for internal DnD state
+                  setColumns={setBoardColumns}
                   setDndActive={setDndActive}
-                  onLeadDropped={handleLeadDropped} // ← NEW prop
+                  onLeadDropped={handleLeadDropped}
                   onEditLead={handleEditLead}
                   onDeleteLead={handleDeleteLead}
                   onFollowUp={handleFollowUp}
@@ -1569,17 +1825,22 @@ const SuperLeads = () => {
           />
         )}
 
-        {/* Assign Lead Modal */}
         {isAssignModalOpen && (
           <AssignLeadModal
             isOpen={isAssignModalOpen}
             onClose={() => {
               setIsAssignModalOpen(false);
               setSelectedManager("");
+              setAssignCloseDate(""); // ✅ reset on close
+              setAssignDescription(""); // ✅ reset on close
             }}
             managers={managers}
             selectedManager={selectedManager}
             setSelectedManager={setSelectedManager}
+            closeDate={assignCloseDate} // ✅ new
+            setCloseDate={setAssignCloseDate} // ✅ new
+            description={assignDescription} // ✅ new
+            setDescription={setAssignDescription} // ✅ new
             onSave={handleSaveAssignment}
             selectedCount={selectedRows.length}
           />

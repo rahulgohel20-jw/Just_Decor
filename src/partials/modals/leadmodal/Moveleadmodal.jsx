@@ -13,6 +13,7 @@ const MoveLeadModal = ({
   fromColumn,
   toColumn,
   managers = [],
+  boardColumns = [],
 }) => {
   const isManualMove = fromColumn?.id === toColumn?.id;
   /* ── state ───────────────────────────────────────── */
@@ -78,17 +79,20 @@ const MoveLeadModal = ({
   };
 
   const handleConfirm = () => {
-    // ✅ For manual move, use selectedToColumn; for DnD use toColumn
-    const resolvedToColumn = isManualMove
-      ? { id: selectedToColumn, name: selectedToColumn }
-      : toColumn;
-
+    // ✅ Block if manual move and no stage selected yet
     if (isManualMove && !selectedToColumn) {
-      alert("Please select a destination stage.");
+      alert("Please select a destination stage first.");
       return;
     }
 
-    // ✅ Format followUpDate
+    // ✅ Resolve full column with stageId/stageType from boardColumns
+    const resolvedToColumn = isManualMove
+      ? boardColumns.find((col) => col.name === selectedToColumn) || {
+          id: selectedToColumn,
+          name: selectedToColumn,
+        }
+      : toColumn;
+
     const formattedFollowUpDate = followUpDate
       ? followUpDate.includes(" ")
         ? followUpDate
@@ -98,7 +102,7 @@ const MoveLeadModal = ({
     onConfirm?.({
       leadId: lead?.leadId || lead?.id,
       toStatus: resolvedToColumn?.id,
-      toColumn: resolvedToColumn, // ✅ pass resolved toColumn
+      toColumn: resolvedToColumn, // ✅ full object with stageId, stageType
       assignedTo: selectedAssignee,
       remarks,
       followUp:
@@ -250,7 +254,7 @@ const MoveLeadModal = ({
                     onChange={(e) => setSelectedToColumn(e.target.value)}
                   >
                     <option value="">Select Stage</option>
-                    {(managers.__columns || [])
+                    {boardColumns
                       .filter((col) => col.name !== fromColumn?.name)
                       .map((col) => (
                         <option key={col.id} value={col.name}>

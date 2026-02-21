@@ -100,6 +100,7 @@ export default function AdminModuleReport() {
                 "Chef Agency Theme",
                 "Labour Agency Theme",
                 "Outside Agency Theme",
+                "Order Summary Theme", 
               ].includes(module.nameEnglish),
           );
 
@@ -136,14 +137,14 @@ export default function AdminModuleReport() {
         return "ki-people";
       case "Outside Agency Theme":
         return "ki-shop";
+         case "Order Summary Theme":   
+      return "ki-notepad-edit";
       default:
         return "ki-document";
     }
   };
 
-  /* -----------------------------
-     Fetch Templates for a Module
-  ------------------------------*/
+  
   const fetchTemplatesForModule = async (moduleId) => {
     if (moduleTemplates[moduleId]) return; // Already loaded
 
@@ -165,6 +166,7 @@ export default function AdminModuleReport() {
           description: item.templateMaster.description,
           mappingId: item.templateMappingResponseDto?.id || item.id,
           isDate: item.templateMappingResponseDto?.isDate || 0,
+          nameEnglish: item.templateModuleMaster?.nameEnglish || "",
         }));
       }
 
@@ -202,7 +204,10 @@ export default function AdminModuleReport() {
       setAgencyType("labour");
     } else if (selectedModule?.nameEnglish === "Outside Agency Theme") {
       setAgencyType("outside");
-    } else {
+      
+    }else if (selectedModule?.nameEnglish === "Order Summary Theme") { 
+  setAgencyType("order_summary");      
+     } else {
       setAgencyType("");
     }
 
@@ -377,11 +382,16 @@ export default function AdminModuleReport() {
                         <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" />
                       </div>
                     ) : moduleTemplates[module.id]?.filter(
-                        (template) => template.isDate === 1,
-                      ).length > 0 ? (
-                      moduleTemplates[module.id]
-                        .filter((template) => template.isDate === 1)
-                        .map((template) => (
+                        (template) => {
+    if (module.nameEnglish === "Order Summary Theme") return true;
+    return template.isDate === 1;
+  }).length > 0 ? (
+  moduleTemplates[module.id]
+    .filter((template) => {
+      if (module.nameEnglish === "Order Summary Theme") return true;
+      return template.isDate === 1;
+    })
+    .map((template) => (
                           <div
                             key={template.id}
                             className={`border shadow-lg p-4 rounded-lg flex flex-col sm:flex-row gap-3 justify-between items-center ${

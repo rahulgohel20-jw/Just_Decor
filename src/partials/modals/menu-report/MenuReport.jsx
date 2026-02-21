@@ -57,6 +57,8 @@ const MenuReport = ({
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loadingFilters, setLoadingFilters] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+const [selectedStatus, setSelectedStatus] = useState([]); 
 
   useEffect(() => {
     if (!pdfUrl) return;
@@ -128,19 +130,28 @@ const MenuReport = ({
           setisDropdownStatus(0);
           setShowAgencyDropdown(false);
           setShowItemDropdown(false);
+          setShowCategoryDropdown(false);
         } else if (config.isAgency === 1 && config.isItem === 1) {
           setisDropdownStatus(1);
           setShowAgencyDropdown(true);
           setShowItemDropdown(true);
+          setShowCategoryDropdown(false);
         } else if (config.isAgency === 1) {
           setisDropdownStatus(1);
           setShowAgencyDropdown(true);
+          setShowCategoryDropdown(false);
         } else if (config.isItem === 1) {
           setisDropdownStatus(1);
           setShowItemDropdown(true);
+          setShowCategoryDropdown(false);
         }
 
         if (config.isDate === 1) setisDateStatus(1);
+        if (config.isStatus == 1) {
+  setShowStatusDropdown(true);
+} else {
+  setShowStatusDropdown(false);
+}
 
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
@@ -373,6 +384,7 @@ const MenuReport = ({
       rawMaterialCatIds: selectedCategory,
       ...(adminStartDate && { startDate: formatAdminDate(adminStartDate) }),
       ...(adminEndDate && { endDate: formatAdminDate(adminEndDate) }),
+       ...(showStatusDropdown && { eventStatus: selectedStatus }),
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
@@ -416,6 +428,8 @@ const MenuReport = ({
     setSelectedItems([]);
     setStartDate(null);
     setEndDate(null);
+    setSelectedStatus([]);      
+  setShowStatusDropdown(false); 
   };
 
   const handleWhatsAppShare = () => {
@@ -494,6 +508,7 @@ const MenuReport = ({
               ))}
             </div>
           </div>
+          
 
           {!isAdminModuleReport &&
             (isDateStatus === 1 ||
@@ -596,9 +611,40 @@ const MenuReport = ({
                       />
                     </div>
                   )}
+                  
                 </div>
               </div>
             )}
+
+           {showStatusDropdown && (
+  <div className="grid grid-cols-3">
+    <div>
+      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+        Status
+      </label>
+
+      <Select
+        mode="multiple"
+        value={selectedStatus}
+        onChange={setSelectedStatus}
+        placeholder="Select status..."
+        className="w-full"
+        size="large"
+        options={[
+          { value: 0, label: "Inquiry" },
+          { value: 1, label: "Confirm" },
+          { value: 2, label: "Cancel" },
+        ]}
+        allowClear
+        maxTagCount="responsive"
+        getPopupContainer={(trigger) => trigger.parentNode}
+        dropdownStyle={{ zIndex: 9999 }}
+      />
+    </div>
+  </div>
+)}
+
+
 
           {!isNamePlateTheme && (
             <>

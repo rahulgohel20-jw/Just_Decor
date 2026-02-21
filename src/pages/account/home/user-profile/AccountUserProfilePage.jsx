@@ -11,6 +11,7 @@ import { FormattedMessage } from "react-intl";
 import { getUserById, uploadProfileImage } from "@/services/apiServices";
 import { message } from "antd";
 import { useNavigate } from "react-router";
+import { LollipopIcon } from "lucide-react";
 
 const TABS = [
   {
@@ -65,7 +66,7 @@ const AccountUserProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const userMasterId = getUserIdFromLocalStorage();
-
+  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   // Fetch user data from API
@@ -303,31 +304,35 @@ const AccountUserProfilePage = () => {
                         {profileData.planName} Plan
                       </span>
                     </div>
-                    <div className="flex flex-col w-[400px] gap-1 bg-[#EFF6FF] p-2 rounded-2xl">
-                      <span className="text-xs text-center text-[#005BA8]">
-                        <FormattedMessage
-                          id="PROFILE.UPGRADE_YOUR_PLAN"
-                          defaultMessage="Upgrade Your Plan"
-                        />
-                      </span>
-                      <span className="text-xs text-center">
-                        <FormattedMessage
-                          id="PROFILE.GO_PRO_DESCRIPTION"
-                          defaultMessage="Go Pro for more Features and better support."
-                        />
-                      </span>
-                      <button
-                        className="rounded-full bg-primary text-white text-xs px-3 py-1"
-                        onClick={() => {
-                          navigate("/price");
-                        }}
-                      >
-                        <FormattedMessage
-                          id="PROFILE.UPGRADE_NOW"
-                          defaultMessage="Upgrade Now"
-                        />
-                      </button>
-                    </div>
+                    {userId != 73 ? (
+                      <div className="flex flex-col w-[400px] gap-1 bg-[#EFF6FF] p-2 rounded-2xl">
+                        <span className="text-xs text-center text-[#005BA8]">
+                          <FormattedMessage
+                            id="PROFILE.UPGRADE_YOUR_PLAN"
+                            defaultMessage="Upgrade Your Plan"
+                          />
+                        </span>
+                        <span className="text-xs text-center">
+                          <FormattedMessage
+                            id="PROFILE.GO_PRO_DESCRIPTION"
+                            defaultMessage="Go Pro for more Features and better support."
+                          />
+                        </span>
+                        <button
+                          className="rounded-full bg-primary text-white text-xs px-3 py-1"
+                          onClick={() => {
+                            navigate("/price");
+                          }}
+                        >
+                          <FormattedMessage
+                            id="PROFILE.UPGRADE_NOW"
+                            defaultMessage="Upgrade Now"
+                          />
+                        </button>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
                 <hr className="border-2 border-dotted mb-4" />
