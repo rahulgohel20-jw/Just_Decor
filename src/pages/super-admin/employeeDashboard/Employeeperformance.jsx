@@ -348,22 +348,22 @@ const MemberCard = ({ member, idx }) => {
           </p>
           <div className="space-y-1">
             {[
-              ["Completed", member.completed, "text-gray-700"],
-              ["In Progress", member.inProgress, "text-gray-700"],
+              ["Hot", member.completed, "text-gray-700"],
+              ["Cold", member.inProgress, "text-gray-700"],
               [
-                "Pending",
+                "Won",
                 member.pending,
                 member.pending > 5
                   ? "text-amber-600 font-bold"
                   : "text-gray-700",
               ],
               [
-                "Late",
+                "Lost",
                 member.late,
                 member.late > 0 ? "text-amber-600 font-bold" : "text-gray-700",
               ],
               [
-                "Overdue",
+                "client Dmeo",
                 member.overdue,
                 member.overdue > 0 ? "text-red-500 font-bold" : "text-gray-700",
               ],
@@ -457,8 +457,6 @@ export default function EmployeePerformance() {
   const totalCompleted = MEMBERS.reduce((s, m) => s + m.completed, 0);
   const totalUnder = MEMBERS.filter((m) => m.under).length;
 
- 
-
   /* ── Filtered + sorted list ── */
   const filtered = useMemo(() => {
     let list = [...MEMBERS];
@@ -489,11 +487,9 @@ export default function EmployeePerformance() {
             Monitor Employee productivity and quality metrics
           </p>
         </div>
-        
       </div>
 
       {/* ── Summary Cards ── */}
-      
 
       {/* ── Main Panel ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -532,6 +528,21 @@ export default function EmployeePerformance() {
               <Option value="Task Efficiency">Task Efficiency</Option>
             </Select>
           </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-700 mb-1.5">
+              select Pipeline
+            </p>
+            <Select
+              value={sortBy}
+              onChange={(v) => {
+                setSortBy(v);
+                setPage(1);
+              }}
+              style={{ width: 250 }}
+            >
+              <Option value="Completed Tasks">Sales</Option>
+            </Select>
+          </div>
           <div className=" flex items-center gap-2">
             <Checkbox
               checked={underOnly}
@@ -545,24 +556,6 @@ export default function EmployeePerformance() {
               </span>
             </Checkbox>
           </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-5">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px cursor-pointer
-                ${
-                  activeTab === tab
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-            >
-              {tab}
-            </button>
-          ))}
         </div>
 
         {/* Toolbar */}

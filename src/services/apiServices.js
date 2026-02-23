@@ -1689,3 +1689,13 @@ export const MoveLeadToStage = (leadId, stageId, stageType, assignId,remark, req
 
   return PUT(url, requestDto);
 };
+
+export const Getstageleaddatabypipelineidandstage = (pipelineId, stage, userId) => {
+   return GET(`pipeline/getstageleaddatabypipelineidandstage?pipelineId=${pipelineId}&stage=${stage}&userId=${userId}`);
+};
+
+export const GetEmployeeDashBoard = (startDate, endDate, userId) => {
+  return GET(`pipeline/getperformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}`);
+  
+};
+

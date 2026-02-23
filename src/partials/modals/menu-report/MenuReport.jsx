@@ -58,7 +58,7 @@ const MenuReport = ({
   const [endDate, setEndDate] = useState(null);
   const [loadingFilters, setLoadingFilters] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-const [selectedStatus, setSelectedStatus] = useState([]); 
+  const [selectedStatus, setSelectedStatus] = useState([]);
 
   useEffect(() => {
     if (!pdfUrl) return;
@@ -147,11 +147,13 @@ const [selectedStatus, setSelectedStatus] = useState([]);
         }
 
         if (config.isDate === 1) setisDateStatus(1);
-        if (config.isStatus == 1) {
-  setShowStatusDropdown(true);
-} else {
-  setShowStatusDropdown(false);
-}
+       if (config.isStatus == 1) {
+          setShowStatusDropdown(true);
+  setSelectedStatus([0, 1, 2]); 
+        } else {
+          setShowStatusDropdown(false);
+  setSelectedStatus([]); 
+        }
 
         setOptions({
           categorySlogan: config.isCategorySlogan === 0,
@@ -384,7 +386,7 @@ const [selectedStatus, setSelectedStatus] = useState([]);
       rawMaterialCatIds: selectedCategory,
       ...(adminStartDate && { startDate: formatAdminDate(adminStartDate) }),
       ...(adminEndDate && { endDate: formatAdminDate(adminEndDate) }),
-       ...(showStatusDropdown && { eventStatus: selectedStatus }),
+      ...(showStatusDropdown && { eventStatus: selectedStatus }),
     };
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
@@ -406,7 +408,7 @@ const [selectedStatus, setSelectedStatus] = useState([]);
 
     setLoading(true);
     try {
-      const { data } = await AddExclusiveReport(formData);
+      const { data } = await AddExclusiveReport(formData);                             
       if (data?.success && data?.report_path) {
         successMsgPopup(data?.msg || "Report generated");
         setPdfUrl(data?.report_path);
@@ -428,8 +430,8 @@ const [selectedStatus, setSelectedStatus] = useState([]);
     setSelectedItems([]);
     setStartDate(null);
     setEndDate(null);
-    setSelectedStatus([]);      
-  setShowStatusDropdown(false); 
+    setSelectedStatus([]);
+    setShowStatusDropdown(false);
   };
 
   const handleWhatsAppShare = () => {
@@ -508,7 +510,6 @@ const [selectedStatus, setSelectedStatus] = useState([]);
               ))}
             </div>
           </div>
-          
 
           {!isAdminModuleReport &&
             (isDateStatus === 1 ||
@@ -611,40 +612,37 @@ const [selectedStatus, setSelectedStatus] = useState([]);
                       />
                     </div>
                   )}
-                  
                 </div>
               </div>
             )}
 
-           {showStatusDropdown && (
-  <div className="grid grid-cols-3">
-    <div>
-      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-        Status
-      </label>
+          {showStatusDropdown && (
+            <div className="grid grid-cols-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                  Status
+                </label>
 
-      <Select
-        mode="multiple"
-        value={selectedStatus}
-        onChange={setSelectedStatus}
-        placeholder="Select status..."
-        className="w-full"
-        size="large"
-        options={[
-          { value: 0, label: "Inquiry" },
-          { value: 1, label: "Confirm" },
-          { value: 2, label: "Cancel" },
-        ]}
-        allowClear
-        maxTagCount="responsive"
-        getPopupContainer={(trigger) => trigger.parentNode}
-        dropdownStyle={{ zIndex: 9999 }}
-      />
-    </div>
-  </div>
-)}
-
-
+                <Select
+                  mode="multiple"
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
+                  placeholder="Select status..."
+                  className="w-full"
+                  size="large"
+                  options={[
+                    { value: 0, label: "Inquiry" },
+                    { value: 1, label: "Confirm" },
+                    { value: 2, label: "Cancel" },
+                  ]}
+                  allowClear
+                  maxTagCount="responsive"
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                  dropdownStyle={{ zIndex: 9999 }}
+                />
+              </div>
+            </div>
+          )}
 
           {!isNamePlateTheme && (
             <>
