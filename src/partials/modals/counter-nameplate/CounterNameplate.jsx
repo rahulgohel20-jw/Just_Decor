@@ -215,7 +215,6 @@ const CounterNameplate = ({
       formData.append("lang", currentlang);
       formData.append("userId", userId);
       formData.append("twoLanugage", twoLanugage);
-      formData.append("withLogo", withLogo ? 1 : 0);
 
       const res = await GenerateNamePlateReport(formData);
       const url = res.data?.report_path;

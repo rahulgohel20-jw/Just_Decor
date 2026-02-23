@@ -171,11 +171,32 @@ const AddTheme = ({
           editingTheme.templateModuleMaster?.id?.toString() || ""
         );
 
-        if (editingTheme.namePlateBg) {
-  const urls = Array.isArray(editingTheme.namePlateBg)
-    ? editingTheme.namePlateBg
-    : [editingTheme.namePlateBg];
-  setNameplates(urls.map((url) => ({ file: null, url, isExisting: true })));
+        if (editingTheme.namePlateBg || editingTheme.namePlateCoverBg) {
+  const existingImages = [];
+
+  if (
+    editingTheme.namePlateBg &&
+    !editingTheme.namePlateBg.includes("null")
+  ) {
+    existingImages.push({
+      file: null,
+      url: editingTheme.namePlateBg,
+      isExisting: true,
+    });
+  }
+
+  if (
+    editingTheme.namePlateCoverBg &&
+    !editingTheme.namePlateCoverBg.includes("null")
+  ) {
+    existingImages.push({
+      file: null,
+      url: editingTheme.namePlateCoverBg,
+      isExisting: true,
+    });
+  }
+
+  setNameplates(existingImages);
 }
       } else {
         setActiveTab("template");
@@ -421,6 +442,8 @@ const AddTheme = ({
       err.templateModule = "Please select template module";
     if (!nameplateName) err.nameplateName = "Please enter nameplate name";
 if (nameplates.length === 0) err.nameplate = "Add at least one nameplate image";
+if (nameplates.length > 2)
+  err.nameplate = "Maximum 2 images allowed";
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -719,14 +742,34 @@ if (newNameplates.length > 0) {
   const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
   const maxSize = 15 * 1024 * 1024;
 
+  // 🚨 LIMIT CHECK (MAX 2)
+  if (nameplates.length + fileArr.length > 2) {
+    Swal.fire({
+      title: "Maximum Limit Reached",
+      text: "You can upload maximum 2 nameplate images only.",
+      icon: "warning",
+    });
+    setFileInputKey(Date.now());
+    return;
+  }
+
   for (let file of fileArr) {
     if (!validTypes.includes(file.type)) {
-      Swal.fire({ title: "Invalid File Type", text: `${file.name} is not valid`, icon: "error" });
+      Swal.fire({
+        title: "Invalid File Type",
+        text: `${file.name} is not valid`,
+        icon: "error",
+      });
       setFileInputKey(Date.now());
       return;
     }
+
     if (file.size > maxSize) {
-      Swal.fire({ title: "File Too Large", text: `${file.name} exceeds 15MB`, icon: "error" });
+      Swal.fire({
+        title: "File Too Large",
+        text: `${file.name} exceeds 15MB`,
+        icon: "error",
+      });
       setFileInputKey(Date.now());
       return;
     }
@@ -1271,7 +1314,7 @@ if (newNameplates.length > 0) {
                       Click to upload nameplate
                     </div>
                     <div className="text-gray-400 text-sm mt-1">
-                      JPG, PNG, WEBP (Max 5MB)
+                      JPG, PNG, WEBP (Max 15MB each, Maximum 2 images)
                     </div>
                   </div>
                   {errors.nameplate && (
