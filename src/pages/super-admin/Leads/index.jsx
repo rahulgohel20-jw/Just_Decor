@@ -26,6 +26,7 @@ import {
   GETallpipeline,
   MoveLeadToStage,
   Getstagesbypipeline,
+  Getstageleaddatabypipelineidandstage,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import Swal from "sweetalert2";
@@ -102,7 +103,8 @@ const SuperLeads = () => {
   const location = useLocation();
 
   // ── View ──
-  const [viewMode, setViewMode] = useState(0); // 0 = Board, 1 = List
+  const [viewMode, setViewMode] = useState(0);
+  const [customRange, setCustomRange] = useState({ start: "", end: "" });
 
   // ── Data ──
   const [tableData, setTableData] = useState([]);
@@ -122,8 +124,6 @@ const SuperLeads = () => {
   const [isStagesLoading, setIsStagesLoading] = useState(false);
   const [filteredByStage, setFilteredByStage] = useState(null);
   const [selectedAssignId, setSelectedAssignId] = useState("");
-
-  // ── Managers ──
   const [managers, setManagers] = useState([]);
 
   // ── Modals ──
@@ -443,43 +443,85 @@ const SuperLeads = () => {
   );
 
   // ─── Filter helpers ───────────────────────────────────────────────────────
+  const handleStageChange = useCallback(
+    async (e) => {
+      const stageName = e.target.value; // dynamic string e.g. "Negotiation", "Qualified", "hot"
+      setSelectedStageId(stageName);
+      setSelectedAssignId("");
 
-  const handleStageChange = useCallback((e) => {
-    const stageId = e.target.value;
-    setSelectedStageId(stageId);
-    setSelectedAssignId("");
+      // ── Reset ──
+      if (!stageName) {
+        setFilteredByStage(null);
+        const cols = originalBoardColumnsRef.current;
+        setBoardColumns(cols);
+        setTableData(
+          cols
+            .flatMap((col) => col.children)
+            .map((l, i) => ({
+              ...l,
+              sr_no: i + 1,
+              leadAssign: l.leadAssignName || "-",
+              productType: l.planName || "-",
+              cityName: l.city || l.cityName || "-",
+              stage: l.stage || "-",
+            })),
+        );
+        return;
+      }
 
-    if (!stageId) {
-      setFilteredByStage(null);
-      const cols = originalBoardColumnsRef.current;
-      setBoardColumns(cols);
-      setTableData(
-        cols
-          .flatMap((col) => col.children)
-          .map((l, i) => ({
-            ...l,
-            sr_no: i + 1,
-            leadAssign: l.leadAssignName || "-",
-            productType: l.planName || "-",
-            cityName: l.city || l.cityName || "-",
-            stage: l.stage || "-",
-          })),
-      );
-      return;
-    }
+      try {
+        setIsFilterLoading(true);
+        const userId = getStoredUserId();
 
-    const filtered = originalBoardColumnsRef.current
-      .flatMap((c) => c.children)
-      .filter((l) => String(l.stageId) === String(stageId));
-    setFilteredByStage(filtered);
-    setBoardColumns(
-      originalBoardColumnsRef.current.map((col) =>
-        String(col.stageId) === String(stageId)
-          ? col
-          : { ...col, children: [] },
-      ),
-    );
-  }, []);
+        const response = await Getstageleaddatabypipelineidandstage(
+          selectedPipelineId,
+          stageName, // ✅ dynamic stage name from stages API
+          userId,
+        );
+
+        const data = response?.data?.data;
+
+        // ── Flatten all leads from API response ──
+        const allLeads = [
+          ...Object.values(data?.open_lead || {}).flat(),
+          ...Object.values(data?.close_lead || {}).flat(),
+        ].map((lead, i) => ({
+          ...lead,
+          id: String(lead.leadId),
+          leadId: lead.leadId,
+          sr_no: i + 1,
+          title: lead.clientName,
+          subtitle: lead.leadCode,
+          assignedTo: lead.leadAssignName,
+          amount: lead.estimateAmount || 0,
+          city: lead.city || "-",
+          cityName: lead.city || "-",
+          stage: lead.stage || "-",
+          leadAssign: lead.leadAssignName || "-",
+          productType: lead.planName || "-",
+          pipelineName: lead.pipelineName || activePipeline?.name || "-",
+        }));
+
+        const leadIdSet = new Set(allLeads.map((l) => l.leadId));
+
+        // ── Update board: keep only columns/leads that match API response ──
+        const filteredCols = originalBoardColumnsRef.current.map((col) => ({
+          ...col,
+          children: col.children.filter((l) => leadIdSet.has(l.leadId)),
+        }));
+
+        setBoardColumns(filteredCols);
+        setFilteredByStage(allLeads);
+        setTableData(allLeads);
+      } catch (err) {
+        console.error("Failed to fetch stage leads:", err);
+        Swal.fire("Error", "Failed to load stage leads.", "error");
+      } finally {
+        setIsFilterLoading(false);
+      }
+    },
+    [selectedPipelineId, activePipeline],
+  );
 
   const handleMemberChange = useCallback((e) => {
     const assignId = e.target.value;
@@ -1159,7 +1201,7 @@ const SuperLeads = () => {
               <select
                 value={selectedPipelineId}
                 onChange={handlePipelineChange}
-                className="px-2 py-2 border border-gray-300 rounded-md"
+                className="px-2 py-1 border border-gray-300 rounded-md"
               >
                 {pipelines.length === 0 ? (
                   <option value="">Loading pipelines...</option>
@@ -1172,17 +1214,20 @@ const SuperLeads = () => {
                 )}
               </select>
 
+              {/* In JSX — change value from s.id to s.name */}
               <select
                 value={selectedStageId}
                 onChange={handleStageChange}
-                className="px-2 py-2 border border-gray-300 rounded-md"
-                disabled={isStagesLoading || stages.length === 0}
+                className="px-2 py-1 border border-gray-300 rounded-md"
+                disabled={isStagesLoading || isFilterLoading}
               >
                 <option value="">
                   {isStagesLoading ? "Loading stages..." : "All Stages"}
                 </option>
                 {stages.map((s) => (
-                  <option key={s.id} value={String(s.id)}>
+                  <option key={s.id} value={s.name}>
+                    {" "}
+                    {/* ✅ value = name string, key = id */}
                     {s.name}
                   </option>
                 ))}
@@ -1191,7 +1236,7 @@ const SuperLeads = () => {
               <select
                 value={selectedAssignId}
                 onChange={handleMemberChange}
-                className="px-2 py-2 border border-gray-300 rounded-md"
+                className="px-2 py-1 border border-gray-300 rounded-md"
                 disabled={isFilterLoading}
               >
                 <option value="">All Members</option>
