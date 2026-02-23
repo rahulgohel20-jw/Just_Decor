@@ -243,14 +243,11 @@ export default function TeamPerformance() {
             <h1 className="text-3xl font-bold tracking-tight leading-none m-0">
               DashBoard
             </h1>
-            <p className="text-sm text-gray-400 mt-1 mb-0">
+            <p className="text-sm text-gray-800 mt-1 mb-0">
               Monitor team productivity and quality metrics
             </p>
           </div>
-          <div className="flex gap-2.5">
-      
-           
-          </div>
+          <div className="flex gap-2.5"></div>
         </div>
 
         {/* ── Filters ── */}
@@ -294,7 +291,7 @@ export default function TeamPerformance() {
               ))}
             </Select>
           </div>
-        
+
           <div className="mb-0.5">
             <Checkbox
               checked={showUnderperf}
@@ -308,21 +305,6 @@ export default function TeamPerformance() {
         </div>
 
         {/* ── Tabs ── */}
-        <div className="flex gap-0.5 mb-6 bg-gray-200 rounded-xl p-1 w-fit">
-          {TABS.map((t, i) => (
-            <button
-              key={t}
-              onClick={() => setActiveTab(i)}
-              className={`px-5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer border-0 ${
-                activeTab === i
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "bg-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
 
         {/* ── Stat Cards ── */}
         <div className="grid grid-cols-4 gap-3.5 mb-5">
@@ -346,7 +328,7 @@ export default function TeamPerformance() {
               >
                 {card.value}
               </div>
-              <div className="text-xs text-gray-400">{card.desc}</div>
+              <div className="text-xs text-gray-700">{card.desc}</div>
             </div>
           ))}
         </div>
@@ -354,7 +336,7 @@ export default function TeamPerformance() {
         {/* ── Team Averages ── */}
         <div className="bg-white border border-gray-100 rounded-xl p-6 mb-4">
           <div className="text-base font-bold mb-0.5">Team Averages</div>
-          <div className="text-xs text-gray-400 mb-5">
+          <div className="text-xs text-gray-700 mb-5">
             Average performance metrics across all team members
           </div>
 
@@ -384,7 +366,7 @@ export default function TeamPerformance() {
             ].map((avg) => (
               <div key={avg.label}>
                 <div className="flex justify-between text-sm font-medium mb-2">
-                  <span className="text-gray-600">{avg.label}</span>
+                  <span className="text-gray-900">{avg.label}</span>
                   <span
                     className={`font-bold ${avg.neg ? "text-red-500" : "text-gray-900"}`}
                   >
@@ -403,10 +385,9 @@ export default function TeamPerformance() {
 
           {/* Sparkline */}
           <div className="mt-6">
-            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
+            <div className="text-[10px] font-semibold text-gray-700 uppercase tracking-widest mb-2">
               Completion Trend (Last 8 Weeks)
             </div>
-          
           </div>
         </div>
 
@@ -418,7 +399,7 @@ export default function TeamPerformance() {
               <TrendingUp size={16} className="text-green-500" />
               <span className="text-base font-bold">Top Performers</span>
             </div>
-            <div className="text-xs text-gray-400 mb-4">
+            <div className="text-xs text-gray-700 mb-4">
               Team members with highest on-time delivery
             </div>
             <div className="space-y-0.5">
@@ -456,9 +437,9 @@ export default function TeamPerformance() {
           <div className="bg-white border border-gray-100 rounded-xl p-6">
             <div className="flex items-center gap-2 mb-0.5">
               <TrendingDown size={16} className="text-orange-500" />
-              <span className="text-base font-bold">Workload Distribution</span>
+              <span className="text-base font-bold">Lead Distribution</span>
             </div>
-            <div className="text-xs text-gray-400 mb-5">
+            <div className="text-xs text-gray-700 mb-5">
               Active task count per team member
             </div>
             <div className="space-y-3">
@@ -486,7 +467,6 @@ export default function TeamPerformance() {
         </div>
 
         {/* ── All Members Table ── */}
-      
       </main>
     </div>
   );
