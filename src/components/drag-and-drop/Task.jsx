@@ -99,7 +99,7 @@ const Task = ({
       >
         <div className="flex flex-col gap-3">
           {/* Header Section */}
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col flex-1">
               <h2 className="font-semibold text-gray-900 leading-none mb-0.5 line-clamp-1">
                 {item.title || item.clientName || "Unknown Client"}
@@ -107,7 +107,11 @@ const Task = ({
               <small className="text-2xs text-gray-600 mt-0.5">
                 {item.subtitle || item.leadCode || "No Code"}
               </small>
+              <h2 className="text-2xs text-gray-600 mt-0.5">
+                  Contact No: {item.clientContactNo || "Unknown Client"}
+                </h2>
             </div>
+            
             <div className="flex items-center gap-1">
               <button
                 className="btn btn-sm btn-icon btn-light btn-clear"
