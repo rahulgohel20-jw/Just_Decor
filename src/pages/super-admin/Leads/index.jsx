@@ -107,6 +107,8 @@ const [viewMode, setViewMode] = useState(() => {
   const saved = localStorage.getItem("superLeadsViewMode");
   return saved !== null ? Number(saved) : 0;
 });  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+  // Add near other state declarations
+  const [isFollowUpSaving, setIsFollowUpSaving] = useState(false);
 
   // ── Data ──
   const [tableData, setTableData] = useState([]);
@@ -159,6 +161,20 @@ const [viewMode, setViewMode] = useState(() => {
   const pipelineCache = useRef({});
 
   // ─── Derived / memoized ────────────────────────────────────────────────────
+  const filteredBoardColumns = useMemo(() => {
+    const search = searchText.toLowerCase();
+    if (!search) return boardColumns;
+    return boardColumns.map((col) => ({
+      ...col,
+      children: col.children.filter(
+        (item) =>
+          item.clientName?.toLowerCase().includes(search) ||
+          item.leadCode?.toLowerCase().includes(search) ||
+          item.leadType?.toLowerCase().includes(search) ||
+          item.contactNumber?.toLowerCase().includes(search),
+      ),
+    }));
+  }, [searchText, boardColumns]);
 
   const filteredData = useMemo(() => {
     const search = searchText.toLowerCase();
@@ -512,6 +528,8 @@ const [viewMode, setViewMode] = useState(() => {
           leadAssign: lead.leadAssignName || "-",
           productType: lead.planName || "-",
           pipelineName: lead.pipelineName || activePipeline?.name || "-",
+          closeDate: lead.closeDate || "-",
+          description: lead.description || "-",
         }));
 
         const leadIdSet = new Set(allLeads.map((l) => l.leadId));
@@ -809,6 +827,7 @@ const [viewMode, setViewMode] = useState(() => {
 
   const handleSaveFollowUp = useCallback(
     async (followUpData) => {
+      setIsFollowUpSaving(true);
       try {
         const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
         const fullLeadData = response?.data?.data?.[0];
@@ -903,6 +922,8 @@ const [viewMode, setViewMode] = useState(() => {
       } catch (error) {
         console.error("Error saving follow-up:", error);
         Swal.fire("Error", "Failed to save follow-up", "error");
+      } finally {
+        setIsFollowUpSaving(false); // ← ADD
       }
     },
     [
@@ -1214,7 +1235,7 @@ const [viewMode, setViewMode] = useState(() => {
               <select
                 value={selectedPipelineId}
                 onChange={handlePipelineChange}
-                className="px-2 py-1 border border-gray-300 rounded-md"
+                className="px-2 py-2 border border-gray-300 rounded-md"
               >
                 {pipelines.length === 0 ? (
                   <option value="">Loading pipelines...</option>
@@ -1231,7 +1252,7 @@ const [viewMode, setViewMode] = useState(() => {
               <select
                 value={selectedStageId}
                 onChange={handleStageChange}
-                className="px-2 py-1 border border-gray-300 rounded-md"
+                className="px-2 py-2 border border-gray-300 rounded-md"
                 disabled={isStagesLoading || isFilterLoading}
               >
                 <option value="">
@@ -1249,7 +1270,7 @@ const [viewMode, setViewMode] = useState(() => {
               <select
                 value={selectedAssignId}
                 onChange={handleMemberChange}
-                className="px-2 py-1 border border-gray-300 rounded-md"
+                className="px-2 py-2 border border-gray-300 rounded-md"
                 disabled={isFilterLoading}
               >
                 <option value="">All Members</option>
@@ -1427,7 +1448,7 @@ const [viewMode, setViewMode] = useState(() => {
                 </div>
               ) : (
                 <DragAndDrop
-                  columns={boardColumns}
+                  columns={filteredBoardColumns}
                   setColumns={setBoardColumns}
                   setDndActive={setDndActive}
                   onLeadDropped={handleLeadDropped}
@@ -1510,6 +1531,7 @@ const [viewMode, setViewMode] = useState(() => {
             leadData={selectedLeadForFollowUp}
             existingFollowUps={selectedLeadForFollowUp.followUps}
             onRefresh={refreshFollowUps}
+            isSaving={isFollowUpSaving}
           />
         )}
 

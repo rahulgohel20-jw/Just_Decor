@@ -39,7 +39,7 @@ export default function TeamPerformance() {
   // ── State ──
   const [activeTab, setActiveTab] = useState(1);
   const [showUnderperf, setShowUnderperf] = useState(false);
-  const [timePeriod, setTimePeriod] = useState("All Time");
+  const [timePeriod, setTimePeriod] = useState("This Month");
   const [sortBy, setSortBy] = useState("Completed Tasks");
   const [customRange, setCustomRange] = useState({ start: "", end: "" });
   const [dashboardData, setDashboardData] = useState(null);
@@ -215,13 +215,11 @@ export default function TeamPerformance() {
               style={{ width: 160 }}
               loading={isLoading}
             >
-              {["All Time", "This Month", "Last 30 Days", "Custom Range"].map(
-                (o) => (
-                  <Option key={o} value={o}>
-                    {o}
-                  </Option>
-                ),
-              )}
+              {["This Month", "Last 30 Days", "Custom Range"].map((o) => (
+                <Option key={o} value={o}>
+                  {o}
+                </Option>
+              ))}
             </Select>
 
             {/* Custom date pickers */}
@@ -261,7 +259,7 @@ export default function TeamPerformance() {
           </div>
 
           {/* Sort By */}
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <span className="text-[10px] font-semibold text-gray-700 uppercase tracking-widest">
               Sort By
             </span>
@@ -277,7 +275,7 @@ export default function TeamPerformance() {
                 </Option>
               ))}
             </Select>
-          </div>
+          </div> */}
         </div>
 
         {/* ── Stat Cards ── */}
@@ -320,7 +318,7 @@ export default function TeamPerformance() {
             Average performance metrics across all team members
           </div>
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 gap-8">
             {[
               {
                 label: "On-Time Delivery",
@@ -329,18 +327,18 @@ export default function TeamPerformance() {
                 stroke: "#2563eb",
                 neg: false,
               },
-              {
-                label: "efficiency",
-                value: `${teamAverages.qualityScore}/100`,
-                pct: teamAverages.qualityScore,
-                stroke:
-                  teamAverages.qualityScore >= 75
-                    ? "#16a34a"
-                    : teamAverages.qualityScore >= 50
-                      ? "#f59e0b"
-                      : "#dc2626",
-                neg: false,
-              },
+              // {
+              //   label: "efficiency",
+              //   value: `${teamAverages.qualityScore}/100`,
+              //   pct: teamAverages.qualityScore,
+              //   stroke:
+              //     teamAverages.qualityScore >= 75
+              //       ? "#16a34a"
+              //       : teamAverages.qualityScore >= 50
+              //         ? "#f59e0b"
+              //         : "#dc2626",
+              //   neg: false,
+              // },
               {
                 label: "Quality Score",
                 value: `${teamAverages.qualityScore}/100`,

@@ -10,59 +10,50 @@ export default function AddFollowUpModal({
   clientName,
   viewOnlyFollowUp,
   defaultManager,
+  isSaving,
 }) {
   const [customerName, setCustomerName] = useState("");
   const [managers, setManagers] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
-
   const [description, setDescription] = useState("");
   const [followType, setFollowType] = useState("Call");
   const [followupDate, setFollowupDate] = useState(null);
 
+  const isViewOnly = !!viewOnlyFollowUp;
+
   useEffect(() => {
     if (!isOpen) return;
-
-    // Priority 1 → View FollowUp (Edit/View mode)
     if (viewOnlyFollowUp?.memberId) {
       setSelectedManager(Number(viewOnlyFollowUp.memberId));
-    }
-    // Priority 2 → Lead Assign Id (Default from Lead)
-    else if (defaultManager) {
+    } else if (defaultManager) {
       setSelectedManager(Number(defaultManager));
     } else {
       setSelectedManager(null);
     }
   }, [isOpen, viewOnlyFollowUp, defaultManager]);
 
-  // Determine if modal is view-only
-  const isViewOnly = !!viewOnlyFollowUp;
-
   useEffect(() => {
-    const FetchManager = () => {
-      Fetchmanager(1)
-        .then((res) => {
-          if (res?.data?.data?.userDetails) {
-            const managerList = res.data.data.userDetails.map((man) => ({
+    if (!isOpen) return;
+    Fetchmanager(1)
+      .then((res) => {
+        if (res?.data?.data?.userDetails) {
+          setManagers(
+            res.data.data.userDetails.map((man) => ({
               value: man.id,
               label: man.firstName || "-",
-            }));
-            setManagers(managerList);
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to fetch managers:", err);
-          setManagers([]);
-        });
-    };
-
-    if (isOpen) {
-      FetchManager();
-    }
+            })),
+          );
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch managers:", err);
+        setManagers([]);
+      });
   }, [isOpen]);
 
   useEffect(() => {
     if (isViewOnly && viewOnlyFollowUp) {
-      setCustomerName(clientName || ""); // use lead clientName
+      setCustomerName(clientName || "");
       setDescription(viewOnlyFollowUp.clientRemarks || "");
       setFollowType(viewOnlyFollowUp.followUpType || "Call");
       setFollowupDate(
@@ -78,28 +69,20 @@ export default function AddFollowUpModal({
     }
   }, [viewOnlyFollowUp, clientName, isOpen]);
 
+  // ✅ No onClose here — parent closes modal after API succeeds
   const handleSave = () => {
     if (!customerName || !followupDate) {
       alert("Customer Name and Followup Date are required");
       return;
     }
-
     onSave({
       customerName,
-      clientRemarks: description, // ✅ This is what shows in the list
-      description: description,
+      clientRemarks: description,
+      description,
       followUpType: followType,
       followupDate: dayjs(followupDate).format("DD/MM/YYYY hh:mm A"),
-      managerId: selectedManager, // 👈 added
+      managerId: selectedManager,
     });
-
-    setCustomerName("");
-    setDescription("");
-    setFollowType("Call");
-    setFollowupDate(null);
-    setSelectedManager(null);
-
-    onClose(false);
   };
 
   return (
@@ -122,7 +105,8 @@ export default function AddFollowUpModal({
             readOnly={isViewOnly}
           />
         </div>
-        {/* Manager Dropdown */}
+
+        {/* Assign Member */}
         <div className="flex flex-col">
           <label className="form-label mb-1">Assign Member</label>
           <Select
@@ -154,12 +138,12 @@ export default function AddFollowUpModal({
               <button
                 key={type}
                 onClick={() => !isViewOnly && setFollowType(type)}
+                disabled={isViewOnly}
                 className={`py-2 rounded-lg text-sm border transition ${
                   followType === type
                     ? "bg-green-500 text-white border-green-500"
                     : "bg-gray-100 text-gray-700"
-                } ${isViewOnly ? "cursor-not-allowed text-gray-400" : ""}`}
-                disabled={isViewOnly}
+                } ${isViewOnly ? "cursor-not-allowed opacity-60" : ""}`}
               >
                 {type}
               </button>
@@ -180,15 +164,19 @@ export default function AddFollowUpModal({
           />
         </div>
 
-        {/* Footer Buttons */}
-        <div
-          className="flex justify-end g
-        ap-3 mt-6"
-        >
-          <Button onClick={() => onClose(false)}>Close</Button>
+        {/* Footer */}
+        <div className="flex justify-end gap-3 mt-6">
+          <Button onClick={() => onClose(false)} disabled={isSaving}>
+            Close
+          </Button>
           {!isViewOnly && (
-            <Button type="primary" onClick={handleSave}>
-              Save
+            <Button
+              type="primary"
+              onClick={handleSave}
+              disabled={isSaving}
+              loading={isSaving}
+            >
+              {isSaving ? "Saving..." : "Save"}
             </Button>
           )}
         </div>

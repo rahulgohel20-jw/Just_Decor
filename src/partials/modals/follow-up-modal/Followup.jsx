@@ -16,6 +16,7 @@ const FollowUp = ({
   viewOnlyFollowUp = null,
   existingFollowUps = [],
   onRefresh,
+  isSaving,
 }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [localFollowUps, setLocalFollowUps] = useState(existingFollowUps);
@@ -225,6 +226,7 @@ const FollowUp = ({
           clientName={clientName}
           viewOnlyFollowUp={null}
           defaultManager={leadData.leadAssignId}
+          isSaving={isSaving}
         />
       )}
     </>

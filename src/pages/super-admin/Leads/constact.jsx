@@ -130,6 +130,16 @@ export const columns = (
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
   {
+    accessorKey: "leadclosedate",
+    header: "Lead Close Date",
+    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+  },
+  {
+    accessorKey: "description",
+    header: "Description",
+    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
+  },
+  {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => {
