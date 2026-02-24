@@ -16,6 +16,7 @@ import Leaddetailview from "../../../partials/modals/leadmodal/Leaddetailview";
 import FollowUp from "../../../partials/modals/follow-up-modal/Followup";
 import AssignLeadModal from "../../../partials/modals/follow-up-modal/Assignleadmodal";
 import Moveleadmodal from "../../../partials/modals/leadmodal/Moveleadmodal";
+import { Flame, Snowflake, Send, Monitor, Bell, Trophy, XCircle, ClipboardList } from "lucide-react";
 import {
   DeleteLeadbyID,
   GetLeadByID,
@@ -103,8 +104,10 @@ const SuperLeads = () => {
   const location = useLocation();
 
   // ── View ──
-  const [viewMode, setViewMode] = useState(0);
-  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+const [viewMode, setViewMode] = useState(() => {
+  const saved = localStorage.getItem("superLeadsViewMode");
+  return saved !== null ? Number(saved) : 0;
+});  const [customRange, setCustomRange] = useState({ start: "", end: "" });
   // Add near other state declarations
   const [isFollowUpSaving, setIsFollowUpSaving] = useState(false);
 
@@ -266,7 +269,6 @@ const SuperLeads = () => {
     [],
   );
 
-  // ✅ Fetch pipeline leads — uses cache to avoid duplicate API calls
   const fetchPipelineLeads = useCallback(
     async (pipelineId, pipelineNameParam = "") => {
       const userId = getStoredUserId();
@@ -277,11 +279,9 @@ const SuperLeads = () => {
 
         let leadsRes, stagesRes;
 
-        // ✅ Use cache if available
         if (pipelineCache.current[pipelineId]) {
           ({ leadsRes, stagesRes } = pipelineCache.current[pipelineId]);
         } else {
-          // ✅ Parallel fetch — single Promise.all, not two sequential calls
           [leadsRes, stagesRes] = await Promise.all([
             GETstagesleaddatabypipeline(pipelineId, userId),
             Getstagesbypipeline(pipelineId, userId),
@@ -335,6 +335,10 @@ const SuperLeads = () => {
     [buildBoardFromPipeline],
   );
 
+  useEffect(() => {
+  localStorage.setItem("superLeadsViewMode", viewMode);
+}, [viewMode]);
+
   // ✅ Invalidate cache after mutations (move, assign, delete, follow-up)
   const invalidateAndRefetch = useCallback(
     (pipelineId, pipelineName = "") => {
@@ -346,41 +350,49 @@ const SuperLeads = () => {
 
   // ✅ Fetch stages — merged into fetchPipelineLeads to avoid an extra standalone call
   const fetchStagesForPipeline = useCallback(async (pipelineId) => {
-    const userId = getStoredUserId();
-    if (!userId) return;
-    try {
-      setIsStagesLoading(true);
-      setSelectedStageId("");
+  const userId = getStoredUserId();
+  if (!userId) return;
 
-      // ✅ Reuse cached stagesRes if already fetched for this pipeline
-      let stagesRes;
-      if (pipelineCache.current[pipelineId]?.stagesRes) {
-        stagesRes = pipelineCache.current[pipelineId].stagesRes;
-      } else {
-        stagesRes = await Getstagesbypipeline(pipelineId, userId);
-      }
+  try {
+    setIsStagesLoading(true);
+    setSelectedStageId("");
 
-      const allStages = [];
-      Object.entries(stagesRes?.data?.data || {}).forEach(
-        ([groupKey, stageList]) => {
-          stageList.forEach((stage) => {
-            allStages.push({
-              id: stage.stageId,
-              name: stage.stageName,
-              type: stage.stageType,
-              group: groupKey,
-            });
-          });
-        },
-      );
-      setStages(allStages);
-    } catch (err) {
-      console.error("Failed to fetch stages:", err);
-      setStages([]);
-    } finally {
-      setIsStagesLoading(false);
+    let stagesRes;
+    if (pipelineCache.current[pipelineId]?.stagesRes) {
+      stagesRes = pipelineCache.current[pipelineId].stagesRes;
+    } else {
+      stagesRes = await Getstagesbypipeline(pipelineId, userId);
     }
-  }, []);
+
+    const responseData = stagesRes?.data?.data || {};
+    console.log("Stages API response:", responseData);
+
+    const allStages = [];
+
+    
+    const orderedKeys = ["open_stage", "close_close"];
+
+    orderedKeys.forEach((groupKey) => {
+      if (responseData[groupKey]) {
+        responseData[groupKey].forEach((stage) => {
+          allStages.push({
+            id: stage.stageId,
+            name: stage.stageName,
+            type: stage.stageType,
+            group: groupKey,
+          });
+        });
+      }
+    });
+
+    setStages(allStages);
+  } catch (err) {
+    console.error("Failed to fetch stages:", err);
+    setStages([]);
+  } finally {
+    setIsStagesLoading(false);
+  }
+}, []);
 
   // ─── Initialisation — single useEffect replaces two ──────────────────────
 
@@ -507,6 +519,7 @@ const SuperLeads = () => {
           leadId: lead.leadId,
           sr_no: i + 1,
           title: lead.clientName,
+          contact: lead.clientContactNo || "-",
           subtitle: lead.leadCode,
           assignedTo: lead.leadAssignName,
           amount: lead.estimateAmount || 0,
@@ -645,6 +658,7 @@ const SuperLeads = () => {
         ...fullLeadData,
         leadId: fullLeadData.id,
         title: fullLeadData.clientName,
+        contact: fullLeadData.clientContactNo || "-",
         subtitle: fullLeadData.leadCode,
         assignedTo: fullLeadData.leadAssignName || "-",
         city: fullLeadData.cityName || "-",
@@ -1157,52 +1171,30 @@ const SuperLeads = () => {
 
         {/* TOPCARD */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {[
-            {
-              label: "Total New Inquire Leads",
-              value: stats.total,
-              bg: "bg-blue-100",
-              icon: "/media/icons/lead1.png",
-            },
-            {
-              label: "Hot Leads",
-              value: stats.hot,
-              bg: "bg-[#FEE2E2]",
-              icon: "/media/icons/lead2.png",
-            },
-            {
-              label: "Won Leads",
-              value: stats.wonCount,
-              bg: "bg-[#FEF9C3]",
-              icon: "/media/icons/lead3.png",
-            },
-            {
-              label: "Lost Leads",
-              value: stats.lostCount,
-              bg: "bg-[#F3E8FF]",
-              icon: "/media/icons/lead4.png",
-            },
-          ].map(({ label, value, bg, icon }) => (
-            <div
-              key={label}
-              className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between"
-            >
-              <div>
-                <p className="text-gray-600 text-sm font-medium">{label}</p>
-                <p className="text-3xl font-semibold mt-1">{value}</p>
-              </div>
-              <div
-                className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center`}
-              >
-                <img
-                  src={toAbsoluteUrl(icon)}
-                  alt="icon"
-                  className="w-6 h-6 object-contain"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+  {[
+    { label: "New Inquiry Leads",   value: stats.newInquiry || stats.total || 0, bg: "bg-blue-100",   iconBg: "text-blue-600",   Icon: ClipboardList },
+    { label: "Hot Leads",           value: stats.hot || 0,                        bg: "bg-[#FEE2E2]",  iconBg: "text-red-500",    Icon: Flame },
+    { label: "Cold Leads",          value: stats.cold || 0,                       bg: "bg-[#E0F2FE]",  iconBg: "text-sky-500",    Icon: Snowflake },
+    { label: "Proposal Send Leads", value: stats.proposalSend || 0,               bg: "bg-[#FEF9C3]",  iconBg: "text-yellow-500", Icon: Send },
+    { label: "Demo Leads",          value: stats.demo || 0,                       bg: "bg-[#D1FAE5]",  iconBg: "text-green-500",  Icon: Monitor },
+    { label: "Follow Up Leads",     value: stats.followUp || 0,                   bg: "bg-[#FDE68A]",  iconBg: "text-amber-500",  Icon: Bell },
+    { label: "Won Leads",           value: stats.wonCount || 0,                   bg: "bg-[#DCFCE7]",  iconBg: "text-emerald-600",Icon: Trophy },
+    { label: "Lost Leads",          value: stats.lostCount || 0,                  bg: "bg-[#F3E8FF]",  iconBg: "text-purple-500", Icon: XCircle },
+  ].map(({ label, value, bg, iconBg, Icon }) => (
+    <div
+      key={label}
+      className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between"
+    >
+      <div>
+        <p className="text-gray-600 text-sm font-medium">{label}</p>
+        <p className="text-3xl font-semibold mt-1">{value}</p>
+      </div>
+      <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center`}>
+        <Icon className={`w-6 h-6 ${iconBg}`} />
+      </div>
+    </div>
+  ))}
+</div>
 
         {/* FILTER ROW */}
         <div className="bg-white p-4 rounded-lg shadow-sm border mb-5">
@@ -1327,7 +1319,7 @@ const SuperLeads = () => {
 
         {/* Status Badges */}
         {viewMode === 0 && (
-          <div className="flex flex-wrap justify-center items-end gap-2 mb-3">
+          <div className="flex flex-wrap justify-start items-end gap-2 mb-3">
             <div className="flex flex-wrap gap-2">
               {[
                 {

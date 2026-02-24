@@ -482,6 +482,11 @@ export default function EmployeePerformance() {
         console.log(list, "dta");
 
         setPipelines(list);
+
+        // ✅ Auto-select first pipeline
+        if (list.length > 0) {
+          setSelectedPipeline(list[0].id);
+        }
       })
       .catch((err) => {
         console.error("Failed to load pipelines:", err);
@@ -626,7 +631,7 @@ export default function EmployeePerformance() {
           </div>
 
           {/* Sort By */}
-          {/* <div>
+          <div>
             <p className="text-xs font-semibold text-gray-700 mb-1.5">
               Sort By
             </p>
@@ -643,7 +648,7 @@ export default function EmployeePerformance() {
               <Option value="On-Time Delivery">On-Time Delivery</Option>
               <Option value="Task Efficiency">Task Efficiency</Option>
             </Select>
-          </div> */}
+          </div>
 
           {/* Underperformers filter */}
           <div className="flex items-center gap-2 pb-0.5">
