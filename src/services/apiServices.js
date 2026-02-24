@@ -1699,3 +1699,6 @@ export const GetEmployeeDashBoard = (startDate, endDate, userId) => {
   
 };
 
+export const GetEmployeeperformnace = (startDate, endDate, userId , pipelineId) => {
+  return GET(`pipeline/getEmployeePerformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}&pipelineId=${pipelineId}`);
+};
