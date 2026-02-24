@@ -54,7 +54,7 @@ export default function AddLeadPage() {
   const [openStages, setOpenStages] = useState([]);
   const [closeStages, setCloseStages] = useState([]);
   const [selectedStageId, setSelectedStageId] = useState(undefined);
-
+  const [isSaving, setIsSaving] = useState(false);
   const [customRangeCreatedAt, setCustomRangeCreatedAt] = useState({
     start: "",
     end: "",
@@ -435,22 +435,8 @@ export default function AddLeadPage() {
       Swal.fire("Validation", "Please assign a Lead.", "warning");
       return;
     }
-    if (!leadData.plan) {
-      Swal.fire("Validation", "Please select a Product Type.", "warning");
-      return;
-    }
-    if (!followupDate) {
-      Swal.fire("Validation", "Please select a Follow-up Date.", "warning");
-      return;
-    }
-    if (!leadData.state) {
-      Swal.fire("Validation", "Please select a State.", "warning");
-      return;
-    }
-    if (!leadData.city) {
-      Swal.fire("Validation", "Please select a City.", "warning");
-      return;
-    }
+
+    setIsSaving(true);
     try {
       const finalLeadId = isEditMode ? Number(leadData.id) : 0;
 
@@ -521,6 +507,8 @@ export default function AddLeadPage() {
     } catch (error) {
       console.error("❌ SERVER ERROR:", error);
       Swal.fire("Error", "Server error!", "error");
+    } finally {
+      setIsSaving(false); // ← ADD THIS
     }
   };
 
@@ -774,7 +762,7 @@ export default function AddLeadPage() {
                   </div>
                   <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Close Date <span className="text-red-500">*</span>
+                      Lead Close Date
                     </label>
                     <DatePicker
                       value={followupDate}
@@ -782,13 +770,7 @@ export default function AddLeadPage() {
                       format="DD-MM-YYYY"
                       placeholder="Select follow-up date"
                       className="w-full h-[30px]"
-                      status={!followupDate ? "error" : ""}
                     />
-                    {!followupDate && (
-                      <span className="text-red-500 text-xs mt-1 block">
-                        Follow-up Date is required
-                      </span>
-                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -816,7 +798,7 @@ export default function AddLeadPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Type <span className="text-red-500">*</span>
+                      Product Type
                     </label>
                     <Select
                       showSearch // ✅ Enable search
@@ -828,14 +810,7 @@ export default function AddLeadPage() {
                         setLeadData({ ...leadData, plan: value })
                       }
                       options={plans}
-                      status={!leadData.plan ? "error" : ""}
                     />
-
-                    {!leadData.plan && (
-                      <span className="text-red-500 text-xs mt-1 block">
-                        Product Type is required
-                      </span>
-                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1000,14 +975,13 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      State <span className="text-red-500">*</span>
+                      State
                     </label>
                     <Select
                       placeholder="-- Select State --"
                       value={leadData.state || undefined}
                       onChange={handleStateChange}
                       className="w-full"
-                      status={!leadData.state ? "error" : ""}
                     >
                       {states.map((state) => (
                         <Select.Option key={state.id} value={state.id}>
@@ -1015,16 +989,11 @@ export default function AddLeadPage() {
                         </Select.Option>
                       ))}
                     </Select>
-                    {!leadData.state && (
-                      <span className="text-red-500 text-xs mt-1 block">
-                        State is required
-                      </span>
-                    )}
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City <span className="text-red-500">*</span>
+                      City
                     </label>
                     <Select
                       placeholder="-- Select City --"
@@ -1033,7 +1002,6 @@ export default function AddLeadPage() {
                         setLeadData({ ...leadData, city: value })
                       }
                       className="w-full"
-                      status={!leadData.city ? "error" : ""}
                     >
                       {cities.map((city) => (
                         <Select.Option key={city.id} value={city.id}>
@@ -1041,11 +1009,6 @@ export default function AddLeadPage() {
                         </Select.Option>
                       ))}
                     </Select>
-                    {!leadData.city && (
-                      <span className="text-red-500 text-xs mt-1 block">
-                        City is required
-                      </span>
-                    )}
                   </div>
                 </div>
               </CardContent>
@@ -1442,22 +1405,50 @@ export default function AddLeadPage() {
               </button>
               <button
                 onClick={handleSaveLead}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
+                disabled={isSaving}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                {isEditMode ? "Update" : "Save"}
+                {isSaving ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                    {isEditMode ? "Updating..." : "Saving..."}
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {isEditMode ? "Update" : "Save"}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1474,6 +1465,35 @@ export default function AddLeadPage() {
         viewOnlyFollowUp={viewingFollowUp}
         defaultManager={leadData.leadAssign}
       />
+      {isSaving && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white px-8 py-6 rounded-xl shadow-lg flex flex-col items-center gap-4">
+            <svg
+              className="w-10 h-10 animate-spin text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
+            </svg>
+
+            <span className="text-gray-700 font-medium">
+              {isEditMode ? "Updating Lead..." : "Saving Lead..."}
+            </span>
+          </div>
+        </div>
+      )}
     </Fragment>
   );
 }
