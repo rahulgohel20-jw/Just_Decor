@@ -105,6 +105,8 @@ const SuperLeads = () => {
   // ── View ──
   const [viewMode, setViewMode] = useState(0);
   const [customRange, setCustomRange] = useState({ start: "", end: "" });
+  // Add near other state declarations
+  const [isFollowUpSaving, setIsFollowUpSaving] = useState(false);
 
   // ── Data ──
   const [tableData, setTableData] = useState([]);
@@ -157,6 +159,20 @@ const SuperLeads = () => {
   const pipelineCache = useRef({});
 
   // ─── Derived / memoized ────────────────────────────────────────────────────
+  const filteredBoardColumns = useMemo(() => {
+    const search = searchText.toLowerCase();
+    if (!search) return boardColumns;
+    return boardColumns.map((col) => ({
+      ...col,
+      children: col.children.filter(
+        (item) =>
+          item.clientName?.toLowerCase().includes(search) ||
+          item.leadCode?.toLowerCase().includes(search) ||
+          item.leadType?.toLowerCase().includes(search) ||
+          item.contactNumber?.toLowerCase().includes(search),
+      ),
+    }));
+  }, [searchText, boardColumns]);
 
   const filteredData = useMemo(() => {
     const search = searchText.toLowerCase();
@@ -500,6 +516,8 @@ const SuperLeads = () => {
           leadAssign: lead.leadAssignName || "-",
           productType: lead.planName || "-",
           pipelineName: lead.pipelineName || activePipeline?.name || "-",
+          closeDate: lead.closeDate || "-",
+          description: lead.description || "-",
         }));
 
         const leadIdSet = new Set(allLeads.map((l) => l.leadId));
@@ -796,6 +814,7 @@ const SuperLeads = () => {
 
   const handleSaveFollowUp = useCallback(
     async (followUpData) => {
+      setIsFollowUpSaving(true);
       try {
         const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
         const fullLeadData = response?.data?.data?.[0];
@@ -890,6 +909,8 @@ const SuperLeads = () => {
       } catch (error) {
         console.error("Error saving follow-up:", error);
         Swal.fire("Error", "Failed to save follow-up", "error");
+      } finally {
+        setIsFollowUpSaving(false); // ← ADD
       }
     },
     [
@@ -1201,7 +1222,7 @@ const SuperLeads = () => {
               <select
                 value={selectedPipelineId}
                 onChange={handlePipelineChange}
-                className="px-2 py-1 border border-gray-300 rounded-md"
+                className="px-2 py-2 border border-gray-300 rounded-md"
               >
                 {pipelines.length === 0 ? (
                   <option value="">Loading pipelines...</option>
@@ -1218,7 +1239,7 @@ const SuperLeads = () => {
               <select
                 value={selectedStageId}
                 onChange={handleStageChange}
-                className="px-2 py-1 border border-gray-300 rounded-md"
+                className="px-2 py-2 border border-gray-300 rounded-md"
                 disabled={isStagesLoading || isFilterLoading}
               >
                 <option value="">
@@ -1236,7 +1257,7 @@ const SuperLeads = () => {
               <select
                 value={selectedAssignId}
                 onChange={handleMemberChange}
-                className="px-2 py-1 border border-gray-300 rounded-md"
+                className="px-2 py-2 border border-gray-300 rounded-md"
                 disabled={isFilterLoading}
               >
                 <option value="">All Members</option>
@@ -1414,7 +1435,7 @@ const SuperLeads = () => {
                 </div>
               ) : (
                 <DragAndDrop
-                  columns={boardColumns}
+                  columns={filteredBoardColumns}
                   setColumns={setBoardColumns}
                   setDndActive={setDndActive}
                   onLeadDropped={handleLeadDropped}
@@ -1497,6 +1518,7 @@ const SuperLeads = () => {
             leadData={selectedLeadForFollowUp}
             existingFollowUps={selectedLeadForFollowUp.followUps}
             onRefresh={refreshFollowUps}
+            isSaving={isFollowUpSaving}
           />
         )}
 

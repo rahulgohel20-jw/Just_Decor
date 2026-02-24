@@ -44,7 +44,7 @@ const SortableItem = ({ item, onDelete, onView }) => {
       <div>
         <h4 className="font-semibold text-gray-800">{item.pipelineName}</h4>
         <p className="text-sm text-gray-500 mt-1">
-          Created At: {item.createdAt} | Created by: {item.createdBy}
+          Created At: {item.createdAt} | Created by: {item.userName}
         </p>
       </div>
 
