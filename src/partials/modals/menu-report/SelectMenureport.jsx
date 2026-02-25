@@ -287,21 +287,20 @@ export default function SelectMenureport({
     }
 
     if (
-  isNamePlateTheme &&
-  template.isNamePlate &&
-  template.namePlateType === "Counter Name Plate With Logo"
-) {
-  setIsModalOpenWithLogo(true);
-  return;
-}
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Counter Name Plate With Logo"
+    ) {
+      setIsModalOpen(true);
+      return;
+    }
 
-    
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Table Menu"
     ) {
-      setOpenNamePlate(true); 
+      setOpenNamePlate(true);
       return;
     }
 
@@ -310,25 +309,21 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Table Menu Exclusive"
     ) {
-      setOpenNamePlate(true); 
+      setOpenNamePlate(true);
       return;
     }
 
-    
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
-      setOpenNamePlateTest(true); 
+      setOpenNamePlateTest(true);
       return;
     }
 
-    
-
     setIsMenuReportOpen(true);
   };
-  
 
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
@@ -586,7 +581,6 @@ export default function SelectMenureport({
             shadow-sm hover:shadow-md transition-all duration-300
           `}
                     >
-                      
                       <div className="w-24 h-24 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
                         {template.frontPage ? (
                           <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
@@ -605,7 +599,6 @@ export default function SelectMenureport({
                         )}
                       </div>
 
-                      
                       <div className="flex-1">
                         <h3
                           className={`text-base font-bold ${
@@ -620,7 +613,6 @@ export default function SelectMenureport({
                         </p>
                       </div>
 
-                     
                       <div className="flex-shrink-0 pe-3">
                         <button
                           className="btn btn-primary px-6 h-[50px] w-[200px] text-md rounded-full flex items-center justify-center"
@@ -673,15 +665,15 @@ export default function SelectMenureport({
       />
 
       <CounterNameplate
-  isModalOpen={isModalOpenWithLogo}
-  setIsModalOpen={setIsModalOpenWithLogo}
-  eventId={finalEventId}
-  eventFunctionId={selectedFunctionId}
-  currentlang={currentlang}
-  adminTemplatemoduleId={selectedModuleId || activeTab}
-  selectedTemplateId={selectedTemplateId}
-  withLogo={true}
-/>
+        isModalOpen={isModalOpenWithLogo}
+        setIsModalOpen={setIsModalOpen}
+        eventId={finalEventId}
+        eventFunctionId={selectedFunctionId}
+        currentlang={currentlang}
+        adminTemplatemoduleId={selectedModuleId || activeTab}
+        selectedTemplateId={selectedTemplateId}
+        withLogo={true}
+      />
       {openNamePlateTest && (
         <MainStandyMenuReport
           isModalOpen={openNamePlateTest}
