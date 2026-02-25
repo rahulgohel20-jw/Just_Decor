@@ -3,194 +3,8 @@ import { Input, Button, Select, Checkbox } from "antd";
 import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
 import { AlertTriangle, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { GETallpipeline, GetEmployeeperformnace } from "@/services/apiServices";
-
+import { BarChart } from "@mui/x-charts/BarChart";
 const { Option } = Select;
-
-/* ─────────────────────────────────────────────
-   STATIC MOCK DATA (fallback only)
-───────────────────────────────────────────── */
-const MEMBERS = [
-  {
-    id: 1,
-    name: "Member One",
-    role: "member",
-    under: false,
-    total: 13,
-    completed: 12,
-    inProgress: 0,
-    pending: 1,
-    late: 0,
-    overdue: 1,
-    onTime: 92,
-    efficiency: -6,
-    quality: 92,
-  },
-  {
-    id: 2,
-    name: "Gagan",
-    role: "member",
-    under: true,
-    total: 79,
-    completed: 6,
-    inProgress: 7,
-    pending: 63,
-    late: 6,
-    overdue: 70,
-    onTime: 33,
-    efficiency: -89,
-    quality: 33,
-  },
-  {
-    id: 3,
-    name: "Member Two",
-    role: "member",
-    under: false,
-    total: 7,
-    completed: 6,
-    inProgress: 0,
-    pending: 0,
-    late: 1,
-    overdue: 1,
-    onTime: 83,
-    efficiency: -14,
-    quality: 83,
-  },
-  {
-    id: 4,
-    name: "Member Six",
-    role: "member",
-    under: true,
-    total: 5,
-    completed: 4,
-    inProgress: 0,
-    pending: 1,
-    late: 2,
-    overdue: 1,
-    onTime: 50,
-    efficiency: -20,
-    quality: 50,
-  },
-  {
-    id: 5,
-    name: "Member Four",
-    role: "member",
-    under: true,
-    total: 5,
-    completed: 3,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 2,
-    onTime: 100,
-    efficiency: -40,
-    quality: 100,
-  },
-  {
-    id: 6,
-    name: "Member 7",
-    role: "member",
-    under: true,
-    total: 3,
-    completed: 3,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 0,
-    efficiency: 0,
-    quality: 0,
-  },
-  {
-    id: 7,
-    name: "Member Five",
-    role: "member",
-    under: true,
-    total: 5,
-    completed: 3,
-    inProgress: 0,
-    pending: 2,
-    late: 2,
-    overdue: 2,
-    onTime: 33,
-    efficiency: -40,
-    quality: 33,
-  },
-  {
-    id: 8,
-    name: "Member Three",
-    role: "member",
-    under: false,
-    total: 3,
-    completed: 3,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 100,
-    efficiency: 0,
-    quality: 100,
-  },
-  {
-    id: 9,
-    name: "Vikas",
-    role: "member",
-    under: true,
-    total: 22,
-    completed: 1,
-    inProgress: 2,
-    pending: 18,
-    late: 1,
-    overdue: 21,
-    onTime: 0,
-    efficiency: -95,
-    quality: 0,
-  },
-  {
-    id: 10,
-    name: "Param",
-    role: "member",
-    under: false,
-    total: 1,
-    completed: 1,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 100,
-    efficiency: 0,
-    quality: 100,
-  },
-  {
-    id: 11,
-    name: "Ananya S.",
-    role: "member",
-    under: false,
-    total: 9,
-    completed: 8,
-    inProgress: 1,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 88,
-    efficiency: 5,
-    quality: 91,
-  },
-  {
-    id: 12,
-    name: "Rohan K.",
-    role: "member",
-    under: false,
-    total: 6,
-    completed: 5,
-    inProgress: 1,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 95,
-    efficiency: -3,
-    quality: 87,
-  },
-];
 
 const AVATAR_COLORS = [
   "bg-blue-500",
@@ -207,9 +21,6 @@ const AVATAR_COLORS = [
   "bg-pink-600",
 ];
 
-/* ─────────────────────────────────────────────
-   HELPERS
-───────────────────────────────────────────── */
 const getInitials = (name) =>
   name
     .split(" ")
@@ -248,9 +59,6 @@ const effBar = (v) => {
   return "bg-red-500";
 };
 
-/* ─────────────────────────────────────────────
-   DATE HELPERS
-───────────────────────────────────────────── */
 const toDateStr = (date) => date.toISOString().split("T")[0];
 
 const getDateRange = (period) => {
@@ -274,9 +82,6 @@ const getDateRange = (period) => {
   return { start: "2020-01-01", end };
 };
 
-/* ─────────────────────────────────────────────
-   SUB-COMPONENTS
-───────────────────────────────────────────── */
 const ProgressBar = ({ value, colorClass }) => (
   <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mt-1.5">
     <div
@@ -294,6 +99,48 @@ const Avatar = ({ name, idx }) => (
   </div>
 );
 
+const MiniBarChart = ({ quality, onTime, total }) => {
+  const getColor = (label, value) => {
+    if (label === "Total") return "#3b82f6"; // blue for total
+    if (value >= 80) return "#22c55e"; // green
+    if (value >= 50) return "#f59e0b"; // amber
+    return "#ef4444"; // red
+  };
+
+  const labels = ["Quality", "On-Time", "Total"];
+
+  const values = [quality, onTime, total];
+
+  return (
+    <div className="w-56">
+      <BarChart
+        height={140}
+        xAxis={[
+          {
+            scaleType: "band",
+            data: labels,
+          },
+        ]}
+        yAxis={[
+          {
+            min: 0,
+            max: Math.max(100, total), // auto adjust if total > 100
+          },
+        ]}
+        series={[
+          {
+            data: values,
+            color: "#8884d8", // default fallback
+          },
+        ]}
+        margin={{ top: 10, bottom: 30, left: 35, right: 10 }}
+        slotProps={{
+          legend: { hidden: true },
+        }}
+      />
+    </div>
+  );
+};
 const MemberCard = ({ member, idx }) => {
   const qi = qualityInfo(member.quality);
   const effSign = member.efficiency > 0 ? "+" : "";
@@ -326,7 +173,7 @@ const MemberCard = ({ member, idx }) => {
           <div className="text-2xl font-bold text-gray-800 leading-none">
             {member.total}
           </div>
-          <div className="text-xs text-gray-900 mt-0.5">Total Tasks</div>
+          <div className="text-xs text-gray-900 mt-0.5">Total Leads</div>{" "}
         </div>
       </div>
 
@@ -423,25 +270,31 @@ const MemberCard = ({ member, idx }) => {
         {/* Quality Score */}
         <div>
           <p className="text-xs font-semibold text-black uppercase tracking-wide mb-2">
-            Quality Score
+            Performance Score
           </p>
-          <div className="text-xl font-bold text-gray-800 font-mono">
-            {member.quality}
-            <span className="text-sm text-gray-400 font-normal">/100</span>
+
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-xl font-bold text-gray-800 font-mono">
+                {member.quality}
+                <span className="text-sm text-gray-400 font-normal">/100</span>
+              </div>
+              <p className={`text-xs font-semibold mt-1.5 ${qi.color}`}>
+                {qi.label}
+              </p>
+            </div>
+            <MiniBarChart
+              quality={member.quality}
+              onTime={member.onTime}
+              total={member.total}
+            />{" "}
           </div>
-          <ProgressBar value={member.quality} colorClass={qi.bar} />
-          <p className={`text-xs font-semibold mt-1.5 ${qi.color}`}>
-            {qi.label}
-          </p>
         </div>
       </div>
     </div>
   );
 };
 
-/* ─────────────────────────────────────────────
-   MAIN PAGE
-───────────────────────────────────────────── */
 export default function EmployeePerformance() {
   // Get userId from localStorage — adjust the key to match your app
   const userId =
@@ -505,8 +358,42 @@ export default function EmployeePerformance() {
 
     GetEmployeeperformnace(start, end, userId, selectedPipeline)
       .then((res) => {
-        const data = res?.data?.data?.employee_performance ?? [];
-        const mapped = data.map((emp) => ({
+        const responseData = res?.data?.data?.employee_performance ?? [];
+
+        console.log("New API Response:", responseData);
+
+        // 1️⃣ Flatten all employees from all date groups
+        const allEmployees = responseData.flatMap(
+          (item) => item.employees ?? [],
+        );
+
+        // 2️⃣ Merge same employees (because same user can appear on multiple dates)
+        const employeeMap = {};
+
+        allEmployees.forEach((emp) => {
+          if (!employeeMap[emp.leadAssignId]) {
+            employeeMap[emp.leadAssignId] = { ...emp };
+          } else {
+            // Sum values if employee already exists
+            employeeMap[emp.leadAssignId].hotLeads += emp.hotLeads || 0;
+            employeeMap[emp.leadAssignId].coldLeads += emp.coldLeads || 0;
+            employeeMap[emp.leadAssignId].wonLeads += emp.wonLeads || 0;
+            employeeMap[emp.leadAssignId].lostLeads += emp.lostLeads || 0;
+            employeeMap[emp.leadAssignId].clientDemoLeads +=
+              emp.clientDemoLeads || 0;
+            employeeMap[emp.leadAssignId].onTimeDelivery +=
+              emp.onTimeDelivery || 0;
+            employeeMap[emp.leadAssignId].totalLeads += emp.totalLeads || 0;
+
+            // If qualityScore needs averaging instead of summing:
+            employeeMap[emp.leadAssignId].qualityScore =
+              (employeeMap[emp.leadAssignId].qualityScore + emp.qualityScore) /
+              2;
+          }
+        });
+
+        // 3️⃣ Convert to array and map for UI
+        const mapped = Object.values(employeeMap).map((emp) => ({
           id: emp.leadAssignId,
           name: emp.userName,
           role: "member",
@@ -516,21 +403,23 @@ export default function EmployeePerformance() {
           lostLeads: emp.lostLeads,
           clientDemoLeads: emp.clientDemoLeads,
           total:
+            emp.totalLeads ??
             emp.hotLeads +
-            emp.coldLeads +
-            emp.wonLeads +
-            emp.lostLeads +
-            emp.clientDemoLeads,
+              emp.coldLeads +
+              emp.wonLeads +
+              emp.lostLeads +
+              emp.clientDemoLeads,
           onTime: emp.onTimeDelivery,
           quality: emp.qualityScore,
-          efficiency: 0, // not in API, set default or remove
+          efficiency: 0,
           under: emp.qualityScore < 50 || emp.onTimeDelivery < 50,
         }));
+
         setMembers(mapped.length > 0 ? mapped : MEMBERS);
       })
       .catch((err) => {
         console.error("Failed to load performance data:", err);
-        setMembers(MEMBERS); // fallback on error
+        setMembers(MEMBERS);
       })
       .finally(() => {
         setPerformanceLoading(false);

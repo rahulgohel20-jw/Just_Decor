@@ -1577,7 +1577,13 @@ export const GETcrockerycutlerygetByRawMaterialCat = (
   );
 };
 
-export const assignMultipleLeadToMember = (leadId_list, memberId, closeDate = "", description = "") => {
+export const assignMultipleLeadToMember = (
+  leadId_list,
+  memberId,
+  closeDate = "",
+  description = "",
+  expirationDate,
+) => {
   const leadIds = Array.isArray(leadId_list) ? leadId_list : [];
   if (leadIds.length === 0) {
     console.error("❌ No lead IDs provided");
@@ -1595,7 +1601,7 @@ export const assignMultipleLeadToMember = (leadId_list, memberId, closeDate = ""
 
   // Create query parameters: leadId=3&leadId=4&memberId=15&closeDate=...&description=...
   const leadIdParams = leadIds.map((id) => `leadId=${id}`).join("&");
-  const finalUrl = `/leadmaster/assignMultipleLeadToMember?${leadIdParams}&memberId=${memberId}&closeDate=${encodeURIComponent(closeDate)}&description=${encodeURIComponent(description)}`;
+  const finalUrl = `/leadmaster/assignMultipleLeadToMember?${leadIdParams}&memberId=${memberId}&closeDate=${encodeURIComponent(closeDate)}&expirationDate=${encodeURIComponent(expirationDate)}&description=${encodeURIComponent(description)}`;
 
   console.log("✅ Final URL:", finalUrl);
 
@@ -1650,39 +1656,50 @@ export const AddRecordPayment = (data) => {
   return POST(`salesinvoice/add`, data);
 };
 
-export const GetRecordPayments = (id,eventId) => {
-  return GET(`salesinvoice/getbyeventidanduserid?userId=${id}&eventId=${eventId}`);
+export const GetRecordPayments = (id, eventId) => {
+  return GET(
+    `salesinvoice/getbyeventidanduserid?userId=${id}&eventId=${eventId}`,
+  );
 };
 
 export const DeleteRecordPayment = (id) => {
   return DELETE(`salesinvoice/delete?salesInvoiceid=${id}`);
 };
 
-
 export const CreatePipeline = (payload) => {
   return POST(`/pipeline/add`, payload);
 };
 
 export const deletepipeline = (pipelineId) => {
-  return DELETE(`/pipeline/delete?pipelineId=${pipelineId}`); 
+  return DELETE(`/pipeline/delete?pipelineId=${pipelineId}`);
 };
 
 export const GETallpipeline = () => {
   return GET(`pipeline/getall`);
-
 };
 
-export const GETstagesleaddatabypipeline = (pipelineId ,userId) => {
-  return GET(`pipeline/getstageleaddatabypipelineid?pipelineId=${pipelineId}&userId=${userId}`);
+export const GETstagesleaddatabypipeline = (pipelineId, userId) => {
+  return GET(
+    `pipeline/getstageleaddatabypipelineid?pipelineId=${pipelineId}&userId=${userId}`,
+  );
 };
 
-export const Getstagesbypipeline = (pipelineId , userId ) => {
-  return GET(`pipeline/getstagebypipelineid?pipelineId=${pipelineId}&userId=${userId}`);
+export const Getstagesbypipeline = (pipelineId, userId) => {
+  return GET(
+    `pipeline/getstagebypipelineid?pipelineId=${pipelineId}&userId=${userId}`,
+  );
 };
 
-export const MoveLeadToStage = (leadId, stageId, stageType, assignId,remark, requestDto) => {
+export const MoveLeadToStage = (
+  leadId,
+  stageId,
+  stageType,
+  assignId,
+  remark,
+  requestDto,
+) => {
   let url = `leadmaster/changeleadstage?leadId=${leadId}&stageId=${stageId}&stageType=${stageType}&assignId=${assignId}`;
-  
+
   if (remark && remark.trim()) {
     url += `&remark=${encodeURIComponent(remark.trim())}`;
   }
@@ -1690,15 +1707,29 @@ export const MoveLeadToStage = (leadId, stageId, stageType, assignId,remark, req
   return PUT(url, requestDto);
 };
 
-export const Getstageleaddatabypipelineidandstage = (pipelineId, stage, userId) => {
-   return GET(`pipeline/getstageleaddatabypipelineidandstage?pipelineId=${pipelineId}&stage=${stage}&userId=${userId}`);
+export const Getstageleaddatabypipelineidandstage = (
+  pipelineId,
+  stage,
+  userId,
+) => {
+  return GET(
+    `pipeline/getstageleaddatabypipelineidandstage?pipelineId=${pipelineId}&stage=${stage}&userId=${userId}`,
+  );
 };
 
 export const GetEmployeeDashBoard = (startDate, endDate, userId) => {
-  return GET(`pipeline/getperformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}`);
-  
+  return GET(
+    `pipeline/getperformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}`,
+  );
 };
 
-export const GetEmployeeperformnace = (startDate, endDate, userId , pipelineId) => {
-  return GET(`pipeline/getEmployeePerformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}&pipelineId=${pipelineId}`);
+export const GetEmployeeperformnace = (
+  startDate,
+  endDate,
+  userId,
+  pipelineId,
+) => {
+  return GET(
+    `pipeline/getEmployeePerformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}&pipelineId=${pipelineId}`,
+  );
 };
