@@ -45,7 +45,16 @@ const CounterNameplate = ({
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [numberOfColumns, setNumberOfColumns] = useState(1);
-  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState(10);
+  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState(5);
+
+  const col1Items = [5, 6, 7, 8, 9];   
+const col2Items = [10, 12, 14, 16, 18];
+
+const handleColumnChange = (val) => {
+  setNumberOfColumns(val);
+  // reset items to first option of selected column
+  setNumberOfItemsPerPage(val === 2 ? 10 : 5);
+};
   
   useEffect(() => {
     if (isModalOpen && eventId && eventFunctionId && userId) {
@@ -322,7 +331,7 @@ const CounterNameplate = ({
 
   <select
   value={numberOfColumns}
-  onChange={(e) => setNumberOfColumns(Number(e.target.value))}
+  onChange={(e) => handleColumnChange(Number(e.target.value))}
   className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-white
              focus:outline-none focus:ring-2 focus:ring-primary"
 >
@@ -344,11 +353,9 @@ const CounterNameplate = ({
   className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50
              focus:outline-none focus:ring-2 focus:ring-primary"
 >
-  <option value={10}>10</option>
-  <option value={12}>12</option>
-  <option value={14}>14</option>
-  <option value={16}>16</option>
-  <option value={18}>18</option>
+  {(numberOfColumns === 2 ? col2Items : col1Items).map((val) => (
+    <option key={val} value={val}>{val}</option>
+  ))}
 </select>
 
 </div>
