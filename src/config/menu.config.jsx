@@ -604,14 +604,15 @@ export const superAdminMenuItems = [
     path: "/vendors",
     pageName: "Vendors",
   },
-   {
-    title: <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Expense" />,
+  {
+    title: (
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Expense" />
+    ),
     icon: "ki-filled ki-users text-primary",
     path: "/expense",
     pageName: "Expense",
   },
-  
-  
+
   {
     title: (
       <FormattedMessage id="COMMON.MASTER" defaultMessage="Superadmin Master" />
@@ -704,6 +705,35 @@ export const superAdminMenuItems = [
     children: [
       {
         title: (
+          <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Users" />
+        ),
+        icon: "ki-filled ki-users text-primary",
+        path: "/superadmin/members",
+        pageName: "Users",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage=" Dashboard"
+          />
+        ),
+        path: "/superadmin/teamperformance",
+        pageName: "Empoloyee Dashboard",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage=" Performance"
+          />
+        ),
+        path: "/superadmin/employeeperformance",
+        pageName: " Performance",
+      },
+
+      {
+        title: (
           <FormattedMessage
             id="COMMON.CONTACT_TYPE"
             defaultMessage="Pipelines"
@@ -739,34 +769,7 @@ export const superAdminMenuItems = [
       //   path: "/superadmin/employeedashboard",
       //   pageName: "Employee Dashbaord",
       // },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage="Employee Dashboard"
-          />
-        ),
-        path: "/superadmin/teamperformance",
-        pageName: "Empoloyee Dashboard",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.CONTACT_TYPE"
-            defaultMessage=" Performance"
-          />
-        ),
-        path: "/superadmin/employeeperformance",
-        pageName: " Performance",
-      },
-      {
-        title: (
-          <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Users" />
-        ),
-        icon: "ki-filled ki-users text-primary",
-        path: "/superadmin/members",
-        pageName: "Users",
-      },
+
       {
         title: (
           <FormattedMessage

@@ -1403,46 +1403,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
         setOrderSummaryGroups(summaryGroups);
       }
-
-      const updatedRowsPromises = transformedRows.map(async (row) => {
-        try {
-          const res = await SelectedItemNameMenuAllocation(
-            row.eventFunctionId,
-            row.menuItemId,
-          );
-
-          if (res?.data?.success) {
-            const apiData = res.data.data;
-            const rawMaterials =
-              apiData["MenuItem RawMaterial Details"] ||
-              apiData.menuItemRawMaterials ||
-              [];
-
-            return {
-              ...row,
-              menuItemRawMaterials: rawMaterials,
-            };
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching raw materials for item ${row.menuItemId}:`,
-            error,
-          );
-        }
-        return row;
-      });
-
-      const updatedRows = await Promise.all(updatedRowsPromises);
-      setRows(updatedRows);
-      setInitialRows(JSON.parse(JSON.stringify(updatedRows)));
-
-      const personSnapshot = {};
-      updatedRows.forEach((r) => {
-        personSnapshot[r.key] = r.personCount;
-      });
-      lastSavedPersonRef.current = personSnapshot;
-
-      isInitialLoadRef.current = false;
     } catch (error) {
       console.error("Error fetching menu allocation:", error);
       setRows([]);
@@ -1476,13 +1436,16 @@ const EventMenuAllocationPage = ({ mode }) => {
     if (isInitialLoadRef.current) return;
     if (rows.length === 0) return;
     if (isSaving) return;
-    if (rows.some((r) => r.personCount === 0)) return;
 
-    const hasPersonChanged = rows.some(
-      (r) => lastSavedPersonRef.current[r.key] !== r.personCount,
+    // Only fire when at least one PAX row was actually changed
+    const hasPaxChanged = changedPaxRowsRef.current.size > 0;
+    if (!hasPaxChanged) return;
+
+    // Block save only if a *changed* row still has 0 — not all rows
+    const changedRowsHaveZero = rows.some(
+      (r) => changedPaxRowsRef.current.has(r.key) && r.personCount === 0,
     );
-
-    if (!hasPersonChanged) return;
+    if (changedRowsHaveZero) return;
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -2109,27 +2072,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuAllocationOrders.push(...insideAllocations);
         }
 
-        const rawMaterialsSource =
-          allocationData[`${r.menuItemId}-category`]?.rawMaterials?.length > 0
-            ? allocationData[`${r.menuItemId}-category`].rawMaterials
-            : r.menuItemRawMaterials || [];
-
-        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
-          dateTime: rm.dateTime || "",
-          eventFunctionId: r.eventFunctionId,
-          eventId: validEventId,
-          id: rm.id ?? 0,
-          menuItemId: rm.menuItemId || r.menuItemId || 0,
-          partyId: rm.partyId || rm.party_id || rm.party?.id || 0,
-          place: rm.place || "",
-          rate: rm.rate || 0,
-          rawMaterialId: rm.rawMaterialId || 0,
-          rawmaterial_rate: rm.rawmaterial_rate || 0,
-          rawmaterial_weight: rm.rawmaterial_weight || 0,
-          unitId: rm.unitId || rm.unit_id || rm.unit?.id || 0,
-          weight: rm.weight || 0,
-        }));
-
         // ✅ Check if THIS specific row had a PAX change
         const rowHadPaxChange = changedPaxRowsRef.current.has(r.key);
 
@@ -2140,11 +2082,11 @@ const EventMenuAllocationPage = ({ mode }) => {
           id: r.id || 0,
           inside: r.inside || false,
           instructions: r.instructions || "",
-          isPaxChange: rowHadPaxChange, // ✅ Only true for rows that actually changed
+          isPaxChange: rowHadPaxChange,
           menuAllocationOrders,
           menuCategoryId: r.menuCategoryId || 0,
           menuItemId: r.menuItemId || 0,
-          menuItemRawMaterials,
+          menuItemRawMaterials: [],
           outside: r.outside || false,
           personCount: r.personCount || 0,
           place: r.place || "venue",
