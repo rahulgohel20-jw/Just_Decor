@@ -195,6 +195,14 @@ export const GetRawmaterialwithcatID = (catID, id) => {
     `/rawmaterial/getallbyuserid?rawMateriaCatlId=${catID}&unitid=0&userid=${id}`,
   );
 };
+
+export const GetAllRawmaterial = ( id) => {
+  return GET(
+    `/rawmaterial/getallbyuserid?pageNo=1&pageSize=9999&rawMateriaCatlId=0&unitid=0&userid=${id}
+`,
+  );
+};
+
 export const SelectedRawMenuallocation = (data) => {
   return POST(`/menuallocation/addorupdatemenuitemrawmat`, data);
 };
@@ -1701,4 +1709,39 @@ export const GetEmployeeDashBoard = (startDate, endDate, userId) => {
 
 export const GetEmployeeperformnace = (startDate, endDate, userId , pipelineId) => {
   return GET(`pipeline/getEmployeePerformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}&pipelineId=${pipelineId}`);
+};
+
+
+export const AddStockType = (data) => {
+  return POST(`/stocktype/add`, data);
+};
+
+export const GetStockTypeByUserId = (userId) => {
+  return GET(`/stocktype/getallbyuserid?userId=${userId}`);
+};
+
+export const DeleteStockType = (id) => {
+  return DELETE(`stocktype/delete?id=${id}`);
+};
+
+export const UpdateStockType = (id, data) => {
+  return PUT(`stocktype/update?id=${id}`, data);
+}
+
+
+export const AddPuchase = (data) => {
+  return POST(`purchaseorder/add-update`, data);
+};
+
+export const GetAllPurchase = (userId) => {
+  return GET(`/purchaseorder/getbyuser?userId=${userId}`);
+};
+
+
+export const AddStorePO = (data) => {
+  return POST(`/storepo/add`, data);
+};
+
+export const GetAllStorePO = (userId) => {
+  return GET(`/storepo/getbyuser?userId=${userId}`);
 };
