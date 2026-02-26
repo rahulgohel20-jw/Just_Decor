@@ -17,6 +17,16 @@ import FollowUp from "../../../partials/modals/follow-up-modal/Followup";
 import AssignLeadModal from "../../../partials/modals/follow-up-modal/Assignleadmodal";
 import Moveleadmodal from "../../../partials/modals/leadmodal/Moveleadmodal";
 import {
+  Flame,
+  Snowflake,
+  Send,
+  Monitor,
+  Bell,
+  Trophy,
+  XCircle,
+  ClipboardList,
+} from "lucide-react";
+import {
   DeleteLeadbyID,
   GetLeadByID,
   UpdateleadbyID,
@@ -26,6 +36,7 @@ import {
   GETallpipeline,
   MoveLeadToStage,
   Getstagesbypipeline,
+  Getstageleaddatabypipelineidandstage,
 } from "@/services/apiServices";
 import useStyle from "./style";
 import Swal from "sweetalert2";
@@ -102,7 +113,13 @@ const SuperLeads = () => {
   const location = useLocation();
 
   // ── View ──
-  const [viewMode, setViewMode] = useState(0); // 0 = Board, 1 = List
+  const [viewMode, setViewMode] = useState(() => {
+    const saved = localStorage.getItem("superLeadsViewMode");
+    return saved !== null ? Number(saved) : 0;
+  });
+  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+  // Add near other state declarations
+  const [isFollowUpSaving, setIsFollowUpSaving] = useState(false);
 
   // ── Data ──
   const [tableData, setTableData] = useState([]);
@@ -122,8 +139,6 @@ const SuperLeads = () => {
   const [isStagesLoading, setIsStagesLoading] = useState(false);
   const [filteredByStage, setFilteredByStage] = useState(null);
   const [selectedAssignId, setSelectedAssignId] = useState("");
-
-  // ── Managers ──
   const [managers, setManagers] = useState([]);
 
   // ── Modals ──
@@ -134,6 +149,7 @@ const SuperLeads = () => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState("");
   const [assignCloseDate, setAssignCloseDate] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
   const [assignDescription, setAssignDescription] = useState("");
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [moveLeadPayload, setMoveLeadPayload] = useState(null);
@@ -157,6 +173,20 @@ const SuperLeads = () => {
   const pipelineCache = useRef({});
 
   // ─── Derived / memoized ────────────────────────────────────────────────────
+  const filteredBoardColumns = useMemo(() => {
+    const search = searchText.toLowerCase();
+    if (!search) return boardColumns;
+    return boardColumns.map((col) => ({
+      ...col,
+      children: col.children.filter(
+        (item) =>
+          item.clientName?.toLowerCase().includes(search) ||
+          item.leadCode?.toLowerCase().includes(search) ||
+          item.leadType?.toLowerCase().includes(search) ||
+          item.contactNumber?.toLowerCase().includes(search),
+      ),
+    }));
+  }, [searchText, boardColumns]);
 
   const filteredData = useMemo(() => {
     const search = searchText.toLowerCase();
@@ -250,7 +280,6 @@ const SuperLeads = () => {
     [],
   );
 
-  // ✅ Fetch pipeline leads — uses cache to avoid duplicate API calls
   const fetchPipelineLeads = useCallback(
     async (pipelineId, pipelineNameParam = "") => {
       const userId = getStoredUserId();
@@ -261,11 +290,9 @@ const SuperLeads = () => {
 
         let leadsRes, stagesRes;
 
-        // ✅ Use cache if available
         if (pipelineCache.current[pipelineId]) {
           ({ leadsRes, stagesRes } = pipelineCache.current[pipelineId]);
         } else {
-          // ✅ Parallel fetch — single Promise.all, not two sequential calls
           [leadsRes, stagesRes] = await Promise.all([
             GETstagesleaddatabypipeline(pipelineId, userId),
             Getstagesbypipeline(pipelineId, userId),
@@ -319,6 +346,10 @@ const SuperLeads = () => {
     [buildBoardFromPipeline],
   );
 
+  useEffect(() => {
+    localStorage.setItem("superLeadsViewMode", viewMode);
+  }, [viewMode]);
+
   // ✅ Invalidate cache after mutations (move, assign, delete, follow-up)
   const invalidateAndRefetch = useCallback(
     (pipelineId, pipelineName = "") => {
@@ -332,11 +363,11 @@ const SuperLeads = () => {
   const fetchStagesForPipeline = useCallback(async (pipelineId) => {
     const userId = getStoredUserId();
     if (!userId) return;
+
     try {
       setIsStagesLoading(true);
       setSelectedStageId("");
 
-      // ✅ Reuse cached stagesRes if already fetched for this pipeline
       let stagesRes;
       if (pipelineCache.current[pipelineId]?.stagesRes) {
         stagesRes = pipelineCache.current[pipelineId].stagesRes;
@@ -344,10 +375,16 @@ const SuperLeads = () => {
         stagesRes = await Getstagesbypipeline(pipelineId, userId);
       }
 
+      const responseData = stagesRes?.data?.data || {};
+      console.log("Stages API response:", responseData);
+
       const allStages = [];
-      Object.entries(stagesRes?.data?.data || {}).forEach(
-        ([groupKey, stageList]) => {
-          stageList.forEach((stage) => {
+
+      const orderedKeys = ["open_stage", "close_close"];
+
+      orderedKeys.forEach((groupKey) => {
+        if (responseData[groupKey]) {
+          responseData[groupKey].forEach((stage) => {
             allStages.push({
               id: stage.stageId,
               name: stage.stageName,
@@ -355,8 +392,9 @@ const SuperLeads = () => {
               group: groupKey,
             });
           });
-        },
-      );
+        }
+      });
+
       setStages(allStages);
     } catch (err) {
       console.error("Failed to fetch stages:", err);
@@ -443,43 +481,88 @@ const SuperLeads = () => {
   );
 
   // ─── Filter helpers ───────────────────────────────────────────────────────
+  const handleStageChange = useCallback(
+    async (e) => {
+      const stageName = e.target.value; // dynamic string e.g. "Negotiation", "Qualified", "hot"
+      setSelectedStageId(stageName);
+      setSelectedAssignId("");
 
-  const handleStageChange = useCallback((e) => {
-    const stageId = e.target.value;
-    setSelectedStageId(stageId);
-    setSelectedAssignId("");
+      // ── Reset ──
+      if (!stageName) {
+        setFilteredByStage(null);
+        const cols = originalBoardColumnsRef.current;
+        setBoardColumns(cols);
+        setTableData(
+          cols
+            .flatMap((col) => col.children)
+            .map((l, i) => ({
+              ...l,
+              sr_no: i + 1,
+              leadAssign: l.leadAssignName || "-",
+              productType: l.planName || "-",
+              cityName: l.city || l.cityName || "-",
+              stage: l.stage || "-",
+            })),
+        );
+        return;
+      }
 
-    if (!stageId) {
-      setFilteredByStage(null);
-      const cols = originalBoardColumnsRef.current;
-      setBoardColumns(cols);
-      setTableData(
-        cols
-          .flatMap((col) => col.children)
-          .map((l, i) => ({
-            ...l,
-            sr_no: i + 1,
-            leadAssign: l.leadAssignName || "-",
-            productType: l.planName || "-",
-            cityName: l.city || l.cityName || "-",
-            stage: l.stage || "-",
-          })),
-      );
-      return;
-    }
+      try {
+        setIsFilterLoading(true);
+        const userId = getStoredUserId();
 
-    const filtered = originalBoardColumnsRef.current
-      .flatMap((c) => c.children)
-      .filter((l) => String(l.stageId) === String(stageId));
-    setFilteredByStage(filtered);
-    setBoardColumns(
-      originalBoardColumnsRef.current.map((col) =>
-        String(col.stageId) === String(stageId)
-          ? col
-          : { ...col, children: [] },
-      ),
-    );
-  }, []);
+        const response = await Getstageleaddatabypipelineidandstage(
+          selectedPipelineId,
+          stageName, // ✅ dynamic stage name from stages API
+          userId,
+        );
+
+        const data = response?.data?.data;
+
+        // ── Flatten all leads from API response ──
+        const allLeads = [
+          ...Object.values(data?.open_lead || {}).flat(),
+          ...Object.values(data?.close_lead || {}).flat(),
+        ].map((lead, i) => ({
+          ...lead,
+          id: String(lead.leadId),
+          leadId: lead.leadId,
+          sr_no: i + 1,
+          title: lead.clientName,
+          contact: lead.clientContactNo || "-",
+          subtitle: lead.leadCode,
+          assignedTo: lead.leadAssignName,
+          amount: lead.estimateAmount || 0,
+          city: lead.city || "-",
+          cityName: lead.city || "-",
+          stage: lead.stage || "-",
+          leadAssign: lead.leadAssignName || "-",
+          productType: lead.planName || "-",
+          pipelineName: lead.pipelineName || activePipeline?.name || "-",
+          closeDate: lead.closeDate || "-",
+          description: lead.description || "-",
+        }));
+
+        const leadIdSet = new Set(allLeads.map((l) => l.leadId));
+
+        // ── Update board: keep only columns/leads that match API response ──
+        const filteredCols = originalBoardColumnsRef.current.map((col) => ({
+          ...col,
+          children: col.children.filter((l) => leadIdSet.has(l.leadId)),
+        }));
+
+        setBoardColumns(filteredCols);
+        setFilteredByStage(allLeads);
+        setTableData(allLeads);
+      } catch (err) {
+        console.error("Failed to fetch stage leads:", err);
+        Swal.fire("Error", "Failed to load stage leads.", "error");
+      } finally {
+        setIsFilterLoading(false);
+      }
+    },
+    [selectedPipelineId, activePipeline],
+  );
 
   const handleMemberChange = useCallback((e) => {
     const assignId = e.target.value;
@@ -585,6 +668,7 @@ const SuperLeads = () => {
         ...fullLeadData,
         leadId: fullLeadData.id,
         title: fullLeadData.clientName,
+        contact: fullLeadData.clientContactNo || "-",
         subtitle: fullLeadData.leadCode,
         assignedTo: fullLeadData.leadAssignName || "-",
         city: fullLeadData.cityName || "-",
@@ -754,6 +838,7 @@ const SuperLeads = () => {
 
   const handleSaveFollowUp = useCallback(
     async (followUpData) => {
+      setIsFollowUpSaving(true);
       try {
         const response = await GetLeadByID(selectedLeadForFollowUp.leadId);
         const fullLeadData = response?.data?.data?.[0];
@@ -848,6 +933,8 @@ const SuperLeads = () => {
       } catch (error) {
         console.error("Error saving follow-up:", error);
         Swal.fire("Error", "Failed to save follow-up", "error");
+      } finally {
+        setIsFollowUpSaving(false); // ← ADD
       }
     },
     [
@@ -1024,6 +1111,7 @@ const SuperLeads = () => {
         Number(selectedManager),
         assignCloseDate,
         assignDescription,
+        expirationDate,
       );
       Swal.close();
       const apiData = response?.data || response;
@@ -1096,30 +1184,62 @@ const SuperLeads = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[
             {
-              label: "Total New Inquire Leads",
-              value: stats.total,
+              label: "New Inquiry Leads",
+              value: stats.newInquiry || stats.total || 0,
               bg: "bg-blue-100",
-              icon: "/media/icons/lead1.png",
+              iconBg: "text-blue-600",
+              Icon: ClipboardList,
             },
             {
               label: "Hot Leads",
-              value: stats.hot,
+              value: stats.hot || 0,
               bg: "bg-[#FEE2E2]",
-              icon: "/media/icons/lead2.png",
+              iconBg: "text-red-500",
+              Icon: Flame,
+            },
+            {
+              label: "Cold Leads",
+              value: stats.cold || 0,
+              bg: "bg-[#E0F2FE]",
+              iconBg: "text-sky-500",
+              Icon: Snowflake,
+            },
+            {
+              label: "Proposal Send Leads",
+              value: stats.proposalSend || 0,
+              bg: "bg-[#FEF9C3]",
+              iconBg: "text-yellow-500",
+              Icon: Send,
+            },
+            {
+              label: "Demo Leads",
+              value: stats.demo || 0,
+              bg: "bg-[#D1FAE5]",
+              iconBg: "text-green-500",
+              Icon: Monitor,
+            },
+            {
+              label: "Follow Up Leads",
+              value: stats.followUp || 0,
+              bg: "bg-[#FDE68A]",
+              iconBg: "text-amber-500",
+              Icon: Bell,
             },
             {
               label: "Won Leads",
-              value: stats.wonCount,
-              bg: "bg-[#FEF9C3]",
-              icon: "/media/icons/lead3.png",
+              value: stats.wonCount || 0,
+              bg: "bg-[#DCFCE7]",
+              iconBg: "text-emerald-600",
+              Icon: Trophy,
             },
             {
               label: "Lost Leads",
-              value: stats.lostCount,
+              value: stats.lostCount || 0,
               bg: "bg-[#F3E8FF]",
-              icon: "/media/icons/lead4.png",
+              iconBg: "text-purple-500",
+              Icon: XCircle,
             },
-          ].map(({ label, value, bg, icon }) => (
+          ].map(({ label, value, bg, iconBg, Icon }) => (
             <div
               key={label}
               className="bg-white p-5 rounded-lg shadow-sm border flex items-start justify-between"
@@ -1131,11 +1251,7 @@ const SuperLeads = () => {
               <div
                 className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center`}
               >
-                <img
-                  src={toAbsoluteUrl(icon)}
-                  alt="icon"
-                  className="w-6 h-6 object-contain"
-                />
+                <Icon className={`w-6 h-6 ${iconBg}`} />
               </div>
             </div>
           ))}
@@ -1172,17 +1288,20 @@ const SuperLeads = () => {
                 )}
               </select>
 
+              {/* In JSX — change value from s.id to s.name */}
               <select
                 value={selectedStageId}
                 onChange={handleStageChange}
                 className="px-2 py-2 border border-gray-300 rounded-md"
-                disabled={isStagesLoading || stages.length === 0}
+                disabled={isStagesLoading || isFilterLoading}
               >
                 <option value="">
                   {isStagesLoading ? "Loading stages..." : "All Stages"}
                 </option>
                 {stages.map((s) => (
-                  <option key={s.id} value={String(s.id)}>
+                  <option key={s.id} value={s.name}>
+                    {" "}
+                    {/* ✅ value = name string, key = id */}
                     {s.name}
                   </option>
                 ))}
@@ -1261,7 +1380,7 @@ const SuperLeads = () => {
 
         {/* Status Badges */}
         {viewMode === 0 && (
-          <div className="flex flex-wrap justify-center items-end gap-2 mb-3">
+          <div className="flex flex-wrap justify-start items-end gap-2 mb-3">
             <div className="flex flex-wrap gap-2">
               {[
                 {
@@ -1369,7 +1488,7 @@ const SuperLeads = () => {
                 </div>
               ) : (
                 <DragAndDrop
-                  columns={boardColumns}
+                  columns={filteredBoardColumns}
                   setColumns={setBoardColumns}
                   setDndActive={setDndActive}
                   onLeadDropped={handleLeadDropped}
@@ -1452,6 +1571,7 @@ const SuperLeads = () => {
             leadData={selectedLeadForFollowUp}
             existingFollowUps={selectedLeadForFollowUp.followUps}
             onRefresh={refreshFollowUps}
+            isSaving={isFollowUpSaving}
           />
         )}
 
@@ -1462,6 +1582,7 @@ const SuperLeads = () => {
               setIsAssignModalOpen(false);
               setSelectedManager("");
               setAssignCloseDate("");
+              setExpirationDate("");
               setAssignDescription("");
             }}
             managers={managers}
@@ -1469,6 +1590,8 @@ const SuperLeads = () => {
             setSelectedManager={setSelectedManager}
             closeDate={assignCloseDate}
             setCloseDate={setAssignCloseDate}
+            expirationDate={expirationDate}
+            setExpirationDate={setExpirationDate}
             description={assignDescription}
             setDescription={setAssignDescription}
             onSave={handleSaveAssignment}

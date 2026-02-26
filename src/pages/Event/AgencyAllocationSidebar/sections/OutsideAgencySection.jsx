@@ -160,14 +160,10 @@ export default function OutsideAgencySection({
 
       return true;
     },
-    // ✅ removed menuItems from deps — reads from ref instead
     [selectedItems],
   );
 
-  // ✅ KEY FIX: Update internal state only, do NOT call onDataUpdate here.
-  // onDataUpdate (parent notification) only happens on Save.
-  // This prevents the parent from re-rendering and passing a new menuItems
-  // prop reference back down, which was resetting the child's local input state.
+  
   const handleMenuItemUpdate = useCallback((menuIndex, updatedMenuItem) => {
     const initialItem = initialMenuItemsRef.current[menuIndex];
     if (
@@ -178,22 +174,18 @@ export default function OutsideAgencySection({
       changedPaxItemsRef.current.add(itemKey);
     }
 
-    // ✅ Use functional update — no stale closure, no menuItems dep needed
     setMenuItems((prev) => {
       const updatedData = [...prev];
       updatedData[menuIndex] = updatedMenuItem;
       return updatedData;
     });
 
-    // ✅ DO NOT call onDataUpdate here — calling it causes parent re-render
-    // → new menuItems prop → child useEffect resets inputs.
-    // Parent gets latest data via buildPayload() on Save.
-  }, []); // ✅ empty deps — stable reference, never recreated
+    
+  }, []); 
 
   const buildPayload = useCallback(() => {
     const userId = Number(localStorage.getItem("userId"));
 
-    // ✅ Read from ref for latest data
     return menuItemsRef.current.map((menuItem) => {
       const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
       const isPaxChange = changedPaxItemsRef.current.has(itemKey);
@@ -234,7 +226,7 @@ export default function OutsideAgencySection({
           })) || [],
       };
     });
-  }, []); // ✅ reads from ref, no deps needed
+  }, []); 
 
   const handleSave = async () => {
     try {
@@ -257,7 +249,6 @@ export default function OutsideAgencySection({
           JSON.stringify(menuItemsRef.current),
         );
 
-        // ✅ Notify parent ONLY on successful save
         if (onDataUpdate) {
           onDataUpdate(menuItemsRef.current);
         }

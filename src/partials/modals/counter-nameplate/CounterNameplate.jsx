@@ -45,8 +45,17 @@ const CounterNameplate = ({
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [numberOfColumns, setNumberOfColumns] = useState(1);
-  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState(10);
-  
+  const [numberOfItemsPerPage, setNumberOfItemsPerPage] = useState(5);
+
+  const col1Items = [5, 6, 7, 8, 9];
+  const col2Items = [10, 12, 14, 16, 18];
+
+  const handleColumnChange = (val) => {
+    setNumberOfColumns(val);
+    // reset items to first option of selected column
+    setNumberOfItemsPerPage(val === 2 ? 10 : 5);
+  };
+
   useEffect(() => {
     if (isModalOpen && eventId && eventFunctionId && userId) {
       fetchItemdata();
@@ -163,7 +172,7 @@ const CounterNameplate = ({
       const payload = {
         categoryFontSize: 0,
         itemFontSize: 0,
-      
+
         eventFunctionId: Number(eventFunctionId),
         eventId: Number(eventId),
         userId: Number(userId),
@@ -215,7 +224,6 @@ const CounterNameplate = ({
       formData.append("lang", currentlang);
       formData.append("userId", userId);
       formData.append("twoLanugage", twoLanugage);
-      formData.append("withLogo", withLogo ? 1 : 0);
 
       const res = await GenerateNamePlateReport(formData);
       const url = res.data?.report_path;
@@ -237,39 +245,46 @@ const CounterNameplate = ({
     <CustomModal
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
-      title={withLogo ? "Counter Name Plate With Logo Report" : "Counter Name Plate Report"}
+      title={
+        withLogo ? "Counter Name Plate With Logo" : "Counter Name Plate Report"
+      }
       width={1000}
       footer={
-      <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
-        {/* <button
+        <div className="flex justify-between items-center px-6 py-4 border-t bg-white">
+          {/* <button
           className="btn btn-light flex items-center gap-2"
           onClick={() => handleSave()}
         >
           <Save size={16} /> Save
         </button> */}
 
-        <div className="flex gap-3">
-          {/* <button
+          <div className="flex gap-3">
+            {/* <button
             className="btn btn-primary"
             onClick={() => callPrintApi({ twoLanugage: 0 })}
           >
             Print
           </button> */}
-          <button
-            className="btn btn-primary flex items-center gap-2"
-            onClick={() => handleSave({ printAfterSave: true, twoLanugage: 0 })}
-          >
-            <Printer size={16} /> Save & Print
-          </button>
+            <button
+              className="btn btn-primary flex items-center gap-2"
+              onClick={() =>
+                handleSave({ printAfterSave: true, twoLanugage: 0 })
+              }
+            >
+              <Printer size={16} /> Save & Print
+            </button>
 
-          <button
-            className="btn btn-primary"
-            onClick={() => handleSave({ printAfterSave: true, twoLanugage: 1 })}
-          >
-            Two Language PDF
-          </button>
+            <button
+              className="btn btn-primary"
+              onClick={() =>
+                handleSave({ printAfterSave: true, twoLanugage: 1 })
+              }
+            >
+              Two Language PDF
+            </button>
+          </div>
         </div>
-      </div>}
+      }
     >
       <div className="max-h-[420px] overflow-y-auto pr-2">
         {/* Language Selector */}
@@ -313,49 +328,44 @@ const CounterNameplate = ({
         </div>
 
         {/* Agency & Items Dropdowns */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          {/* Agency */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-1">
+              Column
+            </label>
 
-{/* Agency */}
-<div>
-  <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-1">
-     Column 
-  </label>
-
-  <select
-  value={numberOfColumns}
-  onChange={(e) => setNumberOfColumns(Number(e.target.value))}
-  className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-white
+            <select
+              value={numberOfColumns}
+              onChange={(e) => handleColumnChange(Number(e.target.value))}
+              className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-white
              focus:outline-none focus:ring-2 focus:ring-primary"
->
-  <option value={1}>1 Column</option>
-  <option value={2}>2 Column</option>
-</select>
+            >
+              <option value={1}>1 Column</option>
+              <option value={2}>2 Column</option>
+            </select>
+          </div>
 
-</div>
+          {/* Items */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-1">
+              Items
+            </label>
 
-{/* Items */}
-<div>
-  <label className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-1">
-     Items
-  </label>
-
-  <select
-  value={numberOfItemsPerPage}
-  onChange={(e) => setNumberOfItemsPerPage(Number(e.target.value))}
-  className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50
+            <select
+              value={numberOfItemsPerPage}
+              onChange={(e) => setNumberOfItemsPerPage(Number(e.target.value))}
+              className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50
              focus:outline-none focus:ring-2 focus:ring-primary"
->
-  <option value={10}>10</option>
-  <option value={12}>12</option>
-  <option value={14}>14</option>
-  <option value={16}>16</option>
-  <option value={18}>18</option>
-</select>
-
-</div>
-
-</div>
-
+            >
+              {(numberOfColumns === 2 ? col2Items : col1Items).map((val) => (
+                <option key={val} value={val}>
+                  {val}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="counters">

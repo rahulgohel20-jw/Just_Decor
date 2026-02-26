@@ -287,47 +287,48 @@ export default function SelectMenureport({
     }
 
     if (
-  isNamePlateTheme &&
-  template.isNamePlate &&
-  template.namePlateType === "Counter Name Plate With Logo"
-) {
-  setIsModalOpenWithLogo(true);
-  return;
-}
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Counter Name Plate With Logo"
+    ) {
+      setIsModalOpen(true);
+      return;
+    }
 
-    // 🔄 BACKEND WORKAROUND: Backend sends "Table Menu" but it's actually Main Standy data
-    // So when backend says "Table Menu" → Open MainStandyMenuReport
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Table Menu"
     ) {
-      setOpenNamePlate(true); // Opens MainStandyMenuReport
+      setOpenNamePlate(true);
       return;
     }
 
-    // 🔄 BACKEND WORKAROUND: Backend sends "Main Standy" but it's actually Table Menu data
-    // So when backend says "Main Standy" → Open NamePlateReport
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Table Menu Exclusive"
+    ) {
+      setOpenNamePlate(true);
+      return;
+    }
+
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
-      setOpenNamePlateTest(true); // Opens NamePlateReport
+      setOpenNamePlateTest(true);
       return;
     }
 
-    // Default: Normal menu report
-
     setIsMenuReportOpen(true);
   };
-  // ✅ COSTING REPORT
 
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
   };
 
-  // NEW: Handle tab change and update isNamePlateTheme
   const handleTabChange = (tabKey) => {
     setActiveTab(tabKey);
     const selectedTab = tabs.find((tab) => tab.key === tabKey);
@@ -580,7 +581,6 @@ export default function SelectMenureport({
             shadow-sm hover:shadow-md transition-all duration-300
           `}
                     >
-                      {/* Image (Left) */}
                       <div className="w-24 h-24 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
                         {template.frontPage ? (
                           <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
@@ -599,7 +599,6 @@ export default function SelectMenureport({
                         )}
                       </div>
 
-                      {/* Content (Middle) */}
                       <div className="flex-1">
                         <h3
                           className={`text-base font-bold ${
@@ -614,7 +613,6 @@ export default function SelectMenureport({
                         </p>
                       </div>
 
-                      {/* Action (Right) */}
                       <div className="flex-shrink-0 pe-3">
                         <button
                           className="btn btn-primary px-6 h-[50px] w-[200px] text-md rounded-full flex items-center justify-center"
@@ -667,15 +665,15 @@ export default function SelectMenureport({
       />
 
       <CounterNameplate
-  isModalOpen={isModalOpenWithLogo}
-  setIsModalOpen={setIsModalOpenWithLogo}
-  eventId={finalEventId}
-  eventFunctionId={selectedFunctionId}
-  currentlang={currentlang}
-  adminTemplatemoduleId={selectedModuleId || activeTab}
-  selectedTemplateId={selectedTemplateId}
-  withLogo={true}
-/>
+        isModalOpen={isModalOpenWithLogo}
+        setIsModalOpen={setIsModalOpen}
+        eventId={finalEventId}
+        eventFunctionId={selectedFunctionId}
+        currentlang={currentlang}
+        adminTemplatemoduleId={selectedModuleId || activeTab}
+        selectedTemplateId={selectedTemplateId}
+        withLogo={true}
+      />
       {openNamePlateTest && (
         <MainStandyMenuReport
           isModalOpen={openNamePlateTest}

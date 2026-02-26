@@ -1,208 +1,10 @@
-import { useState, useMemo } from "react";
-import { Input, Button, Select, Checkbox, Tag } from "antd";
-import {
-  SearchOutlined,
-  SettingOutlined,
-  FilterOutlined,
-} from "@ant-design/icons";
-import {
-  CheckCircle,
-  Clock,
-  Hourglass,
-  AlarmClock,
-  AlertTriangle,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-} from "lucide-react";
-
+import { useState, useMemo, useEffect } from "react";
+import { Input, Button, Select, Checkbox } from "antd";
+import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
+import { AlertTriangle, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { GETallpipeline, GetEmployeeperformnace } from "@/services/apiServices";
+import { BarChart } from "@mui/x-charts/BarChart";
 const { Option } = Select;
-
-/* ─────────────────────────────────────────────
-   DATA
-───────────────────────────────────────────── */
-const MEMBERS = [
-  {
-    id: 1,
-    name: "Member One",
-    role: "member",
-    under: false,
-    total: 13,
-    completed: 12,
-    inProgress: 0,
-    pending: 1,
-    late: 0,
-    overdue: 1,
-    onTime: 92,
-    efficiency: -6,
-    quality: 92,
-  },
-  {
-    id: 2,
-    name: "Gagan",
-    role: "member",
-    under: true,
-    total: 79,
-    completed: 6,
-    inProgress: 7,
-    pending: 63,
-    late: 6,
-    overdue: 70,
-    onTime: 33,
-    efficiency: -89,
-    quality: 33,
-  },
-  {
-    id: 3,
-    name: "Member Two",
-    role: "member",
-    under: false,
-    total: 7,
-    completed: 6,
-    inProgress: 0,
-    pending: 0,
-    late: 1,
-    overdue: 1,
-    onTime: 83,
-    efficiency: -14,
-    quality: 83,
-  },
-  {
-    id: 4,
-    name: "Member Six",
-    role: "member",
-    under: true,
-    total: 5,
-    completed: 4,
-    inProgress: 0,
-    pending: 1,
-    late: 2,
-    overdue: 1,
-    onTime: 50,
-    efficiency: -20,
-    quality: 50,
-  },
-  {
-    id: 5,
-    name: "Member Four",
-    role: "member",
-    under: true,
-    total: 5,
-    completed: 3,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 2,
-    onTime: 100,
-    efficiency: -40,
-    quality: 100,
-  },
-  {
-    id: 6,
-    name: "Member 7",
-    role: "member",
-    under: true,
-    total: 3,
-    completed: 3,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 0,
-    efficiency: 0,
-    quality: 0,
-  },
-  {
-    id: 7,
-    name: "Member Five",
-    role: "member",
-    under: true,
-    total: 5,
-    completed: 3,
-    inProgress: 0,
-    pending: 2,
-    late: 2,
-    overdue: 2,
-    onTime: 33,
-    efficiency: -40,
-    quality: 33,
-  },
-  {
-    id: 8,
-    name: "Member Three",
-    role: "member",
-    under: false,
-    total: 3,
-    completed: 3,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 100,
-    efficiency: 0,
-    quality: 100,
-  },
-  {
-    id: 9,
-    name: "Vikas",
-    role: "member",
-    under: true,
-    total: 22,
-    completed: 1,
-    inProgress: 2,
-    pending: 18,
-    late: 1,
-    overdue: 21,
-    onTime: 0,
-    efficiency: -95,
-    quality: 0,
-  },
-  {
-    id: 10,
-    name: "Param",
-    role: "member",
-    under: false,
-    total: 1,
-    completed: 1,
-    inProgress: 0,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 100,
-    efficiency: 0,
-    quality: 100,
-  },
-  {
-    id: 11,
-    name: "Ananya S.",
-    role: "member",
-    under: false,
-    total: 9,
-    completed: 8,
-    inProgress: 1,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 88,
-    efficiency: 5,
-    quality: 91,
-  },
-  {
-    id: 12,
-    name: "Rohan K.",
-    role: "member",
-    under: false,
-    total: 6,
-    completed: 5,
-    inProgress: 1,
-    pending: 0,
-    late: 0,
-    overdue: 0,
-    onTime: 95,
-    efficiency: -3,
-    quality: 87,
-  },
-];
 
 const AVATAR_COLORS = [
   "bg-blue-500",
@@ -219,11 +21,6 @@ const AVATAR_COLORS = [
   "bg-pink-600",
 ];
 
-const TABS = ["Individual Performance", "Team Overview", "Workload"];
-
-/* ─────────────────────────────────────────────
-   HELPERS
-───────────────────────────────────────────── */
 const getInitials = (name) =>
   name
     .split(" ")
@@ -262,9 +59,29 @@ const effBar = (v) => {
   return "bg-red-500";
 };
 
-/* ─────────────────────────────────────────────
-   PROGRESS BAR
-───────────────────────────────────────────── */
+const toDateStr = (date) => date.toISOString().split("T")[0];
+
+const getDateRange = (period) => {
+  const now = new Date();
+  const end = toDateStr(now);
+  if (period === "This Month") {
+    return {
+      start: toDateStr(new Date(now.getFullYear(), now.getMonth(), 1)),
+      end,
+    };
+  }
+  if (period === "Last 30 Days") {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 30);
+    return { start: toDateStr(d), end };
+  }
+  if (period === "This Quarter") {
+    const q = Math.floor(now.getMonth() / 3);
+    return { start: toDateStr(new Date(now.getFullYear(), q * 3, 1)), end };
+  }
+  return { start: "2020-01-01", end };
+};
+
 const ProgressBar = ({ value, colorClass }) => (
   <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mt-1.5">
     <div
@@ -274,9 +91,6 @@ const ProgressBar = ({ value, colorClass }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   AVATAR
-───────────────────────────────────────────── */
 const Avatar = ({ name, idx }) => (
   <div
     className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${AVATAR_COLORS[idx % AVATAR_COLORS.length]}`}
@@ -285,24 +99,48 @@ const Avatar = ({ name, idx }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   STAT MINI CARD (top summary)
-───────────────────────────────────────────── */
-const StatCard = ({ label, count, icon, iconBg }) => (
-  <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-    <div
-      className={`w-11 h-11 rounded-xl flex items-center justify-center mb-3 ${iconBg}`}
-    >
-      {icon}
-    </div>
-    <p className="text-gray-500 text-sm">{label}</p>
-    <h2 className="text-2xl font-bold text-gray-800">{count}</h2>
-  </div>
-);
+const MiniBarChart = ({ quality, onTime, total }) => {
+  const getColor = (label, value) => {
+    if (label === "Total") return "#3b82f6"; // blue for total
+    if (value >= 80) return "#22c55e"; // green
+    if (value >= 50) return "#f59e0b"; // amber
+    return "#ef4444"; // red
+  };
 
-/* ─────────────────────────────────────────────
-   MEMBER CARD
-───────────────────────────────────────────── */
+  const labels = ["Quality", "On-Time", "Total"];
+
+  const values = [quality, onTime, total];
+
+  return (
+    <div className="w-56">
+      <BarChart
+        height={140}
+        xAxis={[
+          {
+            scaleType: "band",
+            data: labels,
+          },
+        ]}
+        yAxis={[
+          {
+            min: 0,
+            max: Math.max(100, total), // auto adjust if total > 100
+          },
+        ]}
+        series={[
+          {
+            data: values,
+            color: "#8884d8", // default fallback
+          },
+        ]}
+        margin={{ top: 10, bottom: 30, left: 35, right: 10 }}
+        slotProps={{
+          legend: { hidden: true },
+        }}
+      />
+    </div>
+  );
+};
 const MemberCard = ({ member, idx }) => {
   const qi = qualityInfo(member.quality);
   const effSign = member.efficiency > 0 ? "+" : "";
@@ -311,8 +149,8 @@ const MemberCard = ({ member, idx }) => {
     <div
       className={`bg-white rounded-xl border shadow-sm hover:shadow-md transition p-5 ${member.under ? "border-red-200 bg-red-50/30" : "border-gray-100"}`}
     >
-      {/* ── Top Row ── */}
-      <div className="flex items-start justify-between mb-4 ">
+      {/* Top Row */}
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <Avatar name={member.name} idx={idx} />
           <div>
@@ -335,37 +173,47 @@ const MemberCard = ({ member, idx }) => {
           <div className="text-2xl font-bold text-gray-800 leading-none">
             {member.total}
           </div>
-          <div className="text-xs text-gray-900 mt-0.5">Total Tasks</div>
+          <div className="text-xs text-gray-900 mt-0.5">Total Leads</div>{" "}
         </div>
       </div>
 
-      {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-4 gap-4">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-4">
         {/* Tasks Breakdown */}
         <div>
           <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
-            Tasks
+            Leads
           </p>
           <div className="space-y-1">
             {[
-              ["Hot", member.completed, "text-gray-700"],
-              ["Cold", member.inProgress, "text-gray-700"],
+              [
+                "Hot",
+                member.hotLeads,
+                member.hotLeads > 0
+                  ? "text-orange-500 font-bold"
+                  : "text-gray-700",
+              ],
+              ["Cold", member.coldLeads, "text-gray-700"],
               [
                 "Won",
-                member.pending,
-                member.pending > 5
-                  ? "text-amber-600 font-bold"
+                member.wonLeads,
+                member.wonLeads > 0
+                  ? "text-green-600 font-bold"
                   : "text-gray-700",
               ],
               [
                 "Lost",
-                member.late,
-                member.late > 0 ? "text-amber-600 font-bold" : "text-gray-700",
+                member.lostLeads,
+                member.lostLeads > 0
+                  ? "text-red-500 font-bold"
+                  : "text-gray-700",
               ],
               [
-                "client Dmeo",
-                member.overdue,
-                member.overdue > 0 ? "text-red-500 font-bold" : "text-gray-700",
+                "Client Demo",
+                member.clientDemoLeads,
+                member.clientDemoLeads > 0
+                  ? "text-blue-500 font-bold"
+                  : "text-gray-700",
               ],
             ].map(([label, val, cls]) => (
               <div
@@ -395,7 +243,7 @@ const MemberCard = ({ member, idx }) => {
         </div>
 
         {/* Task Efficiency */}
-        <div>
+        {/* <div>
           <p className="text-xs font-semibold text-black uppercase tracking-wide mb-2">
             Task Efficiency
           </p>
@@ -417,49 +265,171 @@ const MemberCard = ({ member, idx }) => {
             colorClass={effBar(member.efficiency)}
           />
           <p className="text-xs text-gray-900 mt-1.5">Target: -20%+</p>
-        </div>
+        </div> */}
 
         {/* Quality Score */}
         <div>
           <p className="text-xs font-semibold text-black uppercase tracking-wide mb-2">
-            Quality Score
+            Performance Score
           </p>
-          <div className="text-xl font-bold text-gray-800 font-mono">
-            {member.quality}
-            <span className="text-sm text-gray-400 font-normal">/100</span>
+
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-xl font-bold text-gray-800 font-mono">
+                {member.quality}
+                <span className="text-sm text-gray-400 font-normal">/100</span>
+              </div>
+              <p className={`text-xs font-semibold mt-1.5 ${qi.color}`}>
+                {qi.label}
+              </p>
+            </div>
+            <MiniBarChart
+              quality={member.quality}
+              onTime={member.onTime}
+              total={member.total}
+            />{" "}
           </div>
-          <ProgressBar value={member.quality} colorClass={qi.bar} />
-          <p className={`text-xs font-semibold mt-1.5 ${qi.color}`}>
-            {qi.label}
-          </p>
         </div>
       </div>
     </div>
   );
 };
 
-/* ─────────────────────────────────────────────
-   MAIN PAGE
-───────────────────────────────────────────── */
 export default function EmployeePerformance() {
+  // Get userId from localStorage — adjust the key to match your app
+  const userId =
+    localStorage.getItem("userId") ??
+    JSON.parse(localStorage.getItem("user") || "{}")?.id;
+
+  // Pipeline state
+  const [pipelines, setPipelines] = useState([]);
+  const [pipelinesLoading, setPipelinesLoading] = useState(true);
+  const [selectedPipeline, setSelectedPipeline] = useState(null);
+
+  // Performance data state
+  const [members, setMembers] = useState([]);
+  const [performanceLoading, setPerformanceLoading] = useState(false);
+
+  // Filters
   const [search, setSearch] = useState("");
   const [underOnly, setUnderOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState("Individual Performance");
   const [timePeriod, setTimePeriod] = useState("All Time");
   const [sortBy, setSortBy] = useState("Completed Tasks");
   const [showCount, setShowCount] = useState(10);
   const [page, setPage] = useState(1);
 
-  /* ── Totals for summary cards ── */
-  const totalOverdue = MEMBERS.reduce((s, m) => s + m.overdue, 0);
-  const totalPending = MEMBERS.reduce((s, m) => s + m.pending, 0);
-  const totalInProgress = MEMBERS.reduce((s, m) => s + m.inProgress, 0);
-  const totalCompleted = MEMBERS.reduce((s, m) => s + m.completed, 0);
-  const totalUnder = MEMBERS.filter((m) => m.under).length;
+  /* ── Step 1: Fetch all pipelines via GETallpipeline ── */
+  useEffect(() => {
+    setPipelinesLoading(true);
+    GETallpipeline()
+      .then((res) => {
+        // ⚠️ Adjust res?.data to match your actual API response shape
+        // e.g. res?.data?.pipelines  or  res?.pipelines
+        const list = Array.isArray(res?.data?.data)
+          ? res.data.data
+          : Array.isArray(res?.data)
+            ? res.data
+            : Array.isArray(res)
+              ? res
+              : [];
+        console.log(list, "dta");
+
+        setPipelines(list);
+
+        // ✅ Auto-select first pipeline
+        if (list.length > 0) {
+          setSelectedPipeline(list[0].id);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load pipelines:", err);
+      })
+      .finally(() => {
+        setPipelinesLoading(false);
+      });
+  }, []);
+
+  /* ── Step 2: Fetch employee performance when pipeline or date changes ── */
+  useEffect(() => {
+    if (!selectedPipeline) return;
+
+    const { start, end } = getDateRange(timePeriod);
+    setPerformanceLoading(true);
+
+    GetEmployeeperformnace(start, end, userId, selectedPipeline)
+      .then((res) => {
+        const responseData = res?.data?.data?.employee_performance ?? [];
+
+        console.log("New API Response:", responseData);
+
+        // 1️⃣ Flatten all employees from all date groups
+        const allEmployees = responseData.flatMap(
+          (item) => item.employees ?? [],
+        );
+
+        // 2️⃣ Merge same employees (because same user can appear on multiple dates)
+        const employeeMap = {};
+
+        allEmployees.forEach((emp) => {
+          if (!employeeMap[emp.leadAssignId]) {
+            employeeMap[emp.leadAssignId] = { ...emp };
+          } else {
+            // Sum values if employee already exists
+            employeeMap[emp.leadAssignId].hotLeads += emp.hotLeads || 0;
+            employeeMap[emp.leadAssignId].coldLeads += emp.coldLeads || 0;
+            employeeMap[emp.leadAssignId].wonLeads += emp.wonLeads || 0;
+            employeeMap[emp.leadAssignId].lostLeads += emp.lostLeads || 0;
+            employeeMap[emp.leadAssignId].clientDemoLeads +=
+              emp.clientDemoLeads || 0;
+            employeeMap[emp.leadAssignId].onTimeDelivery +=
+              emp.onTimeDelivery || 0;
+            employeeMap[emp.leadAssignId].totalLeads += emp.totalLeads || 0;
+
+            // If qualityScore needs averaging instead of summing:
+            employeeMap[emp.leadAssignId].qualityScore =
+              (employeeMap[emp.leadAssignId].qualityScore + emp.qualityScore) /
+              2;
+          }
+        });
+
+        // 3️⃣ Convert to array and map for UI
+        const mapped = Object.values(employeeMap).map((emp) => ({
+          id: emp.leadAssignId,
+          name: emp.userName,
+          role: "member",
+          hotLeads: emp.hotLeads,
+          coldLeads: emp.coldLeads,
+          wonLeads: emp.wonLeads,
+          lostLeads: emp.lostLeads,
+          clientDemoLeads: emp.clientDemoLeads,
+          total:
+            emp.totalLeads ??
+            emp.hotLeads +
+              emp.coldLeads +
+              emp.wonLeads +
+              emp.lostLeads +
+              emp.clientDemoLeads,
+          onTime: emp.onTimeDelivery,
+          quality: emp.qualityScore,
+          efficiency: 0,
+          under: emp.qualityScore < 50 || emp.onTimeDelivery < 50,
+        }));
+
+        setMembers(mapped.length > 0 ? mapped : MEMBERS);
+      })
+      .catch((err) => {
+        console.error("Failed to load performance data:", err);
+        setMembers(MEMBERS);
+      })
+      .finally(() => {
+        setPerformanceLoading(false);
+        setPage(1);
+      });
+  }, [selectedPipeline, timePeriod]);
 
   /* ── Filtered + sorted list ── */
   const filtered = useMemo(() => {
-    let list = [...MEMBERS];
+    let list = [...members];
     if (search)
       list = list.filter((m) =>
         m.name.toLowerCase().includes(search.toLowerCase()),
@@ -470,39 +440,77 @@ export default function EmployeePerformance() {
       list.sort((a, b) => b.onTime - a.onTime);
     else if (sortBy === "Task Efficiency")
       list.sort((a, b) => b.efficiency - a.efficiency);
-    else list.sort((a, b) => b.completed - a.completed);
+    else list.sort((a, b) => b.total - a.total);
     return list;
-  }, [search, underOnly, sortBy]);
+  }, [members, search, underOnly, sortBy]);
 
   const totalPages = Math.ceil(filtered.length / showCount);
   const paginated = filtered.slice((page - 1) * showCount, page * showCount);
 
+  // Change p._id → p.id and p.name → p.pipelineName
+  const selectedPipelineName = Array.isArray(pipelines)
+    ? (pipelines.find((p) => p.id === selectedPipeline)?.pipelineName ?? "")
+    : "";
   return (
-    <div className="p-6 space-y-6  min-h-screen">
-      {/* ── Page Header ── */}
+    <div className="p-6 space-y-6 min-h-screen">
+      {/* Page Header */}
       <div className="flex items-start justify-between px-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800"> Performance</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Performance</h1>
           <p className="text-gray-500 text-sm mt-1">
-            Monitor Employee productivity and quality metrics
+            Monitor employee productivity and quality metrics
+            {selectedPipelineName && (
+              <span className="ml-1 text-blue-600 font-medium">
+                · {selectedPipelineName}
+              </span>
+            )}
           </p>
         </div>
       </div>
 
-      {/* ── Summary Cards ── */}
-
-      {/* ── Main Panel ── */}
+      {/* Main Panel */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         {/* Filters Row */}
         <div className="flex flex-wrap items-end gap-4 mb-5">
+          {/* Pipeline Dropdown — populated from GETallpipeline */}
+          <div>
+            <p className="text-xs font-semibold text-gray-700 mb-1.5">
+              Pipeline <span className="text-red-500">*</span>
+            </p>
+            <Select
+              value={selectedPipeline}
+              onChange={(v) => {
+                setSelectedPipeline(v);
+                setPage(1);
+              }}
+              style={{ width: 250 }}
+              loading={pipelinesLoading}
+              placeholder={
+                pipelinesLoading ? "Loading pipelines..." : "Select a pipeline"
+              }
+              disabled={pipelinesLoading}
+            >
+              {(Array.isArray(pipelines) ? pipelines : []).map((p) => (
+                <Option key={p.id} value={p.id}>
+                  {p.pipelineName}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Time Period — disabled until pipeline is chosen */}
           <div>
             <p className="text-xs font-semibold text-gray-700 mb-1.5">
               Time Period
             </p>
             <Select
               value={timePeriod}
-              onChange={(v) => setTimePeriod(v)}
-              style={{ width: 250 }}
+              onChange={(v) => {
+                setTimePeriod(v);
+                setPage(1);
+              }}
+              style={{ width: 200 }}
+              disabled={!selectedPipeline}
             >
               <Option value="All Time">All Time</Option>
               <Option value="This Month">This Month</Option>
@@ -510,6 +518,8 @@ export default function EmployeePerformance() {
               <Option value="This Quarter">This Quarter</Option>
             </Select>
           </div>
+
+          {/* Sort By */}
           <div>
             <p className="text-xs font-semibold text-gray-700 mb-1.5">
               Sort By
@@ -520,7 +530,7 @@ export default function EmployeePerformance() {
                 setSortBy(v);
                 setPage(1);
               }}
-              style={{ width: 250 }}
+              style={{ width: 200 }}
             >
               <Option value="Completed Tasks">Completed Tasks</Option>
               <Option value="Quality Score">Quality Score</Option>
@@ -528,22 +538,9 @@ export default function EmployeePerformance() {
               <Option value="Task Efficiency">Task Efficiency</Option>
             </Select>
           </div>
-          <div>
-            <p className="text-xs font-semibold text-gray-700 mb-1.5">
-              select Pipeline
-            </p>
-            <Select
-              value={sortBy}
-              onChange={(v) => {
-                setSortBy(v);
-                setPage(1);
-              }}
-              style={{ width: 250 }}
-            >
-              <Option value="Completed Tasks">Sales</Option>
-            </Select>
-          </div>
-          <div className=" flex items-center gap-2">
+
+          {/* Underperformers filter */}
+          <div className="flex items-center gap-2 pb-0.5">
             <Checkbox
               checked={underOnly}
               onChange={(e) => {
@@ -558,111 +555,115 @@ export default function EmployeePerformance() {
           </div>
         </div>
 
-        {/* Toolbar */}
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <Input
-            placeholder="Search team members..."
-            prefix={<SearchOutlined className="text-gray-400" />}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-72"
-          />
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Show:</span>
-              <Select
-                value={showCount}
-                onChange={(v) => {
-                  setShowCount(v);
+        {/* Prompt if no pipeline selected yet */}
+        {!selectedPipeline && !pipelinesLoading && (
+          <div className="py-12 text-center rounded-xl bg-blue-50 border border-blue-100 mb-4">
+            <p className="text-blue-600 font-semibold text-sm">
+              Please select a pipeline to view performance data
+            </p>
+            <p className="text-blue-400 text-xs mt-1">
+              Performance metrics are scoped per pipeline
+            </p>
+          </div>
+        )}
+
+        {/* Toolbar + Cards — only shown after pipeline is selected */}
+        {selectedPipeline && (
+          <>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <Input
+                placeholder="Search team members..."
+                prefix={<SearchOutlined className="text-gray-400" />}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
                   setPage(1);
                 }}
-                style={{ width: 70 }}
-              >
-                <Option value={10}>10</Option>
-                <Option value={25}>25</Option>
-                <Option value={50}>50</Option>
-              </Select>
-            </div>
-            <span className="text-sm font-semibold text-gray-700">
-              {filtered.length} members
-            </span>
-            <Button icon={<FilterOutlined />}>Filter</Button>
-          </div>
-        </div>
-
-        {/* Member Cards */}
-        {activeTab === "Individual Performance" && (
-          <div className="space-y-3">
-            {paginated.length === 0 ? (
-              <div className="text-center py-16 text-gray-400 text-sm">
-                No members found.
+                className="w-72"
+                disabled={performanceLoading}
+              />
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">Show:</span>
+                  <Select
+                    value={showCount}
+                    onChange={(v) => {
+                      setShowCount(v);
+                      setPage(1);
+                    }}
+                    style={{ width: 70 }}
+                  >
+                    <Option value={10}>10</Option>
+                    <Option value={25}>25</Option>
+                    <Option value={50}>50</Option>
+                  </Select>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">
+                  {filtered.length} members
+                </span>
               </div>
-            ) : (
-              paginated.map((m) => (
-                <MemberCard
-                  key={m.id}
-                  member={m}
-                  idx={MEMBERS.findIndex((x) => x.id === m.id)}
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activeTab === "Team Overview" && (
-          <div className="py-16 text-center text-gray-400 text-sm">
-            Team Overview coming soon.
-          </div>
-        )}
-
-        {activeTab === "Workload" && (
-          <div className="py-16 text-center text-gray-400 text-sm">
-            Workload view coming soon.
-          </div>
-        )}
-
-        {/* Pagination */}
-        {activeTab === "Individual Performance" && filtered.length > 0 && (
-          <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100 flex-wrap gap-3">
-            <span className="text-sm text-gray-500">
-              Showing {(page - 1) * showCount + 1} to{" "}
-              {Math.min(page * showCount, filtered.length)} of {filtered.length}{" "}
-              members
-            </span>
-            <div className="flex items-center gap-1.5">
-              <Button
-                size="small"
-                disabled={page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                ← Previous
-              </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                    ${
-                      page === p
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
-              <Button
-                size="small"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next →
-              </Button>
             </div>
-          </div>
+
+            {/* Member Cards */}
+            <div className="space-y-3">
+              {performanceLoading ? (
+                <div className="text-center py-16 text-gray-400 text-sm">
+                  <div className="inline-block w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mb-2" />
+                  <p>Loading performance data...</p>
+                </div>
+              ) : paginated.length === 0 ? (
+                <div className="text-center py-16 text-gray-400 text-sm">
+                  No members found.
+                </div>
+              ) : (
+                paginated.map((m) => (
+                  <MemberCard
+                    key={m.id}
+                    member={m}
+                    idx={members.findIndex((x) => x.id === m.id)}
+                  />
+                ))
+              )}
+            </div>
+
+            {/* Pagination */}
+            {!performanceLoading && filtered.length > 0 && (
+              <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100 flex-wrap gap-3">
+                <span className="text-sm text-gray-500">
+                  Showing {(page - 1) * showCount + 1} to{" "}
+                  {Math.min(page * showCount, filtered.length)} of{" "}
+                  {filtered.length} members
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    size="small"
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    ← Previous
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (p) => (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors cursor-pointer ${page === p ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                      >
+                        {p}
+                      </button>
+                    ),
+                  )}
+                  <Button
+                    size="small"
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Next →
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
