@@ -148,8 +148,12 @@ const MenuReport = ({
 
         if (config.isDate === 1) setisDateStatus(1);
         if (config.isStatus == 1) {
+        if (config.isStatus == 1) {
           setShowStatusDropdown(true);
           setSelectedStatus([0, 1, 2]);
+          setShowAgencyDropdown(false);
+          setShowItemDropdown(false);
+          setShowCategoryDropdown(false);
         } else {
           setShowStatusDropdown(false);
           setSelectedStatus([]);
