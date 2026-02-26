@@ -604,6 +604,14 @@ export const superAdminMenuItems = [
     path: "/vendors",
     pageName: "Vendors",
   },
+  {
+    title: (
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Expense" />
+    ),
+    icon: "ki-filled ki-users text-primary",
+    path: "/expense",
+    pageName: "Expense",
+  },
 
   {
     title: (
