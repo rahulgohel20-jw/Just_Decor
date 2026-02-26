@@ -1770,10 +1770,10 @@ export const GETofficeexpenseById = (expenseId) => {
   return GET(`employeeexpense/getOfficeExpenseByExpenseId?expenseId=${expenseId}`);
 };
 
-export const updatepayoutforoffice = (expenseId, payoutType) => {
+export const updatepayoutforoffice = (expenseId, payoutType , payoutAmount) => {
   return PUT(`employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
 };
 
-export const updatepayoutforTrip = (expenseId, payoutType) => {
-  return PUT(`employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
+export const updatepayoutforTrip = (expenseId, payoutType , payoutAmount) => {
+  return PUT(`employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}&payoutAmount=${payoutAmount}`);
 };
