@@ -227,6 +227,14 @@ import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
 import EmployeePerformance from "../pages/super-admin/employeeDashboard/Employeeperformance";
 import TeamPerformance from "../pages/super-admin/employeeDashboard/Teamperformance";
 import VendorSignup from "../vendorsignup/VendorSignup";
+import StockType from "../pages/stockmanagement/stocktype/StockType";
+import Purchase from "../pages/stockmanagement/purchase/Purchase";
+import AddPurchase from "../pages/stockmanagement/purchase/AddPurchase";
+import PurchaseReturn from "../pages/stockmanagement/purchasereturn/PurchaseReturn";
+import AddPurchaseReturn from "../pages/stockmanagement/purchasereturn/AddPurchaseReturn";
+import StorePo from "../pages/stockmanagement/storepo/StorePo";
+import AddStorePO from "../pages/stockmanagement/storepo/AddStorePO";
+import StoreLedger from "../pages/stockmanagement/storeledger/StoreLedger";
 import AllExpense from "../pages/super-admin/Expense";
 const AppRoutingSetup = () => {
   return (
@@ -384,6 +392,19 @@ const AppRoutingSetup = () => {
             path="/master/contact-categories"
             element={<ContactCategoryMaster />}
           />
+
+          {/* Stock Management Route */}
+          <Route path="/stock-management/stock-type" element={<StockType />} />
+          <Route path="/stock-management/purchase" element={<Purchase />} />
+          <Route path="/stock-management/purchase/add" element={<AddPurchase />} />
+          <Route path="/stock-management/purchase-return" element={<PurchaseReturn />} />
+          <Route path="/stock-management/purchase-return/add" element={<AddPurchaseReturn />} />
+          <Route path="/stock-management/store-po" element={<StorePo />} />
+          <Route path="/stock-management/storepo/add" element={<AddStorePO />} />
+          <Route path="/stock-management/store-ledger" element={<StoreLedger />} />
+
+
+
           <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/venue-type" element={<VenuetypeMaster />} />
           <Route path="/master/godown" element={<GodownMaster />} />
