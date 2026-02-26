@@ -1702,3 +1702,47 @@ export const GetEmployeeDashBoard = (startDate, endDate, userId) => {
 export const GetEmployeeperformnace = (startDate, endDate, userId , pipelineId) => {
   return GET(`pipeline/getEmployeePerformance?userId=${userId}&startDate=${startDate}&endDate=${endDate}&pipelineId=${pipelineId}`);
 };
+
+export const GETAllCity = () => {
+  return GET(`citymaster/getall`);
+};
+export const Addupdateemployeeexpense = (data) => {
+  return POST(`employeeexpense/addOrUpdateTripExpense`, data);
+};
+
+
+export const GEtEmployeeExpensebytype = (userId, expenseType) => {
+  return GET(`employeeexpense/getTripExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`);
+};
+
+export const AddOrUpdateOfficeExpense = (data) => {
+  return POST(`employeeexpense/addOrUpdateOfficeExpense`, data);
+};
+
+export const GEtEmpofficeExpensebytype = (userId, expenseType) => {
+  return GET(`employeeexpense/getOfficeExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`);
+}
+
+export const DeleteEmployeeExpenseoffice = (expenseId) => {
+  return DELETE(`employeeexpense/deleteOfficeExpense?expenseId=${expenseId}`);
+};
+
+export const DeleteEmployeeExpenseTrip = (expenseId) => {
+  return DELETE(`employeeexpense/deleteTripExpense?expenseId=${expenseId}`);
+}
+
+export const GETtripexpenseById = (expenseId) => {
+  return GET(`employeeexpense/getTripExpenseByExpenseId?expenseId=${expenseId}`);
+}
+
+export const GETofficeexpenseById = (expenseId) => {
+  return GET(`employeeexpense/getOfficeExpenseByExpenseId?expenseId=${expenseId}`);
+};
+
+export const updatepayoutforoffice = (expenseId, payoutType) => {
+  return PUT(`employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
+};
+
+export const updatepayoutforTrip = (expenseId, payoutType) => {
+  return PUT(`employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
+};

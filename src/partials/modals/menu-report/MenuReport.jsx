@@ -147,12 +147,12 @@ const MenuReport = ({
         }
 
         if (config.isDate === 1) setisDateStatus(1);
-       if (config.isStatus == 1) {
+        if (config.isStatus == 1) {
           setShowStatusDropdown(true);
-  setSelectedStatus([0, 1, 2]); 
+          setSelectedStatus([0, 1, 2]);
         } else {
           setShowStatusDropdown(false);
-  setSelectedStatus([]); 
+          setSelectedStatus([]);
         }
 
         setOptions({
@@ -345,6 +345,15 @@ const MenuReport = ({
     visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
   const handleReport = async () => {
+    console.log("🎯 Menu Report Props:", {
+      eventId,
+      eventFunctionId,
+      moduleId,
+      mappingId,
+      selectedTemplateId,
+      isAdminModuleReport,
+    });
+
     if (isNamePlateTheme) {
       setShowNamePlateUI(true);
       return;
@@ -359,7 +368,9 @@ const MenuReport = ({
     const payload = {
       eventId,
       eventFunctionId: eventFunctionId ?? -1,
-      adminTemplateModuleId: selectedTemplateId ?? 0,
+      adminTemplateModuleId: isAdminModuleReport
+        ? (selectedTemplateId ?? mappingId) // sends 446
+        : (selectedTemplateId ?? 0),
       type: reportType || null,
       userId,
       lang:
@@ -408,7 +419,7 @@ const MenuReport = ({
 
     setLoading(true);
     try {
-      const { data } = await AddExclusiveReport(formData);                             
+      const { data } = await AddExclusiveReport(formData);
       if (data?.success && data?.report_path) {
         successMsgPopup(data?.msg || "Report generated");
         setPdfUrl(data?.report_path);

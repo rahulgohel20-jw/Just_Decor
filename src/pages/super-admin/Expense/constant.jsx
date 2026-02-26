@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Tooltip } from "antd";
 import { FormattedMessage } from "react-intl";
+import ReactDOM from "react-dom";
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 const avatarColors = [
@@ -42,10 +43,11 @@ const statusStyles = {
     border: "border-orange-400",
     dot: "bg-orange-400",
   },
-  unpaid: {
-    text: "text-blue-600",
-    border: "border-blue-400",
-    dot: "bg-blue-500",
+  Unpaid: {
+    // ✅ FIXED (capital U)
+    text: "text-red-600",
+    border: "border-red-400",
+    dot: "bg-red-500",
   },
 };
 
@@ -66,79 +68,87 @@ const StatusBadge = ({ status }) => {
 };
 
 // ─── Payout Button with inline Yes / No confirm popover ───────────────────────
-const PayoutButton = ({ onPayout }) => {
-  const [confirm, setConfirm] = useState(false);
-  const ref = useRef(null);
 
-  // Close popover on outside click
+const PayoutButton = ({ onPayout }) => {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef(null);
+  const dropRef = useRef(null);
+
+  // Position the dropdown relative to the button using fixed coords
+  const openDropdown = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPos({
+        top: rect.bottom + 4,
+        left: rect.right - 160, // 160 = dropdown width (w-40)
+      });
+    }
+    setOpen((v) => !v);
+  };
+
   useEffect(() => {
     const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setConfirm(false);
+      if (
+        dropRef.current &&
+        !dropRef.current.contains(e.target) &&
+        btnRef.current &&
+        !btnRef.current.contains(e.target)
+      ) {
+        setOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const handleSelect = (status) => {
+    onPayout?.(status);
+    setOpen(false);
+  };
+
   return (
-    <div className="relative" ref={ref}>
-      {/* Payout Icon Button */}
-      <Tooltip title="Payout">
+    <>
+      <Tooltip title="Update Payout Status">
         <button
+          ref={btnRef}
           type="button"
-          onClick={() => setConfirm((v) => !v)}
+          onClick={openDropdown}
           className="btn btn-sm btn-icon btn-clear"
         >
-          {/* Wallet / payout icon */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-4 h-4 text-blue-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <i className="ki-filled ki-wallet text-blue-600" />
         </button>
       </Tooltip>
 
-      {/* Yes / No Confirm Popover */}
-      {confirm && (
-        <div className="absolute right-0 z-50 mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 p-3">
-          <p className="text-xs font-semibold text-gray-700 mb-0.5">
-            Confirm Payout?
-          </p>
-          <p className="text-xs text-gray-400 mb-3">
-            This action cannot be undone.
-          </p>
-          <div className="flex gap-2">
+      {open &&
+        ReactDOM.createPortal(
+          <div
+            ref={dropRef}
+            style={{ top: pos.top, left: pos.left }}
+            className="fixed z-[9999] w-40 bg-white rounded-xl shadow-lg border border-gray-100 p-2"
+          >
             <button
-              type="button"
-              onClick={() => {
-                onPayout?.();
-                setConfirm(false);
-              }}
-              className="flex-1 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold border-0 cursor-pointer transition"
+              onClick={() => handleSelect("Paid")}
+              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-emerald-50 text-emerald-600 font-medium"
             >
-              Yes
+              ✅ Paid
             </button>
             <button
-              type="button"
-              onClick={() => setConfirm(false)}
-              className="flex-1 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold border-0 cursor-pointer transition"
+              onClick={() => handleSelect("Pending")}
+              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-orange-50 text-orange-600 font-medium"
             >
-              No
+              ⏳ Pending
             </button>
-          </div>
-        </div>
-      )}
-    </div>
+            <button
+              onClick={() => handleSelect("Unpaid")}
+              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-600 font-medium"
+            >
+              ❌ Unpaid
+            </button>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 };
 
@@ -199,13 +209,6 @@ export const columns = (
   },
 
   {
-    accessorKey: "status",
-    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
-    cell: ({ row }) => <StatusBadge status={row.original.status} />,
-    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
-  },
-
-  {
     accessorKey: "remarks",
     header: <FormattedMessage id="EXPENSE.REMARKS" defaultMessage="Remarks" />,
     cell: ({ row }) => (
@@ -239,7 +242,12 @@ export const columns = (
     ),
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
-
+  {
+    accessorKey: "status",
+    header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
+    cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
+  },
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
@@ -255,7 +263,6 @@ export const columns = (
             <i className="ki-filled ki-notepad-edit text-primary" />
           </button>
         </Tooltip>
-
         {/* Delete */}
         <Tooltip title="Delete Expense">
           <button
@@ -266,273 +273,12 @@ export const columns = (
             <i className="ki-filled ki-trash text-danger" />
           </button>
         </Tooltip>
-
         {/* Payout — icon button with inline Yes/No confirm */}
-        <PayoutButton onPayout={() => onPayout?.(row.original.id)} />
+        <PayoutButton
+          onPayout={(status) => onPayout?.(row.original.id, status)}
+        />{" "}
       </div>
     ),
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
-  },
-];
-
-// ─── Default / Mock Data ──────────────────────────────────────────────────────
-export const defaultData = [
-  {
-    id: 1,
-    sr_no: 1,
-    user: {
-      name: "Mayoralven",
-      handle: "@mayoralven",
-      email: "info@mayoralven.com",
-      phone: "+1 234-567-890",
-      role: "Senior Field Operations",
-    },
-    amount: 40689,
-    status: "Paid",
-    remarks: "info@mayoralven.com",
-    startDate: "01/02/2026",
-    dueDate: "10/02/2026",
-    totalAmount: 40689,
-    paidAmount: 28000,
-    transactions: [
-      {
-        date: "12/02/2026",
-        type: "Fuel",
-        particular: "Shell Station - MH01",
-        amount: 2400,
-        status: "Paid",
-      },
-      {
-        date: "10/02/2026",
-        type: "Travel",
-        particular: "Uber Business Trip",
-        amount: 650,
-        status: "Pending",
-      },
-      {
-        date: "08/02/2026",
-        type: "Office",
-        particular: "Supplies for Event",
-        amount: 1200,
-        status: "Unpaid",
-      },
-      {
-        date: "05/02/2026",
-        type: "Food",
-        particular: "Lunch with Client",
-        amount: 3500,
-        status: "Paid",
-      },
-      {
-        date: "01/02/2026",
-        type: "Misc",
-        particular: "Client Gift Hamper",
-        amount: 5000,
-        status: "Paid",
-      },
-    ],
-  },
-  {
-    id: 2,
-    sr_no: 2,
-    user: {
-      name: "Lionesse Yami",
-      handle: "@l.yami",
-      email: "l.yami@emviui.com",
-      phone: "+1 555-100-200",
-      role: "Account Manager",
-    },
-    amount: 1000,
-    status: "Paid",
-    remarks: "l.yami@emviui.com",
-    startDate: "01/02/2026",
-    dueDate: "10/02/2026",
-    totalAmount: 1000,
-    paidAmount: 1000,
-    transactions: [
-      {
-        date: "09/02/2026",
-        type: "Travel",
-        particular: "Flight to Pune",
-        amount: 1000,
-        status: "Paid",
-      },
-    ],
-  },
-  {
-    id: 3,
-    sr_no: 3,
-    user: {
-      name: "Christian Chang",
-      handle: "@c.chang",
-      email: "c.chang@emviui.com",
-      phone: "+1 555-300-400",
-      role: "Operations Lead",
-    },
-    amount: 1000,
-    status: "Pending",
-    remarks: "c.chang@emviui.com",
-    startDate: "01/02/2026",
-    dueDate: "10/02/2026",
-    totalAmount: 1000,
-    paidAmount: 0,
-    transactions: [
-      {
-        date: "07/02/2026",
-        type: "Office",
-        particular: "Printer Cartridges",
-        amount: 1000,
-        status: "Pending",
-      },
-    ],
-  },
-  {
-    id: 4,
-    sr_no: 4,
-    user: {
-      name: "Jade Solis",
-      handle: "@j.solis",
-      email: "j.solis@emviui.com",
-      phone: "+1 555-500-600",
-      role: "HR Manager",
-    },
-    amount: 1000,
-    status: "unpaid",
-    remarks: "j.solis@emviui.com",
-    startDate: "01/02/2026",
-    dueDate: "10/02/2026",
-    totalAmount: 1000,
-    paidAmount: 500,
-    transactions: [
-      {
-        date: "06/02/2026",
-        type: "Food",
-        particular: "Team Lunch",
-        amount: 1000,
-        status: "Paid",
-      },
-    ],
-  },
-  {
-    id: 5,
-    sr_no: 5,
-    user: {
-      name: "Claude Bowman",
-      handle: "@c.bowman",
-      email: "c.bowman@emviui.com",
-      phone: "+1 555-700-800",
-      role: "Field Executive",
-    },
-    amount: 1000,
-    status: "Pending",
-    remarks: "c.bowman@emviui.com",
-    startDate: "01/02/2026",
-    dueDate: "10/02/2026",
-    totalAmount: 1000,
-    paidAmount: 0,
-    transactions: [
-      {
-        date: "04/02/2026",
-        type: "Fuel",
-        particular: "Petrol - MH12",
-        amount: 1000,
-        status: "Pending",
-      },
-    ],
-  },
-  {
-    id: 6,
-    sr_no: 6,
-    user: {
-      name: "Aria Thompson",
-      handle: "@a.thompson",
-      email: "a.thompson@emviui.com",
-      phone: "+1 555-900-100",
-      role: "Sales Executive",
-    },
-    amount: 2500,
-    status: "Paid",
-    remarks: "a.thompson@emviui.com",
-    startDate: "03/02/2026",
-    dueDate: "12/02/2026",
-    totalAmount: 2500,
-    paidAmount: 2500,
-    transactions: [
-      {
-        date: "11/02/2026",
-        type: "Travel",
-        particular: "Cab to Airport",
-        amount: 800,
-        status: "Paid",
-      },
-      {
-        date: "10/02/2026",
-        type: "Food",
-        particular: "Client Dinner",
-        amount: 1700,
-        status: "Paid",
-      },
-    ],
-  },
-  {
-    id: 7,
-    sr_no: 7,
-    user: {
-      name: "Marcus Reid",
-      handle: "@m.reid",
-      email: "m.reid@emviui.com",
-      phone: "+1 555-200-300",
-      role: "Tech Support",
-    },
-    amount: 750,
-    status: "Pending",
-    remarks: "m.reid@emviui.com",
-    startDate: "05/02/2026",
-    dueDate: "15/02/2026",
-    totalAmount: 750,
-    paidAmount: 0,
-    transactions: [
-      {
-        date: "13/02/2026",
-        type: "Office",
-        particular: "USB Hub Purchase",
-        amount: 750,
-        status: "Pending",
-      },
-    ],
-  },
-  {
-    id: 8,
-    sr_no: 8,
-    user: {
-      name: "Priya Sharma",
-      handle: "@p.sharma",
-      email: "p.sharma@emviui.com",
-      phone: "+1 555-400-500",
-      role: "Project Manager",
-    },
-    amount: 3200,
-    status: "paid",
-    remarks: "p.sharma@emviui.com",
-    startDate: "07/02/2026",
-    dueDate: "17/02/2026",
-    totalAmount: 3200,
-    paidAmount: 1500,
-    transactions: [
-      {
-        date: "14/02/2026",
-        type: "Misc",
-        particular: "Software License",
-        amount: 2000,
-        status: "Paid",
-      },
-      {
-        date: "12/02/2026",
-        type: "Travel",
-        particular: "Metro Pass Monthly",
-        amount: 1200,
-        status: "Unpaid",
-      },
-    ],
   },
 ];

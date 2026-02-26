@@ -10,10 +10,6 @@ import {
 } from "lucide-react";
 import { ErrorMessage } from "formik";
 
-// ─── Tab Config ───────────────────────────────────────────────────────────────
-// formStyle:
-//   "simple"   → Employee / Office / Serve  (payment pills + upload + expense date)
-//   "complex"  → Trip / Other               (expense rows table, no upload bill)
 export const TAB_CONFIG = {
   employees: {
     label: "Employee Expense",
@@ -103,9 +99,9 @@ export const PAYMENT_METHODS = [
       </svg>
     ),
   },
-  { value: "card", label: "CARD", icon: <CreditCard className="w-5 h-5" /> },
-  { value: "cash", label: "CASH", icon: <Banknote className="w-5 h-5" /> },
-  { value: "bank", label: "BANK", icon: <Landmark className="w-5 h-5" /> },
+  // { value: "card", label: "CARD", icon: <CreditCard className="w-5 h-5" /> },
+  // { value: "cash", label: "CASH", icon: <Banknote className="w-5 h-5" /> },
+  // { value: "bank", label: "BANK", icon: <Landmark className="w-5 h-5" /> },
 ];
 
 // ─── Shared UI Primitives ─────────────────────────────────────────────────────

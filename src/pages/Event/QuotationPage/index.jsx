@@ -226,167 +226,174 @@ const QuotationPage = () => {
   };
 
   const FetchGetQuotation = () => {
-  GetQuotation(eventId, 0)
-    .then((res) => {
-      const apiData = res?.data?.data?.["Event Functions Quotation Details"];
+    GetQuotation(eventId, 0)
+      .then((res) => {
+        const apiData = res?.data?.data?.["Event Functions Quotation Details"];
 
-      if (apiData && apiData.length > 0) {
-        const quotationInfo = apiData[0];
+        if (apiData && apiData.length > 0) {
+          const quotationInfo = apiData[0];
 
-        const hasFunctionQuotationItems =
-          quotationInfo.functionQuotationItems &&
-          quotationInfo.functionQuotationItems.length > 0;
+          const hasFunctionQuotationItems =
+            quotationInfo.functionQuotationItems &&
+            quotationInfo.functionQuotationItems.length > 0;
 
-        const mappedData = {
-          quotationId: quotationInfo.id,
-          QuotationDate:
-            quotationInfo.quotationdate ||
-            quotationInfo.createdAt ||
-            todayDate,
-          eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
-          partyName: quotationInfo.event?.party?.nameEnglish || "",
-          billingname: quotationInfo.billingname || "",
-          gstnumber: quotationInfo.gstnumber || "",
-          duedate: quotationInfo.duedate || "",
-          venueName: quotationInfo.event?.venue?.nameEnglish || "",
-          mobileNumber: quotationInfo.event?.mobileno || "-",
-          estimateDate: quotationInfo.event?.eventStartDateTime
-            ? new Date(
-                quotationInfo.event.eventStartDateTime,
-              ).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })
-            : "",
+          const mappedData = {
+            quotationId: quotationInfo.id,
+            QuotationDate:
+              quotationInfo.quotationdate ||
+              quotationInfo.createdAt ||
+              todayDate,
+            eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
+            partyName: quotationInfo.event?.party?.nameEnglish || "",
+            billingname: quotationInfo.billingname || "",
+            gstnumber: quotationInfo.gstnumber || "",
+            duedate: quotationInfo.duedate || "",
+            venueName: quotationInfo.event?.venue?.nameEnglish || "",
+            mobileNumber: quotationInfo.event?.mobileno || "-",
+            estimateDate: quotationInfo.event?.eventStartDateTime
+              ? new Date(
+                  quotationInfo.event.eventStartDateTime,
+                ).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "",
 
-          // ✅ FIXED: Always take from functionQuotationItems when present
-          // Maps all fields correctly from the API response structure:
-          // { id, functionName, eventFunctionId, functionDate, pax, extraPax, ratePerPlate, amount, isEventFunction }
-          functions: hasFunctionQuotationItems
-            ? quotationInfo.functionQuotationItems.map((item) => ({
-                id: item.id ?? 0,                       // null id → 0 (new record)
-                eventFunctionId: item.eventFunctionId || 0, // keep for payload reference
-                name: item.functionName || "",
-                date:
-                  item.functionDate &&
-                  dayjs(item.functionDate, "DD/MM/YYYY hh:mm A").isValid()
-                    ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
-                    : null,
-                persons: item.pax != null ? item.pax.toString() : "",         // ✅ pax (100, 50)
-                extra: item.extraPax ?? 0,                                     // ✅ extraPax
-                rate: item.ratePerPlate != null
-                  ? item.ratePerPlate.toString()
-                  : "0",                                                       // ✅ ratePerPlate (0 is valid, not empty)
-                totalPrice: formatAmount(item.amount),                         // ✅ amount
-                isFromQuotationItems: item.isEventFunction === true,           // ✅ lock name/date/pax when true
-              }))
-            : quotationInfo.event?.eventFunctions?.length > 0
-              ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
-                  id: 0,
-                  name: eventFunc.function?.nameEnglish || "",
-                  date: eventFunc.functionStartDateTime
-                    ? dayjs(eventFunc.functionStartDateTime, "DD/MM/YYYY hh:mm A")
-                    : null,
-                  persons: eventFunc.pax?.toString() || "",
-                  extra: 0,
-                  rate: eventFunc.rate?.toString() || "",
-                  totalPrice:
-                    eventFunc.pax && eventFunc.rate
-                      ? eventFunc.pax * eventFunc.rate
-                      : "0",
-                  isFromQuotationItems: true,
-                }))
-              : [
-                  {
-                    id: 0,
-                    name: "",
-                    date: null,
-                    persons: "",
-                    extra: "",
-                    rate: "",
-                    totalPrice: "0",
-                    isFromQuotationItems: false,
-                  },
-                ],
-
-          taxDetails: [
-            {
-              label: "CGST",
-              percentage: quotationInfo.cgst || "0",
-              amount: quotationInfo.cgstAmnt || 0,
-            },
-            {
-              label: "SGST",
-              percentage: quotationInfo.sgst || "0",
-              amount: quotationInfo.sgstAmnt || 0,
-            },
-            {
-              label: "IGST",
-              percentage: quotationInfo.igst || "0",
-              amount: quotationInfo.igstAmnt || 0,
-            },
-            {
-              label: "Discount",
-              percentage: "0",
-              amount: quotationInfo.discount || 0,
-            },
-            {
-              label: "Round Off",
-              percentage: "0",
-              amount: quotationInfo.roundOff || 0,
-            },
-          ],
-
-          grandTotal: quotationInfo.grandTotal || 0,
-          totalPaid: quotationInfo.advancePayment || 0,
-          remainingPayment: quotationInfo.remainingAmount || 0,
-
-          advancePayments:
-            quotationInfo.eventFunctionQuotationPayments &&
-            Array.isArray(quotationInfo.eventFunctionQuotationPayments) &&
-            quotationInfo.eventFunctionQuotationPayments.length > 0
-              ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
-                  id: p.id || 0,
-                  amount: p.advancePayment || 0,
+            // ✅ FIXED: Always take from functionQuotationItems when present
+            // Maps all fields correctly from the API response structure:
+            // { id, functionName, eventFunctionId, functionDate, pax, extraPax, ratePerPlate, amount, isEventFunction }
+            functions: hasFunctionQuotationItems
+              ? quotationInfo.functionQuotationItems.map((item) => ({
+                  id: item.id ?? 0, // null id → 0 (new record)
+                  eventFunctionId: item.eventFunctionId || 0, // keep for payload reference
+                  name: item.functionName || "",
                   date:
-                    p.advancePaymentDate &&
-                    dayjs(p.advancePaymentDate, "DD/MM/YYYY hh:mm A").isValid()
-                      ? dayjs(p.advancePaymentDate, "DD/MM/YYYY hh:mm A")
+                    item.functionDate &&
+                    dayjs(item.functionDate, "DD/MM/YYYY hh:mm A").isValid()
+                      ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
                       : null,
-                  description: p.advancePaymentNotes || "",
+                  persons: item.pax != null ? item.pax.toString() : "", // ✅ pax (100, 50)
+                  extra: item.extraPax ?? 0, // ✅ extraPax
+                  rate:
+                    item.ratePerPlate != null
+                      ? item.ratePerPlate.toString()
+                      : "0", // ✅ ratePerPlate (0 is valid, not empty)
+                  totalPrice: formatAmount(item.amount), // ✅ amount
+                  isFromQuotationItems: item.isEventFunction === true, // ✅ lock name/date/pax when true
                 }))
-              : [
-                  {
+              : quotationInfo.event?.eventFunctions?.length > 0
+                ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
                     id: 0,
-                    amount: quotationInfo.advancePayment || 0,
+                    name: eventFunc.function?.nameEnglish || "",
+                    date: eventFunc.functionStartDateTime
+                      ? dayjs(
+                          eventFunc.functionStartDateTime,
+                          "DD/MM/YYYY hh:mm A",
+                        )
+                      : null,
+                    persons: eventFunc.pax?.toString() || "",
+                    extra: 0,
+                    rate: eventFunc.rate?.toString() || "",
+                    totalPrice:
+                      eventFunc.pax && eventFunc.rate
+                        ? eventFunc.pax * eventFunc.rate
+                        : "0",
+                    isFromQuotationItems: true,
+                  }))
+                : [
+                    {
+                      id: 0,
+                      name: "",
+                      date: null,
+                      persons: "",
+                      extra: "",
+                      rate: "",
+                      totalPrice: "0",
+                      isFromQuotationItems: false,
+                    },
+                  ],
+
+            taxDetails: [
+              {
+                label: "CGST",
+                percentage: quotationInfo.cgst || "0",
+                amount: quotationInfo.cgstAmnt || 0,
+              },
+              {
+                label: "SGST",
+                percentage: quotationInfo.sgst || "0",
+                amount: quotationInfo.sgstAmnt || 0,
+              },
+              {
+                label: "IGST",
+                percentage: quotationInfo.igst || "0",
+                amount: quotationInfo.igstAmnt || 0,
+              },
+              {
+                label: "Discount",
+                percentage: "0",
+                amount: quotationInfo.discount || 0,
+              },
+              {
+                label: "Round Off",
+                percentage: "0",
+                amount: quotationInfo.roundOff || 0,
+              },
+            ],
+
+            grandTotal: quotationInfo.grandTotal || 0,
+            totalPaid: quotationInfo.advancePayment || 0,
+            remainingPayment: quotationInfo.remainingAmount || 0,
+
+            advancePayments:
+              quotationInfo.eventFunctionQuotationPayments &&
+              Array.isArray(quotationInfo.eventFunctionQuotationPayments) &&
+              quotationInfo.eventFunctionQuotationPayments.length > 0
+                ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
+                    id: p.id || 0,
+                    amount: p.advancePayment || 0,
                     date:
-                      quotationInfo.advancePaymentDate &&
+                      p.advancePaymentDate &&
                       dayjs(
-                        quotationInfo.advancePaymentDate,
+                        p.advancePaymentDate,
                         "DD/MM/YYYY hh:mm A",
                       ).isValid()
-                        ? dayjs(
-                            quotationInfo.advancePaymentDate,
-                            "DD/MM/YYYY hh:mm A",
-                          )
+                        ? dayjs(p.advancePaymentDate, "DD/MM/YYYY hh:mm A")
                         : null,
-                    description: quotationInfo.advancePaymentNotes || "",
-                  },
-                ],
+                    description: p.advancePaymentNotes || "",
+                  }))
+                : [
+                    {
+                      id: 0,
+                      amount: quotationInfo.advancePayment || 0,
+                      date:
+                        quotationInfo.advancePaymentDate &&
+                        dayjs(
+                          quotationInfo.advancePaymentDate,
+                          "DD/MM/YYYY hh:mm A",
+                        ).isValid()
+                          ? dayjs(
+                              quotationInfo.advancePaymentDate,
+                              "DD/MM/YYYY hh:mm A",
+                            )
+                          : null,
+                      description: quotationInfo.advancePaymentNotes || "",
+                    },
+                  ],
 
-          notes: quotationInfo.notes || "",
-        };
+            notes: quotationInfo.notes || "",
+          };
 
-        setQuotationId(mappedData.quotationId);
-        setQuotationData(mappedData);
-        setOriginalFunctions(mappedData.functions);
-      }
-    })
-    .catch((error) => {
-      console.log("Error fetching quotation:", error);
-    });
-};
+          setQuotationId(mappedData.quotationId);
+          setQuotationData(mappedData);
+          setOriginalFunctions(mappedData.functions);
+        }
+      })
+      .catch((error) => {
+        console.log("Error fetching quotation:", error);
+      });
+  };
 
   const calculateTotals = () => {
     const subtotal = quotationData.functions.reduce((sum, func) => {
@@ -680,7 +687,6 @@ const QuotationPage = () => {
       return;
     }
 
-    
     UpdateQuotation(quotationId, payload)
       .then((response) => {
         if (response?.data?.success === true) {
@@ -939,7 +945,6 @@ const QuotationPage = () => {
       return;
     }
 
-    // Show confirmation dialog
     Swal.fire({
       title: "Copy to Invoice?",
       text: "Do you want to copy this quotation data to the invoice?",
@@ -958,61 +963,18 @@ const QuotationPage = () => {
         cancelButton: "px-6 py-2 text-white font-semibold rounded-lg",
       },
     }).then((result) => {
-      // Pass 1 if confirmed (Yes), 0 if cancelled (No)
-      const isCopyToInvoice = result.isConfirmed ? 1 : 0;
-
-      // Call API with the appropriate flag
-      GetQuotation(eventId, isCopyToInvoice)
-        .then(() => {
-          navigate(`/add-invoice/${eventId}`, {
-            state: {
-              eventId,
-              fromQuotation: result.isConfirmed, // Only true if user clicked Yes
-              quotationId: quotationId,
-              quotationData: result.isConfirmed
-                ? {
-                    functions: quotationData.functions,
-                    taxDetails: quotationData.taxDetails,
-                    advancePayments: quotationData.advancePayments,
-                    notes: quotationData.notes,
-                    billingname: billingName || quotationData.billingname,
-                    billingaddress: quotationData.billingaddress || "",
-                    shipname: quotationData.shipname || "",
-                    shipaddress: quotationData.shipaddress || "",
-                    gstnumber: gstNumber || quotationData.gstnumber,
-                    duedate: dueDate
-                      ? dueDate.format("DD/MM/YYYY")
-                      : quotationData.duedate || "",
-                    grandTotal: totals.grandTotal,
-                    subtotal: totals.subtotal,
-                    cgst:
-                      quotationData.taxDetails.find((t) => t.label === "CGST")
-                        ?.percentage || "0",
-                    sgst:
-                      quotationData.taxDetails.find((t) => t.label === "SGST")
-                        ?.percentage || "0",
-                    igst:
-                      quotationData.taxDetails.find((t) => t.label === "IGST")
-                        ?.percentage || "0",
-                    cgstAmnt: totals.cgstAmount,
-                    sgstAmnt: totals.sgstAmount,
-                    igstAmnt: totals.igstAmount,
-                    discount: totals.discountAmount,
-                    roundOff: totals.roundOffAmount,
-                  }
-                : null, // Don't pass quotation data if user clicked No
-            },
-          });
-        })
-        .catch((error) => {
-          console.error("Copy to invoice failed:", error);
-          Swal.fire({
-            title: "Error",
-            text: "Failed to copy quotation to invoice.",
-            icon: "error",
-            confirmButtonColor: "#005BA8",
-          });
+      if (result.isConfirmed) {
+        // ✅ Navigate with fromQuotation=true
+        // AddInvoicePage will call GetQuotation(eventId, 1) itself — no pre-call here
+        navigate(`/add-invoice/${eventId}`, {
+          state: {
+            eventId,
+            fromQuotation: true,
+            quotationId: quotationId,
+            quotationData: null,
+          },
         });
+      }
     });
   };
   return (
@@ -1847,11 +1809,14 @@ const QuotationPage = () => {
                               <i className="ki-filled ki-calendar text-gray-500"></i>
                               <div className="flex flex-col w-full">
                                 <label className="text-xs font-medium text-gray-700 mb-1">
-  {intl.formatMessage({ id: "COMMON.PAYMENT_DATE_TIME", defaultMessage: "Payment date & time" })}
-</label>
-<DatePicker
-  id={`advance-payment-date-${i}`}
-  className="input w-full sm:w-[200px]"
+                                  {intl.formatMessage({
+                                    id: "COMMON.PAYMENT_DATE_TIME",
+                                    defaultMessage: "Payment date & time",
+                                  })}
+                                </label>
+                                <DatePicker
+                                  id={`advance-payment-date-${i}`}
+                                  className="input w-full sm:w-[200px]"
                                   showTime={{
                                     use12Hours: true,
                                     format: "hh:mm A",
@@ -1867,7 +1832,6 @@ const QuotationPage = () => {
                                   })}
                                   status={!pay.date ? "error" : ""}
                                 />
-                                
                               </div>
                             </div>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
