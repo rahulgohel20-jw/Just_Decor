@@ -227,6 +227,7 @@ import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
 import EmployeePerformance from "../pages/super-admin/employeeDashboard/Employeeperformance";
 import TeamPerformance from "../pages/super-admin/employeeDashboard/Teamperformance";
 import VendorSignup from "../vendorsignup/VendorSignup";
+import AllExpense from "../pages/super-admin/Expense";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -389,6 +390,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/vendors" element={<AllVendor />} />
+          <Route path="/expense" element={<AllExpense />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route path="/allreports/:eventId" element={<AllReports />} />
