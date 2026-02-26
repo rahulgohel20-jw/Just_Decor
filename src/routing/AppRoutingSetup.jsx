@@ -235,6 +235,7 @@ import AddPurchaseReturn from "../pages/stockmanagement/purchasereturn/AddPurcha
 import StorePo from "../pages/stockmanagement/storepo/StorePo";
 import AddStorePO from "../pages/stockmanagement/storepo/AddStorePO";
 import StoreLedger from "../pages/stockmanagement/storeledger/StoreLedger";
+import AllExpense from "../pages/super-admin/Expense";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -410,6 +411,7 @@ const AppRoutingSetup = () => {
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
           <Route path="/vendors" element={<AllVendor />} />
+          <Route path="/expense" element={<AllExpense />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route path="/allreports/:eventId" element={<AllReports />} />

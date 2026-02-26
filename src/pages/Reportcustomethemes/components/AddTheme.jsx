@@ -77,7 +77,7 @@ const AddTheme = ({
             setThemeTemplateModule("");
           } else {
             const currentModuleExists = moduleOptions.some(
-              (opt) => opt.id.toString() === themeTemplateModule.toString()
+              (opt) => opt.id.toString() === themeTemplateModule.toString(),
             );
             if (!currentModuleExists && moduleOptions.length > 0) {
               setThemeTemplateModule("");
@@ -130,7 +130,7 @@ const AddTheme = ({
             setNameplateTemplateModule("");
           } else {
             const currentModuleExists = moduleOptions.some(
-              (opt) => opt.id.toString() === nameplateTemplateModule.toString()
+              (opt) => opt.id.toString() === nameplateTemplateModule.toString(),
             );
             if (!currentModuleExists && moduleOptions.length > 0) {
               setNameplateTemplateModule("");
@@ -159,45 +159,44 @@ const AddTheme = ({
 
   useEffect(() => {
     if (isEditMode && editingTheme) {
-      
       setPrice(editingTheme.price || "");
       setIsDefault(editingTheme.isDefault || false);
-      setDescription(editingTheme.description || ""); 
+      setDescription(editingTheme.description || "");
       if (editingTheme.isNamePlate) {
         setActiveTab("nameplate");
         setNameplateName(editingTheme.name || "");
 
         setNameplateTemplateName(
-          editingTheme.templateModuleMaster?.id?.toString() || ""
+          editingTheme.templateModuleMaster?.id?.toString() || "",
         );
 
         if (editingTheme.namePlateBg || editingTheme.namePlateCoverBg) {
-  const existingImages = [];
+          const existingImages = [];
 
-  if (
-    editingTheme.namePlateBg &&
-    !editingTheme.namePlateBg.includes("null")
-  ) {
-    existingImages.push({
-      file: null,
-      url: editingTheme.namePlateBg,
-      isExisting: true,
-    });
-  }
+          if (
+            editingTheme.namePlateBg &&
+            !editingTheme.namePlateBg.includes("null")
+          ) {
+            existingImages.push({
+              file: null,
+              url: editingTheme.namePlateBg,
+              isExisting: true,
+            });
+          }
 
-  if (
-    editingTheme.namePlateCoverBg &&
-    !editingTheme.namePlateCoverBg.includes("null")
-  ) {
-    existingImages.push({
-      file: null,
-      url: editingTheme.namePlateCoverBg,
-      isExisting: true,
-    });
-  }
+          if (
+            editingTheme.namePlateCoverBg &&
+            !editingTheme.namePlateCoverBg.includes("null")
+          ) {
+            existingImages.push({
+              file: null,
+              url: editingTheme.namePlateCoverBg,
+              isExisting: true,
+            });
+          }
 
-  setNameplates(existingImages);
-}
+          setNameplates(existingImages);
+        }
       } else {
         setActiveTab("template");
         setNameplateName(editingTheme.name || "");
@@ -205,7 +204,7 @@ const AddTheme = ({
         setContentColor(editingTheme.contentFontColor || "rgba(75,85,99,1)");
 
         setThemeTemplateName(
-          editingTheme.templateModuleMaster?.id?.toString() || ""
+          editingTheme.templateModuleMaster?.id?.toString() || "",
         );
 
         // Set existing templates
@@ -273,7 +272,7 @@ const AddTheme = ({
       const templateMappingId = editingTheme.templateMapping?.id?.toString();
       if (templateMappingId) {
         const moduleExists = themeModuleOptions.some(
-          (opt) => opt.id.toString() === templateMappingId
+          (opt) => opt.id.toString() === templateMappingId,
         );
         if (moduleExists) {
           setThemeTemplateModule(templateMappingId);
@@ -293,7 +292,7 @@ const AddTheme = ({
       const templateMappingId = editingTheme.templateMapping?.id?.toString();
       if (templateMappingId) {
         const moduleExists = nameplateModuleOptions.some(
-          (opt) => opt.id.toString() === templateMappingId
+          (opt) => opt.id.toString() === templateMappingId,
         );
         if (moduleExists) {
           setNameplateTemplateModule(templateMappingId);
@@ -441,9 +440,9 @@ const AddTheme = ({
     if (!nameplateTemplateModule)
       err.templateModule = "Please select template module";
     if (!nameplateName) err.nameplateName = "Please enter nameplate name";
-if (nameplates.length === 0) err.nameplate = "Add at least one nameplate image";
-if (nameplates.length > 2)
-  err.nameplate = "Maximum 2 images allowed";
+    if (nameplates.length === 0)
+      err.nameplate = "Add at least one nameplate image";
+    if (nameplates.length > 2) err.nameplate = "Maximum 2 images allowed";
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -551,7 +550,7 @@ if (nameplates.length > 2)
       } else {
         throw new Error(
           response?.data?.msg ||
-            `Failed to ${isEditMode ? "update" : "add"} template`
+            `Failed to ${isEditMode ? "update" : "add"} template`,
         );
       }
     } catch (error) {
@@ -590,11 +589,11 @@ if (nameplates.length > 2)
       }
 
       const newNameplates = nameplates.filter((n) => !n.isExisting && n.file);
-if (newNameplates.length > 0) {
-  newNameplates.forEach((n) => formData.append("namePlateBg", n.file));
-} else {
-  formData.append("namePlateBg", null);
-}
+      if (newNameplates.length > 0) {
+        newNameplates.forEach((n) => formData.append("namePlateBg", n.file));
+      } else {
+        formData.append("namePlateBg", null);
+      }
       const response = isEditMode
         ? await UpdateCustomTheme(formData) // ✅ New API call
         : await AddCustomTheme(formData);
@@ -617,7 +616,7 @@ if (newNameplates.length > 0) {
       } else {
         throw new Error(
           response?.data?.msg ||
-            `Failed to ${isEditMode ? "update" : "add"} nameplate`
+            `Failed to ${isEditMode ? "update" : "add"} nameplate`,
         );
       }
     } catch (error) {
@@ -641,8 +640,6 @@ if (newNameplates.length > 0) {
       handleSaveNameplate();
     }
   };
-
-  
 
   const resetForm = () => {
     setThemeTemplateName("");
@@ -736,63 +733,63 @@ if (newNameplates.length > 0) {
   };
 
   const handleAddNameplate = (files) => {
-  if (!files || files.length === 0) return;
+    if (!files || files.length === 0) return;
 
-  const fileArr = Array.from(files);
-  const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-  const maxSize = 15 * 1024 * 1024;
+    const fileArr = Array.from(files);
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const maxSize = 15 * 1024 * 1024;
 
-  // 🚨 LIMIT CHECK (MAX 2)
-  if (nameplates.length + fileArr.length > 2) {
-    Swal.fire({
-      title: "Maximum Limit Reached",
-      text: "You can upload maximum 2 nameplate images only.",
-      icon: "warning",
-    });
+    // 🚨 LIMIT CHECK (MAX 2)
+    if (nameplates.length + fileArr.length > 2) {
+      Swal.fire({
+        title: "Maximum Limit Reached",
+        text: "You can upload maximum 2 nameplate images only.",
+        icon: "warning",
+      });
+      setFileInputKey(Date.now());
+      return;
+    }
+
+    for (let file of fileArr) {
+      if (!validTypes.includes(file.type)) {
+        Swal.fire({
+          title: "Invalid File Type",
+          text: `${file.name} is not valid`,
+          icon: "error",
+        });
+        setFileInputKey(Date.now());
+        return;
+      }
+
+      if (file.size > maxSize) {
+        Swal.fire({
+          title: "File Too Large",
+          text: `${file.name} exceeds 15MB`,
+          icon: "error",
+        });
+        setFileInputKey(Date.now());
+        return;
+      }
+    }
+
+    const newItems = fileArr.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+      isExisting: false,
+    }));
+
+    setNameplates((prev) => [...prev, ...newItems]);
     setFileInputKey(Date.now());
-    return;
-  }
-
-  for (let file of fileArr) {
-    if (!validTypes.includes(file.type)) {
-      Swal.fire({
-        title: "Invalid File Type",
-        text: `${file.name} is not valid`,
-        icon: "error",
-      });
-      setFileInputKey(Date.now());
-      return;
-    }
-
-    if (file.size > maxSize) {
-      Swal.fire({
-        title: "File Too Large",
-        text: `${file.name} exceeds 15MB`,
-        icon: "error",
-      });
-      setFileInputKey(Date.now());
-      return;
-    }
-  }
-
-  const newItems = fileArr.map((file) => ({
-    file,
-    url: URL.createObjectURL(file),
-    isExisting: false,
-  }));
-
-  setNameplates((prev) => [...prev, ...newItems]);
-  setFileInputKey(Date.now());
-};
+  };
 
   const removeNameplate = (index) => {
-  setNameplates((prev) => {
-    const updated = [...prev];
-    if (!updated[index].isExisting) URL.revokeObjectURL(updated[index].url);
-    updated.splice(index, 1);
-    return updated;
-  });
-};
+    setNameplates((prev) => {
+      const updated = [...prev];
+      if (!updated[index].isExisting) URL.revokeObjectURL(updated[index].url);
+      updated.splice(index, 1);
+      return updated;
+    });
+  };
 
   return (
     isModalOpen && (
@@ -1080,19 +1077,19 @@ if (newNameplates.length > 0) {
                 </div>
 
                 <div>
-                <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium mb-1">
                     Price
-                </label>
-                <input
-                id="price"
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="Enter price"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                  </label>
+                  <input
+                    id="price"
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Enter price"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
-              {/* IS DEFAULT TOGGLE */}
+                {/* IS DEFAULT TOGGLE */}
                 <div>
                   <label className="flex items-center justify-between cursor-pointer">
                     <span className="text-sm font-medium">Set as Default</span>
@@ -1105,19 +1102,18 @@ if (newNameplates.length > 0) {
                       />
                       <div
                         className={`block w-12 h-6 rounded-full transition-colors ${
-                          isDefault ? 'bg-blue-600' : 'bg-gray-300'
+                          isDefault ? "bg-blue-600" : "bg-gray-300"
                         }`}
                       >
                         <div
                           className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ${
-                            isDefault ? 'translate-x-6' : 'translate-x-0'
+                            isDefault ? "translate-x-6" : "translate-x-0"
                           }`}
                         />
                       </div>
                     </div>
                   </label>
                 </div>
-
 
                 {/* COLOR SCHEME */}
                 <div>
@@ -1164,29 +1160,36 @@ if (newNameplates.length > 0) {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-6">
-<div className="space-y-4">
-  <h3 className="font-semibold text-lg">Nameplate Preview</h3>
-  <div className="grid grid-cols-2 gap-2">
-    {nameplates.map((n, i) => (
-      <div key={i} className="relative border rounded-lg overflow-hidden">
-        <img src={n.url} alt={`Nameplate ${i + 1}`} className="w-full h-32 object-cover" />
-        <button
-          onClick={() => removeNameplate(i)}
-          className="absolute top-1 right-1 bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
-        >
-          Remove
-        </button>
-      </div>
-    ))}
-    {nameplates.length === 0 && (
-      <div className="col-span-2 border-2 border-dashed border-gray-300 rounded-lg h-64 flex items-center justify-center text-gray-400">
-        <div className="text-center">
-          <p className="mt-2 text-sm">No Nameplate Images</p>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Nameplate Preview</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {nameplates.map((n, i) => (
+                    <div
+                      key={i}
+                      className="relative border rounded-lg overflow-hidden"
+                    >
+                      <img
+                        src={n.url}
+                        alt={`Nameplate ${i + 1}`}
+                        className="w-full h-32 object-cover"
+                      />
+                      <button
+                        onClick={() => removeNameplate(i)}
+                        className="absolute top-1 right-1 bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  {nameplates.length === 0 && (
+                    <div className="col-span-2 border-2 border-dashed border-gray-300 rounded-lg h-64 flex items-center justify-center text-gray-400">
+                      <div className="text-center">
+                        <p className="mt-2 text-sm">No Nameplate Images</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* RIGHT SIDE - NAMEPLATE FORM */}
               <div className="space-y-4">
@@ -1225,17 +1228,17 @@ if (newNameplates.length > 0) {
                 </div>
 
                 <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter description (optional)"
-                  rows="3"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                />
-              </div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter description (optional)"
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
 
                 {/* TEMPLATE MODULE - Dependent Dropdown */}
                 <div>
@@ -1264,7 +1267,7 @@ if (newNameplates.length > 0) {
                       </option>
                     ))}
                   </select>
-                  
+
                   {errors.templateModule && (
                     <div className="text-red-500 text-sm mt-1">
                       {errors.templateModule}
@@ -1296,14 +1299,14 @@ if (newNameplates.length > 0) {
                     Nameplate Image <span className="text-red-500">*</span>
                   </label>
                   <input
-  key={fileInputKey}
-  id="nameplateUpload"
-  type="file"
-  accept="image/jpeg,image/jpg,image/png,image/webp"
-  multiple
-  onChange={(e) => handleAddNameplate(e.target.files)}
-  className="hidden"
-/>
+                    key={fileInputKey}
+                    id="nameplateUpload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    multiple
+                    onChange={(e) => handleAddNameplate(e.target.files)}
+                    className="hidden"
+                  />
                   <div
                     onClick={() =>
                       document.getElementById("nameplateUpload").click()

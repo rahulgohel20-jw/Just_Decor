@@ -20,6 +20,8 @@ import {
   SyncRawmaterialMenuallocation,
   MenuAllocationTypeSummary,
   GETallGodown,
+  GettemplatebyuserId,
+  GetAllCustomThemeByUserIdAndModuleId,
 } from "@/services/apiServices";
 import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -851,6 +853,9 @@ const EventMenuAllocationPage = ({ mode }) => {
   const [placeLoading, setPlaceLoading] = useState(false);
   const personSaveTimeoutRef = useRef(null);
   const [allVendor, setAllVendor] = useState(false);
+  const [menuForHMModuleId, setMenuForHMModuleId] = useState(null);
+  const [menuForHMMappingId, setMenuForHMMappingId] = useState(null);
+  const [menuForHMTemplateId, setMenuForHMTemplateId] = useState(null);
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
@@ -867,6 +872,60 @@ const EventMenuAllocationPage = ({ mode }) => {
   // ✅ NEW: Track which rows had PAX changes
   const changedPaxRowsRef = useRef(new Set());
 
+  const fetchMenuForHMModule = async () => {
+    try {
+      const res = await GettemplatebyuserId();
+
+      if (res?.data?.success && res?.data?.data) {
+        const menuForHMModule = res.data.data.find(
+          (module) =>
+            module.nameEnglish === "Menu For HM" &&
+            module.isActive &&
+            !module.isDelete,
+        );
+
+        if (menuForHMModule) {
+          setMenuForHMModuleId(menuForHMModule.id);
+
+          const templatesRes = await GetAllCustomThemeByUserIdAndModuleId(
+            localStorage.getItem("userId"),
+            menuForHMModule.id,
+          );
+
+          // ✅ ADD THIS DEBUG CODE
+          console.log("📦 All Templates:", templatesRes?.data?.data);
+          templatesRes?.data?.data?.forEach((template, index) => {
+            console.log(`Template ${index}:`, {
+              name: template.templateMaster?.name,
+              mappingId: template.templateMappingResponseDto?.id,
+            });
+          });
+
+          if (
+            templatesRes?.data?.success &&
+            templatesRes?.data?.data?.length > 0
+          ) {
+            const firstTemplate = templatesRes.data.data[0];
+
+            const templateId = firstTemplate.id; // 446
+            const mappingId =
+              firstTemplate.templateMappingResponseDto?.id || firstTemplate.id; // 49
+
+            console.log("🔗 Template ID (446) for payload:", templateId);
+            console.log("🔗 Mapping ID (49) for config:", mappingId);
+
+            setMenuForHMTemplateId(templateId);
+            setMenuForHMMappingId(mappingId);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  useEffect(() => {
+    if (eventId) fetchMenuForHMModule();
+  }, [eventId]);
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
     const handleStorageChange = () => {
@@ -891,6 +950,9 @@ const EventMenuAllocationPage = ({ mode }) => {
     };
   }, [currentLang]);
 
+  useEffect(() => {
+    if (eventId) fetchMenuForHMModule();
+  }, [eventId]);
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
@@ -1341,46 +1403,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
         setOrderSummaryGroups(summaryGroups);
       }
-
-      const updatedRowsPromises = transformedRows.map(async (row) => {
-        try {
-          const res = await SelectedItemNameMenuAllocation(
-            row.eventFunctionId,
-            row.menuItemId,
-          );
-
-          if (res?.data?.success) {
-            const apiData = res.data.data;
-            const rawMaterials =
-              apiData["MenuItem RawMaterial Details"] ||
-              apiData.menuItemRawMaterials ||
-              [];
-
-            return {
-              ...row,
-              menuItemRawMaterials: rawMaterials,
-            };
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching raw materials for item ${row.menuItemId}:`,
-            error,
-          );
-        }
-        return row;
-      });
-
-      const updatedRows = await Promise.all(updatedRowsPromises);
-      setRows(updatedRows);
-      setInitialRows(JSON.parse(JSON.stringify(updatedRows)));
-
-      const personSnapshot = {};
-      updatedRows.forEach((r) => {
-        personSnapshot[r.key] = r.personCount;
-      });
-      lastSavedPersonRef.current = personSnapshot;
-
-      isInitialLoadRef.current = false;
     } catch (error) {
       console.error("Error fetching menu allocation:", error);
       setRows([]);
@@ -1414,13 +1436,16 @@ const EventMenuAllocationPage = ({ mode }) => {
     if (isInitialLoadRef.current) return;
     if (rows.length === 0) return;
     if (isSaving) return;
-    if (rows.some((r) => r.personCount === 0)) return;
 
-    const hasPersonChanged = rows.some(
-      (r) => lastSavedPersonRef.current[r.key] !== r.personCount,
+    // Only fire when at least one PAX row was actually changed
+    const hasPaxChanged = changedPaxRowsRef.current.size > 0;
+    if (!hasPaxChanged) return;
+
+    // Block save only if a *changed* row still has 0 — not all rows
+    const changedRowsHaveZero = rows.some(
+      (r) => changedPaxRowsRef.current.has(r.key) && r.personCount === 0,
     );
-
-    if (!hasPersonChanged) return;
+    if (changedRowsHaveZero) return;
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -2047,27 +2072,6 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuAllocationOrders.push(...insideAllocations);
         }
 
-        const rawMaterialsSource =
-          allocationData[`${r.menuItemId}-category`]?.rawMaterials?.length > 0
-            ? allocationData[`${r.menuItemId}-category`].rawMaterials
-            : r.menuItemRawMaterials || [];
-
-        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
-          dateTime: rm.dateTime || "",
-          eventFunctionId: r.eventFunctionId,
-          eventId: validEventId,
-          id: rm.id ?? 0,
-          menuItemId: rm.menuItemId || r.menuItemId || 0,
-          partyId: rm.partyId || rm.party_id || rm.party?.id || 0,
-          place: rm.place || "",
-          rate: rm.rate || 0,
-          rawMaterialId: rm.rawMaterialId || 0,
-          rawmaterial_rate: rm.rawmaterial_rate || 0,
-          rawmaterial_weight: rm.rawmaterial_weight || 0,
-          unitId: rm.unitId || rm.unit_id || rm.unit?.id || 0,
-          weight: rm.weight || 0,
-        }));
-
         // ✅ Check if THIS specific row had a PAX change
         const rowHadPaxChange = changedPaxRowsRef.current.has(r.key);
 
@@ -2078,11 +2082,11 @@ const EventMenuAllocationPage = ({ mode }) => {
           id: r.id || 0,
           inside: r.inside || false,
           instructions: r.instructions || "",
-          isPaxChange: rowHadPaxChange, // ✅ Only true for rows that actually changed
+          isPaxChange: rowHadPaxChange,
           menuAllocationOrders,
           menuCategoryId: r.menuCategoryId || 0,
           menuItemId: r.menuItemId || 0,
-          menuItemRawMaterials,
+          menuItemRawMaterials: [],
           outside: r.outside || false,
           personCount: r.personCount || 0,
           place: r.place || "venue",
@@ -2496,16 +2500,43 @@ const EventMenuAllocationPage = ({ mode }) => {
                   </div>
 
                   <button
-                    className="btn btn-sm btn-primary"
-                    title="Menu For HM Report"
                     onClick={() => {
-                      setMenuReportEventId(eventId);
+                      console.log("🔘 Menu for HM BUTTON CLICKED!");
+                      console.log("📋 Debug Info:", {
+                        moduleId: menuForHMModuleId,
+                        mappingId: menuForHMMappingId,
+                        eventId: eventId,
+                        activeFunction: activeFunction?.id,
+                      });
+
+                      if (!menuForHMMappingId) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Configuration Missing",
+                          text: "Menu for HM template is not configured. Please set up the template first.",
+                          confirmButtonColor: "#d33",
+                        });
+                        return;
+                      }
+
+                      if (!eventId) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Error",
+                          text: "Event ID is missing. Please refresh the page.",
+                          confirmButtonColor: "#d33",
+                        });
+                        return;
+                      }
+
                       setIsMenuForHMOpen(true);
                     }}
+                    className="bg-primary text-white text-sm px-3 py-2 rounded-md transition "
+                    title="Menu for HM"
                   >
                     <FormattedMessage
                       id="EVENT_MENU_ALLOCATION.MENU_FOR_HM"
-                      defaultMessage="Menu For HM Report"
+                      defaultMessage="Menu for HM"
                     />
                   </button>
                 </div>
@@ -2733,21 +2764,22 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={iswhatsAppSidebar}
           onClose={() => setIsWhatsAppSidebar(false)}
         />
-        <MenuReport
-          isModalOpen={isMenuReport}
-          setIsModalOpen={setIsMenuReport}
-          eventId={menuReportEventId}
-        />
+
         <MenuReport
           isModalOpen={isMenuForHMOpen}
           setIsModalOpen={setIsMenuForHMOpen}
           eventId={eventId}
           eventFunctionId={getEventFunctionId(activeFunction)}
-          moduleId={15}
-          mappingId={49}
-          selectedTemplateId={15}
-          selectedTemplateName="Menu For HM"
+          moduleId={menuForHMModuleId}
+          mappingId={menuForHMMappingId}
+          selectedTemplateId={menuForHMTemplateId}
+          eventName={eventData?.party?.nameEnglish}
+          selectedTemplateName="Menu for HM"
+          PartyNumber={eventData?.party?.mobileno}
+          isNamePlateTheme={false}
+          agencyType={null}
           isAdminModuleReport={true}
+          adminTemplateModuleId={menuForHMMappingId}
         />
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
