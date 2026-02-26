@@ -123,7 +123,6 @@ export default function SelectMenureport({
                 "Chef Agency Theme",
                 "Outside Agency Theme",
                 "Name Plate Theme",
-                "Menu For HM",
               ].includes(module.nameEnglish),
             );
           } else if (mode === "raw") {
