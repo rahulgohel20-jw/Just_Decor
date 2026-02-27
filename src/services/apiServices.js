@@ -1771,7 +1771,7 @@ export const GETofficeexpenseById = (expenseId) => {
 };
 
 export const updatepayoutforoffice = (expenseId, payoutType , payoutAmount) => {
-  return PUT(`employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
+  return PUT(`employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}&payoutAmount=${payoutAmount}`);
 };
 
 export const updatepayoutforTrip = (expenseId, payoutType , payoutAmount) => {
