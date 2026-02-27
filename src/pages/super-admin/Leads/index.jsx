@@ -149,7 +149,6 @@ const SuperLeads = () => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState("");
   const [assignCloseDate, setAssignCloseDate] = useState("");
-  const [expirationDate, setExpirationDate] = useState("");
   const [assignDescription, setAssignDescription] = useState("");
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [moveLeadPayload, setMoveLeadPayload] = useState(null);
@@ -1111,7 +1110,6 @@ const SuperLeads = () => {
         Number(selectedManager),
         assignCloseDate,
         assignDescription,
-        expirationDate,
       );
       Swal.close();
       const apiData = response?.data || response;
@@ -1582,7 +1580,6 @@ const SuperLeads = () => {
               setIsAssignModalOpen(false);
               setSelectedManager("");
               setAssignCloseDate("");
-              setExpirationDate("");
               setAssignDescription("");
             }}
             managers={managers}
@@ -1590,8 +1587,6 @@ const SuperLeads = () => {
             setSelectedManager={setSelectedManager}
             closeDate={assignCloseDate}
             setCloseDate={setAssignCloseDate}
-            expirationDate={expirationDate}
-            setExpirationDate={setExpirationDate}
             description={assignDescription}
             setDescription={setAssignDescription}
             onSave={handleSaveAssignment}
