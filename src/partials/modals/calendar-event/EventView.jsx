@@ -47,6 +47,17 @@ const EventViewModal = ({
         return "";
       }
 
+      const popoverEl = document.querySelector('.fc-popover');
+      if (isModalOpen) {
+        if (popoverEl) {
+          popoverEl.style.zIndex = '1';
+        }
+      } else {
+        if (popoverEl) {
+          popoverEl.style.zIndex = '';
+        }
+      }
+
       // Parse the language config JSON
       const i18nConfig = localStorage.getItem("i18nConfig");
       let selectedLang = "en";
@@ -131,6 +142,10 @@ const EventViewModal = ({
 
   const handleModalClose = () => {
     setIsModalOpen(false);
+    const popoverEl = document.querySelector('.fc-popover');
+    if (popoverEl) {
+      popoverEl.style.zIndex = '';
+    }
   };
 
   const handleStatusChange = () => {
