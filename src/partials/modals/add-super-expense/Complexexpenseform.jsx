@@ -41,6 +41,7 @@ const buildFormData = (
   fd.append("totalAmount", values.amount);
   fd.append("expenseType", expenseType);
   fd.append("id", expenseId ?? -1);
+  fd.append("remark", values.remarks ?? "");
 
   // ✅ All date fields go through toApiDate → "DD/MM/YYYY" for API
   if (values.startDate) fd.append("fromDate", toApiDate(values.startDate));
@@ -75,9 +76,10 @@ const ComplexExpenseForm = ({
   onClose,
   expenseType = "trip",
   editData = null,
+  fetchExpenses,
 }) => {
   const config = TAB_CONFIG[expenseType] ?? TAB_CONFIG.trip;
-  const userId = Number(localStorage.getItem("userId"));
+  const userId = Number(localStorage.getItem("mainId"));
   const isSuperAdmin = userId === 1;
 
   const [rowPreviews, setRowPreviews] = useState({});
@@ -103,7 +105,7 @@ const ComplexExpenseForm = ({
     toCity: data?.toCity ?? null,
     amount: data?.amount ?? "",
     ...(isSuperAdmin ? { dueDate: data?.dueDate ?? "" } : {}),
-    remarks: data?.remarks ?? "",
+    remark: data?.remarks ?? "",
     expenseRows: (data?.expenseRows ?? []).map((r) => ({
       id: r.id ?? -1,
       expenseId: r.expenseId ?? data?.id ?? -1,
@@ -213,367 +215,185 @@ const ComplexExpenseForm = ({
         })}
         onSubmit={handleSubmit}
       >
-        {({ isSubmitting, values, setFieldValue }) => (
-          <Form>
-            <div className="max-h-[72vh] overflow-y-auto pr-1 space-y-4 pb-1">
-              {/* API Error */}
-              {apiError && (
-                <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 font-medium">
-                  {apiError}
-                </div>
-              )}
+        {({ isSubmitting, values, setFieldValue }) => {
+          const rowTotal = values.expenseRows.reduce(
+            (sum, row) => sum + (parseFloat(row.amount) || 0),
+            0,
+          );
+          if (values.amount !== rowTotal) {
+            setTimeout(() => setFieldValue("amount", rowTotal), 0);
+          }
+          return (
+            <Form>
+              <div className="max-h-[72vh] overflow-y-auto pr-1 space-y-4 pb-1">
+                {/* API Error */}
+                {apiError && (
+                  <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 font-medium">
+                    {apiError}
+                  </div>
+                )}
 
-              {/* Edit badge */}
-              {isEditing && (
-                <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-2.5 text-sm text-blue-700 font-medium flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Editing existing expense — changes will update the record.
-                </div>
-              )}
-
-              {/* ── Info Section ───────────────────────────────────────────── */}
-              <Section title={config.sectionTitle} icon={config.icon}>
-                <div
-                  className={
-                    config.showDates || config.showCities ? "mb-4" : ""
-                  }
-                >
-                  <FormLabel required>{config.titleField.label}</FormLabel>
-                  <Field
-                    name={titleKey}
-                    placeholder={config.titleField.placeholder}
-                    className={inputClass}
-                  />
-                  <ErrorMsg name={titleKey} />
-                </div>
-
-                {/* Date range — browser renders YYYY-MM-DD as locale date (DD/MM/YYYY in India) */}
-                {config.showDates && (
+                {/* ── Info Section ───────────────────────────────────────────── */}
+                <Section title={config.sectionTitle} icon={config.icon}>
                   <div
-                    className={`grid grid-cols-2 gap-4 ${config.showCities ? "mb-4" : ""}`}
-                  >
-                    <div>
-                      <FormLabel>{config.dateLabels.start}</FormLabel>
-                      <Field
-                        name="startDate"
-                        type="date"
-                        className={inputClass}
-                      />
-                    </div>
-                    <div>
-                      <FormLabel>{config.dateLabels.end}</FormLabel>
-                      <Field
-                        name="endDate"
-                        type="date"
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Cities */}
-                {config.showCities && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <FormLabel>From City</FormLabel>
-                      <Select
-                        options={citySelectOptions}
-                        placeholder="Search city..."
-                        value={
-                          citySelectOptions.find(
-                            (opt) => opt.value === values.fromCity,
-                          ) ?? null
-                        }
-                        onChange={(sel) =>
-                          setFieldValue("fromCity", sel?.value ?? null)
-                        }
-                        isClearable
-                      />
-                    </div>
-                    <div>
-                      <FormLabel>To City</FormLabel>
-                      <Select
-                        options={citySelectOptions}
-                        placeholder="Search city..."
-                        value={
-                          citySelectOptions.find(
-                            (opt) => opt.value === values.toCity,
-                          ) ?? null
-                        }
-                        onChange={(sel) =>
-                          setFieldValue("toCity", sel?.value ?? null)
-                        }
-                        isClearable
-                      />
-                    </div>
-                  </div>
-                )}
-              </Section>
-
-              {/* ── Payment Details ────────────────────────────────────────── */}
-              <Section
-                title="Payment Details"
-                icon={
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                }
-              >
-                <div
-                  className={`grid gap-4 ${isSuperAdmin ? "grid-cols-2" : "grid-cols-1 max-w-xs"}`}
-                >
-                  <div>
-                    <FormLabel required>Expense Amount (₹)</FormLabel>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">
-                        ₹
-                      </span>
-                      <Field
-                        name="amount"
-                        type="number"
-                        placeholder="0.00"
-                        className={`${inputClass} pl-7`}
-                      />
-                    </div>
-                    <ErrorMsg name="amount" />
-                  </div>
-                  {isSuperAdmin && (
-                    <div>
-                      <FormLabel>Due Date</FormLabel>
-                      <Field
-                        name="dueDate"
-                        type="date"
-                        className={inputClass}
-                      />
-                    </div>
-                  )}
-                </div>
-              </Section>
-
-              {/* ── Remarks ───────────────────────────────────────────────── */}
-              <Section>
-                <FormLabel>Remarks</FormLabel>
-                <Field
-                  as="textarea"
-                  name="remarks"
-                  rows="3"
-                  placeholder="Add any notes or context..."
-                  className={`${inputClass} resize-none`}
-                />
-              </Section>
-
-              {/* ── Expense Rows ───────────────────────────────────────────── */}
-              <FieldArray name="expenseRows">
-                {({ push, remove, form }) => (
-                  <Section
-                    title="Expense Details"
-                    icon={
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                        />
-                      </svg>
+                    className={
+                      config.showDates || config.showCities ? "mb-4" : ""
                     }
                   >
-                    <div className="flex justify-end mb-4">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          push({
-                            id: -1,
-                            expenseId: editData?.id ?? -1,
-                            date: "",
-                            description: "",
-                            paymentMode: "gpay",
-                            amount: "",
-                            remarks: "",
-                            file: null,
-                            existingDocUrl: null,
-                          })
-                        }
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold border-0 cursor-pointer transition"
-                      >
-                        <Plus className="w-4 h-4" /> Add Expense Row
-                      </button>
-                    </div>
+                    <FormLabel required>{config.titleField.label}</FormLabel>
+                    <Field
+                      name={titleKey}
+                      placeholder={config.titleField.placeholder}
+                      className={inputClass}
+                    />
+                    <ErrorMsg name={titleKey} />
+                  </div>
 
-                    {form.values.expenseRows?.length > 0 ? (
-                      <div className="overflow-x-auto rounded-xl border border-gray-100">
-                        <table className="w-full text-sm border-collapse">
-                          <thead>
-                            <tr className="bg-gray-50">
-                              {[
-                                "Date",
-                                "Description",
-                                "Payment Mode",
-                                "Amount (₹)",
-                                "Bill",
-                                "",
-                              ].map((h) => (
-                                <th
-                                  key={h}
-                                  className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap border-b border-gray-100"
-                                >
-                                  {h}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {form.values.expenseRows.map((row, index) => (
-                              <tr
-                                key={index}
-                                className="border-t border-gray-50 hover:bg-blue-50/20 transition"
-                              >
-                                {/* Date — browser shows DD/MM/YYYY in India locale; value is YYYY-MM-DD */}
-                                <td className="px-3 py-2">
-                                  <Field
-                                    type="date"
-                                    name={`expenseRows.${index}.date`}
-                                    className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition"
-                                  />
-                                </td>
-
-                                {/* Description */}
-                                <td className="px-3 py-2">
-                                  <Field
-                                    name={`expenseRows.${index}.description`}
-                                    placeholder="e.g. Taxi fare"
-                                    className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition min-w-[120px]"
-                                  />
-                                </td>
-
-                                {/* Payment Mode */}
-                                <td className="px-3 py-2">
-                                  <Field
-                                    as="select"
-                                    name={`expenseRows.${index}.paymentMode`}
-                                    className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition bg-white cursor-pointer"
-                                  >
-                                    <option value="gpay">GPay</option>
-                                    <option value="cash">Cash</option>
-                                    <option value="card">Card</option>
-                                    <option value="netbanking">
-                                      Net Banking
-                                    </option>
-                                  </Field>
-                                </td>
-
-                                {/* Amount */}
-                                <td className="px-3 py-2">
-                                  <div className="relative">
-                                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">
-                                      ₹
-                                    </span>
-                                    <Field
-                                      type="number"
-                                      name={`expenseRows.${index}.amount`}
-                                      placeholder="0"
-                                      className="w-full border border-gray-200 rounded-lg pl-6 pr-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition min-w-[80px]"
-                                    />
-                                  </div>
-                                </td>
-
-                                {/* Bill Upload */}
-                                <td className="px-3 py-2">
-                                  <input
-                                    type="file"
-                                    accept=".png,.jpg,.jpeg,.pdf"
-                                    id={`rowFile-${index}`}
-                                    className="hidden"
-                                    onChange={(e) =>
-                                      handleRowFile(e, index, form)
-                                    }
-                                  />
-                                  <label
-                                    htmlFor={`rowFile-${index}`}
-                                    title={
-                                      rowPreviews[index]
-                                        ? String(rowPreviews[index])
-                                        : "Upload Bill"
-                                    }
-                                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition cursor-pointer"
-                                  >
-                                    {rowPreviews[index] ? (
-                                      <FileText className="w-4 h-4 text-blue-500" />
-                                    ) : (
-                                      <Upload className="w-4 h-4 text-gray-400" />
-                                    )}
-                                  </label>
-                                  {/* ✅ View link for existing doc when editing */}
-                                  {!form.values.expenseRows[index]?.file &&
-                                    row.existingDocUrl && (
-                                      <a
-                                        href={row.existingDocUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="block text-[10px] text-blue-500 hover:underline mt-0.5 max-w-[60px] truncate"
-                                      >
-                                        View
-                                      </a>
-                                    )}
-                                </td>
-
-                                {/* Delete Row */}
-                                <td className="px-3 py-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      remove(index);
-                                      setRowPreviews((p) => {
-                                        const n = { ...p };
-                                        delete n[index];
-                                        return n;
-                                      });
-                                    }}
-                                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition border-0 bg-transparent cursor-pointer"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                  {/* Date range — browser renders YYYY-MM-DD as locale date (DD/MM/YYYY in India) */}
+                  {config.showDates && (
+                    <div
+                      className={`grid grid-cols-2 gap-4 ${config.showCities ? "mb-4" : ""}`}
+                    >
+                      <div>
+                        <FormLabel>{config.dateLabels.start}</FormLabel>
+                        <Field
+                          name="startDate"
+                          type="date"
+                          className={inputClass}
+                        />
                       </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                      <div>
+                        <FormLabel>{config.dateLabels.end}</FormLabel>
+                        <Field
+                          name="endDate"
+                          type="date"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cities */}
+                  {config.showCities && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <FormLabel>From City</FormLabel>
+                        <Select
+                          options={citySelectOptions}
+                          placeholder="Search city..."
+                          value={
+                            citySelectOptions.find(
+                              (opt) => opt.value === values.fromCity,
+                            ) ?? null
+                          }
+                          onChange={(sel) =>
+                            setFieldValue("fromCity", sel?.value ?? null)
+                          }
+                          isClearable
+                        />
+                      </div>
+                      <div>
+                        <FormLabel>To City</FormLabel>
+                        <Select
+                          options={citySelectOptions}
+                          placeholder="Search city..."
+                          value={
+                            citySelectOptions.find(
+                              (opt) => opt.value === values.toCity,
+                            ) ?? null
+                          }
+                          onChange={(sel) =>
+                            setFieldValue("toCity", sel?.value ?? null)
+                          }
+                          isClearable
+                        />
+                      </div>
+                    </div>
+                  )}
+                </Section>
+
+                {/* ── Payment Details ────────────────────────────────────────── */}
+                <Section
+                  title="Payment Details"
+                  icon={
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  }
+                >
+                  <div
+                    className={`grid gap-4 ${isSuperAdmin ? "grid-cols-2" : "grid-cols-1 max-w-xs"}`}
+                  >
+                    <div>
+                      <FormLabel required>Expense Amount (₹)</FormLabel>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">
+                          ₹
+                        </span>
+                        <input
+                          type="number"
+                          value={values.expenseRows
+                            .reduce(
+                              (sum, row) => sum + (parseFloat(row.amount) || 0),
+                              0,
+                            )
+                            .toFixed(2)}
+                          disabled
+                          readOnly
+                          className={`${inputClass} pl-7 bg-gray-50 text-gray-500 cursor-not-allowed font-semibold`}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                        <span>⚡</span> Auto-calculated from expense rows below
+                      </p>
+                    </div>
+                    {isSuperAdmin && (
+                      <div>
+                        <FormLabel>Due Date</FormLabel>
+                        <Field
+                          name="dueDate"
+                          type="date"
+                          className={inputClass}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </Section>
+
+                {/* ── Remarks ───────────────────────────────────────────────── */}
+                <Section>
+                  <FormLabel>Remarks</FormLabel>
+                  <Field
+                    as="textarea"
+                    name="remarks"
+                    rows="3"
+                    placeholder="Add any notes or context..."
+                    className={`${inputClass} resize-none`}
+                  />
+                </Section>
+
+                {/* ── Expense Rows ───────────────────────────────────────────── */}
+                <FieldArray name="expenseRows">
+                  {({ push, remove, form }) => (
+                    <Section
+                      title="Expense Details"
+                      icon={
                         <svg
-                          className="w-8 h-8 mb-2 opacity-40"
+                          className="w-4 h-4"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
-                          strokeWidth={1.5}
+                          strokeWidth={2}
                         >
                           <path
                             strokeLinecap="round"
@@ -581,28 +401,207 @@ const ComplexExpenseForm = ({
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                           />
                         </svg>
-                        <p className="text-sm">
-                          No expense rows yet. Click{" "}
-                          <span className="font-semibold text-blue-600">
-                            Add Expense Row
-                          </span>{" "}
-                          to begin.
-                        </p>
+                      }
+                    >
+                      <div className="flex justify-end mb-4">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            push({
+                              id: -1,
+                              expenseId: editData?.id ?? -1,
+                              date: "",
+                              description: "",
+                              paymentMode: "gpay",
+                              amount: "",
+                              remarks: "",
+                              file: null,
+                              existingDocUrl: null,
+                            })
+                          }
+                          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold border-0 cursor-pointer transition"
+                        >
+                          <Plus className="w-4 h-4" /> Add Expense Row
+                        </button>
                       </div>
-                    )}
-                  </Section>
-                )}
-              </FieldArray>
-            </div>
 
-            <SubmitFooter
-              isSubmitting={isSubmitting}
-              label={config.label}
-              onClose={onClose}
-              isEditing={isEditing}
-            />
-          </Form>
-        )}
+                      {form.values.expenseRows?.length > 0 ? (
+                        <div className="overflow-x-auto rounded-xl border border-gray-100">
+                          <table className="w-full text-sm border-collapse">
+                            <thead>
+                              <tr className="bg-gray-50">
+                                {[
+                                  "Date",
+                                  "Description",
+                                  "Payment Mode",
+                                  "Amount (₹)",
+                                  "Bill",
+                                  "",
+                                ].map((h) => (
+                                  <th
+                                    key={h}
+                                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap border-b border-gray-100"
+                                  >
+                                    {h}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {form.values.expenseRows.map((row, index) => (
+                                <tr
+                                  key={index}
+                                  className="border-t border-gray-50 hover:bg-blue-50/20 transition"
+                                >
+                                  {/* Date — browser shows DD/MM/YYYY in India locale; value is YYYY-MM-DD */}
+                                  <td className="px-3 py-2">
+                                    <Field
+                                      type="date"
+                                      name={`expenseRows.${index}.date`}
+                                      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition"
+                                    />
+                                  </td>
+
+                                  {/* Description */}
+                                  <td className="px-3 py-2">
+                                    <Field
+                                      name={`expenseRows.${index}.description`}
+                                      placeholder="e.g. Taxi fare"
+                                      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition min-w-[120px]"
+                                    />
+                                  </td>
+
+                                  {/* Payment Mode */}
+                                  <td className="px-3 py-2">
+                                    <Field
+                                      as="select"
+                                      name={`expenseRows.${index}.paymentMode`}
+                                      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition bg-white cursor-pointer"
+                                    >
+                                      <option value="gpay">GPay</option>
+                                      <option value="cash">Cash</option>
+                                      <option value="card">Card</option>
+                                      <option value="netbanking">
+                                        Net Banking
+                                      </option>
+                                    </Field>
+                                  </td>
+
+                                  {/* Amount */}
+                                  <td className="px-3 py-2">
+                                    <div className="relative">
+                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">
+                                        ₹
+                                      </span>
+                                      <Field
+                                        type="number"
+                                        name={`expenseRows.${index}.amount`}
+                                        placeholder="0"
+                                        className="w-full border border-gray-200 rounded-lg pl-6 pr-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition min-w-[80px]"
+                                      />
+                                    </div>
+                                  </td>
+
+                                  {/* Bill Upload */}
+                                  <td className="px-3 py-2">
+                                    <input
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.pdf"
+                                      id={`rowFile-${index}`}
+                                      className="hidden"
+                                      onChange={(e) =>
+                                        handleRowFile(e, index, form)
+                                      }
+                                    />
+                                    <label
+                                      htmlFor={`rowFile-${index}`}
+                                      title={
+                                        rowPreviews[index]
+                                          ? String(rowPreviews[index])
+                                          : "Upload Bill"
+                                      }
+                                      className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition cursor-pointer"
+                                    >
+                                      {rowPreviews[index] ? (
+                                        <FileText className="w-4 h-4 text-blue-500" />
+                                      ) : (
+                                        <Upload className="w-4 h-4 text-gray-400" />
+                                      )}
+                                    </label>
+                                    {/* ✅ View link for existing doc when editing */}
+                                    {!form.values.expenseRows[index]?.file &&
+                                      row.existingDocUrl && (
+                                        <a
+                                          href={row.existingDocUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="block text-[10px] text-blue-500 hover:underline mt-0.5 max-w-[60px] truncate"
+                                        >
+                                          View
+                                        </a>
+                                      )}
+                                  </td>
+
+                                  {/* Delete Row */}
+                                  <td className="px-3 py-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        remove(index);
+                                        setRowPreviews((p) => {
+                                          const n = { ...p };
+                                          delete n[index];
+                                          return n;
+                                        });
+                                      }}
+                                      className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition border-0 bg-transparent cursor-pointer"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                          <svg
+                            className="w-8 h-8 mb-2 opacity-40"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                            />
+                          </svg>
+                          <p className="text-sm">
+                            No expense rows yet. Click{" "}
+                            <span className="font-semibold text-blue-600">
+                              Add Expense Row
+                            </span>{" "}
+                            to begin.
+                          </p>
+                        </div>
+                      )}
+                    </Section>
+                  )}
+                </FieldArray>
+              </div>
+
+              <SubmitFooter
+                isSubmitting={isSubmitting}
+                label={config.label}
+                onClose={onClose}
+                isEditing={isEditing}
+              />
+            </Form>
+          );
+        }}
       </Formik>
     </CustomModal>
   );

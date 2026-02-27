@@ -81,9 +81,9 @@ export const TAB_CONFIG = {
       label: "Expense Title",
       placeholder: "e.g. Miscellaneous",
     },
-    showCities: false,
+    showCities: true,
     showDates: true,
-    dateLabels: { start: "Date", end: "Due Date" },
+    dateLabels: { start: "From Date", end: "To date" },
     formStyle: "complex",
   },
 };

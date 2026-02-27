@@ -20,27 +20,6 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SIMPLE_TYPES = ["employees", "office", "serve"];
 
-const summaryCards = [
-  {
-    label: "Total Expenses",
-    value: "₹ 40,689",
-    icon: toAbsoluteUrl("/media/icons/expense2.png"),
-    iconBg: "bg-red-50",
-  },
-  {
-    label: "Total Paid",
-    value: "₹ 10,293",
-    icon: toAbsoluteUrl("/media/icons/expense3.png"),
-    iconBg: "bg-emerald-50",
-  },
-  {
-    label: "Total Remaining",
-    value: "₹ 89,000",
-    icon: toAbsoluteUrl("/media/icons/expense1.png"),
-    iconBg: "bg-amber-50",
-  },
-];
-
 const expenseTabs = [
   { key: "trip", label: "Trip Expenses" },
   { key: "employees", label: "Employees Expenses" },
@@ -95,45 +74,21 @@ const IconSearch = () => (
   </svg>
 );
 
-// ─── Date Utilities (exported so forms can reuse them) ────────────────────────
-
-/**
- * ANY api date string → "DD/MM/YYYY" (table display)
- *
- * Handles all formats returned by GETtripexpenseById,
- * GETofficeexpenseById, GEtEmpofficeExpensebytype, GEtEmployeeExpensebytype:
- *   "2026-02-16 00:00:00"  →  "16/02/2026"
- *   "2026-02-16T00:00:00Z" →  "16/02/2026"
- *   "2026-02-16"           →  "16/02/2026"
- *   "16/02/2026"           →  "16/02/2026"  (pass-through)
- */
+// ─── Date Utilities ───────────────────────────────────────────────────────────
 export const formatDate = (raw) => {
   if (!raw) return "";
-  // Already DD/MM/YYYY — pass through
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) return raw;
-  // "YYYY-MM-DD" or "YYYY-MM-DD HH:mm:ss" — extract parts directly
-  // ✅ NEVER use new Date() here — it interprets as UTC and shifts day in IST (UTC+5:30)
   const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (m) return `${m[3]}/${m[2]}/${m[1]}`;
-  return raw; // unrecognised — return as-is
+  return raw;
 };
 
-/**
- * ANY api date string → "YYYY-MM-DD" for <input type="date">
- *
- *   "2026-02-16 00:00:00"  →  "2026-02-16"
- *   "2026-02-16T00:00:00Z" →  "2026-02-16"
- *   "2026-02-16"           →  "2026-02-16"  (pass-through)
- *   "16/02/2026"           →  "2026-02-16"
- */
 export const toInputDate = (raw) => {
   if (!raw) return "";
-  // DD/MM/YYYY → flip
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) {
     const [d, m, y] = raw.split("/");
     return `${y}-${m}-${d}`;
   }
-  // YYYY-MM-DD (+ optional time) → strip time
   const m = raw.match(/^(\d{4}-\d{2}-\d{2})/);
   if (m) return m[1];
   return "";
@@ -150,8 +105,14 @@ const AllExpense = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [modalKey, setModalKey] = useState(0);
+  const [summary, setSummary] = useState({
+    total_expense: 0,
+    paid_expense: 0,
+    remaing_expense: 0,
+  });
 
-  const userId = Number(localStorage.getItem("userId"));
+  const userId = Number(localStorage.getItem("mainId"));
   const currentTab = expenseTabs.find((t) => t.key === activeTab);
   const isSimple = SIMPLE_TYPES.includes(activeTab);
 
@@ -162,10 +123,20 @@ const AllExpense = () => {
     try {
       const simple = SIMPLE_TYPES.includes(tab);
       const res = simple
-        ? await GEtEmpofficeExpensebytype(userId, tab) // employees / office / serve
-        : await GEtEmployeeExpensebytype(userId, tab); // trip / other
+        ? await GEtEmpofficeExpensebytype(userId, tab)
+        : await GEtEmployeeExpensebytype(userId, tab);
 
-      const list = res?.data?.data ?? [];
+      // API shape: { total_expense, paid_expense, remaing_expense, data: [...] }
+      const payload = res?.data?.data ?? res?.data ?? {};
+
+      setSummary({
+        total_expense: payload.total_expense ?? 0,
+        paid_expense: payload.paid_expense ?? 0,
+        remaing_expense: payload.remaing_expense ?? 0,
+      });
+
+      const raw = payload.data;
+      const list = Array.isArray(raw) ? raw : raw ? [raw] : [];
 
       setData(
         list.map((item, index) => ({
@@ -179,12 +150,18 @@ const AllExpense = () => {
             avatar: null,
           },
           amount: item.totalAmount ?? item.expenseAmount ?? 0,
-          status: item.status ?? "Pending",
-          remarks: item.remarks ?? "",
-          startDate: formatDate(item.fromDate ?? item.expenseDate), // ✅ DD/MM/YYYY
+          status:
+            item.payoutAmount > 0 && item.remaingAmount === 0
+              ? "Paid"
+              : item.payoutAmount > 0 && item.remaingAmount > 0
+                ? "Pending"
+                : "Unpaid",
+          remarks: item.remark ?? item.remarks ?? "",
+          startDate: formatDate(item.fromDate ?? item.expenseDate),
           dueDate: formatDate(item.dueDate),
           totalAmount: item.totalAmount ?? item.expenseAmount ?? 0,
-          paidAmount: item.paidAmount ?? 0,
+          paidAmount: item.payoutAmount ?? item.paidAmount ?? 0,
+          remainingAmount: item.remaingAmount ?? 0,
           transactions: item.detailRequestDtos ?? [],
           fromCityId: item.fromCityId,
           toCityId: item.toCityId,
@@ -205,54 +182,42 @@ const AllExpense = () => {
     fetchExpenses(activeTab);
   }, [activeTab]);
 
-  // ── Doc-path sanity — API returns "http://host/pathnull" when no file ────────
+  // ── Doc-path sanity ────────────────────────────────────────────────────────
   const validDoc = (url) =>
     url && !url.endsWith("null") && !url.endsWith("undefined") ? url : null;
 
-  // ── Edit — GETbyId → map API dates to input format ────────────────────────
+  // ── Edit ───────────────────────────────────────────────────────────────────
   const handleEdit = async (row) => {
     setEditLoading(true);
     try {
       if (isSimple) {
-        // GETofficeexpenseById returns a flat object:
-        // { id, title, expenseDate, expenseAmount, dueDate,
-        //   paymentMode, remarks, docPath, status, expenseType, userId }
         const res = await GETofficeexpenseById(row.id);
         const d = res?.data?.data ?? {};
-
         setEditData({
           id: d.id ?? row.id,
           title: d.title ?? "",
           employeeName: d.title ?? "",
           officeName: d.title ?? "",
           serveName: d.title ?? "",
-          // ✅ Pure regex — no new Date() → no UTC/IST timezone shift
           expenseDate: toInputDate(d.expenseDate),
           amount: d.expenseAmount ?? "",
           dueDate: toInputDate(d.dueDate),
           paymentMethod: d.paymentMode ?? "gpay",
           remarks: d.remarks ?? "",
           billFile: null,
-          // ✅ Treat "http://host/pathnull" as no file
           existingDocUrl: validDoc(d.docPath),
         });
       } else {
-        // GETtripexpenseById returns:
-        // { id, title, fromDate, toDate, dueDate, totalAmount, remarks,
-        //   fromCityId, toCityId, expenseType, userId,
-        //   detailRequestDtos: [{ id, expenseId, expenseDate, perticular,
-        //                         paymentMode, amount, remarks, docPath }] }
         const res = await GETtripexpenseById(row.id);
         const d = res?.data?.data ?? {};
-
         setEditData({
           id: d.id ?? row.id,
           title: d.title ?? "",
           tripName: d.title ?? "",
           otherName: d.title ?? "",
-          startDate: toInputDate(d.fromDate), // ✅ YYYY-MM-DD
-          endDate: toInputDate(d.toDate), // ✅
-          dueDate: toInputDate(d.dueDate), // ✅
+          startDate: toInputDate(d.fromDate),
+          endDate: toInputDate(d.toDate),
+          dueDate: toInputDate(d.dueDate),
           fromCity: d.fromCityId ?? null,
           toCity: d.toCityId ?? null,
           amount: d.totalAmount ?? "",
@@ -260,7 +225,7 @@ const AllExpense = () => {
           expenseRows: (d.detailRequestDtos ?? []).map((tx) => ({
             id: tx.id ?? -1,
             expenseId: tx.expenseId ?? d.id ?? -1,
-            date: toInputDate(tx.expenseDate), // ✅ each row date
+            date: toInputDate(tx.expenseDate),
             description: tx.perticular ?? "",
             paymentMode: tx.paymentMode ?? "gpay",
             amount: tx.amount ?? "",
@@ -270,7 +235,6 @@ const AllExpense = () => {
           })),
         });
       }
-
       setIsModalOpen(true);
     } catch (err) {
       console.error("Failed to fetch expense for edit:", err);
@@ -296,7 +260,6 @@ const AllExpense = () => {
   const handleUserClick = async (row) => {
     try {
       const simple = SIMPLE_TYPES.includes(activeTab);
-
       if (simple) {
         const res = await GETofficeexpenseById(row.id);
         const detail = res?.data?.data ?? null;
@@ -308,7 +271,8 @@ const AllExpense = () => {
           phone: null,
           avatar: null,
           totalAmount: detail?.expenseAmount ?? 0,
-          paidAmount: detail?.paidAmount ?? 0,
+          paidAmount: detail?.payoutAmount ?? 0,
+          remainingAmount: detail?.remaingAmount ?? 0,
           transactions: detail
             ? [
                 {
@@ -333,7 +297,8 @@ const AllExpense = () => {
           phone: null,
           avatar: null,
           totalAmount: detail?.totalAmount ?? 0,
-          paidAmount: detail?.paidAmount ?? 0,
+          paidAmount: detail?.payoutAmount ?? 0,
+          remainingAmount: detail?.remaingAmount ?? 0,
           transactions: (detail?.detailRequestDtos ?? []).map((tx) => ({
             date: formatDate(tx.expenseDate),
             type: tx.paymentMode ?? "",
@@ -413,24 +378,46 @@ const AllExpense = () => {
       ),
     );
 
-  const handlePayout = async (id, payoutType) => {
+  // ── Payout ─────────────────────────────────────────────────────────────────
+  const handlePayout = async (id, payoutType, payoutAmount) => {
     try {
       isSimple
-        ? await updatepayoutforoffice(id, payoutType)
-        : await updatepayoutforTrip(id, payoutType);
+        ? await updatepayoutforoffice(id, payoutType, payoutAmount)
+        : await updatepayoutforTrip(id, payoutType, payoutAmount);
+
+      // ✅ Update state directly — do NOT call fetchExpenses()
+      // Fetching immediately after the API call often returns the OLD
+      // status because the backend hasn't committed the change yet.
       setData((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, status: payoutType } : item,
+          item.id === id
+            ? {
+                ...item,
+                status: payoutType,
+                paidAmount:
+                  payoutType === "Paid"
+                    ? item.amount
+                    : payoutType === "Unpaid"
+                      ? 0
+                      : Number(payoutAmount),
+              }
+            : item,
         ),
       );
+
+      // Fire-and-forget toast (no await) so table updates are visible immediately
+
       Swal.fire({
-        title: "Payout Done!",
-        text: `Marked as ${payoutType}.`,
+        title: "Payout Updated!",
+        text: `Status set to ${payoutType} · ₹${Number(payoutAmount ?? 0).toLocaleString()}`,
         icon: "success",
-        confirmButtonColor: "#1d4ed8",
-        customClass: { popup: "!rounded-2xl", confirmButton: "!rounded-xl" },
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: { popup: "!rounded-2xl" },
       });
-    } catch {
+      fetchExpenses(activeTab); // 👈 add this
+    } catch (err) {
+      console.error("Payout failed:", err);
       Swal.fire({
         title: "Failed!",
         text: "Payout could not be processed.",
@@ -454,6 +441,28 @@ const AllExpense = () => {
     handlePayout,
     handleUserClick,
   );
+
+  // ─── Summary cards from live API ──────────────────────────────────────────
+  const summaryCards = [
+    {
+      label: "Total Expenses",
+      value: `₹ ${summary.total_expense.toLocaleString()}`,
+      icon: toAbsoluteUrl("/media/icons/expense4.png"),
+      iconBg: "bg-red-50",
+    },
+    {
+      label: "Total Paid",
+      value: `₹ ${summary.paid_expense.toLocaleString()}`,
+      icon: toAbsoluteUrl("/media/icons/expense3.png"),
+      iconBg: "bg-emerald-50",
+    },
+    {
+      label: "Total Remaining",
+      value: `₹ ${summary.remaing_expense.toLocaleString()}`,
+      icon: toAbsoluteUrl("/media/icons/expense2.png"),
+      iconBg: "bg-blue-50",
+    },
+  ];
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -526,7 +535,9 @@ const AllExpense = () => {
               disabled={editLoading}
               onClick={() => {
                 setEditData(null);
-                setIsModalOpen(true);
+                setModalKey((k) => k + 1); // 👈 force fresh key
+                setIsModalOpen(false);
+                setTimeout(() => setIsModalOpen(true), 0);
               }}
               className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer border-0 disabled:opacity-60"
             >
@@ -591,7 +602,7 @@ const AllExpense = () => {
             Loading expenses...
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto overflow-x-visible [&_table]:border-0 [&_th]:border-0 [&_td]:border-0 [&_thead]:bg-gray-50 [&_thead_tr]:border-0 [&_tbody_tr]:border-t [&_tbody_tr]:border-gray-100 [&_tbody_tr:hover]:bg-gray-50/60 [&_th]:text-xs [&_th]:font-semibold [&_th]:text-gray-500 [&_th]:uppercase [&_th]:tracking-wide [&_th]:py-3 [&_th]:px-4 [&_td]:py-3.5 [&_td]:px-4">
+          <div className="flex-1 overflow-y-auto overflow-x-auto [&_table]:border-0 [&_th]:border-0 [&_td]:border-0 [&_thead]:bg-gray-50 [&_thead_tr]:border-0 [&_tbody_tr]:border-t [&_tbody_tr]:border-gray-100 [&_tbody_tr:hover]:bg-gray-50/60 [&_th]:text-xs [&_th]:font-semibold [&_th]:text-gray-500 [&_th]:uppercase [&_th]:tracking-wide [&_th]:py-3 [&_th]:px-4 [&_td]:py-3.5 [&_td]:px-4">
             <TableComponent columns={tableColumns} data={filteredData} />
           </div>
         )}
@@ -612,6 +623,7 @@ const AllExpense = () => {
 
       {isSimple ? (
         <SimpleExpenseForm
+          key={modalKey}
           isOpen={isModalOpen}
           onClose={handleModalClose}
           expenseType={activeTab}
@@ -619,13 +631,14 @@ const AllExpense = () => {
         />
       ) : (
         <ComplexExpenseForm
+          key={modalKey}
           isOpen={isModalOpen}
           onClose={handleModalClose}
           expenseType={activeTab}
           editData={editData}
+          fetchExpenses={fetchExpenses}
         />
       )}
-
       <UserExpenseDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
