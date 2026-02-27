@@ -508,83 +508,93 @@ export const allMenuItems = [
   },
 
   {
-    title: <FormattedMessage id="COMMON.STOCK_MANAGEMENT" defaultMessage="Stock Management" />,
+    title: (
+      <>
+        <FormattedMessage id="COMMON.STOCK_MANAGEMENT" defaultMessage="Stock" />
+        <span
+          className="text-primary"
+          style={{ marginLeft: "26px", fontSize: "12px" }}
+        >
+          Coming Soon
+        </span>
+      </>
+    ),
     icon: "ki-filled ki-chart-simple text-primary text-lg",
     disabled: false,
-    children: [
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.STOCK_TYPE"
-            defaultMessage="Stock Type"
-          />
-        ),
-        path: "/stock-management/stock-type",
-        pageName: "Stock Type",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="BREADCRUMBS_PURCHASE"
-            defaultMessage="Purchase"
-          />
-        ),
-        path: "/stock-management/purchase",
-        pageName: "Purchase",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.PURCHASE_RETURN"
-            defaultMessage="Purchase Return"
-          />
-        ),
-        path: "/stock-management/purchase-return",
-        pageName: "Purchase Return",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.STORE_PO"
-            defaultMessage="Store PO"
-          />
-        ),
-        path: "/stock-management/store-po",
-        pageName: "Store PO",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.STOCK_LEDGER"
-            defaultMessage="Stock Ledger"
-          />
-        ),
-        path: "/stock-management/store-ledger",
-        pageName: "Store Ledger",
-      },
-      {
-        title: (
-          <FormattedMessage
-            id="COMMON.STOCK_REPORT"
-            defaultMessage="Stock Report"
-          />
-        ),
-        path: "/stock-management/stock-report",
-        pageName: "Stock Report",
-      },
+    // children: [
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STOCK_TYPE"
+    //         defaultMessage="Stock Type"
+    //       />
+    //     ),
+    //     path: "/stock-management/stock-type",
+    //     pageName: "Stock Type",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="BREADCRUMBS_PURCHASE"
+    //         defaultMessage="Purchase"
+    //       />
+    //     ),
+    //     path: "/stock-management/purchase",
+    //     pageName: "Purchase",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.PURCHASE_RETURN"
+    //         defaultMessage="Purchase Return"
+    //       />
+    //     ),
+    //     path: "/stock-management/purchase-return",
+    //     pageName: "Purchase Return",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STORE_PO"
+    //         defaultMessage="Store PO"
+    //       />
+    //     ),
+    //     path: "/stock-management/store-po",
+    //     pageName: "Store PO",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STOCK_LEDGER"
+    //         defaultMessage="Stock Ledger"
+    //       />
+    //     ),
+    //     path: "/stock-management/store-ledger",
+    //     pageName: "Store Ledger",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STOCK_REPORT"
+    //         defaultMessage="Stock Report"
+    //       />
+    //     ),
+    //     path: "/stock-management/stock-report",
+    //     pageName: "Stock Report",
+    //   },
 
-      // {
-      //   title: (
-      //     <FormattedMessage
-      //       id="COMMON.NOTIFICATIONS"
-      //       defaultMessage="Notifications"
-      //     />
-      //   ),
-      //   path: "settings/notifications",
-      // },
-    ],
+    // {
+    //   title: (
+    //     <FormattedMessage
+    //       id="COMMON.NOTIFICATIONS"
+    //       defaultMessage="Notifications"
+    //     />
+    //   ),
+    //   path: "settings/notifications",
+    // },
+    // ],
   },
-  
+
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
     icon: "ki-filled ki-setting-2 text-primary  text-lg",
