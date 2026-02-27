@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar, Users, MapPin, Copy, Search } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X, Calendar, Users, MapPin, Copy, Search } from "lucide-react";
 import { GetAllEventFunction } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
-const CopyMenuPlanning = ({ 
-  isOpen, 
-  onClose, 
-  onCopyFunction, 
+const CopyMenuPlanning = ({
+  isOpen,
+  onClose,
+  onCopyFunction,
   currentEventId,
-  currentFunctionId 
+  currentFunctionId,
 }) => {
-
-   const userId = localStorage.getItem("userId");
-  const [searchTerm, setSearchTerm] = useState('');
+  const userId = localStorage.getItem("userId");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [functions, setFunctions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,52 +30,59 @@ const CopyMenuPlanning = ({
 
       if (eventFunctions.length > 0) {
         const mappedFunctions = eventFunctions
-          .filter(func => func.id !== currentFunctionId) 
-          .map(func => ({
+          .filter((func) => func.id !== currentFunctionId)
+          .map((func) => ({
             id: func.id,
             eventId: func.eventId,
-            eventName: func.eventName || 'Event',
-            eventNameHindi: func.eventNameHindi || '',
-            eventNameGujarati: func.eventNameGujarati || '',
-            functionType: func.functionName || 'Function',
-            functionTypeHindi: func.functionNameHindi || '',
-            functionTypeGujarati: func.functionNameGujarati || '',
-            date: func.functionStartDateTime?.split(' ')[0] || '',
-            time: func.functionStartDateTime?.split(' ')[1] || '',
-            startDateTime: func.functionStartDateTime || '',
-            endDateTime: func.functionEndDateTime || '',
-            eventStartDateTime: func.eventStartDateTime || '',
-            eventEndDateTime: func.eventEndDateTime || '',
+            eventNo: func.eventNo,
+            eventName: func.eventName || "Event",
+            eventNameHindi: func.eventNameHindi || "",
+            eventNameGujarati: func.eventNameGujarati || "",
+            functionType: func.functionName || "Function",
+            functionTypeHindi: func.functionNameHindi || "",
+            functionTypeGujarati: func.functionNameGujarati || "",
+            date: func.functionStartDateTime?.split(" ")[0] || "",
+            time: func.functionStartDateTime?.split(" ")[1] || "",
+            startDateTime: func.functionStartDateTime.split(" ")[0] || "",
+            endDateTime: func.functionEndDateTime.split(" ")[0] || "",
+            eventStartDateTime: func.eventStartDateTime || "",
+            eventEndDateTime: func.eventEndDateTime || "",
             menuItems: 0,
-            status: 'Available',
-            customer: func.partyName || '',
-            customerHindi: func.partyNameHindi || '',
-            customerGujarati: func.partyNameGujarati || '',
+            customer: func.partyName || "",
+            customerHindi: func.partyNameHindi || "",
+            customerGujarati: func.partyNameGujarati || "",
             partyId: func.partyId || 0,
           }));
 
         setFunctions(mappedFunctions);
       }
     } catch (err) {
-      console.error('Error fetching functions:', err);
+      console.error("Error fetching functions:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Failed to load functions',
-        text: 'Could not fetch event functions.',
+        icon: "error",
+        title: "Failed to load functions",
+        text: "Could not fetch event functions.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredFunctions = functions.filter(func =>
-    func.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    func.functionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    func.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    func.eventNameHindi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    func.eventNameGujarati?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    func.functionTypeHindi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    func.functionTypeGujarati?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredFunctions = functions.filter(
+    (func) =>
+      func.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      func.functionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      func.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      func.eventNameHindi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      func.eventNameGujarati
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      func.functionTypeHindi
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      func.functionTypeGujarati
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   const handleCopyFunction = (func) => {
@@ -85,13 +91,13 @@ const CopyMenuPlanning = ({
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -104,7 +110,9 @@ const CopyMenuPlanning = ({
         <div className=" text-black py-3 px-6 flex justify-between items-center border-b border-gray-200">
           <div>
             <h2 className="text-2xl font-bold">Copy Menu from Function</h2>
-            <p className="text-gray-600 mt-1">Select a function to copy its menu preparation</p>
+            <p className="text-gray-600 mt-1">
+              Select a function to copy its menu preparation
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -117,7 +125,10 @@ const CopyMenuPlanning = ({
         {/* Search Bar */}
         <div className="px-6 py-3 ">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Search by function type, venue, or customer..."
@@ -139,27 +150,53 @@ const CopyMenuPlanning = ({
               {filteredFunctions.map((func) => (
                 <div
                   key={func.id}
-                  className={`border rounded-xl p-5 hover:shadow-lg transition-all cursor-pointer ${
+                  className={`border rounded-xl p-2 hover:shadow-lg transition-all cursor-pointer ${
                     selectedFunction?.id === func.id
-                      ? 'border-primary bg-blue-50 shadow-md'
-                      : 'border-gray-200 hover:border-blue-300'
+                      ? "border-primary bg-blue-50 shadow-md"
+                      : "border-gray-200 hover:border-blue-300"
                   }`}
                   onClick={() => setSelectedFunction(func)}
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800">{func.functionType}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{func.eventName}</p>
-                      <span className="inline-block mt-2 px-3 py-1 bg-blue-50 border border-primary text-primary rounded-full text-sm font-medium">
-                        {func.customer}
-                      </span>
+                  <div className="flex flex-col  justify-between items-start mb-3">
+                    <div className="w-full flex justify-between items-start ">
+                      <h3 className="text-xl font-bold text-gray-800">
+                        Function Name : {func.functionType}
+                      </h3>
                     </div>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                      {func.status}
-                    </span>
+                    <div className=" w-full flex justify-between">
+                      <div className=" flex flex-col gap-1">
+                        <div className="flex   items-center gap-2">
+                          <p className="inline-block mt-2 px-3 py-1 bg-blue-50 border border-primary text-primary rounded-full text-xs font-medium">
+                            Event No : {func.eventNo}
+                          </p>
+                          <p className="inline-block mt-2 px-3 py-1 bg-blue-50 border border-primary text-primary rounded-full text-xs font-medium">
+                            Event Name : {func.eventName}
+                          </p>
+                          <span className="inline-block mt-2 px-3 py-1 bg-blue-50 border border-primary text-primary rounded-full text-xs font-medium">
+                            Party Name : {func.customer}
+                          </span>
+                          <p className="inline-block mt-2  px-3 py-1 bg-blue-50 border border-primary text-primary rounded-full text-xs font-medium">
+                            From {func.startDateTime} To {func.endDateTime}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyFunction(func);
+                          }}
+                          className="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-primary transition-colors flex items-center gap-2"
+                        >
+                          <Copy size={12} />
+                          Copy Menu
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                  {/* <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar size={18} className="text-primary" />
                       <div>
@@ -183,30 +220,7 @@ const CopyMenuPlanning = ({
                         <p className="text-sm font-semibold">{func.customer}</p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          <span className="font-medium">Start Time:</span> {func.startDateTime || 'N/A'}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          <span className="font-medium">End Time:</span> {func.endDateTime || 'N/A'}
-                        </p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopyFunction(func);
-                        }}
-                        className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary transition-colors flex items-center gap-2"
-                      >
-                        <Copy size={16} />
-                        Copy Menu
-                      </button>
-                    </div>
-                  </div>
+                  </div> */}
                 </div>
               ))}
             </div>
@@ -214,9 +228,9 @@ const CopyMenuPlanning = ({
             <div className="text-center py-12">
               <Search size={48} className="mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500 text-lg">
-                {functions.length === 0 
-                  ? 'No other functions available in this event'
-                  : 'No functions found matching your search'}
+                {functions.length === 0
+                  ? "No other functions available in this event"
+                  : "No functions found matching your search"}
               </p>
             </div>
           )}
@@ -225,7 +239,8 @@ const CopyMenuPlanning = ({
         {/* Modal Footer */}
         <div className="border-t p-6 bg-gray-50 flex justify-between items-center">
           <p className="text-sm text-gray-600">
-            {filteredFunctions.length} function{filteredFunctions.length !== 1 ? 's' : ''} available
+            {filteredFunctions.length} function
+            {filteredFunctions.length !== 1 ? "s" : ""} available
           </p>
           <button
             onClick={onClose}

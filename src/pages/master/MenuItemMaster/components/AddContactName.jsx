@@ -18,6 +18,7 @@ const AddContactName = ({
   concatId,
   contactTypeId,
   refreshData,
+  
 }) => {
   if (!isModalOpen) return null;
   const intl = useIntl();
@@ -30,6 +31,8 @@ const AddContactName = ({
   const fileInputRef = useRef();
   const [debounceTimer, setDebounceTimer] = useState(null);
   const [isconatctModalOpen, setIsContactModalOpen] = useState(false);
+
+  
 
   // Yup validation schema
   const validationSchema = Yup.object().shape({

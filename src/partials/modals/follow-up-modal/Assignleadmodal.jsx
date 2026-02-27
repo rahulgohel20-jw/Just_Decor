@@ -10,8 +10,6 @@ const AssignLeadModal = ({
   selectedCount,
   closeDate,
   setCloseDate,
-  expirationDate, // ✅ add
-  setExpirationDate,
   description,
   setDescription,
 }) => {
@@ -49,27 +47,6 @@ const AssignLeadModal = ({
     } catch {
       return "";
     }
-  };
-
-  const handleExpirationDateChange = (e) => {
-    const raw = e.target.value;
-    if (!raw) {
-      setExpirationDate("");
-      return;
-    }
-
-    const [datePart, timePart] = raw.split("T");
-    const [y, m, d] = datePart.split("-");
-    const [hourStr, minStr] = timePart.split(":");
-
-    let hour = parseInt(hourStr, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-
-    const paddedHour = String(hour).padStart(2, "0");
-    const formatted = `${d}/${m}/${y} ${paddedHour}:${minStr} ${ampm}`;
-
-    setExpirationDate(formatted);
   };
 
   const isDisabled = !selectedManager || !closeDate || !description;
@@ -127,7 +104,7 @@ const AssignLeadModal = ({
           {/* Close Date & Time */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Assign Date & Time <span className="text-red-500">*</span>
+              close Date & Time <span className="text-red-500">*</span>
             </label>
             <input
               type="datetime-local"
@@ -139,24 +116,6 @@ const AssignLeadModal = ({
             {closeDate && (
               <p className="text-xs text-gray-500 mt-1">
                 Formatted: <strong>{closeDate}</strong>
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Close Date & Time <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              value={toInputValue(expirationDate)}
-              onChange={handleExpirationDateChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-            {/* Show formatted value as preview */}
-            {expirationDate && (
-              <p className="text-xs text-gray-500 mt-1">
-                Formatted: <strong>{expirationDate}</strong>
               </p>
             )}
           </div>
