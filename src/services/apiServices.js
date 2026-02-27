@@ -196,7 +196,7 @@ export const GetRawmaterialwithcatID = (catID, id) => {
   );
 };
 
-export const GetAllRawmaterial = ( id) => {
+export const GetAllRawmaterial = (id) => {
   return GET(
     `/rawmaterial/getallbyuserid?pageNo=1&pageSize=9999&rawMateriaCatlId=0&unitid=0&userid=${id}
 `,
@@ -1566,6 +1566,18 @@ export const GetbankdetailsbyuserId = (userId) => {
   return GET(`bankdetails/getbyuserid?userId=${userId}`);
 };
 
+export const EmployeePerformance = (
+  employeeId,
+  endDate,
+  lang,
+  pipelineId,
+  startDate,
+) => {
+  return POST(
+    `/report/generate-employee-report?employeeId=${employeeId}&endDate=${endDate}&lang=${lang}&pipelineId=${pipelineId}&startDate=${startDate}`,
+  );
+};
+
 export const GetrawMaterialCatIdbytypeid = (id) => {
   return GET(
     `rawmaterialcategory/getbyrawmaterialcategorytypeid?rawMaterialCategoryTypeId=${id}`,
@@ -1749,9 +1761,10 @@ export const Addupdateemployeeexpense = (data) => {
   return POST(`employeeexpense/addOrUpdateTripExpense`, data);
 };
 
-
 export const GEtEmployeeExpensebytype = (userId, expenseType) => {
-  return GET(`employeeexpense/getTripExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`);
+  return GET(
+    `employeeexpense/getTripExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`,
+  );
 };
 
 export const AddOrUpdateOfficeExpense = (data) => {
@@ -1759,8 +1772,10 @@ export const AddOrUpdateOfficeExpense = (data) => {
 };
 
 export const GEtEmpofficeExpensebytype = (userId, expenseType) => {
-  return GET(`employeeexpense/getOfficeExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`);
-}
+  return GET(
+    `employeeexpense/getOfficeExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`,
+  );
+};
 
 export const DeleteEmployeeExpenseoffice = (expenseId) => {
   return DELETE(`employeeexpense/deleteOfficeExpense?expenseId=${expenseId}`);
@@ -1768,22 +1783,30 @@ export const DeleteEmployeeExpenseoffice = (expenseId) => {
 
 export const DeleteEmployeeExpenseTrip = (expenseId) => {
   return DELETE(`employeeexpense/deleteTripExpense?expenseId=${expenseId}`);
-}
+};
 
 export const GETtripexpenseById = (expenseId) => {
-  return GET(`employeeexpense/getTripExpenseByExpenseId?expenseId=${expenseId}`);
-}
+  return GET(
+    `employeeexpense/getTripExpenseByExpenseId?expenseId=${expenseId}`,
+  );
+};
 
 export const GETofficeexpenseById = (expenseId) => {
-  return GET(`employeeexpense/getOfficeExpenseByExpenseId?expenseId=${expenseId}`);
+  return GET(
+    `employeeexpense/getOfficeExpenseByExpenseId?expenseId=${expenseId}`,
+  );
 };
 
 export const updatepayoutforoffice = (expenseId, payoutType) => {
-  return PUT(`employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
+  return PUT(
+    `employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}`,
+  );
 };
 
 export const updatepayoutforTrip = (expenseId, payoutType) => {
-  return PUT(`employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}`);
+  return PUT(
+    `employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}`,
+  );
 };
 export const AddStockType = (data) => {
   return POST(`/stocktype/add`, data);
@@ -1799,8 +1822,7 @@ export const DeleteStockType = (id) => {
 
 export const UpdateStockType = (id, data) => {
   return PUT(`stocktype/update?id=${id}`, data);
-}
-
+};
 
 export const AddPuchase = (data) => {
   return POST(`purchaseorder/add-update`, data);
@@ -1809,7 +1831,6 @@ export const AddPuchase = (data) => {
 export const GetAllPurchase = (userId) => {
   return GET(`/purchaseorder/getbyuser?userId=${userId}`);
 };
-
 
 export const AddStorePO = (data) => {
   return POST(`/storepo/add`, data);

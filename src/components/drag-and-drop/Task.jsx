@@ -108,11 +108,14 @@ const Task = ({
                 {item.subtitle || item.leadCode || "No Code"}
               </small>
               <h2 className="text-2xs text-gray-600 mt-0.5">
-                  Contact No: {item.clientContactNo || "Unknown Client"}
-                </h2>
+                Contact No: {item.clientContactNo || "Unknown Client"}
+              </h2>
             </div>
-            
+
             <div className="flex items-center gap-1">
+              <p className="inline-block  px-3 py-1 bg-yellow-100 border border-yellow text-black rounded-full text-xs font-medium">
+                {item.closeDate}
+              </p>
               <button
                 className="btn btn-sm btn-icon btn-light btn-clear"
                 title="View Details"
