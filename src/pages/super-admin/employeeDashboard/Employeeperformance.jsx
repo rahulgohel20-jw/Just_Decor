@@ -5,6 +5,7 @@ import { AlertTriangle, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { GETallpipeline, GetEmployeeperformnace } from "@/services/apiServices";
 import { BarChart } from "@mui/x-charts/BarChart";
 const { Option } = Select;
+import EmployeeReport from "./EmployeeReport";
 
 const AVATAR_COLORS = [
   "bg-blue-500",
@@ -44,18 +45,6 @@ const qualityInfo = (q) => {
 const onTimeInfo = (v) => {
   if (v >= 80) return "bg-green-500";
   if (v >= 50) return "bg-amber-500";
-  return "bg-red-500";
-};
-
-const effColor = (v) => {
-  if (v >= -20) return "text-green-600";
-  if (v >= -40) return "text-amber-600";
-  return "text-red-500";
-};
-
-const effBar = (v) => {
-  if (v >= -20) return "bg-green-500";
-  if (v >= -40) return "bg-amber-500";
   return "bg-red-500";
 };
 
@@ -99,7 +88,7 @@ const Avatar = ({ name, idx }) => (
   </div>
 );
 
-const MiniBarChart = ({ quality, onTime, total }) => {
+const MiniBarChart = ({ quality, total }) => {
   const getColor = (label, value) => {
     if (label === "Total") return "#3b82f6"; // blue for total
     if (value >= 80) return "#22c55e"; // green
@@ -107,9 +96,9 @@ const MiniBarChart = ({ quality, onTime, total }) => {
     return "#ef4444"; // red
   };
 
-  const labels = ["Quality", "On-Time", "Total"];
+  const labels = ["Score", "Total"];
 
-  const values = [quality, onTime, total];
+  const values = [quality, total];
 
   return (
     <div className="w-56">
@@ -141,7 +130,8 @@ const MiniBarChart = ({ quality, onTime, total }) => {
     </div>
   );
 };
-const MemberCard = ({ member, idx }) => {
+const MemberCard = ({ member, idx, pipelineId }) => {
+  const [openReport, setOpenReport] = useState(false);
   const qi = qualityInfo(member.quality);
   const effSign = member.efficiency > 0 ? "+" : "";
 
@@ -163,17 +153,36 @@ const MemberCard = ({ member, idx }) => {
                   <AlertTriangle className="w-3 h-3" /> Underperforming
                 </span>
               )}
+              {member.quality < 50 ? (
+                <span className="inline-flex items-center gap-1 bg-yellow-200 text-black text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-200">
+                  <AlertTriangle className="w-3 h-3" /> Warning
+                </span>
+              ) : (
+                ""
+              )}
+              <span className="inline-flex items-center gap-1 bg-yellow-200 text-black text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-200">
+                <AlertTriangle className="w-3 h-3" />
+                After 3 Warning you will be disqualify
+              </span>
             </div>
             <p className="text-xs text-gray-400 mt-0.5 capitalize">
               {member.role}
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold text-gray-800 leading-none">
-            {member.total}
+        <div className="flex text-right gap-4">
+          <div>
+            <div className="text-2xl font-bold text-gray-800 leading-none">
+              {member.total}
+            </div>
+            <div className="text-xs text-gray-900 mt-0.5">Total Leads</div>{" "}
           </div>
-          <div className="text-xs text-gray-900 mt-0.5">Total Leads</div>{" "}
+          <button
+            className="bg-primary text-white px-2 py-1 rounded-lg text-sm hover:bg-primary transition-colors flex items-center gap-2"
+            onClick={() => setOpenReport(true)}
+          >
+            Report
+          </button>
         </div>
       </div>
 
@@ -283,14 +292,16 @@ const MemberCard = ({ member, idx }) => {
                 {qi.label}
               </p>
             </div>
-            <MiniBarChart
-              quality={member.quality}
-              onTime={member.onTime}
-              total={member.total}
-            />{" "}
+            <MiniBarChart quality={member.quality} total={member.total} />{" "}
           </div>
         </div>
       </div>
+      <EmployeeReport
+        isModalOpen={openReport}
+        setIsModalOpen={() => setOpenReport(false)}
+        employeeId={member.id}
+        pipelineId={pipelineId}
+      />
     </div>
   );
 };
@@ -305,7 +316,6 @@ export default function EmployeePerformance() {
   const [pipelines, setPipelines] = useState([]);
   const [pipelinesLoading, setPipelinesLoading] = useState(true);
   const [selectedPipeline, setSelectedPipeline] = useState(null);
-
   // Performance data state
   const [members, setMembers] = useState([]);
   const [performanceLoading, setPerformanceLoading] = useState(false);
@@ -359,6 +369,7 @@ export default function EmployeePerformance() {
     GetEmployeeperformnace(start, end, userId, selectedPipeline)
       .then((res) => {
         const responseData = res?.data?.data?.employee_performance ?? [];
+        console.log(responseData);
 
         console.log("New API Response:", responseData);
 
@@ -621,6 +632,7 @@ export default function EmployeePerformance() {
                     key={m.id}
                     member={m}
                     idx={members.findIndex((x) => x.id === m.id)}
+                    pipelineId={selectedPipeline}
                   />
                 ))
               )}

@@ -63,10 +63,11 @@ const MenuReport = ({
   useEffect(() => {
     if (!pdfUrl) return;
 
-    const originalPrint = window.print;
+    let isPrinting = false; // Guard flag
 
-    window.print = async () => {
-      window.print = originalPrint;
+    const interceptedPrint = async () => {
+      if (isPrinting) return; // Prevent re-entry
+      isPrinting = true;
 
       try {
         const response = await fetch(pdfUrl);
@@ -89,26 +90,33 @@ const MenuReport = ({
             } catch {
               window.open(blobUrl, "_blank");
             }
+
             setTimeout(() => {
               document.body.removeChild(iframe);
               URL.revokeObjectURL(blobUrl);
-              // Re-hook for next print click
-              window.print = interceptedPrint;
+              isPrinting = false; // Allow next print
             }, 3000);
           }, 800);
         };
+
+        iframe.onerror = () => {
+          window.open(pdfUrl, "_blank");
+          isPrinting = false;
+        };
       } catch {
         window.open(pdfUrl, "_blank");
-        window.print = interceptedPrint;
+        isPrinting = false;
       }
     };
 
-    const interceptedPrint = window.print;
+    // Override print
+    window.print = interceptedPrint;
 
     return () => {
-      window.print = originalPrint;
+      window.print = Function.prototype; // Neutral cleanup
     };
   }, [pdfUrl]);
+
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
 
