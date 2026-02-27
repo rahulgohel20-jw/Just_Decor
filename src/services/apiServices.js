@@ -1799,7 +1799,7 @@ export const GETofficeexpenseById = (expenseId) => {
 
 export const updatepayoutforoffice = (expenseId, payoutType) => {
   return PUT(
-    `employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}`,
+    `employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}&payoutAmount=${payoutAmount}`,
   );
 };
 

@@ -105,13 +105,14 @@ const AllExpense = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [modalKey, setModalKey] = useState(0);
   const [summary, setSummary] = useState({
     total_expense: 0,
     paid_expense: 0,
     remaing_expense: 0,
   });
 
-  const userId = Number(localStorage.getItem("userId"));
+  const userId = Number(localStorage.getItem("mainId"));
   const currentTab = expenseTabs.find((t) => t.key === activeTab);
   const isSimple = SIMPLE_TYPES.includes(activeTab);
 
@@ -149,7 +150,12 @@ const AllExpense = () => {
             avatar: null,
           },
           amount: item.totalAmount ?? item.expenseAmount ?? 0,
-          status: item.status ?? "Pending",
+          status:
+            item.payoutAmount > 0 && item.remaingAmount === 0
+              ? "Paid"
+              : item.payoutAmount > 0 && item.remaingAmount > 0
+                ? "Pending"
+                : "Unpaid",
           remarks: item.remark ?? item.remarks ?? "",
           startDate: formatDate(item.fromDate ?? item.expenseDate),
           dueDate: formatDate(item.dueDate),
@@ -265,7 +271,8 @@ const AllExpense = () => {
           phone: null,
           avatar: null,
           totalAmount: detail?.expenseAmount ?? 0,
-          paidAmount: detail?.paidAmount ?? 0,
+          paidAmount: detail?.payoutAmount ?? 0,
+          remainingAmount: detail?.remaingAmount ?? 0,
           transactions: detail
             ? [
                 {
@@ -290,7 +297,8 @@ const AllExpense = () => {
           phone: null,
           avatar: null,
           totalAmount: detail?.totalAmount ?? 0,
-          paidAmount: detail?.paidAmount ?? 0,
+          paidAmount: detail?.payoutAmount ?? 0,
+          remainingAmount: detail?.remaingAmount ?? 0,
           transactions: (detail?.detailRequestDtos ?? []).map((tx) => ({
             date: formatDate(tx.expenseDate),
             type: tx.paymentMode ?? "",
@@ -398,6 +406,7 @@ const AllExpense = () => {
       );
 
       // Fire-and-forget toast (no await) so table updates are visible immediately
+
       Swal.fire({
         title: "Payout Updated!",
         text: `Status set to ${payoutType} · ₹${Number(payoutAmount ?? 0).toLocaleString()}`,
@@ -406,6 +415,7 @@ const AllExpense = () => {
         showConfirmButton: false,
         customClass: { popup: "!rounded-2xl" },
       });
+      fetchExpenses(activeTab); // 👈 add this
     } catch (err) {
       console.error("Payout failed:", err);
       Swal.fire({
@@ -525,7 +535,9 @@ const AllExpense = () => {
               disabled={editLoading}
               onClick={() => {
                 setEditData(null);
-                setIsModalOpen(true);
+                setModalKey((k) => k + 1); // 👈 force fresh key
+                setIsModalOpen(false);
+                setTimeout(() => setIsModalOpen(true), 0);
               }}
               className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer border-0 disabled:opacity-60"
             >
@@ -611,6 +623,7 @@ const AllExpense = () => {
 
       {isSimple ? (
         <SimpleExpenseForm
+          key={modalKey}
           isOpen={isModalOpen}
           onClose={handleModalClose}
           expenseType={activeTab}
@@ -618,13 +631,14 @@ const AllExpense = () => {
         />
       ) : (
         <ComplexExpenseForm
+          key={modalKey}
           isOpen={isModalOpen}
           onClose={handleModalClose}
           expenseType={activeTab}
           editData={editData}
+          fetchExpenses={fetchExpenses}
         />
       )}
-
       <UserExpenseDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
