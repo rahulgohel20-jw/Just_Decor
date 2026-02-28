@@ -579,12 +579,14 @@ const QuotationPage = () => {
 
     const grandTotal =
       amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
-    const payments = (quotationData.advancePayments || []).map((p) => ({
-      id: p.id || 0,
-      advancePayment: parseFloat(p.amount) || 0,
-      advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
-      advancePaymentNotes: p.description || "",
-    }));
+    const payments = (quotationData.advancePayments || [])
+      .filter((p) => parseFloat(p.amount) > 0)
+      .map((p) => ({
+        id: p.id || 0,
+        advancePayment: parseFloat(p.amount) || 0,
+        advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
+        advancePaymentNotes: p.description || "",
+      }));
     const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
       const val = parseFloat(p.amount) || 0;
       return sum + val;
@@ -810,7 +812,7 @@ const QuotationPage = () => {
       ...prev,
       advancePayments: [
         ...prev.advancePayments,
-        { id: 0, amount: "0", date: dayjs(), description: "" },
+        { id: 0, amount: "", date: null, description: "" },
       ],
     }));
   };
@@ -1121,13 +1123,6 @@ const QuotationPage = () => {
                       </span>
 
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="text-primary hover:text-primary-dark"
-                          onClick={() => setIsQuotationDateEditing(true)}
-                        >
-                          <i className="ki-filled ki-pencil text-sm"></i>
-                        </button>
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">
