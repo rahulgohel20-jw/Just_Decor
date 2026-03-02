@@ -1121,13 +1121,7 @@ const QuotationPage = () => {
                       </span>
 
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="text-primary hover:text-primary-dark"
-                          onClick={() => setIsQuotationDateEditing(true)}
-                        >
-                          <i className="ki-filled ki-pencil text-sm"></i>
-                        </button>
+                        
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">

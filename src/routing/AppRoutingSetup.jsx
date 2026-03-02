@@ -236,6 +236,8 @@ import StorePo from "../pages/stockmanagement/storepo/StorePo";
 import AddStorePO from "../pages/stockmanagement/storepo/AddStorePO";
 import StoreLedger from "../pages/stockmanagement/storeledger/StoreLedger";
 import AllExpense from "../pages/super-admin/Expense";
+import RecipeDashboard from "../pages/recipe/recipeDashboard/RecipeDashboard";
+import ExploreRecipe from "../pages/recipe/recipeDashboard/ExploreRecipe";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -403,6 +405,31 @@ const AppRoutingSetup = () => {
           <Route path="/stock-management/storepo/add" element={<AddStorePO />} />
           <Route path="/stock-management/store-ledger" element={<StoreLedger />} />
 
+
+
+
+
+          {/* Recipe Route */}
+          <Route
+  path="/recipe"
+  element={<RecipeDashboard/>}
+/>
+<Route path="/recipe/explorerecipe" element={<ExploreRecipe/>}/>
+
+<Route
+  path="/recipe/list"
+  element={<div style={{ padding: 20 }}>Recipe List Page</div>}
+/>
+
+<Route
+  path="/recipe/add"
+  element={<div style={{ padding: 20 }}>Add Recipe Page</div>}
+/>
+
+<Route
+  path="/recipe/category"
+  element={<div style={{ padding: 20 }}>Recipe Category Page</div>}
+/>
 
 
           <Route path="/master/event-type" element={<EventTypeMaster />} />
