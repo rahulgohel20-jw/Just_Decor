@@ -44,7 +44,6 @@ const statusStyles = {
     dot: "bg-orange-400",
   },
   Unpaid: {
-    // ✅ FIXED (capital U)
     text: "text-red-600",
     border: "border-red-400",
     dot: "bg-red-500",
@@ -67,26 +66,59 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// ─── Payout Button with inline Yes / No confirm popover ───────────────────────
+// ─── Payout Button ────────────────────────────────────────────────────────────
+const DROPDOWN_W = 176;
 
-const PayoutButton = ({ onPayout }) => {
+const calcPos = (btnEl, dropH) => {
+  const rect = btnEl.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const vw = window.innerWidth;
+
+  // Flip above button if not enough room below
+  const top =
+    rect.bottom + dropH + 8 > vh ? rect.top - dropH - 4 : rect.bottom + 4;
+
+  // Align to right of button but keep on screen
+  const left = Math.min(
+    Math.max(rect.right - DROPDOWN_W, 8),
+    vw - DROPDOWN_W - 8,
+  );
+
+  return { top, left };
+};
+
+const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
+  const [view, setView] = useState("menu"); // "menu" | "pending-input"
+  const [pendingAmount, setPendingAmount] = useState("");
+
   const btnRef = useRef(null);
   const dropRef = useRef(null);
 
-  // Position the dropdown relative to the button using fixed coords
-  const openDropdown = () => {
-    if (btnRef.current) {
-      const rect = btnRef.current.getBoundingClientRect();
-      setPos({
-        top: rect.bottom + 4,
-        left: rect.right - 160, // 160 = dropdown width (w-40)
-      });
-    }
-    setOpen((v) => !v);
+  const reposition = (currentView) => {
+    if (!btnRef.current) return;
+    const dropH = currentView === "pending-input" ? 116 : 124;
+    setPos(calcPos(btnRef.current, dropH));
   };
 
+  const openDropdown = () => {
+    const nextOpen = !open;
+    if (nextOpen) {
+      setView("menu");
+      setPendingAmount("");
+      reposition("menu");
+    }
+    setOpen(nextOpen);
+  };
+
+  // Reposition when sub-view changes height
+  useEffect(() => {
+    if (open) reposition(view);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
+
+  // Close on outside click
   useEffect(() => {
     const handler = (e) => {
       if (
@@ -103,7 +135,23 @@ const PayoutButton = ({ onPayout }) => {
   }, []);
 
   const handleSelect = (status) => {
-    onPayout?.(status);
+    if (status === "Paid") {
+      onPayout?.(status, rowAmount);
+      setOpen(false);
+    } else if (status === "Unpaid") {
+      onPayout?.(status, 0);
+      setOpen(false);
+    } else {
+      // Switch to amount-input sub-view for Pending
+      setView("pending-input");
+      setPendingAmount("");
+    }
+  };
+
+  const handlePendingConfirm = () => {
+    const amt = parseFloat(pendingAmount);
+    if (!pendingAmount || isNaN(amt) || amt <= 0) return;
+    onPayout?.("Pending", amt);
     setOpen(false);
   };
 
@@ -124,27 +172,87 @@ const PayoutButton = ({ onPayout }) => {
         ReactDOM.createPortal(
           <div
             ref={dropRef}
-            style={{ top: pos.top, left: pos.left }}
-            className="fixed z-[9999] w-40 bg-white rounded-xl shadow-lg border border-gray-100 p-2"
+            style={{ top: pos.top, left: pos.left, width: DROPDOWN_W }}
+            className="fixed z-[9999] bg-white rounded-xl shadow-xl border border-gray-100 p-2"
           >
-            <button
-              onClick={() => handleSelect("Paid")}
-              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-emerald-50 text-emerald-600 font-medium"
-            >
-              ✅ Paid
-            </button>
-            <button
-              onClick={() => handleSelect("Pending")}
-              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-orange-50 text-orange-600 font-medium"
-            >
-              ⏳ Pending
-            </button>
-            <button
-              onClick={() => handleSelect("Unpaid")}
-              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-600 font-medium"
-            >
-              ❌ Unpaid
-            </button>
+            {view === "menu" ? (
+              <>
+                <button
+                  onClick={() => handleSelect("Paid")}
+                  className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-emerald-50 text-emerald-600 font-medium"
+                >
+                  ✅ Paid
+                  <span className="block text-[10px] text-emerald-400 font-normal leading-none mt-0.5">
+                    ₹{rowAmount?.toLocaleString()} (full)
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => handleSelect("Pending")}
+                  className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-orange-50 text-orange-600 font-medium"
+                >
+                  ⏳ Pending
+                  <span className="block text-[10px] text-orange-400 font-normal leading-none mt-0.5">
+                    Enter partial amount →
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => handleSelect("Unpaid")}
+                  className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-600 font-medium"
+                >
+                  ❌ Unpaid
+                  <span className="block text-[10px] text-red-400 font-normal leading-none mt-0.5">
+                    ₹0
+                  </span>
+                </button>
+              </>
+            ) : (
+              /* ── Pending amount input sub-view ── */
+              <div className="px-1 py-1">
+                <button
+                  onClick={() => setView("menu")}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 mb-2 bg-transparent border-0 cursor-pointer p-0"
+                >
+                  ← Back
+                </button>
+
+                <p className="text-xs font-semibold text-orange-600 mb-2">
+                  ⏳ Enter Paid Amount
+                </p>
+
+                <div className="relative mb-2">
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    autoFocus
+                    value={pendingAmount}
+                    onChange={(e) => setPendingAmount(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handlePendingConfirm()
+                    }
+                    placeholder="0.00"
+                    className="w-full pl-5 pr-2 py-1.5 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-gray-50"
+                  />
+                </div>
+
+                <button
+                  onClick={handlePendingConfirm}
+                  disabled={
+                    !pendingAmount ||
+                    isNaN(parseFloat(pendingAmount)) ||
+                    parseFloat(pendingAmount) <= 0
+                  }
+                  className="w-full py-1.5 text-xs font-semibold rounded-lg bg-orange-500 hover:bg-orange-600 text-white border-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Confirm
+                </button>
+              </div>
+            )}
           </div>,
           document.body,
         )}
@@ -168,7 +276,7 @@ export const columns = (
         {row.original.sr_no}
       </span>
     ),
-    meta: { headerClassName: "w-[5%]", cellClassName: "w-[5%]" },
+    meta: { headerClassName: "w-[4%]", cellClassName: "w-[4%]" },
   },
 
   {
@@ -194,7 +302,7 @@ export const columns = (
         </button>
       );
     },
-    meta: { headerClassName: "w-[18%]", cellClassName: "w-[18%]" },
+    meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
 
   {
@@ -205,7 +313,35 @@ export const columns = (
         ₹{row.original.amount?.toLocaleString()}/-
       </span>
     ),
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    meta: { headerClassName: "w-[9%]", cellClassName: "w-[9%]" },
+  },
+
+  {
+    accessorKey: "paidAmount",
+    header: <FormattedMessage id="EXPENSE.PAID_AMOUNT" defaultMessage="Paid" />,
+    cell: ({ row }) => (
+      <span className="text-sm font-medium text-emerald-600 whitespace-nowrap">
+        ₹{(row.original.paidAmount ?? 0).toLocaleString()}/-
+      </span>
+    ),
+    meta: { headerClassName: "w-[9%]", cellClassName: "w-[9%]" },
+  },
+
+  {
+    accessorKey: "remainingAmount",
+    header: (
+      <FormattedMessage id="EXPENSE.REMAINING" defaultMessage="Remaining" />
+    ),
+    cell: ({ row }) => {
+      const remaining =
+        (row.original.amount ?? 0) - (row.original.paidAmount ?? 0);
+      return (
+        <span className="text-sm font-medium text-red-500 whitespace-nowrap">
+          ₹{remaining.toLocaleString()}/-
+        </span>
+      );
+    },
+    meta: { headerClassName: "w-[9%]", cellClassName: "w-[9%]" },
   },
 
   {
@@ -214,7 +350,7 @@ export const columns = (
     cell: ({ row }) => (
       <span className="text-sm text-gray-500">{row.original.remarks}</span>
     ),
-    meta: { headerClassName: "w-[17%]", cellClassName: "w-[17%]" },
+    meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
   },
 
   {
@@ -227,7 +363,7 @@ export const columns = (
         {row.original.startDate}
       </span>
     ),
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    meta: { headerClassName: "w-[9%]", cellClassName: "w-[9%]" },
   },
 
   {
@@ -240,20 +376,21 @@ export const columns = (
         {row.original.dueDate}
       </span>
     ),
-    meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    meta: { headerClassName: "w-[9%]", cellClassName: "w-[9%]" },
   },
+
   {
     accessorKey: "status",
     header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
     cell: ({ row }) => <StatusBadge status={row.original.status} />,
-    meta: { headerClassName: "w-[15%]", cellClassName: "w-[15%]" },
+    meta: { headerClassName: "w-[13%]", cellClassName: "w-[13%]" },
   },
+
   {
     accessorKey: "action",
     header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
     cell: ({ row }) => (
       <div className="flex items-center gap-0.5">
-        {/* Edit */}
         <Tooltip title="Edit Expense">
           <button
             type="button"
@@ -263,7 +400,7 @@ export const columns = (
             <i className="ki-filled ki-notepad-edit text-primary" />
           </button>
         </Tooltip>
-        {/* Delete */}
+
         <Tooltip title="Delete Expense">
           <button
             type="button"
@@ -273,10 +410,13 @@ export const columns = (
             <i className="ki-filled ki-trash text-danger" />
           </button>
         </Tooltip>
-        {/* Payout — icon button with inline Yes/No confirm */}
+
         <PayoutButton
-          onPayout={(status) => onPayout?.(row.original.id, status)}
-        />{" "}
+          rowAmount={row.original.amount ?? 0}
+          onPayout={(status, payoutAmount) =>
+            onPayout?.(row.original.id, status, payoutAmount)
+          }
+        />
       </div>
     ),
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },

@@ -79,14 +79,6 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
                 <h2 className="text-base font-bold text-gray-900">
                   {user.name}
                 </h2>
-                <p className="text-sm text-gray-500 mb-1.5">
-                  {user.role ?? "Field Operations"} &bull;{" "}
-                  <span className="text-blue-600 font-medium">
-                    @
-                    {user.username ??
-                      user.name.replace(/\s+/, "").toLowerCase()}
-                  </span>
-                </p>
               </div>
             </div>
 
@@ -110,7 +102,7 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
         {/* ── Scrollable Body ── */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
           {/* ── Summary Cards ── */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             {/* Total Amount */}
             <div className="rounded-2xl border border-gray-100 bg-gray-50/60 px-5 py-4 flex flex-col items-center gap-2">
               <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
@@ -137,6 +129,27 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
               <p className="text-xs text-gray-400 font-medium">Paid</p>
               <p className="text-xl font-bold text-gray-900">
                 ₹ {(user.paidAmount ?? 0).toLocaleString("en-IN")}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-red-100 bg-red-50/40 px-5 py-4 flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-red-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <p className="text-xs text-gray-400 font-medium">Remaining</p>
+              <p className="text-xl font-bold text-red-500">
+                ₹ {(user.remainingAmount ?? 0).toLocaleString("en-IN")}
               </p>
             </div>
           </div>
@@ -227,7 +240,9 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
 
                         {/* View Document */}
                         <td className="px-4 py-3">
-                          {tx.docUrl ? (
+                          {tx.docUrl &&
+                          !tx.docUrl.endsWith("null") &&
+                          !tx.docUrl.endsWith("undefined") ? (
                             <a
                               href={tx.docUrl}
                               target="_blank"
@@ -252,7 +267,7 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
                             </a>
                           ) : (
                             <span className="text-xs text-gray-300 italic">
-                              —
+                              No doc
                             </span>
                           )}
                         </td>
