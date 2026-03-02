@@ -118,11 +118,11 @@ const CreateEventPage = () => {
               : prev.inquiryDate,
             eventStartDateTime: event.eventStartDateTime.replace(
               /am|pm/i,
-              (match) => match.toUpperCase()
+              (match) => match.toUpperCase(),
             ),
             eventEndDateTime: event.eventEndDateTime.replace(
               /am|pm/i,
-              (match) => match.toUpperCase()
+              (match) => match.toUpperCase(),
             ),
             status: statusId,
             venueId: event.venue.id || "",
@@ -140,11 +140,11 @@ const CreateEventPage = () => {
               functionName: f.function?.nameEnglish ?? "",
               functionStartDateTime: f.functionStartDateTime.replace(
                 /am|pm/i,
-                (match) => match.toUpperCase()
+                (match) => match.toUpperCase(),
               ),
               functionEndDateTime: f.functionEndDateTime.replace(
                 /am|pm/i,
-                (match) => match.toUpperCase()
+                (match) => match.toUpperCase(),
               ),
               pax: f.pax || "",
               rate: f.rate || "",
@@ -225,14 +225,14 @@ const CreateEventPage = () => {
         return false;
       }
     },
-    [formData, validateWithYup]
+    [formData, validateWithYup],
   );
 
   const validateAllSteps = useCallback(async () => {
     try {
       const validationErrors = await validateWithYup(
         formData,
-        eventValidationSchema
+        eventValidationSchema,
       );
 
       setErrors(validationErrors);
@@ -432,7 +432,7 @@ const CreateEventPage = () => {
     } catch (err) {
       console.error(
         `Error ${mode === "edit" ? "updating" : "creating"} event:`,
-        err
+        err,
       );
 
       Swal.fire({
@@ -468,7 +468,7 @@ const CreateEventPage = () => {
         setErrors((prev) => ({ ...prev, [name]: undefined }));
       }
     },
-    [errors]
+    [errors],
   );
 
   const onInputChange = useCallback(
@@ -480,7 +480,7 @@ const CreateEventPage = () => {
         setErrors((prev) => ({ ...prev, [key]: undefined }));
       }
     },
-    [errors]
+    [errors],
   );
 
   const steps = useMemo(
@@ -557,15 +557,15 @@ const CreateEventPage = () => {
         icon: <i className="ki-filled ki-information-4" />,
       },
     ],
-    [formData, errors, onInputChange, handleInputChange]
+    [formData, errors, onInputChange, handleInputChange],
   );
 
   return (
     <Fragment>
       <Container>
         {/* Page Title */}
-        <div className="pb-2 mb-3">
-          <h1 className="text-xl font-semibold text-gray-900">
+        <div className="pb-2 mb-3 px-3 sm:px-0">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
             {mode === "edit" ? (
               <FormattedMessage
                 id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_VIEW_DETAILS_EDIT_EVENT_BUTTON"
@@ -587,6 +587,7 @@ const CreateEventPage = () => {
           onNext={handleNext}
           onPrev={handlePrev}
           onFinish={handleFinish}
+          hideStepsOnMobile={true}
         />
       </Container>
     </Fragment>

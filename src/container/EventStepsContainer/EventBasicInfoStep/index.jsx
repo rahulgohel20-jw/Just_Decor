@@ -166,7 +166,7 @@ const EventBasicInfoStep = ({
   return (
     <Form>
       <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
           {/* Inquiry Date */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
@@ -187,7 +187,7 @@ const EventBasicInfoStep = ({
                 if (date && dayjs(date).isValid()) {
                   handleFormDataChange(
                     "inquiryDate",
-                    dayjs(date).format("DD/MM/YYYY")
+                    dayjs(date).format("DD/MM/YYYY"),
                   );
                 } else {
                   handleFormDataChange("inquiryDate", "");
@@ -201,7 +201,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
           {/* Status */}
           <div className="flex flex-col">
             <label className="form-label">
@@ -224,7 +223,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
           {/* Event Type */}
           <div className="select__grp flex flex-col">
             <label className="form-label">
@@ -258,7 +256,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
           {/* Start Event Date */}
           <div className="flex flex-col">
             <label className="form-label">
@@ -293,7 +290,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
           {/* End Event Date */}
           <div className="flex flex-col">
             <label className="form-label">
@@ -339,7 +335,6 @@ const EventBasicInfoStep = ({
               </span>
             )}
           </div>
-
           {/* Venue */}
           <div className="select__grp flex flex-col">
             <label className="form-label">

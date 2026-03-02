@@ -48,7 +48,7 @@ const ClientDetailsStep = ({
   const handleCustomerChange = (selectedId) => {
     // ✅ Now receiving customer ID instead of name
     const selectedCustomer = customer.find(
-      (c) => c.value === selectedId["target"].value
+      (c) => c.value === selectedId["target"].value,
     );
 
     console.log("Selected Customer:", selectedCustomer);
@@ -88,7 +88,7 @@ const ClientDetailsStep = ({
         const onlyCustomers = partyDetails.filter(
           (p) =>
             p.contact?.contactType?.nameEnglish?.trim().toLowerCase() ===
-            "customer"
+            "customer",
         );
 
         const customername = onlyCustomers.map((customer, index) => {
@@ -142,8 +142,8 @@ const ClientDetailsStep = ({
 
   return (
     <div className={`flex flex-col gap-y-2 gap-x-4 ${classes.basicInfo}`}>
-      <div className=" gap-3 lg:gap-4">
-        <div className="col-span-4 md:col-start-3 min-w-full space-y-3">
+      <div className="gap-3 lg:gap-4">
+        <div className="w-full space-y-3">
           <div className="select__grp flex flex-col">
             <label className="form-label">
               <FormattedMessage
@@ -155,7 +155,7 @@ const ClientDetailsStep = ({
               </span>
             </label>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <select
                   name="prefix"
                   className="w-20 px-3 select"
@@ -200,7 +200,7 @@ const ClientDetailsStep = ({
               )}
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="flex flex-col w-full">
               <label className="text-sm font-normal text-black mb-1 block">
                 <FormattedMessage
