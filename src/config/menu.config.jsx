@@ -596,6 +596,18 @@ export const allMenuItems = [
   },
 
   {
+  title: (
+    <FormattedMessage
+      id="COMMON.RECIPE"
+      defaultMessage="Recipe"
+    />
+  ),
+  icon: "ki-filled ki-book text-primary text-lg",
+  path: "/recipe",
+  pageName: "Recipe",
+},
+  
+  {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
     icon: "ki-filled ki-setting-2 text-primary  text-lg",
     disabled: false,

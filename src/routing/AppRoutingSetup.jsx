@@ -236,6 +236,9 @@ import StorePo from "../pages/stockmanagement/storepo/StorePo";
 import AddStorePO from "../pages/stockmanagement/storepo/AddStorePO";
 import StoreLedger from "../pages/stockmanagement/storeledger/StoreLedger";
 import AllExpense from "../pages/super-admin/Expense";
+import RecipeDashboard from "../pages/recipe/recipeDashboard/RecipeDashboard";
+import ExploreRecipe from "../pages/recipe/recipeDashboard/ExploreRecipe";
+import ItemRecipe from "../pages/recipe/ItemRecipe";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -396,14 +399,47 @@ const AppRoutingSetup = () => {
           {/* Stock Management Route */}
           <Route path="/stock-management/stock-type" element={<StockType />} />
           <Route path="/stock-management/purchase" element={<Purchase />} />
-          <Route path="/stock-management/purchase/add" element={<AddPurchase />} />
-          <Route path="/stock-management/purchase-return" element={<PurchaseReturn />} />
-          <Route path="/stock-management/purchase-return/add" element={<AddPurchaseReturn />} />
+          <Route
+            path="/stock-management/purchase/add"
+            element={<AddPurchase />}
+          />
+          <Route
+            path="/stock-management/purchase-return"
+            element={<PurchaseReturn />}
+          />
+          <Route
+            path="/stock-management/purchase-return/add"
+            element={<AddPurchaseReturn />}
+          />
           <Route path="/stock-management/store-po" element={<StorePo />} />
-          <Route path="/stock-management/storepo/add" element={<AddStorePO />} />
-          <Route path="/stock-management/store-ledger" element={<StoreLedger />} />
+          <Route
+            path="/stock-management/storepo/add"
+            element={<AddStorePO />}
+          />
+          <Route
+            path="/stock-management/store-ledger"
+            element={<StoreLedger />}
+          />
 
+          {/* Recipe Route */}
+          <Route path="/recipe" element={<RecipeDashboard />} />
+          <Route path="/recipe/explorerecipe" element={<ExploreRecipe />} />
+          <Route path="/recipe/itemrecipe" element={<ItemRecipe />} />
 
+          <Route
+            path="/recipe/list"
+            element={<div style={{ padding: 20 }}>Recipe List Page</div>}
+          />
+
+          <Route
+            path="/recipe/add"
+            element={<div style={{ padding: 20 }}>Add Recipe Page</div>}
+          />
+
+          <Route
+            path="/recipe/category"
+            element={<div style={{ padding: 20 }}>Recipe Category Page</div>}
+          />
 
           <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/venue-type" element={<VenuetypeMaster />} />

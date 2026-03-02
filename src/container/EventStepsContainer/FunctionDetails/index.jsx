@@ -42,7 +42,7 @@ const SortableRow = ({ id, children }) => {
   return (
     <tr ref={setNodeRef} style={style}>
       <td
-        className="p-3 border-b border-gray-200 cursor-grab"
+        className="p-2 sm:p-3 border-b border-gray-200 cursor-grab"
         {...attributes}
         {...listeners}
       >
@@ -519,9 +519,262 @@ const FunctionsDetails = ({
     FetchFunction(true); // Auto-select the newly added function
   };
 
+  // Add this component before the return statement in FunctionsDetails
+  const MobileFunctionCard = ({
+    func,
+    index,
+    isDuplicate,
+    duplicateIndices,
+    options,
+    handleFunctionSelect,
+    setActiveRowIndex,
+    getFunctionFieldError,
+    parseDate,
+    handleInputChange,
+    setSelectedFunctionIndex,
+    setShowNoteModal,
+    handleRemoveFunction,
+    formData,
+  }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: func.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`m-2 sm:m-3 p-3 sm:p-4 border rounded-lg ${
+          isDuplicate ? "bg-red-50 border-red-300" : "bg-white border-gray-200"
+        }`}
+      >
+        {/* Card Header with Drag Handle */}
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <span
+              {...attributes}
+              {...listeners}
+              className="cursor-grab text-gray-400 hover:text-gray-600 text-lg"
+            >
+              ⠿
+            </span>
+            <span className="text-sm font-semibold text-gray-700">
+              <FormattedMessage
+                id="USER.DASHBOARD.FUNCTION"
+                defaultMessage="Function"
+              />{" "}
+              #{index + 1}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Tooltip title="Add Notes">
+              <button
+                className="btn btn-xs btn-icon btn-clear btn-success"
+                onClick={() => {
+                  setSelectedFunctionIndex(index);
+                  setShowNoteModal(true);
+                }}
+              >
+                <i className="ki-filled ki-add-files text-sm"></i>
+              </button>
+            </Tooltip>
+            <Tooltip title="Remove">
+              <button
+                onClick={() => handleRemoveFunction(index)}
+                disabled={formData.eventFunction.length === 1}
+                className={
+                  formData.eventFunction.length === 1
+                    ? "btn btn-xs btn-icon btn-clear btn-danger opacity-50 cursor-not-allowed"
+                    : "btn btn-xs btn-icon btn-clear btn-danger"
+                }
+              >
+                <i className="ki-filled ki-trash text-sm"></i>
+              </button>
+            </Tooltip>
+          </div>
+        </div>
+
+        {/* Function Type */}
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-600 mb-1 block">
+            <FormattedMessage
+              id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE"
+              defaultMessage="Functions"
+            />
+            <span className="text-red-500 ml-0.5">*</span>
+          </label>
+          <FunctionTypeDropdown
+            value={func.functionId || undefined}
+            onChange={(value) => handleFunctionSelect(index, value)}
+            onFocus={() => setActiveRowIndex(index)}
+            options={options}
+            placeholder="Select Function"
+            className="w-full"
+            style={{
+              borderColor:
+                isDuplicate || getFunctionFieldError(index, "functionId")
+                  ? "#ef4444"
+                  : undefined,
+            }}
+          />
+          {getFunctionFieldError(index, "functionId") && (
+            <span className="text-red-500 text-xs mt-1 block">
+              {getFunctionFieldError(index, "functionId")}
+            </span>
+          )}
+          {isDuplicate && duplicateIndices.has(index) && (
+            <span className="text-red-500 text-xs mt-1 block">
+              ⚠️ Duplicate function on same date
+            </span>
+          )}
+        </div>
+
+        {/* Date Times - Two Column Grid */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
+                defaultMessage="Start Date"
+              />
+            </label>
+            <DatePicker
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs"
+              showTimeSelect
+              timeFormat="hh:mm aa"
+              timeIntervals={30}
+              dateFormat="dd/MM/yyyy hh:mm aa"
+              selected={parseDate(func.functionStartDateTime)}
+              onChange={(date) => {
+                if (date) {
+                  handleInputChange(
+                    index,
+                    "functionStartDateTime",
+                    dayjs(date).format("DD/MM/YYYY hh:mm A"),
+                  );
+                } else {
+                  handleInputChange(index, "functionStartDateTime", null);
+                }
+              }}
+              placeholderText="Start date"
+            />
+            {getFunctionFieldError(index, "functionStartDateTime") && (
+              <div className="text-red-500 text-xs mt-1">
+                {getFunctionFieldError(index, "functionStartDateTime")}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE"
+                defaultMessage="End Date"
+              />
+            </label>
+            <DatePicker
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs"
+              showTimeSelect
+              timeFormat="hh:mm aa"
+              timeIntervals={30}
+              dateFormat="dd/MM/yyyy hh:mm aa"
+              selected={parseDate(func.functionEndDateTime)}
+              onChange={(date) => {
+                if (date) {
+                  handleInputChange(
+                    index,
+                    "functionEndDateTime",
+                    dayjs(date).format("DD/MM/YYYY hh:mm A"),
+                  );
+                } else {
+                  handleInputChange(index, "functionEndDateTime", null);
+                }
+              }}
+              placeholderText="End date"
+            />
+            {getFunctionFieldError(index, "functionEndDateTime") && (
+              <div className="text-red-500 text-xs mt-1">
+                {getFunctionFieldError(index, "functionEndDateTime")}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Person, Rate, Venue - Three Column Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON"
+                defaultMessage="Person"
+              />
+              <span className="text-red-500 ml-0.5">*</span>
+            </label>
+            <Input
+              className="w-full text-xs"
+              value={func.pax}
+              type="text"
+              placeholder="Person"
+              onChange={(e) => handleInputChange(index, "pax", e.target.value)}
+            />
+            {getFunctionFieldError(index, "pax") && (
+              <div className="text-red-500 text-xs mt-1">
+                {getFunctionFieldError(index, "pax")}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE"
+                defaultMessage="Rate"
+              />
+            </label>
+            <Input
+              className="w-full text-xs"
+              value={func.rate}
+              type="text"
+              placeholder="Rate"
+              onChange={(e) => handleInputChange(index, "rate", e.target.value)}
+            />
+          </div>
+
+          <div className="col-span-2 sm:col-span-1">
+            <label className="text-xs font-medium text-gray-600 mb-1 block">
+              <FormattedMessage
+                id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE"
+                defaultMessage="Venue"
+              />
+            </label>
+            <Input
+              className="w-full text-xs"
+              value={func.function_venue}
+              type="text"
+              placeholder="Venue"
+              onChange={(e) =>
+                handleInputChange(index, "function_venue", e.target.value)
+              }
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="rounded-md border border-gray-200 bg-white">
-      <div className="p-3 flex justify-end items-center">
+      <div className="p-2 sm:p-3 flex justify-between items-center flex-wrap gap-2">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+          <FormattedMessage
+            id="USER.DASHBOARD.FUNCTIONS_LIST"
+            defaultMessage="Functions List"
+          />
+        </h3>
         <Tooltip
           title={
             <FormattedMessage
@@ -531,328 +784,380 @@ const FunctionsDetails = ({
           }
         >
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm text-xs sm:text-sm"
             onClick={handleAddFunction}
           >
-            <Plus size={16} />{" "}
-            <FormattedMessage
-              id="USER.DASHBOARD.CREATE_NEW_FUNCTION"
-              defaultMessage="Create New Function"
-            />
+            <Plus size={14} className="sm:w-4 sm:h-4" />{" "}
+            <span className="hidden sm:inline">
+              <FormattedMessage
+                id="USER.DASHBOARD.CREATE_NEW_FUNCTION"
+                defaultMessage="Create New Function"
+              />
+            </span>
+            <span className="sm:hidden">
+              <FormattedMessage id="COMMON.ADD" defaultMessage="Add" />
+            </span>
           </button>
         </Tooltip>
       </div>
 
       {errors.eventFunction && typeof errors.eventFunction === "string" && (
-        <div className="mx-3 mb-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+        <div className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-xs sm:text-sm">
           <strong>⚠️ {errors.eventFunction}</strong>
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left border-gray-200 border-t table-fixed">
-          <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
-            <tr>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-12"></th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-[200px]">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center">
-                    <FormattedMessage
-                      id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE"
-                      defaultMessage="Functions"
-                    />
-                    <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                      *
+      {/* Desktop Table View - Hidden on Mobile/Tablet */}
+      <div className="hidden lg:block overflow-x-auto">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full text-sm text-left border-gray-200 border-t">
+            <thead className="text-black font-bold border-b border-gray-200 bg-gray-100">
+              <tr>
+                <th className="text-sm font-semibold text-gray-900 p-3 w-12"></th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 min-w-[150px] sm:w-[200px]">
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center">
+                      <FormattedMessage
+                        id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_FUNCTION_TYPE"
+                        defaultMessage="Functions"
+                      />
+                      <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                        *
+                      </span>
                     </span>
+                    <button
+                      type="button"
+                      onClick={handleAddClick}
+                      title="Add Function Type"
+                      className="btn btn-primary flex items-center justify-center rounded-full p-0 w-6 h-6"
+                    >
+                      <i className="ki-filled ki-plus"></i>
+                    </button>
+                  </div>
+                </th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 min-w-[180px] sm:w-[200px]">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
+                    defaultMessage="Start Date"
+                  />
+                </th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 min-w-[180px] sm:w-[200px]">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE"
+                    defaultMessage="End Date"
+                  />
+                </th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 min-w-[100px]">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON"
+                    defaultMessage="Person"
+                  />
+                  <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
+                    *
                   </span>
-                  <button
-                    type="button"
-                    onClick={handleAddClick}
-                    title="Add Function Type"
-                    className="btn btn-primary flex items-center justify-center rounded-full p-0 w-6 h-6"
-                  >
-                    <i className="ki-filled ki-plus"></i>
-                  </button>
-                </div>
-              </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-[180px]">
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_START_DATE"
-                  defaultMessage="Start Date"
-                />
-              </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-[180px]">
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_END_DATE"
-                  defaultMessage="End Date"
-                />
-              </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-[100px]">
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_PERSON"
-                  defaultMessage="Person"
-                />
-                <span className="mandatory ms-0.5 text-base text-red-500 font-medium">
-                  *
-                </span>
-              </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-[100px]">
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE"
-                  defaultMessage="Rate"
-                />
-              </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 w-[150px]">
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE"
-                  defaultMessage=" Venue"
-                />
-              </th>
-              <th className="text-sm font-semibold text-gray-900 p-3 text-center w-[120px]">
-                <FormattedMessage
-                  id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_ACTIONS"
-                  defaultMessage="Actions"
-                />
-              </th>
-            </tr>
-          </thead>
+                </th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 min-w-[100px]">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_RATE"
+                    defaultMessage="Rate"
+                  />
+                </th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 min-w-[150px]">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_VENUE"
+                    defaultMessage=" Venue"
+                  />
+                </th>
+                <th className="text-sm font-semibold text-gray-900 p-2 sm:p-3 text-center min-w-[120px]">
+                  <FormattedMessage
+                    id="USER.DASHBOARD.DASHBOARD_CALENDAR_EVENT_DETAILS_FUNCTION_DETAILS_ACTIONS"
+                    defaultMessage="Actions"
+                  />
+                </th>
+              </tr>
+            </thead>
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={formData.eventFunction?.map((f) => f.id) || []}
-              strategy={verticalListSortingStrategy}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <tbody>
-                {formData?.eventFunction?.map((func, index) => {
-                  const isDuplicate =
-                    duplicateIndices.has(index) || hasDuplicateError;
+              <SortableContext
+                items={formData.eventFunction?.map((f) => f.id) || []}
+                strategy={verticalListSortingStrategy}
+              >
+                <tbody>
+                  {formData?.eventFunction?.map((func, index) => {
+                    const isDuplicate =
+                      duplicateIndices.has(index) || hasDuplicateError;
 
-                  return (
-                    <SortableRow key={func.id || index} id={func.id || index}>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
-                      >
-                        <FunctionTypeDropdown
-                          value={func.functionId || undefined}
-                          onChange={(value) =>
-                            handleFunctionSelect(index, value)
-                          }
-                          onFocus={() => setActiveRowIndex(index)}
-                          options={options}
-                          placeholder="Select Function"
-                          style={{
-                            borderColor:
-                              isDuplicate ||
-                              getFunctionFieldError(index, "functionId")
-                                ? "#ef4444"
-                                : undefined,
-                            width: "100%",
-                          }}
-                        />
-                        {getFunctionFieldError(index, "functionId") && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            {getFunctionFieldError(index, "functionId")}
-                          </span>
-                        )}
-                        {isDuplicate && duplicateIndices.has(index) && (
-                          <span className="text-red-500 text-xs mt-1 block">
-                            ⚠️ Duplicate function on same date
-                          </span>
-                        )}
-                      </td>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
-                      >
-                        <DatePicker
-                          className="w-full border border-gray-500 rounded px px-2 py-1"
-                          showTimeSelect
-                          timeFormat="hh:mm aa"
-                          timeIntervals={30}
-                          dateFormat="dd/MM/yyyy hh:mm aa"
-                          selected={parseDate(func.functionStartDateTime)}
-                          onChange={(date) => {
-                            if (date) {
-                              handleInputChange(
-                                index,
-                                "functionStartDateTime",
-                                dayjs(date).format("DD/MM/YYYY hh:mm A"),
-                              );
-                            } else {
-                              handleInputChange(
-                                index,
-                                "functionStartDateTime",
-                                null,
-                              );
+                    return (
+                      <SortableRow key={func.id || index} id={func.id || index}>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
+                        >
+                          <FunctionTypeDropdown
+                            value={func.functionId || undefined}
+                            onChange={(value) =>
+                              handleFunctionSelect(index, value)
                             }
-                          }}
-                          placeholderText="Select start date"
-                          style={{
-                            borderColor:
-                              isDuplicate ||
-                              getFunctionFieldError(
+                            onFocus={() => setActiveRowIndex(index)}
+                            options={options}
+                            placeholder="Select Function"
+                            style={{
+                              borderColor:
+                                isDuplicate ||
+                                getFunctionFieldError(index, "functionId")
+                                  ? "#ef4444"
+                                  : undefined,
+                              width: "100%",
+                            }}
+                          />
+                          {getFunctionFieldError(index, "functionId") && (
+                            <span className="text-red-500 text-xs mt-1 block">
+                              {getFunctionFieldError(index, "functionId")}
+                            </span>
+                          )}
+                          {isDuplicate && duplicateIndices.has(index) && (
+                            <span className="text-red-500 text-xs mt-1 block">
+                              ⚠️ Duplicate function on same date
+                            </span>
+                          )}
+                        </td>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
+                        >
+                          <DatePicker
+                            className="w-full border border-gray-500 rounded px px-2 py-1"
+                            showTimeSelect
+                            timeFormat="hh:mm aa"
+                            timeIntervals={30}
+                            dateFormat="dd/MM/yyyy hh:mm aa"
+                            selected={parseDate(func.functionStartDateTime)}
+                            onChange={(date) => {
+                              if (date) {
+                                handleInputChange(
+                                  index,
+                                  "functionStartDateTime",
+                                  dayjs(date).format("DD/MM/YYYY hh:mm A"),
+                                );
+                              } else {
+                                handleInputChange(
+                                  index,
+                                  "functionStartDateTime",
+                                  null,
+                                );
+                              }
+                            }}
+                            placeholderText="Select start date"
+                            style={{
+                              borderColor:
+                                isDuplicate ||
+                                getFunctionFieldError(
+                                  index,
+                                  "functionStartDateTime",
+                                )
+                                  ? "#ef4444"
+                                  : undefined,
+                            }}
+                          />
+                        </td>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
+                        >
+                          <DatePicker
+                            className="w-full border border-gray-500 rounded px px-2 py-1"
+                            showTimeSelect
+                            timeFormat="hh:mm aa"
+                            timeIntervals={30}
+                            dateFormat="dd/MM/yyyy hh:mm aa"
+                            selected={parseDate(func.functionEndDateTime)}
+                            onChange={(date) => {
+                              if (date) {
+                                handleInputChange(
+                                  index,
+                                  "functionEndDateTime",
+                                  dayjs(date).format("DD/MM/YYYY hh:mm A"),
+                                );
+                              } else {
+                                handleInputChange(
+                                  index,
+                                  "functionEndDateTime",
+                                  null,
+                                );
+                              }
+                            }}
+                            placeholderText="Select end date"
+                            style={{
+                              borderColor: getFunctionFieldError(
                                 index,
-                                "functionStartDateTime",
+                                "functionEndDateTime",
                               )
                                 ? "#ef4444"
                                 : undefined,
-                          }}
-                        />
-                      </td>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
-                      >
-                        <DatePicker
-                          className="w-full border border-gray-500 rounded px px-2 py-1"
-                          showTimeSelect
-                          timeFormat="hh:mm aa"
-                          timeIntervals={30}
-                          dateFormat="dd/MM/yyyy hh:mm aa"
-                          selected={parseDate(func.functionEndDateTime)}
-                          onChange={(date) => {
-                            if (date) {
-                              handleInputChange(
+                            }}
+                          />
+                          {getFunctionFieldError(
+                            index,
+                            "functionStartDateTime",
+                          ) && (
+                            <div className="text-red-500 text-xs mt-1">
+                              {getFunctionFieldError(
+                                index,
+                                "functionStartDateTime",
+                              )}
+                            </div>
+                          )}
+                          {getFunctionFieldError(
+                            index,
+                            "functionEndDateTime",
+                          ) && (
+                            <div className="text-red-500 text-xs mt-1">
+                              {getFunctionFieldError(
                                 index,
                                 "functionEndDateTime",
-                                dayjs(date).format("DD/MM/YYYY hh:mm A"),
-                              );
-                            } else {
-                              handleInputChange(
-                                index,
-                                "functionEndDateTime",
-                                null,
-                              );
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
+                        >
+                          <Input
+                            className="w-full text-center"
+                            value={func.pax}
+                            type="text"
+                            onChange={(e) =>
+                              handleInputChange(index, "pax", e.target.value)
                             }
-                          }}
-                          placeholderText="Select end date"
-                          style={{
-                            borderColor: getFunctionFieldError(
-                              index,
-                              "functionEndDateTime",
-                            )
-                              ? "#ef4444"
-                              : undefined,
-                          }}
-                        />
-                        {getFunctionFieldError(
-                          index,
-                          "functionStartDateTime",
-                        ) && (
-                          <div className="text-red-500 text-xs mt-1">
-                            {getFunctionFieldError(
-                              index,
-                              "functionStartDateTime",
-                            )}
+                            required
+                          />
+                          {getFunctionFieldError(index, "pax") && (
+                            <div className="text-red-500 text-xs mt-1">
+                              {getFunctionFieldError(index, "pax")}
+                            </div>
+                          )}
+                        </td>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
+                        >
+                          <Input
+                            className="w-full text-center"
+                            value={func.rate}
+                            type="text"
+                            placeholder="Rate"
+                            onChange={(e) =>
+                              handleInputChange(index, "rate", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
+                        >
+                          <Input
+                            className="w-full"
+                            value={func.function_venue}
+                            type="text"
+                            placeholder="Function Venue"
+                            onChange={(e) =>
+                              handleInputChange(
+                                index,
+                                "function_venue",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </td>
+                        <td
+                          className={`p-2 sm:p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
+                        >
+                          <div className="flex justify-center items-center gap-1 sm:gap-2">
+                            <Tooltip title="Add Notes">
+                              <button
+                                className="btn btn-sm btn-icon btn-clear btn-success"
+                                onClick={() => {
+                                  setSelectedFunctionIndex(index);
+                                  setShowNoteModal(true);
+                                }}
+                              >
+                                <i className="ki-filled ki-add-files"></i>
+                              </button>
+                            </Tooltip>
+                            <Tooltip title="Remove">
+                              <button
+                                onClick={() => handleRemoveFunction(index)}
+                                disabled={formData.eventFunction.length === 1}
+                                className={
+                                  formData.eventFunction.length === 1
+                                    ? "btn btn-sm btn-icon btn-clear btn-danger opacity-50 cursor-not-allowed"
+                                    : "btn btn-sm btn-icon btn-clear btn-danger"
+                                }
+                              >
+                                <i className="ki-filled ki-trash"></i>
+                              </button>
+                            </Tooltip>
                           </div>
-                        )}
-                        {getFunctionFieldError(
-                          index,
-                          "functionEndDateTime",
-                        ) && (
-                          <div className="text-red-500 text-xs mt-1">
-                            {getFunctionFieldError(
-                              index,
-                              "functionEndDateTime",
-                            )}
-                          </div>
-                        )}
-                      </td>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
-                      >
-                        <Input
-                          className="w-full text-center"
-                          value={func.pax}
-                          type="text"
-                          onChange={(e) =>
-                            handleInputChange(index, "pax", e.target.value)
-                          }
-                          required
-                        />
-                        {getFunctionFieldError(index, "pax") && (
-                          <div className="text-red-500 text-xs mt-1">
-                            {getFunctionFieldError(index, "pax")}
-                          </div>
-                        )}
-                      </td>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
-                      >
-                        <Input
-                          className="w-full text-center"
-                          value={func.rate}
-                          type="text"
-                          placeholder="Rate"
-                          onChange={(e) =>
-                            handleInputChange(index, "rate", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"} `}
-                      >
-                        <Input
-                          className="w-full"
-                          value={func.function_venue}
-                          type="text"
-                          placeholder="Function Venue"
-                          onChange={(e) =>
-                            handleInputChange(
-                              index,
-                              "function_venue",
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </td>
-                      <td
-                        className={`p-3 border-b ${isDuplicate ? "bg-red-50 border-red-200" : "border-gray-200"}`}
-                      >
-                        <div className="flex justify-center items-center gap-2">
-                          <Tooltip title="Add Notes">
-                            <button
-                              className="btn btn-sm btn-icon btn-clear btn-success"
-                              onClick={() => {
-                                setSelectedFunctionIndex(index);
-                                setShowNoteModal(true);
-                              }}
-                            >
-                              <i className="ki-filled ki-add-files"></i>
-                            </button>
-                          </Tooltip>
-                          <Tooltip title="Remove">
-                            <button
-                              onClick={() => handleRemoveFunction(index)}
-                              disabled={formData.eventFunction.length === 1}
-                              className={
-                                formData.eventFunction.length === 1
-                                  ? "btn btn-sm btn-icon btn-clear btn-danger opacity-50 cursor-not-allowed"
-                                  : "btn btn-sm btn-icon btn-clear btn-danger"
-                              }
-                            >
-                              <i className="ki-filled ki-trash"></i>
-                            </button>
-                          </Tooltip>
-                        </div>
-                      </td>
-                    </SortableRow>
-                  );
-                })}
-              </tbody>
-            </SortableContext>
-          </DndContext>
-        </table>
+                        </td>
+                      </SortableRow>
+                    );
+                  })}
+                </tbody>
+              </SortableContext>
+            </DndContext>
+          </table>
+        </div>
       </div>
-      <div className="p-3 flex justify-center">
+
+      {/* Mobile/Tablet Card View - Hidden on Desktop */}
+      <div className="lg:hidden">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={formData.eventFunction?.map((f) => f.id) || []}
+            strategy={verticalListSortingStrategy}
+          >
+            {formData?.eventFunction?.map((func, index) => {
+              const isDuplicate =
+                duplicateIndices.has(index) || hasDuplicateError;
+
+              return (
+                <MobileFunctionCard
+                  key={func.id || index}
+                  func={func}
+                  index={index}
+                  isDuplicate={isDuplicate}
+                  duplicateIndices={duplicateIndices}
+                  options={options}
+                  handleFunctionSelect={handleFunctionSelect}
+                  setActiveRowIndex={setActiveRowIndex}
+                  getFunctionFieldError={getFunctionFieldError}
+                  parseDate={parseDate}
+                  handleInputChange={handleInputChange}
+                  setSelectedFunctionIndex={setSelectedFunctionIndex}
+                  setShowNoteModal={setShowNoteModal}
+                  handleRemoveFunction={handleRemoveFunction}
+                  formData={formData}
+                />
+              );
+            })}
+          </SortableContext>
+        </DndContext>
+      </div>
+
+      <div className="p-2 sm:p-3 flex justify-center border-t border-gray-200">
         <Tooltip title="Add Function">
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm text-xs sm:text-sm w-full sm:w-auto"
             onClick={handleAddFunction}
           >
-            <Plus size={16} /> Create New
+            <Plus size={14} className="sm:w-4 sm:h-4" />{" "}
+            <FormattedMessage
+              id="USER.DASHBOARD.CREATE_NEW"
+              defaultMessage="Create New"
+            />
           </button>
         </Tooltip>
       </div>

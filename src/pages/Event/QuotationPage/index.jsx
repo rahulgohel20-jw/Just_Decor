@@ -1136,6 +1136,7 @@ const QuotationPage = () => {
                       </span>
 
                       <div className="flex items-center gap-2">
+                        
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">
