@@ -372,6 +372,10 @@ export const GenerateNamePlateReport = (fromData) => {
   return POST(`/report/generate-name-plate/`, fromData);
 };
 
+export const Tableexeculisivepost = (fromData) => {
+  return POST(`/nameplate/tablemenuwithbg/addorupdate`, fromData);
+};
+
 export const AddNamePlate = (data) => {
   return POST(`/nameplate/addorupdate`, data);
 };
@@ -1545,6 +1549,12 @@ export const GetNamePlateByNamePlateType = (
       `&isTableMenuItem=${isTableMenuItem}` +
       `&lang=${lang}` +
       `&userId=${userId}`,
+  );
+};
+
+export const getTableExeculisive = (event_func_id, event_id, lang, userId) => {
+  return GET(
+    `/nameplate/tablemenuwithbg/get?eventFunctionId=${event_func_id}&eventId=${event_id}&lang=${lang}&userId=${userId}`,
   );
 };
 

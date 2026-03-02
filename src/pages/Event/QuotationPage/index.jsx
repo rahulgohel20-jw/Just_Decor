@@ -226,18 +226,80 @@ const QuotationPage = () => {
   };
 
   const FetchGetQuotation = () => {
+    // ✅ Reset functions before fetch to prevent stale state merge
+    setQuotationData((prev) => ({ ...prev, functions: [] }));
+    setOriginalFunctions([]);
+
     GetQuotation(eventId, 0)
       .then((res) => {
         const apiData = res?.data?.data?.["Event Functions Quotation Details"];
 
         if (apiData && apiData.length > 0) {
           const quotationInfo = apiData[0];
-
           const hasFunctionQuotationItems =
             quotationInfo.functionQuotationItems &&
             quotationInfo.functionQuotationItems.length > 0;
 
+          const mappedFunctions = hasFunctionQuotationItems
+            ? quotationInfo.functionQuotationItems.map((item) => ({
+                id: item.id ?? 0,
+                eventFunctionId: item.eventFunctionId || 0,
+                name: item.functionName || "",
+                date:
+                  item.functionDate &&
+                  dayjs(item.functionDate, "DD/MM/YYYY hh:mm A").isValid()
+                    ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
+                    : null,
+                persons: item.pax != null ? item.pax.toString() : "",
+                extra: item.extraPax ?? 0,
+                rate:
+                  item.ratePerPlate != null
+                    ? item.ratePerPlate.toString()
+                    : "0",
+                totalPrice: formatAmount(item.amount),
+                isFromQuotationItems: item.isEventFunction === true,
+              }))
+            : quotationInfo.event?.eventFunctions?.length > 0
+              ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
+                  id: 0,
+                  name: eventFunc.function?.nameEnglish || "",
+                  date: eventFunc.functionStartDateTime
+                    ? dayjs(
+                        eventFunc.functionStartDateTime,
+                        "DD/MM/YYYY hh:mm A",
+                      )
+                    : null,
+                  persons: eventFunc.pax?.toString() || "",
+                  extra: 0,
+                  rate: eventFunc.rate?.toString() || "",
+                  totalPrice:
+                    eventFunc.pax && eventFunc.rate
+                      ? eventFunc.pax * eventFunc.rate
+                      : "0",
+                  isFromQuotationItems: true,
+                }))
+              : [
+                  {
+                    id: 0,
+                    name: "",
+                    date: null,
+                    persons: "",
+                    extra: "",
+                    rate: "",
+                    totalPrice: "0",
+                    isFromQuotationItems: false,
+                  },
+                ];
+
+          // ✅ Deduplicate by id to prevent double entries
+          const deduplicatedFunctions = mappedFunctions.filter(
+            (fn, index, self) =>
+              fn.id === 0 ||
+              index === self.findIndex((f) => f.id !== 0 && f.id === fn.id),
+          );
+
           const mappedData = {
+            // ... all your existing fields ...
             quotationId: quotationInfo.id,
             QuotationDate:
               quotationInfo.quotationdate ||
@@ -260,59 +322,7 @@ const QuotationPage = () => {
                 })
               : "",
 
-            // ✅ FIXED: Always take from functionQuotationItems when present
-            // Maps all fields correctly from the API response structure:
-            // { id, functionName, eventFunctionId, functionDate, pax, extraPax, ratePerPlate, amount, isEventFunction }
-            functions: hasFunctionQuotationItems
-              ? quotationInfo.functionQuotationItems.map((item) => ({
-                  id: item.id ?? 0, // null id → 0 (new record)
-                  eventFunctionId: item.eventFunctionId || 0, // keep for payload reference
-                  name: item.functionName || "",
-                  date:
-                    item.functionDate &&
-                    dayjs(item.functionDate, "DD/MM/YYYY hh:mm A").isValid()
-                      ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
-                      : null,
-                  persons: item.pax != null ? item.pax.toString() : "", // ✅ pax (100, 50)
-                  extra: item.extraPax ?? 0, // ✅ extraPax
-                  rate:
-                    item.ratePerPlate != null
-                      ? item.ratePerPlate.toString()
-                      : "0", // ✅ ratePerPlate (0 is valid, not empty)
-                  totalPrice: formatAmount(item.amount), // ✅ amount
-                  isFromQuotationItems: item.isEventFunction === true, // ✅ lock name/date/pax when true
-                }))
-              : quotationInfo.event?.eventFunctions?.length > 0
-                ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
-                    id: 0,
-                    name: eventFunc.function?.nameEnglish || "",
-                    date: eventFunc.functionStartDateTime
-                      ? dayjs(
-                          eventFunc.functionStartDateTime,
-                          "DD/MM/YYYY hh:mm A",
-                        )
-                      : null,
-                    persons: eventFunc.pax?.toString() || "",
-                    extra: 0,
-                    rate: eventFunc.rate?.toString() || "",
-                    totalPrice:
-                      eventFunc.pax && eventFunc.rate
-                        ? eventFunc.pax * eventFunc.rate
-                        : "0",
-                    isFromQuotationItems: true,
-                  }))
-                : [
-                    {
-                      id: 0,
-                      name: "",
-                      date: null,
-                      persons: "",
-                      extra: "",
-                      rate: "",
-                      totalPrice: "0",
-                      isFromQuotationItems: false,
-                    },
-                  ],
+            functions: deduplicatedFunctions, // ✅ Use deduplicated
 
             taxDetails: [
               {
@@ -347,9 +357,7 @@ const QuotationPage = () => {
             remainingPayment: quotationInfo.remainingAmount || 0,
 
             advancePayments:
-              quotationInfo.eventFunctionQuotationPayments &&
-              Array.isArray(quotationInfo.eventFunctionQuotationPayments) &&
-              quotationInfo.eventFunctionQuotationPayments.length > 0
+              quotationInfo.eventFunctionQuotationPayments?.length > 0
                 ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
                     id: p.id || 0,
                     amount: p.advancePayment || 0,
@@ -387,7 +395,7 @@ const QuotationPage = () => {
 
           setQuotationId(mappedData.quotationId);
           setQuotationData(mappedData);
-          setOriginalFunctions(mappedData.functions);
+          setOriginalFunctions(deduplicatedFunctions); // ✅ Use deduplicated
         }
       })
       .catch((error) => {
@@ -537,6 +545,9 @@ const QuotationPage = () => {
 
   const buildPayload = () => {
     let Id = localStorage.getItem("userId");
+    const allFunctions = searchTerm.trim()
+      ? originalFunctions
+      : quotationData.functions;
 
     const subtotal = quotationData.functions.reduce((sum, fn) => {
       const total = parseFloat(fn.totalPrice) || 0;
@@ -633,7 +644,7 @@ const QuotationPage = () => {
       eventFunctionQuotationPayments: payments,
       discount: discount,
       eventId: parseInt(eventId),
-      functionQuotationItems: quotationData.functions.map((fn) => ({
+      functionQuotationItems: allFunctions.map((fn) => ({
         amount: parseFloat(fn.totalPrice) || 0,
         extraPax: 0,
         functionDate: fn.date ? fn.date.format("DD/MM/YYYY hh:mm A") : null,
@@ -729,6 +740,7 @@ const QuotationPage = () => {
           });
 
           setIsEdited(false);
+          setSearchTerm("");
           FetchGetQuotation(); // Refresh data after successful save
         } else {
           // Success is false or not present - treat as error
@@ -789,6 +801,7 @@ const QuotationPage = () => {
         response?.data?.success === true
       )
         setIsEdited(false);
+      setSearchTerm("");
       return response;
     });
   };
