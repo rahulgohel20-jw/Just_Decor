@@ -21,7 +21,8 @@ const SuperCalendarPage = () => {
   const FetchUserByRoleId = async () => {
     try {
       const res = await GetMemberByIdD(Id);
-      const userList = res?.data?.data?.["User Details"] || [];
+      const userList = res?.data?.data || [];
+      console.log(userList);
 
       // Convert users into calendar event objects
       const formattedUsers = userList.map((user) => {
@@ -33,7 +34,7 @@ const SuperCalendarPage = () => {
         return {
           id: user.id,
           // ✅ Show Name in Calendar
-          title: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          title: `${user.pre_fix || ""} ${user.name || ""}`.trim(),
           start: formattedDate,
           end: formattedDate,
           color: color,

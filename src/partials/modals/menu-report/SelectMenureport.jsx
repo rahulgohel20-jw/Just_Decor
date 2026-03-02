@@ -46,7 +46,7 @@ export default function SelectMenureport({
   const [isCostingReportOpen, setIsCostingReportOpen] = useState(false);
   const [agencyType, setAgencyType] = useState(null);
   const [isModalOpenWithLogo, setIsModalOpenWithLogo] = useState(false);
-
+  const [isTableMenuExclusive, setIsTableMenuExclusive] = useState(false);
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -299,6 +299,7 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Table Menu"
     ) {
+      setIsTableMenuExclusive(false);
       setOpenNamePlate(true);
       return;
     }
@@ -308,6 +309,7 @@ export default function SelectMenureport({
       template.isNamePlate &&
       template.namePlateType === "Table Menu Exclusive"
     ) {
+      setIsTableMenuExclusive(true);
       setOpenNamePlate(true);
       return;
     }
@@ -695,6 +697,7 @@ export default function SelectMenureport({
             eventId={finalEventId}
             eventFunctionId={selectedFunctionId}
             selectedTemplateId={selectedTemplateId}
+            isTableMenuExclusive={isTableMenuExclusive}
           />
         </CustomModal>
       )}

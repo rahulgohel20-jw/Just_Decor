@@ -15,6 +15,8 @@ import {
   Translateapi,
   GenerateNamePlateReport,
   GetNamePlateByNamePlateType,
+  getTableExeculisive,
+  Tableexeculisivepost,
 } from "@/services/apiServices";
 
 export default function NamePlateReport({
@@ -22,7 +24,10 @@ export default function NamePlateReport({
   eventId,
   eventFunctionId,
   selectedTemplateId,
+  isTableMenuExclusive,
 }) {
+  console.log(isTableMenuExclusive);
+
   const pdfPlugin = defaultLayoutPlugin();
 
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -56,15 +61,26 @@ export default function NamePlateReport({
     if (!userId) return;
 
     try {
-      const res = await GetNamePlateByNamePlateType(
-        efId ?? -1,
-        eventId,
-        0,
-        0,
-        1,
-        currentlang,
-        userId,
-      );
+      let res;
+
+      if (isTableMenuExclusive) {
+        res = await getTableExeculisive(
+          efId ?? -1,
+          eventId,
+          currentlang,
+          userId,
+        );
+      } else {
+        res = await GetNamePlateByNamePlateType(
+          efId ?? -1,
+          eventId,
+          0,
+          0,
+          1,
+          currentlang,
+          userId,
+        );
+      }
 
       const apiData = res?.data?.data;
       const list = apiData?.data || [];
@@ -85,6 +101,7 @@ export default function NamePlateReport({
             itemNameGujarati: item.itemNameGujarati || "",
 
             isTableMenuChecked: item.isTableMenuChecked === 1,
+            is_checked: item.is_checked === 1,
             isStandyChecked: item.isStandyChecked === 1,
 
             sequence: item.sequence ?? index + 1,
@@ -144,7 +161,9 @@ export default function NamePlateReport({
     setItems((prev) =>
       prev.map((item) =>
         item.menuid === menuid
-          ? { ...item, isTableMenuChecked: !item.isTableMenuChecked }
+          ? isTableMenuExclusive
+            ? { ...item, is_checked: !item.is_checked }
+            : { ...item, isTableMenuChecked: !item.isTableMenuChecked }
           : item,
       ),
     );
@@ -191,10 +210,9 @@ export default function NamePlateReport({
         eventId: Number(eventId),
         userId: Number(userId),
 
-        // 🔴 MODULE FLAGS (IMPORTANT)
         isCounterItem: 0,
         isStandyItem: 0,
-        isTableMenuItem: 1, // ✅ because this screen is Table Menu
+        isTableMenuItem: 1,
 
         namePlateRequests: items.map((item, index) => ({
           id: item.id || -1,
@@ -213,10 +231,31 @@ export default function NamePlateReport({
         })),
       };
 
-      console.log("payload", payload);
+      const TablePayload = {
+        categoryFontSize: menuFontSize,
+        itemFontSize: itemFontSize,
+        eventFunctionId: Number(eventFunctionId),
+        eventId: Number(eventId),
+        userId: Number(userId),
+        items: items.map((item, index) => ({
+          id: item.id || -1,
+          menuItemId: item.menuid,
+          is_checked: item.is_checked ? 1 : 0,
+          itemCount: 1,
+          itemNameEnglish: item.itemNameEnglish,
+          itemNameHindi: item.itemNameHindi,
+          itemNameGujarati: item.itemNameGujarati,
 
-      const res = await AddNamePlate(payload);
-      console.log("post", res);
+          sequence: index + 1,
+        })),
+      };
+      let res;
+
+      if (isTableMenuExclusive) {
+        res = await Tableexeculisivepost(TablePayload);
+      } else {
+        res = await AddNamePlate(payload);
+      }
 
       if (!res?.data?.success) {
         throw new Error(res?.data?.msg || "Save failed");
@@ -361,7 +400,16 @@ export default function NamePlateReport({
                 ACTIVE MENU ITEMS
               </span>
               <span className="text-xs text-blue-600 font-semibold">
-                {items.filter((i) => i.isTableMenuChecked).length} Items
+                <span className="text-xs text-blue-600 font-semibold">
+                  {
+                    items.filter((i) =>
+                      isTableMenuExclusive
+                        ? i.is_checked
+                        : i.isTableMenuChecked,
+                    ).length
+                  }{" "}
+                  Items Selected
+                </span>{" "}
                 Selected
               </span>
             </div>
@@ -384,10 +432,12 @@ export default function NamePlateReport({
                       >
                         {(provided, snapshot) => (
                           <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
                             className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                              item.isTableMenuChecked
+                              (
+                                isTableMenuExclusive
+                                  ? item.is_checked
+                                  : item.isTableMenuChecked
+                              )
                                 ? "bg-white"
                                 : "bg-gray-100 opacity-70"
                             } ${snapshot.isDragging ? "shadow-lg bg-blue-50" : ""}`}
@@ -400,10 +450,12 @@ export default function NamePlateReport({
                               ⋮⋮
                             </span>
 
-                            {/* Checkbox */}
-                            {/* Checkbox */}
                             <button onClick={() => toggleItem(item.menuid)}>
-                              {item.isTableMenuChecked ? (
+                              {(
+                                isTableMenuExclusive
+                                  ? item.is_checked
+                                  : item.isTableMenuChecked
+                              ) ? (
                                 <CheckSquare className="text-blue-600" />
                               ) : (
                                 <Square className="text-gray-400" />
@@ -422,9 +474,17 @@ export default function NamePlateReport({
                                 onChange={(e) =>
                                   handleNameChange(item.menuid, e.target.value)
                                 }
-                                disabled={!item.isTableMenuChecked} // ✅ ONLY table menu items editable
+                                disabled={
+                                  !(isTableMenuExclusive
+                                    ? item.is_checked
+                                    : item.isTableMenuChecked)
+                                }
                                 className={`w-full font-semibold border rounded px-2 py-1 ${
-                                  item.isTableMenuChecked
+                                  (
+                                    isTableMenuExclusive
+                                      ? item.is_checked
+                                      : item.isTableMenuChecked
+                                  )
                                     ? "text-gray-800 bg-white"
                                     : "text-gray-400 bg-gray-50"
                                 }`}
