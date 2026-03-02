@@ -477,19 +477,19 @@ html {
   z-index: 1 !important;
 }
 
+/* Create Event CSS */
 
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  display: none;
+}
 
-
-  /* Hide scrollbar for all browsers */
+/* Hide scrollbar for all browsers */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari, Opera */
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .no-scrollbar {
@@ -500,7 +500,13 @@ html {
   display: none;
 }
 
-
-.tab-scroll::-webkit-scrollbar { height: 4px; }
-.tab-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-.tab-scroll::-webkit-scrollbar-track { background: transparent; }
+.tab-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.tab-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.tab-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}

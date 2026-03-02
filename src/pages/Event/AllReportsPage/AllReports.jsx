@@ -385,21 +385,20 @@ export default function AllReports() {
     <Fragment>
       <Container>
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 px-3 sm:px-0">
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors"
+            className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0"
           >
-            <i className="ki-filled ki-left text-gray-700" />
+            <i className="ki-filled ki-left text-gray-700 text-sm sm:text-base" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
             <FormattedMessage
               id="REPORTS.SELECT_REPORT_TYPE"
               defaultMessage="Select Report Type"
             />
           </h1>
         </div>
-
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin h-12 w-12 border-b-2 border-primary rounded-full" />
@@ -408,8 +407,13 @@ export default function AllReports() {
           <>
             {/* Event Info */}
             {eventData && (
-              <div className="bg-gray-200 rounded-2xl p-6 mb-6 border border-gray-400">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="bg-white rounded-2xl p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 border border-gray-300 mx-3 sm:mx-0 shadow-sm">
+                {/* Title for Mobile */}
+                <h2 className="text-sm font-bold text-gray-700 mb-3 sm:hidden">
+                  Event Details
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                   <InfoItem
                     icon={toAbsoluteUrl("/media/icons/partyname.png")}
                     label={intl.formatMessage({
@@ -464,94 +468,104 @@ export default function AllReports() {
 
             {/* Function Selector */}
             {eventData && (
-              <div className="mb-6 max-w-sm">
-                <label className="block text-sm font-semibold mb-2">
+              <div className="mb-4 sm:mb-6 px-3 sm:px-0">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                   <FormattedMessage
                     id="COMMON.SELECT_FUNCTION"
                     defaultMessage="Select Function"
                   />
                 </label>
 
-                <select
-                  className="w-full border rounded-lg px-4 py-2"
-                  value={selectedFunctionId}
-                  onChange={(e) =>
-                    setSelectedFunctionId(Number(e.target.value))
-                  }
-                >
-                  <option value={-1}>
-                    {activeLang === "hi"
-                      ? "सभी फंक्शन"
-                      : activeLang === "gu"
-                        ? "બધા ફંક્શન"
-                        : "All Functions"}
-                  </option>
-
-                  {eventData?.eventFunctions?.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {getLangValue(item.function, "name")}
+                <div className="relative">
+                  <select
+                    className="w-full sm:max-w-sm border-2 border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base font-medium text-gray-700 appearance-none bg-white focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all"
+                    value={selectedFunctionId}
+                    onChange={(e) =>
+                      setSelectedFunctionId(Number(e.target.value))
+                    }
+                  >
+                    <option value={-1}>
+                      {activeLang === "hi"
+                        ? "सभी फंक्शन"
+                        : activeLang === "gu"
+                          ? "બધા ફંક્શન"
+                          : "All Functions"}
                     </option>
-                  ))}
-                </select>
+
+                    {eventData?.eventFunctions?.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {getLangValue(item.function, "name")}
+                      </option>
+                    ))}
+                  </select>
+                  <i className="ki-filled ki-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                </div>
               </div>
             )}
 
             {/* Report Sections */}
             {reportSections.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">No reports available</p>
+              <div className="text-center py-12 text-gray-500 px-3">
+                <p className="text-base sm:text-lg">No reports available</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4 px-3 sm:px-0 pb-6">
                 {reportSections.map((section) => {
                   const isExpanded = expandedSection === section.id;
 
                   return (
                     <div
                       key={section.id}
-                      className="bg-white border-2 border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                      className="bg-white border border-gray-300 rounded-2xl shadow-sm overflow-hidden"
                     >
                       {/* Section Header */}
                       <div
                         onClick={() => toggleSection(section.id)}
-                        className="p-6 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors rounded-t-xl"
+                        className="p-4 sm:p-5 md:p-6 flex justify-between items-center cursor-pointer active:bg-gray-50 transition-colors bg-gradient-to-r from-gray-50 to-white"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center">
-                            <i className="ki-filled ki-document text-white text-lg"></i>
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                            <i className="ki-filled ki-document text-white text-base sm:text-lg"></i>
                           </div>
-                          <h3 className="font-bold text-lg text-gray-800">
+                          <h3 className="font-bold text-base sm:text-lg md:text-xl text-gray-800">
                             {section.name}
                           </h3>
                         </div>
-                        <i
-                          className={`ki-filled text-xl text-gray-600 transition-transform duration-300 ${
-                            isExpanded ? "ki-up" : "ki-down"
-                          }`}
-                        />
+                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <i
+                            className={`ki-filled text-base text-gray-600 transition-transform duration-300 ${
+                              isExpanded ? "ki-up" : "ki-down"
+                            }`}
+                          />
+                        </div>
                       </div>
 
-                      {/* Section Content - All modules' templates combined */}
+                      {/* Section Content */}
                       {isExpanded && (
-                        <div className="px-6 pb-6 pt-2 border-t border-gray-200">
-                          {section.modules.map((module) => {
+                        <div className="bg-gray-50">
+                          {section.modules.map((module, moduleIndex) => {
                             return (
-                              <div key={module.id} className="mb-6 last:mb-0">
+                              <div
+                                key={module.id}
+                                className={`${moduleIndex !== 0 ? "border-t border-gray-200" : ""}`}
+                              >
                                 {/* Module Name as Subheading */}
-                                <div className="flex items-center gap-2 mb-3">
-                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                  <h4 className="font-semibold text-md text-gray-700">
-                                    {module.name}
-                                  </h4>
+                                <div className="px-4 py-3 bg-white border-b border-gray-200">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+                                    <h4 className="font-semibold text-sm sm:text-base text-gray-800">
+                                      {module.name}
+                                    </h4>
+                                  </div>
                                 </div>
 
                                 {/* Templates for this module */}
                                 {module.templates.length === 0 ? (
-                                  <div className="text-center py-4 text-gray-400 text-sm">
+                                  <div className="text-center py-6 text-gray-400 text-sm">
                                     No templates available
                                   </div>
                                 ) : (
-                                  <div className="space-y-3">
+                                  <div className="p-3 sm:p-4 space-y-3">
                                     {module.templates.map((template) => {
                                       const isActive =
                                         selectedCard === template.id;
@@ -560,42 +574,51 @@ export default function AllReports() {
                                         <div
                                           key={template.id}
                                           className={`
-                                            flex items-center gap-6 bg-white rounded-xl  
-                                            border-2 ${isActive ? "border-[#005BA8]" : "border-gray-200"}
-                                            shadow-sm hover:shadow-md transition-all duration-300 p-4
-                                          `}
+                                bg-white rounded-2xl overflow-hidden
+                                border-2 transition-all duration-200
+                                ${
+                                  isActive
+                                    ? "border-primary shadow-lg"
+                                    : "border-gray-200 shadow-sm"
+                                }
+                              `}
                                         >
-                                          {/* Image (Left) */}
-                                          <div className="w-16 h-16 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden bg-gray-100">
-                                            <img
-                                              src={toAbsoluteUrl(
-                                                "/media/icons/reportcard.png",
-                                              )}
-                                              alt={template.name || "Template"}
-                                              className="w-10 h-10 object-contain"
-                                            />
+                                          {/* Template Info */}
+                                          <div className="p-4 flex items-center gap-3">
+                                            {/* Icon */}
+                                            <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+                                              <img
+                                                src={toAbsoluteUrl(
+                                                  "/media/icons/reportcard.png",
+                                                )}
+                                                alt={
+                                                  template.name || "Template"
+                                                }
+                                                className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+                                              />
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0">
+                                              <h4
+                                                className={`text-sm sm:text-base font-bold mb-1 ${
+                                                  isActive
+                                                    ? "text-primary"
+                                                    : "text-gray-900"
+                                                }`}
+                                              >
+                                                {template.name}
+                                              </h4>
+                                              <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">
+                                                {template.description}
+                                              </p>
+                                            </div>
                                           </div>
 
-                                          {/* Content (Middle) */}
-                                          <div className="flex-1">
-                                            <h4
-                                              className={`text-base font-bold ${
-                                                isActive
-                                                  ? "text-[#005BA8]"
-                                                  : "text-gray-800"
-                                              }`}
-                                            >
-                                              {template.name}
-                                            </h4>
-                                            <p className="text-sm text-gray-500 mt-1">
-                                              {template.description}
-                                            </p>
-                                          </div>
-
-                                          {/* Action (Right) */}
-                                          <div className="flex-shrink-0">
+                                          {/* Action Button - Full Width at Bottom */}
+                                          <div className="px-4 pb-4">
                                             <button
-                                              className="btn btn-primary px-6 py-2 rounded-full hover:opacity-90 transition-opacity"
+                                              className="w-full btn btn-primary rounded-xl py-3 font-semibold text-sm sm:text-base shadow-md hover:shadow-lg active:scale-[0.98] transition-all"
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleGenerateReport(
@@ -605,6 +628,7 @@ export default function AllReports() {
                                                 );
                                               }}
                                             >
+                                              <i className="ki-filled ki-file-down text-base mr-2"></i>
                                               <FormattedMessage
                                                 id="REPORTS.GENERATE_REPORT"
                                                 defaultMessage="Generate Report"
@@ -697,11 +721,19 @@ export default function AllReports() {
 }
 
 const InfoItem = ({ icon, label, value }) => (
-  <div className="flex items-center gap-3 min-w-[120px]">
-    {icon && <img src={icon} alt={label} className="w-5 h-5 object-contain" />}
-    <div className="flex flex-col">
-      <span className="text-black font-bold text-base">{label}</span>
-      <span className="text-sm font-semibold text-gray-600">{value}</span>
+  <div className="flex items-start gap-3 p-3 sm:p-0 rounded-lg sm:rounded-none bg-gray-50 sm:bg-transparent">
+    {icon && (
+      <div className="w-10 h-10 sm:w-auto sm:h-auto bg-white sm:bg-transparent rounded-lg sm:rounded-none flex items-center justify-center sm:block p-2 sm:p-0 flex-shrink-0">
+        <img src={icon} alt={label} className="w-5 h-5 object-contain" />
+      </div>
+    )}
+    <div className="flex flex-col min-w-0 flex-1">
+      <span className="text-gray-600 font-medium text-xs sm:text-sm mb-0.5">
+        {label}
+      </span>
+      <span className="text-gray-900 font-bold text-sm sm:text-base truncate">
+        {value}
+      </span>
     </div>
   </div>
 );
