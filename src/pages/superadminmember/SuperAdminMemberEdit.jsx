@@ -25,6 +25,7 @@ import {
   GetAllPlans,
   Fetchmanager,
   DeleteAmc,
+  GetExtraPayment,
 } from "@/services/apiServices";
 import { DeleteKyc, DeleteRefund } from "../../services/apiServices";
 
@@ -43,6 +44,19 @@ const SuperAdminMemberEdit = () => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [selectedPlanDetails, setSelectedPlanDetails] = useState(null);
+  const [extraPaymentOptions, setExtraPaymentOptions] = useState([]);
+  const [tableData, setTableData] = useState([]);
+
+  const [offers, setOffers] = useState([
+    {
+      id: "",
+      offerId: "",
+      // offerName: "",
+      price: "",
+      validityDate: "",
+    },
+  ]);
   const [remarks, setRemarks] = useState({
     managerReq: "",
     salesReq: "",
@@ -51,6 +65,13 @@ const SuperAdminMemberEdit = () => {
     callFiles: [], // array for call files if needed
   });
 
+  const [planDetails, setPlanDetails] = useState({
+    planId: "",
+    price: "",
+    basePrice: "",
+    validDate: "",
+    remarks: "",
+  });
   const [userAmcs, setUserAmcs] = useState([
     {
       amcAmount: "",
@@ -90,6 +111,8 @@ const SuperAdminMemberEdit = () => {
     preFix: "",
     reportingManagerId: "",
     SalesId: "",
+    services: "",  
+  type: "",
   });
 
   const [downPayments, setDownPayments] = useState([
@@ -110,6 +133,46 @@ const SuperAdminMemberEdit = () => {
   ]);
 
   const [callFile, setCallFile] = useState(null);
+
+  const FetchExtraPayments = () => {
+    GetExtraPayment()
+      .then((res) => {
+        const payments = res?.data?.data?.["Extra Payment Details"];
+
+        if (payments && Array.isArray(payments)) {
+          // For Table
+          const formattedTable = payments.map((payment, index) => ({
+            sr_no: index + 1,
+            id: payment.id,
+            description: payment.description || "-",
+            name: payment.name || "-",
+            price: payment.price || 0,
+          }));
+
+          setTableData(formattedTable);
+
+          // 🔥 For Dropdown - Include price in the option
+          const formattedDropdown = payments.map((payment) => ({
+            label: payment.name,
+            value: payment.id,
+            price: payment.price, // ✅ Add price here
+          }));
+
+          setExtraPaymentOptions(formattedDropdown);
+        } else {
+          setTableData([]);
+          setExtraPaymentOptions([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching payments:", error);
+        setTableData([]);
+        setExtraPaymentOptions([]);
+      });
+  };
+  useEffect(() => {
+    FetchExtraPayments();
+  }, []);
 
   const getFileNameFromUrl = (url) => {
     if (!url) return "";
@@ -155,7 +218,7 @@ const SuperAdminMemberEdit = () => {
           (state) => ({
             label: state.name,
             value: state.id,
-          })
+          }),
         );
         setStates(stateOptions);
       }
@@ -172,7 +235,7 @@ const SuperAdminMemberEdit = () => {
           (city) => ({
             label: city.name,
             value: city.id,
-          })
+          }),
         );
         setCities(cityOptions);
         return cityOptions;
@@ -192,7 +255,9 @@ const SuperAdminMemberEdit = () => {
           (plan) => ({
             label: plan.name,
             value: plan.id,
-          })
+            price: plan.price,
+            // basePrice: plan.description, // Assuming description holds base price
+          }),
         );
         setPlans(planOptions);
       }
@@ -200,7 +265,6 @@ const SuperAdminMemberEdit = () => {
       console.error("Error loading plans:", err);
     }
   };
-
   const loadManagers = async () => {
     try {
       const clientUserId = 1;
@@ -210,7 +274,7 @@ const SuperAdminMemberEdit = () => {
           (manager) => ({
             label: `${manager.firstName} ${manager.lastName}`,
             value: manager.id,
-          })
+          }),
         );
         setManagers(managerOptions);
       }
@@ -268,6 +332,8 @@ const SuperAdminMemberEdit = () => {
             preFix: user.preFix || "Mr.",
             reportingManagerId: user.reportingManagerId || "",
             SalesId: user.SalesId || "",
+            services: user.services || "",
+type: user.type || "",
           }));
           // Remarks
           setRemarks({
@@ -277,18 +343,30 @@ const SuperAdminMemberEdit = () => {
             salesFile: null,
           });
           if (user.userPlan?.plan) {
+            const planData = {
+              label: user.userPlan.plan.name,
+              value: user.userPlan.plan.id,
+              price: user.userPlan.plan.price,
+            };
+
+            setSelectedPlanDetails(planData);
+
+            setPlanDetails({
+              planId: user.userPlan.plan.id,
+              basePrice: user.userPlan.planBaseAmount || "", 
+              price: user.userPlan.planAmount || "", 
+              validDate: user.userPlan.validDate
+                ? user.userPlan.validDate.split("/").reverse().join("-")
+                : "",
+              remarks: user.userPlan.remarks || "",
+            });
+
             setPlans((prev) => {
               const exists = prev.some(
-                (p) => p.value === user.userPlan.plan.id
+                (p) => p.value === user.userPlan.plan.id,
               );
               if (!exists) {
-                return [
-                  ...prev,
-                  {
-                    label: user.userPlan.plan.name,
-                    value: user.userPlan.plan.id,
-                  },
-                ];
+                return [...prev, planData];
               }
               return prev;
             });
@@ -302,7 +380,7 @@ const SuperAdminMemberEdit = () => {
                 kycNo: doc.kycNo || "",
                 docPath: null,
                 existingDocPath: doc.docPath || null,
-              }))
+              })),
             );
           }
 
@@ -324,7 +402,7 @@ const SuperAdminMemberEdit = () => {
                 remarks: dp.remarks || "",
                 docPath: null,
                 existingDocPath: dp.docPath || null,
-              }))
+              })),
             );
           }
 
@@ -345,7 +423,7 @@ const SuperAdminMemberEdit = () => {
                 status: amc.status || "",
                 file: null,
                 existingDocPath: amc.file || null,
-              }))
+              })),
             );
           }
 
@@ -363,8 +441,41 @@ const SuperAdminMemberEdit = () => {
                 refundDetails: refund.refundDetails || "",
                 file: null,
                 existingDocPath: refund.file || null,
-              }))
+              })),
             );
+          }
+
+          // ✅ User Offers (NEW)
+          if (user.userOffers && user.userOffers.length > 0) {
+            setOffers(
+              user.userOffers.map((offer) => {
+                let formattedDateTime = "";
+
+                if (offer.offerExpireDate) {
+                  const [datePart, timePart] = offer.offerExpireDate.split(" ");
+                  const [day, month, year] = datePart.split("/");
+                  const [hours, minutes] = timePart.split(":"); // only take first 2
+
+                  formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+
+                return {
+                  id: offer.id || "",
+                  offerId: offer.offerId || "",
+                  validityDate: formattedDateTime,
+                };
+              }),
+            );
+          } else {
+            // Reset to default if no offers
+            setOffers([
+              {
+                id: "",
+                offerId: "",
+                price: "",
+                validityDate: "",
+              },
+            ]);
           }
         } else {
           message.error("User not found");
@@ -381,9 +492,23 @@ const SuperAdminMemberEdit = () => {
   };
 
   const handleMemberChange = (field, value) => {
+    if (field === "planId") {
+      const plan = plans.find((p) => p.value === value);
+      if (plan) {
+        setSelectedPlanDetails(plan);
+        setPlanDetails((prev) => ({
+          ...prev,
+          planId: value,
+          basePrice: plan.price || "", // Set base price from plan (read-only)
+          price: plan.price || "", // Set initial editable price same as base
+        }));
+      }
+    }
     setMemberDetails((prev) => ({ ...prev, [field]: value }));
   };
-
+  const handlePlanDetailsChange = (field, value) => {
+    setPlanDetails((prev) => ({ ...prev, [field]: value }));
+  };
   const addDownPayment = () => {
     setDownPayments([
       ...downPayments,
@@ -473,7 +598,7 @@ const SuperAdminMemberEdit = () => {
     } catch (error) {
       console.error("Error deleting amc:", error);
       message.error(
-        error.response?.data?.msg || error.message || "Failed to delete amc."
+        error.response?.data?.msg || error.message || "Failed to delete amc.",
       );
     }
   };
@@ -538,7 +663,7 @@ const SuperAdminMemberEdit = () => {
     } catch (error) {
       console.error("Error deleting amc:", error);
       message.error(
-        error.response?.data?.msg || error.message || "Failed to delete amc."
+        error.response?.data?.msg || error.message || "Failed to delete amc.",
       );
     }
   };
@@ -567,6 +692,21 @@ const SuperAdminMemberEdit = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const convertDateTimeLocalFormat = (dateTimeString) => {
+    if (!dateTimeString || dateTimeString.trim() === "") return "";
+
+    const [datePart, timePart] = dateTimeString.split("T");
+    const [year, month, day] = datePart.split("-");
+    const time = timePart || "00:00";
+    const [hours24, minutes] = time.split(":");
+
+    const hoursNum = parseInt(hours24, 10);
+    const period = hoursNum >= 12 ? "PM" : "AM";
+    const hours12 = hoursNum % 12 || 12;
+    const formattedHours = String(hours12).padStart(2, "0");
+
+    return `${day}/${month}/${year} ${formattedHours}:${minutes} ${period}`;
+  };
   const handleKycChange = (index, field, value) => {
     const updated = [...kycDetails];
     updated[index][field] = value;
@@ -619,7 +759,7 @@ const SuperAdminMemberEdit = () => {
           await fetchUserData();
         } else {
           message.error(
-            response?.data?.msg || "Failed to delete down payment."
+            response?.data?.msg || "Failed to delete down payment.",
           );
         }
       }
@@ -628,7 +768,7 @@ const SuperAdminMemberEdit = () => {
       message.error(
         error.response?.data?.msg ||
           error.message ||
-          "Failed to delete down payment."
+          "Failed to delete down payment.",
       );
     }
   };
@@ -660,7 +800,7 @@ const SuperAdminMemberEdit = () => {
           await fetchUserData();
         } else {
           message.error(
-            response?.data?.msg || "Failed to delete down payment."
+            response?.data?.msg || "Failed to delete down payment.",
           );
         }
       }
@@ -669,7 +809,7 @@ const SuperAdminMemberEdit = () => {
       message.error(
         error.response?.data?.msg ||
           error.message ||
-          "Failed to delete down payment."
+          "Failed to delete down payment.",
       );
     }
   };
@@ -679,6 +819,44 @@ const SuperAdminMemberEdit = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const addOffer = () => {
+    setOffers([
+      ...offers,
+      {
+        id: "",
+        offerId: "",
+        // offerName: "",
+        price: "",
+        validityDate: "",
+      },
+    ]);
+  };
+
+  const removeOffer = (index) => {
+    if (offers.length === 1)
+      return message.warning("At least one entry is required!");
+    setOffers(offers.filter((_, i) => i !== index));
+  };
+
+  const handleOfferChange = (index, field, value) => {
+    const updated = [...offers];
+
+    if (field === "offerId") {
+      const selectedOffer = extraPaymentOptions.find(
+        (opt) => opt.value === value,
+      );
+      if (selectedOffer) {
+        updated[index].offerId = value;
+        updated[index].offerName = selectedOffer.label;
+        updated[index].price = selectedOffer.price || "";
+      }
+    } else {
+      updated[index][field] = value;
+    }
+
+    setOffers(updated);
   };
 
   const handleSubmit = async () => {
@@ -724,6 +902,8 @@ const SuperAdminMemberEdit = () => {
       formData.append("preFix", memberDetails.preFix || "");
       formData.append("managerId", memberDetails.reportingManagerId || "");
       formData.append("SalesId", memberDetails.SalesId || "");
+      formData.append("services", memberDetails.services || "");
+formData.append("type", memberDetails.type || "");
 
       // Remarks text
       formData.append("managerReq", remarks.managerReq);
@@ -733,7 +913,7 @@ const SuperAdminMemberEdit = () => {
       (remarks.managerFiles || []).forEach((file, i) => {
         formData.append(`files[${i}].file`, file);
         formData.append(`files[${i}].fileType`, "MANAGERFILE");
-        formData.append(`files[${i}].fileId`, file.fileId || 0); // 0 for new files
+        formData.append(`files[${i}].fileId`, file.fileId || 0);
       });
 
       // Sales Files
@@ -763,12 +943,12 @@ const SuperAdminMemberEdit = () => {
           formData.append(`userDownPayments[${i}].amount`, p.amount);
           formData.append(
             `userDownPayments[${i}].paidAmount`,
-            p.paidAmount || 0
+            p.paidAmount || 0,
           );
           formData.append(`userDownPayments[${i}].payid`, p.payid || "");
           formData.append(
             `userDownPayments[${i}].transactionDate`,
-            convertDateFormat(p.transactionDate)
+            convertDateFormat(p.transactionDate),
           );
           formData.append(`userDownPayments[${i}].remarks`, p.remarks || "");
           if (p.docPath instanceof File)
@@ -794,15 +974,15 @@ const SuperAdminMemberEdit = () => {
           formData.append(`userAmcs[${i}].amcAmount`, a.amcAmount || 0);
           formData.append(
             `userAmcs[${i}].amcDate`,
-            convertDateFormat(a.amcDate)
+            convertDateFormat(a.amcDate),
           );
           formData.append(
             `userAmcs[${i}].amcRecivableAmount`,
-            a.amcRecivableAmount || 0
+            a.amcRecivableAmount || 0,
           );
           formData.append(
             `userAmcs[${i}].amcRecivableDate`,
-            convertDateFormat(a.amcRecivableDate)
+            convertDateFormat(a.amcRecivableDate),
           );
           formData.append(`userAmcs[${i}].amcRemarks`, a.amcRemarks || "");
           formData.append(`userAmcs[${i}].amcType`, a.amcType || "");
@@ -819,21 +999,40 @@ const SuperAdminMemberEdit = () => {
           formData.append(`refundDetails[${i}].amount`, r.amount || 0);
           formData.append(
             `refundDetails[${i}].refundDate`,
-            convertDateFormat(r.refundDate)
+            convertDateFormat(r.refundDate),
           );
           formData.append(
             `refundDetails[${i}].refundDetails`,
-            r.refundDetails || ""
+            r.refundDetails || "",
           );
           formData.append(
             `refundDetails[${i}].refundPaymentMode`,
-            r.refundPaymentMode || ""
+            r.refundPaymentMode || "",
           );
           formData.append(`refundDetails[${i}].refundType`, r.refundType || "");
           formData.append(`refundDetails[${i}].remarks`, r.remarks || "");
           if (r.file instanceof File)
             formData.append(`refundDetails[${i}].file`, r.file);
         });
+
+      // ✅ User Offers
+      (offers || [])
+        .filter((o) => o.offerId && o.validityDate)
+        .forEach((o, i) => {
+          formData.append(`userOffer[${i}].id`, o.id || -1);
+          formData.append(`userOffer[${i}].offerId`, o.offerId);
+          formData.append(
+            `userOffer[${i}].offerExpireDate`,
+            convertDateTimeLocalFormat(o.validityDate),
+          );
+        });
+
+      
+      if (planDetails.planId) {
+        formData.append("planId", planDetails.planId);
+        formData.append("planAmount", planDetails.price || 0); // Editable price
+        formData.append("planBaseAmount", planDetails.basePrice || 0); // Read-only base amount
+      }
 
       // Submit
       const response = await UpdateMemberById(id, formData);
@@ -845,7 +1044,7 @@ const SuperAdminMemberEdit = () => {
         await Swal.fire(
           "Error!",
           response?.data?.msg || "Update failed",
-          "error"
+          "error",
         );
       }
     } catch (error) {
@@ -853,7 +1052,7 @@ const SuperAdminMemberEdit = () => {
       await Swal.fire(
         "Error!",
         error?.response?.data?.msg || "Update failed",
-        "error"
+        "error",
       );
     } finally {
       setSubmitting(false);
@@ -986,17 +1185,72 @@ const SuperAdminMemberEdit = () => {
               </div>
 
               <div>
+  <label className="block mb-1 text-sm">Services</label>
+  <Input
+    value={memberDetails.services}
+    onChange={(e) => handleMemberChange("services", e.target.value)}
+    placeholder="Enter services"
+  />
+</div>
+
+<div>
+  <label className="block mb-1 text-sm">Type</label>
+  <Input
+    value={memberDetails.type}
+    onChange={(e) => handleMemberChange("type", e.target.value)}
+    placeholder="Enter type"
+  />
+</div>
+            </div>
+          </section>
+          {/* plandetai */}
+          <section className="border rounded-md">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+              <span>Plan Details</span>
+            </div>
+
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {/* Plan */}
+              <div>
                 <label className="block mb-1 text-sm">Plan</label>
                 <Select
-                  value={memberDetails.planId}
+                  value={planDetails.planId}
                   onChange={(v) => handleMemberChange("planId", v)}
                   options={plans}
                   className="w-full"
                 />
               </div>
+
+              {/* Base Amount (Read-only) */}
+              
+
+              {/* Price (Editable) */}
+              <div>
+                <label className="text-sm">Plan Amount</label>
+                <Input
+                  type="number"
+                  value={planDetails.price}
+                  onChange={(e) =>
+                    handlePlanDetailsChange("price", e.target.value)
+                  }
+                  placeholder="Enter plan price"
+                  readOnly
+                />
+              </div>
+
+              <div>
+  <label className="text-sm">Plan Base Amount</label>
+  <Input
+    type="number"
+    value={planDetails.basePrice}
+    onChange={(e) => handlePlanDetailsChange("basePrice", e.target.value)}
+    placeholder="Plan base amount"
+    className="bg-gray-50"
+  />
+</div>
             </div>
           </section>
-
+          {/* other */}
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>Other Details</span>
@@ -1024,6 +1278,78 @@ const SuperAdminMemberEdit = () => {
             </div>
           </section>
 
+          {/* offer */}
+          <section className="border rounded-md">
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
+              <span>Offers</span>
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                size="small"
+                onClick={addOffer}
+              >
+                Add New
+              </Button>
+            </div>
+
+            {offers.map((row, index) => (
+              <div
+                key={index}
+                className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 "
+              >
+                {/* Offer Name Dropdown */}
+                <div>
+                  <label className="block mb-1 text-sm font-medium">
+                    Offer Name *
+                  </label>
+                  <Select
+                    value={row.offerId}
+                    onChange={(v) => handleOfferChange(index, "offerId", v)}
+                    options={extraPaymentOptions}
+                    placeholder="Select Offer"
+                    className="w-full"
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                  />
+                </div>
+
+                {/* Validity Date */}
+                {/* Validity Date */}
+                <div>
+                  <label className="block mb-1 text-sm font-medium">
+                    Validity Date *
+                  </label>
+                  <Input
+                    type="datetime-local" // ✅ Changed from "date" to "datetime-local"
+                    value={row.validityDate}
+                    onChange={(e) =>
+                      handleOfferChange(index, "validityDate", e.target.value)
+                    }
+                  />
+                </div>
+
+                {/* Delete Button */}
+                <div className="flex items-end justify-end sm:col-span-2 md:col-span-3 lg:col-span-4">
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => removeOffer(index)}
+                  ></Button>
+                </div>
+              </div>
+            ))}
+
+            {offers.length === 0 && (
+              <div className="p-4 text-center text-gray-500">
+                No offers added. Click "Add New" to add an offer.
+              </div>
+            )}
+          </section>
+          {/* Remark */}
           <section className="border rounded-md">
             <div className="flex justify-between items-center bg-gray-100 px-4 py-2 font-semibold text-gray-700 border-b">
               <span>Remarks</span>
@@ -1155,7 +1481,7 @@ const SuperAdminMemberEdit = () => {
                       handleDownPaymentChange(
                         index,
                         "paidAmount",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -1182,7 +1508,7 @@ const SuperAdminMemberEdit = () => {
                       handleDownPaymentChange(
                         index,
                         "transactionDate",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -1519,7 +1845,7 @@ const SuperAdminMemberEdit = () => {
                         handleUserAmcChange(
                           index,
                           "amcRecivableAmount",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -1537,7 +1863,7 @@ const SuperAdminMemberEdit = () => {
                         handleUserAmcChange(
                           index,
                           "amcRecivableDate",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -1688,7 +2014,7 @@ const SuperAdminMemberEdit = () => {
               {refundDetails.map(
                 (
                   row,
-                  index // ✅ Correct array
+                  index, // ✅ Correct array
                 ) => (
                   <div
                     key={index}
@@ -1739,7 +2065,7 @@ const SuperAdminMemberEdit = () => {
                           handleRefundChange(
                             index,
                             "refundDate",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                       />
@@ -1776,7 +2102,7 @@ const SuperAdminMemberEdit = () => {
                           handleRefundChange(
                             index,
                             "refundDetails",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         placeholder="Enter refund details"
@@ -1892,7 +2218,7 @@ const SuperAdminMemberEdit = () => {
                       />
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
           </section>

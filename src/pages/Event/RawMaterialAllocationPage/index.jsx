@@ -22,6 +22,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import dayjs from "dayjs";
 import DatePicker from "react-datepicker";
 import AddRawMaterial from "./AddRawMaterial";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
 const RawMaterialAllocation = ({ mode }) => {
   let { eventId } = useParams();
@@ -50,12 +51,43 @@ const RawMaterialAllocation = ({ mode }) => {
 
   const [isAddMaterialModal, setIsAddMaterialModal] = useState(false);
   const [eventFunctions, setEventFunctions] = useState([]);
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  
+  // ✅ Use ref to track the previous eventId
+  const prevEventIdRef = useRef(null);
+  // ✅ Track if initial load is complete
+  const isInitialLoadRef = useRef(true);
 
   const intl = useIntl();
   let userId = localStorage.getItem("userId");
 
-  // Replace the fetchEventFunctions function with this:
+  // ✅ REFACTORED: Fetch event data
+  const fetchEventData = async () => {
+    if (!eventId) return;
+    
+    try {
+      const eventData = await GetEventMasterById(eventId);
+      const data = eventData.data.data["Event Details"] || [];
+
+      if (data && data.length > 0) {
+        const event = eventData.data.data["Event Details"][0];
+        setEventData(event);
+      } else {
+        console.error("error in fetching event data");
+        setEventData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+      setEventData([]);
+    }
+  };
+
+  // ✅ REFACTORED: Fetch event functions
   const fetchEventFunctions = async () => {
+    if (!eventId) return;
+    
     try {
       const response = await GetEventMasterById(eventId);
       const eventDetails = response?.data?.data?.["Event Details"];
@@ -74,11 +106,150 @@ const RawMaterialAllocation = ({ mode }) => {
         }));
 
         setEventFunctions(transformedFunctions);
+      } else {
+        setEventFunctions([]);
       }
     } catch (error) {
       console.error("Error fetching event functions:", error);
+      setEventFunctions([]);
     }
   };
+
+  // ✅ REFACTORED: Fetch categories
+  const fetchCategories = async () => {
+    if (!eventId) return;
+    
+    setLoading(true);
+    try {
+      const res = await GetAllRawMaterialAllocationCategory(eventId);
+      const categories =
+        res?.data?.data?.["Raw Material Category Details"] || [];
+
+      if (!Array.isArray(categories) || categories.length === 0) {
+        console.warn("No categories found");
+        setTabs([]);
+        setActiveTab(null);
+        setData([]);
+        setOriginalData([]);
+        return;
+      }
+
+      const dynamicTabs = categories.map((category) => ({
+        value: category.id?.toString(),
+        label: category.nameEnglish || category.name || "Unnamed Category",
+        categoryId: category.id,
+      }));
+
+      setTabs(dynamicTabs);
+      setActiveTab(dynamicTabs[0]?.value);
+
+      if (dynamicTabs[0]?.categoryId) {
+        await fetchRawMaterialItems(dynamicTabs[0].categoryId);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setTabs([]);
+      setActiveTab(null);
+      setData([]);
+      setOriginalData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ REFACTORED: Fetch agencies (only once)
+  const fetchAgencies = async () => {
+    try {
+      const response = await GetAllSupllierVendors(userId);
+      const list = response?.data?.data?.["Party Details"] || [];
+      setAgencies(list);
+    } catch (error) {
+      console.error("Error fetching agencies:", error);
+      setAgencies([]);
+    }
+  };
+
+  // ✅ REFACTORED: Fetch units (only once)
+  const FetchUnit = async () => {
+    try {
+      const data = await GetUnitData(userId);
+      setUnit(data?.data?.data["Unit Details"] || []);
+    } catch (error) {
+      console.log(error);
+      setUnit([]);
+    }
+  };
+
+  // ✅ REFACTORED: Main effect for eventId changes
+  useEffect(() => {
+    const loadEventData = async () => {
+      // Skip if no eventId
+      if (!eventId) return;
+
+      // Check if this is a new eventId
+      const hasEventIdChanged = prevEventIdRef.current !== eventId;
+      
+      if (hasEventIdChanged || isInitialLoadRef.current) {
+        console.log("🔄 Event ID changed or initial load:", eventId);
+        
+        // Reset state for new event
+        setData([]);
+        setOriginalData([]);
+        setTabs([]);
+        setActiveTab(null);
+        setHasUnsavedChanges(false);
+        setSearchTerm("");
+        setSelectedRows([]);
+        setIsNavigating(false);
+        
+        // Fetch all event-specific data
+        await Promise.all([
+          fetchEventData(),
+          fetchEventFunctions(),
+          fetchCategories(),
+        ]);
+
+        // Update refs
+        prevEventIdRef.current = eventId;
+        isInitialLoadRef.current = false;
+      }
+    };
+
+    loadEventData();
+  }, [eventId]);
+
+  // ✅ Fetch agencies and units only once on mount
+  useEffect(() => {
+    fetchAgencies();
+    FetchUnit();
+  }, []);
+
+  // ✅ Search filter effect (unchanged)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const query = searchTerm.trim().toLowerCase();
+
+      if (!query) {
+        setData(originalData);
+        return;
+      }
+
+      const normalize = (val = "") =>
+        val.toString().toLowerCase().replace(/\s+/g, "");
+
+      const filtered = originalData.filter(
+        (item) =>
+          normalize(item.material).includes(normalize(query)) ||
+          normalize(item.agency).includes(normalize(query)) ||
+          normalize(item.place).includes(normalize(query)),
+      );
+
+      setData(filtered);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, originalData]);
+
   const handleAddNewRow = () => {
     setIsAddMaterialModal(true);
   };
@@ -128,75 +299,12 @@ const RawMaterialAllocation = ({ mode }) => {
     }
   };
 
-  useEffect(() => {
-    if (eventId) {
-      fetchEventData();
-      fetchEventFunctions();
-    }
-  }, [eventId]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const query = searchTerm.trim().toLowerCase();
-
-      if (!query) {
-        setData(originalData);
-        return;
-      }
-
-      const normalize = (val = "") =>
-        val.toString().toLowerCase().replace(/\s+/g, "");
-
-      const filtered = originalData.filter(
-        (item) =>
-          normalize(item.material).includes(normalize(query)) ||
-          normalize(item.agency).includes(normalize(query)) ||
-          normalize(item.place).includes(normalize(query)),
-      );
-
-      setData(filtered);
-    }, 300);
-
-    return () => clearTimeout(handler);
-  }, [searchTerm, originalData]);
-
-  const fetchEventData = async () => {
-    try {
-      const eventData = await GetEventMasterById(eventId);
-      const data = eventData.data.data["Event Details"] || [];
-
-      if (data && data.length > 0) {
-        const event = eventData.data.data["Event Details"][0];
-        setEventData(event);
-      } else {
-        console.error("error in fetching event data");
-      }
-    } catch (error) {
-      console.error("Error fetching event data:", error);
-    }
-  };
-
-  const FetchUnit = async () => {
-    try {
-      const data = await GetUnitData(userId);
-
-      setUnit(data?.data?.data["Unit Details"] || []);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    FetchUnit();
-  }, []);
-
   const unitSelectOptions = unit.map((u) => ({
     value: u.nameEnglish,
     label: u.nameEnglish,
     unitId: u.id,
   }));
 
-  // ✅ UPDATED: Build unit options from units object first, then fallback to unitHierarchyDto
   const buildUnitOptions = (
     unitsObject,
     unitHierarchyDto,
@@ -205,7 +313,6 @@ const RawMaterialAllocation = ({ mode }) => {
   ) => {
     const options = [];
 
-    // ✅ Priority 1: Use units object if available
     if (unitsObject && unitsObject.id) {
       options.push({
         value: unitsObject.id,
@@ -213,9 +320,7 @@ const RawMaterialAllocation = ({ mode }) => {
       });
     }
 
-    // ✅ Priority 2: Use hierarchy if available
     if (unitHierarchyDto) {
-      // Only add if not already added from units object
       if (!options.some((o) => o.value === unitHierarchyDto.unitId)) {
         options.push({
           value: unitHierarchyDto.unitId,
@@ -223,7 +328,6 @@ const RawMaterialAllocation = ({ mode }) => {
         });
       }
 
-      // Add children
       if (Array.isArray(unitHierarchyDto.children)) {
         unitHierarchyDto.children.forEach((child) => {
           if (!options.some((o) => o.value === child.unitId)) {
@@ -236,7 +340,6 @@ const RawMaterialAllocation = ({ mode }) => {
       }
     }
 
-    // ✅ Fallback if nothing matches current unit
     if (currentUnitId && !options.some((o) => o.value === currentUnitId)) {
       options.unshift({
         value: currentUnitId,
@@ -247,62 +350,9 @@ const RawMaterialAllocation = ({ mode }) => {
     return options;
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    setLoading(true);
-    try {
-      const res = await GetAllRawMaterialAllocationCategory(eventId);
-      const categories =
-        res?.data?.data?.["Raw Material Category Details"] || [];
-
-      if (!Array.isArray(categories) || categories.length === 0) {
-        console.warn("No categories found");
-        setTabs([]);
-        return;
-      }
-
-      const dynamicTabs = categories.map((category) => ({
-        value: category.id?.toString(),
-        label: category.nameEnglish || category.name || "Unnamed Category",
-        categoryId: category.id,
-      }));
-
-      setTabs(dynamicTabs);
-      setActiveTab(dynamicTabs[0]?.value);
-
-      if (dynamicTabs[0]?.categoryId) {
-        fetchRawMaterialItems(dynamicTabs[0].categoryId);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      setTabs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAgencies();
-  }, []);
-
-  const fetchAgencies = async () => {
-    setLoading(true);
-    try {
-      const response = await GetAllSupllierVendors(userId);
-      const list = response?.data?.data?.["Party Details"] || [];
-      setAgencies(list);
-    } catch (error) {
-      console.error("Error fetching agencies:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const fetchRawMaterialItems = async (categoryId) => {
-    setLoading(true);
+    if (!eventId || !categoryId) return;
+    
     setTableLoading(true);
     try {
       const response = await GetAllRawMaterialAllocationItems(
@@ -320,7 +370,6 @@ const RawMaterialAllocation = ({ mode }) => {
               ? item.eventRawMaterialFunctions[0].functiondatetime
               : null;
 
-          // ✅ Calculate and store the original price per unit
           const originalQty = item.qty || 0;
           const originalTotal = item.totalprice || 0;
           const originalPricePerUnit =
@@ -370,12 +419,13 @@ const RawMaterialAllocation = ({ mode }) => {
         setHasUnsavedChanges(false);
       } else {
         setData([]);
+        setOriginalData([]);
       }
     } catch (error) {
       console.error("Error fetching raw material items:", error);
       setData([]);
+      setOriginalData([]);
     } finally {
-      setLoading(false);
       setTableLoading(false);
     }
   };
@@ -383,14 +433,11 @@ const RawMaterialAllocation = ({ mode }) => {
   const getEquivalentValue = (fromUnitId, toUnitId, unitHierarchyDto) => {
     if (!unitHierarchyDto) return 1;
 
-    // Same unit
     if (fromUnitId === toUnitId) return 1;
 
-    // Parent → Child (KILO → GRAM)
     const child = unitHierarchyDto.children?.find((c) => c.unitId === toUnitId);
     if (child) return child.equivalentValue;
 
-    // Child → Parent (GRAM → KILO)
     const isChild = unitHierarchyDto.children?.some(
       (c) => c.unitId === fromUnitId,
     );
@@ -410,9 +457,6 @@ const RawMaterialAllocation = ({ mode }) => {
 
     const basePrice = Number(row.basePricePerUnit) || 0;
 
-    // ===============================
-    // FINAL QTY CHANGE
-    // ===============================
     if (field === "finalQty") {
       const newFinalQty = Number(value) || 0;
 
@@ -424,9 +468,6 @@ const RawMaterialAllocation = ({ mode }) => {
       return;
     }
 
-    // ===============================
-    // UNIT CHANGE
-    // ===============================
     if (field === "unitId") {
       const newUnitId = Number(value);
       const oldUnitId = row.unitId;
@@ -437,10 +478,8 @@ const RawMaterialAllocation = ({ mode }) => {
         row.unitHierarchyDto,
       );
 
-      // Convert quantity
       const newFinalQty = (Number(row.finalQty) || 0) * factor;
 
-      // Convert price inversely
       const newPricePerUnit = factor !== 0 ? basePrice / factor : basePrice;
 
       row.unitId = newUnitId;
@@ -448,7 +487,6 @@ const RawMaterialAllocation = ({ mode }) => {
       row.basePricePerUnit = newPricePerUnit;
       row.total = newFinalQty > 0 ? newFinalQty * newPricePerUnit : 0;
 
-      // Update unit label
       const unitOptions = buildUnitOptions(
         row.units,
         row.unitHierarchyDto,
@@ -495,12 +533,11 @@ const RawMaterialAllocation = ({ mode }) => {
         return false;
       }
 
-      // ✅ Get eventFunctionId from the first new row (if exists)
       const newRow = data.find((item) => item.isNewRow);
       const payloadEventFunctionId = newRow?.eventFunctionId || 0;
 
       const payload = {
-        eventFunctionId: payloadEventFunctionId, // ✅ Use the selected function ID
+        eventFunctionId: payloadEventFunctionId,
         eventId: parseInt(eventId),
         rawMaterialCategoryId: parseInt(activeTab || 0),
 
@@ -512,10 +549,10 @@ const RawMaterialAllocation = ({ mode }) => {
             item.supplierId ||
             0;
 
-          // ✅ For new rows (with extraItem), don't send eventRawMatFunctions
           const eventRawMatFunctions = item.isNewRow
             ? []
             : (item.eventRawMaterialFunctions || []).map((fn) => ({
+                menuItemId:fn.menuItemId,
                 eventFunctionId: fn.eventFunctionId || 0,
                 functionId: fn.functionId || 0,
                 functiondatetime: fn.functiondatetime
@@ -536,8 +573,8 @@ const RawMaterialAllocation = ({ mode }) => {
               }));
 
           return {
-            eventRawMatFunctions: eventRawMatFunctions, // ✅ Empty array for new items
-            extraItem: item.isNewRow ? item.material : "", // ✅ Only for new rows
+            eventRawMatFunctions: eventRawMatFunctions,
+            extraItem: item.isNewRow ? item.material : "",
             finalQty: parseFloat(item.finalQty) || 0,
             place: item.place || "",
             qty: parseFloat(item.qty) || 0,
@@ -591,7 +628,7 @@ const RawMaterialAllocation = ({ mode }) => {
   };
 
   const handleSave = async () => {
-    setIsSaving(true); // 🔥 Start loader
+    setIsSaving(true);
     const success = await autoSave(true);
 
     if (success) {
@@ -606,11 +643,10 @@ const RawMaterialAllocation = ({ mode }) => {
         text: "Something went wrong while saving.",
       });
     }
-    setIsSaving(false); // 🔥 Stop loader
+    setIsSaving(false);
   };
 
   const handleTabSwitch = async (tab) => {
-    // Auto-save current tab data before switching
     if (hasUnsavedChanges && data.length > 0) {
       const success = await autoSave(false);
 
@@ -620,9 +656,8 @@ const RawMaterialAllocation = ({ mode }) => {
       }
     }
 
-    // Switch to new tab
     setActiveTab(tab.value);
-    fetchRawMaterialItems(tab.categoryId);
+    await fetchRawMaterialItems(tab.categoryId);
   };
 
   const openMenuReport = () => {
@@ -721,7 +756,6 @@ const RawMaterialAllocation = ({ mode }) => {
             <table className="w-full divide-y divide-gray-200 h-[100px] overflow-x-scroll">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  {/* ✅ SELECT ALL CHECKBOX */}
                   <th className="px-4 py-4 text-center">
                     <input
                       type="checkbox"
@@ -754,7 +788,6 @@ const RawMaterialAllocation = ({ mode }) => {
                 </tr>
               </thead>
 
-              {/* ===== TABLE BODY ===== */}
               <tbody>
                 {tableLoading ? (
                   <tr>
@@ -771,7 +804,6 @@ const RawMaterialAllocation = ({ mode }) => {
                 ) : (
                   data.map((item, index) => (
                     <tr key={index} className="border-b border-gray-200">
-                      {/* ✅ ADD THIS */}
                       <td className="px-4 py-3 text-center">
                         <input
                           type="checkbox"
@@ -896,6 +928,64 @@ const RawMaterialAllocation = ({ mode }) => {
     0,
   );
 
+  const handleEventSelect = async (newEventId) => {
+    // Check for unsaved changes
+    if (hasUnsavedChanges) {
+      const result = await Swal.fire({
+        title: "Unsaved Changes",
+        text: "You have unsaved changes. Do you want to save before switching events?",
+        icon: "warning",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        denyButtonColor: "#6c757d",
+        confirmButtonText: "Save & Switch",
+        denyButtonText: "Switch Without Saving",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        const success = await autoSave(false);
+        if (!success) {
+          Swal.fire({
+            icon: "error",
+            title: "Save Failed",
+            text: "Could not save changes. Please try again.",
+          });
+          return;
+        }
+      } else if (result.isDismissed || result.dismiss === Swal.DismissReason.cancel) {
+        return;
+      }
+    }
+
+    // Start navigation
+    setIsNavigating(true);
+    setSelectedEventId(newEventId);
+    setIsAllCustomerToogleOpen(false);
+    
+    // Navigate to new event
+    navigate(`/raw-material-allocation/${newEventId}`);
+  };
+
+  // ✅ Show loading state
+  if (isNavigating || (loading && !data.length)) {
+    return (
+      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-gray-200 rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+          </div>
+          <p className="text-lg font-semibold text-gray-700">
+            {isNavigating ? "Switching Event..." : "Loading..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Fragment>
       <Container>
@@ -968,7 +1058,7 @@ const RawMaterialAllocation = ({ mode }) => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 underline cursor-pointer" onClick={() => setIsAllCustomerToogleOpen(true)}>
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
@@ -1143,7 +1233,7 @@ const RawMaterialAllocation = ({ mode }) => {
         </div>
 
         <div className="bg-white rounded-xl shadow border border-gray-200">
-          <div className="max-h-[380px] overflow-y-auto scrollbar-hide">
+          <div className="max-h-[380px] overflow-y-auto ">
             <table className="min-w-full table-fixed text-sm text-gray-700">
               {/* ===== TABLE HEADER ===== */}
               <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-1">
@@ -1406,6 +1496,11 @@ const RawMaterialAllocation = ({ mode }) => {
           }}
           mode={mode}
         />
+         <AllCustomerToogle
+        isModalOpen={isAllCustomerToogleOpen}
+        setIsModalOpen={setIsAllCustomerToogleOpen}
+        onEventSelect={handleEventSelect}
+      />
 
         <AddRawMaterial
           isOpen={isAddMaterialModal}

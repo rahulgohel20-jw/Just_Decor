@@ -30,11 +30,17 @@ export const utensilColumns = ({ onValueChange }) => [
   {
     id: "rawMaterial",
     Header: "Name",
-    accessor: "rawMaterial",
+    accessor: "rawMaterialNameEnglish",
+    meta: {
+      width: "250px",
+    }, // ← Change from "rawMaterial" to "nameEnglish"
   },
   {
     id: "range_0_100",
     Header: "0-100",
+    meta: {
+      width: "180px", // 👈 increase only here
+    },
     accessor: "range_0_100",
     Cell: ({ row }) => (
       <input

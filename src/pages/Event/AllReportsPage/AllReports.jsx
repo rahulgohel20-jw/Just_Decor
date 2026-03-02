@@ -12,6 +12,7 @@ import MenuReport from "../../../partials/modals/menu-report/MenuReport";
 import CounterNameplate from "../../../partials/modals/counter-nameplate/CounterNameplate";
 import MainStandyMenuReport from "../../../partials/modals/menu-report/MainStandyMenuReport";
 import NamePlateReport from "../../../partials/modals/menu-report/NamePlateReport";
+import CrockeryCutleryReportModal from "../../../partials/modals/menu-report/CrockeryCutleryReportModal";
 
 export default function AllReports() {
   const { eventId } = useParams();
@@ -27,6 +28,7 @@ export default function AllReports() {
   const [loading, setLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [expandedSection, setExpandedSection] = useState(null);
+  const [isCrockeryModalOpen, setIsCrockeryModalOpen] = useState(false);
 
   // Modal and report generation states
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
@@ -103,6 +105,7 @@ export default function AllReports() {
         setLoading(true);
 
         const res = await GetAllCustomThemeByUserIdAndModuleId(userId, "");
+        console.log(res);
 
         if (
           res?.data?.success &&
@@ -121,6 +124,7 @@ export default function AllReports() {
             menuForHM: [],
             generalFixTheme: [],
             crockertCutleryTheme: [],
+            dishcounting: [],
           };
 
           allTemplates.forEach((item) => {
@@ -129,7 +133,7 @@ export default function AllReports() {
             const template = {
               id: item.id,
               name: item.templateMaster.name,
-              description: `${item.templateMaster.name} - Custom theme template`,
+              description: item.templateMaster.description || "",
               headingFontColor: item.templateMaster.headingFontColor,
               contentFontColor: item.templateMaster.contentFontColor,
               frontPage: item.templateMaster.frontPage,
@@ -191,6 +195,8 @@ export default function AllReports() {
               addToModuleGroup(moduleGroups.generalFixTheme);
             } else if (moduleName === "Crockert Cutlery Theme") {
               addToModuleGroup(moduleGroups.crockertCutleryTheme);
+            } else if (moduleName === "Dish counting") {
+              addToModuleGroup(moduleGroups.dishcounting);
             }
           });
 
@@ -235,6 +241,14 @@ export default function AllReports() {
               modules: moduleGroups.costing,
             });
           }
+          if (moduleGroups.dishcounting.length > 0) {
+            sections.push({
+              id: "dishcounting",
+              name: "Dish Counting",
+              modules: moduleGroups.dishcounting,
+            });
+          }
+
           if (moduleGroups.profitloss.length > 0) {
             sections.push({
               id: "profitloss",
@@ -308,9 +322,17 @@ export default function AllReports() {
     setMappingId(template.mappingId);
     setSelectedModuleId(template.moduleId);
 
-    // Check if this is a Name Plate Theme module
     const isNamePlateModule = module.nameEnglish === "Name Plate Theme";
     setIsNamePlateTheme(isNamePlateModule);
+
+    // ✅ Crockery Cutlery — checked FIRST before any nameplate logic
+    if (section.id === "crockertCutleryTheme") {
+      console.log(
+        "✅ MATCHED: Crockery Cutlery Theme - Opening CrockeryCutleryReportModal",
+      );
+      setIsCrockeryModalOpen(true);
+      return;
+    }
 
     // Counter Name Plate
     if (
@@ -324,48 +346,35 @@ export default function AllReports() {
     }
 
     // 🔄 BACKEND WORKAROUND: Backend sends "Table Menu" but it's actually Main Standy data
-    // So when backend says "Table Menu" → Open MainStandyMenuReport
+    // So when backend says "Table Menu" → Open NamePlateReport
     if (
       isNamePlateModule &&
       template.isNamePlate &&
       template.namePlateType === "Table Menu"
     ) {
       console.log(
-        "✅ MATCHED: Table Menu (Backend) - Opening MainStandyMenuReport (Frontend Workaround)",
+        "✅ MATCHED: Table Menu (Backend) - Opening NamePlateReport (Frontend Workaround)",
       );
-      console.log(
-        "This opens: MainStandyMenuReport component for 'Name Plate Test'",
-      );
-      setOpenNamePlate(true); // Opens NamePlateReport
-
+      setOpenNamePlate(true);
       return;
     }
 
     // 🔄 BACKEND WORKAROUND: Backend sends "Main Standy" but it's actually Table Menu data
-    // So when backend says "Main Standy" → Open NamePlateReport
+    // So when backend says "Main Standy" → Open MainStandyMenuReport
     if (
       isNamePlateModule &&
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
       console.log(
-        "✅ MATCHED: Main Standy (Backend) - Opening NamePlateReport (Frontend Workaround)",
+        "✅ MATCHED: Main Standy (Backend) - Opening MainStandyMenuReport (Frontend Workaround)",
       );
-      console.log(
-        "This opens: NamePlateReport component for 'Table Menu Report'",
-      );
-      setOpenNamePlateTest(true); // Opens MainStandyMenuReport
-
+      setOpenNamePlateTest(true);
       return;
     }
 
     // Default: Normal menu report
     console.log("⚠️ NO MATCH - Opening default MenuReport");
-    console.log("Conditions check:", {
-      isNamePlateTheme: isNamePlateModule,
-      "template.isNamePlate": template.isNamePlate,
-      "template.namePlateType": template.namePlateType,
-    });
     setIsMenuReportOpen(true);
   };
 
@@ -645,6 +654,18 @@ export default function AllReports() {
         )}
       </Container>
 
+      <CrockeryCutleryReportModal
+        isModalOpen={isCrockeryModalOpen}
+        setIsModalOpen={setIsCrockeryModalOpen}
+        eventId={eventId}
+        eventFunctionId={selectedFunctionId}
+        moduleId={selectedModuleId}
+        mappingId={mappingId}
+        selectedTemplateId={selectedTemplateId}
+        eventName={eventName}
+        selectedTemplateName={selectedTemplateName}
+        PartyNumber={partyNumber}
+      />
       {/* Modals */}
       <MenuReport
         isModalOpen={isMenuReportOpen}

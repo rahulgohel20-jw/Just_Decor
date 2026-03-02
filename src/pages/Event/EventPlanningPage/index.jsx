@@ -12,7 +12,7 @@ import SelectedItems from "./components/SelectedItems";
 import FunctionCard from "./components/FunctionCard";
 import CategoryList from "./components/CategoryList";
 import SearchInput from "./components/SearchInput";
-import { Mic, Eye, EyeOff } from "lucide-react";
+import { Mic, Eye, EyeOff, Menu, MenuIcon, NotebookPen } from "lucide-react";
 import Swal from "sweetalert2";
 import { Tooltip } from "antd";
 import {
@@ -29,8 +29,14 @@ import SelectMenureport from "../../../partials/modals/menu-report/SelectMenurep
 import CustomPackageModal from "@/partials/modals/customepackagemodal/CustomPackageModal";
 import MenuNotes from "@/partials/modals/menu-notes/MenuNotes";
 import CategoryNotes from "@/partials/modals/category-note/CategoryNotes";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 import EditPaxModal from "./components/EditPaxModal";
+import CopyMenuPlanning from "../../../partials/modals/copy-menuplanning/CopyMenuPlanning";
+import { GetCopyMenuPlanning } from "../../../services/apiServices";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 const EventPlanningPage = ({ mode }) => {
+  const scrollRef = useRef(null);
   const selectedItemsPanelRef = useRef(null);
   let { eventId } = useParams();
   const navigate = useNavigate();
@@ -72,6 +78,19 @@ const EventPlanningPage = ({ mode }) => {
   const userId = localStorage.getItem("userId");
   const [editPax, setEditPax] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+
+  const [isCopyMenuModalOpen, setIsCopyMenuModalOpen] = useState(false);
+  const [copiedFunctionData, setCopiedFunctionData] = useState(null);
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 250;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const [selectedCategoryInfo, setSelectedCategoryInfo] = useState({
     id: 0,
     nameEnglish: "All",
@@ -79,6 +98,8 @@ const EventPlanningPage = ({ mode }) => {
     nameGujarati: "બધા",
   });
   const ALL_FUNCTIONS = -1;
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   const hasSelectedItems = useMemo(() => {
     const bucket = selectedByFunction[selectedFunction];
@@ -106,6 +127,77 @@ const EventPlanningPage = ({ mode }) => {
       gujarati: notes.gujarati || "",
     };
   };
+
+  const handleCopyMenuFromFunction = async (selectedFunctionData) => {
+    try {
+      const oldEventFunctionId = selectedFunctionData.id;
+      const activeEventFunctionId = selectedFunction;
+
+      Swal.fire({
+        title: "Copying Menu...",
+        text: "Please wait while we copy the menu preparation",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const copyResp = await GetCopyMenuPlanning(
+        activeEventFunctionId,
+        oldEventFunctionId,
+      );
+
+      if (!copyResp?.data?.success) {
+        Swal.fire({
+          icon: "error",
+          title: "Copy Failed",
+          text: copyResp?.data?.msg || "Failed to copy menu preparation.",
+        });
+        return;
+      }
+
+      // ✅ CRITICAL STEP: Clear old bucket first
+      setSelectedByFunction((prev) => ({
+        ...prev,
+        [activeEventFunctionId]: undefined,
+      }));
+
+      // ✅ Force useEffect to re-trigger load
+      setSelectedFunction(null);
+
+      setTimeout(() => {
+        setSelectedFunction(activeEventFunctionId);
+      }, 0);
+
+      setHasExistingData(true);
+      setIsDirty(false);
+      setIsCopyMenuModalOpen(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Menu Copied Successfully!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Copy",
+        text:
+          err?.response?.data?.msg ||
+          "Something went wrong while copying the menu.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    console.log("🟢 selectedByFunction changed:", {
+      selectedFunction,
+      hasData: !!selectedByFunction[selectedFunction],
+      categories: selectedByFunction[selectedFunction]?.categoriesOrder || [],
+      itemCount: Object.values(
+        selectedByFunction[selectedFunction]?.categories || {},
+      ).flat().length,
+    });
+  }, [selectedByFunction, selectedFunction]);
 
   const handleFunctionChange = async (newFunctionId) => {
     if (isDirty) {
@@ -388,13 +480,25 @@ const EventPlanningPage = ({ mode }) => {
   const getSelectedIdsForFunction = useCallback(
     (functionId) => {
       const bucket = selectedByFunction[functionId];
-      if (!bucket) return new Set();
+      if (!bucket) {
+        console.log("🔴 No bucket found for function:", functionId);
+        return new Set();
+      }
 
       const ids = Object.values(bucket.categories)
         .flat()
         .map((i) => Number(i.id));
 
-      return new Set([...ids, ...ids.map(String)]);
+      const idSet = new Set([...ids, ...ids.map(String)]);
+
+      console.log(
+        "🟢 Selected IDs for function",
+        functionId,
+        ":",
+        Array.from(idSet),
+      );
+
+      return idSet;
     },
     [selectedByFunction],
   );
@@ -1025,6 +1129,38 @@ const EventPlanningPage = ({ mode }) => {
     setCurrentCategoryForNotes(null);
   };
 
+  const handleEventSelect = async (newEventId) => {
+    if (isDirty) {
+      const result = await Swal.fire({
+        title: "Unsaved Changes",
+        text: "You have unsaved changes. Do you want to save before switching events?",
+        icon: "warning",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        denyButtonColor: "#6c757d",
+        confirmButtonText: "Save & Switch",
+        denyButtonText: "Switch Without Saving",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        await handleSaveOrUpdate();
+        setSelectedEventId(newEventId);
+        setIsAllCustomerToogleOpen(false);
+        navigate(`/menu-preparation/${newEventId}`);
+      } else if (result.isDenied) {
+        setSelectedEventId(newEventId);
+        setIsAllCustomerToogleOpen(false);
+        navigate(`/menu-preparation/${newEventId}`);
+      }
+    } else {
+      setSelectedEventId(newEventId);
+      setIsAllCustomerToogleOpen(false);
+      navigate(`/menu-preparation/${newEventId}`);
+    }
+  };
   const currentPackageCategories =
     packageCategoriesByFunction[selectedFunction] || [];
   const currentPackageItems = packageItemsByFunction[selectedFunction] || [];
@@ -1138,7 +1274,10 @@ const EventPlanningPage = ({ mode }) => {
                     <span className="text-sm font-semibold text-gray-900">
                       Event No:
                     </span>
-                    <span className="font-semibold text-sm text-primary">
+                    <span
+                      className="font-semibold text-sm text-primary underline cursor-pointer"
+                      onClick={() => setIsAllCustomerToogleOpen(true)}
+                    >
                       {eventData?.eventNo}
                     </span>
                   </div>
@@ -1213,7 +1352,7 @@ const EventPlanningPage = ({ mode }) => {
 
                 <hr className="border-t-2 border-gray-300 my-3" />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                   <div className="flex items-center gap-2">
                     <img
                       className="w-5 h-5"
@@ -1266,6 +1405,17 @@ const EventPlanningPage = ({ mode }) => {
                       }}
                     />
                   </div>
+
+                  <button
+                    className="btn w-48 flex items-center justify-center gap-2 
+             text-white bg-primary font-semibold 
+             border border-transparent
+             hover:!bg-white hover:!text-primary hover:!border-primary"
+                    onClick={() => setIsCopyMenuModalOpen(true)}
+                  >
+                    <NotebookPen className="w-4 h-4" />
+                    Copy Menu Planning
+                  </button>
                 </div>
               </div>
             </div>
@@ -1273,13 +1423,25 @@ const EventPlanningPage = ({ mode }) => {
 
           {/* functions + package controls */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-1">
-            <div className="lg:col-span-2">
-              <div className="flex gap-3 border rounded overflow-x-auto no-scrollbar py-2 px-2 text-gray-500 bg-gray-200">
+            <div className="lg:col-span-2 relative">
+              {/* LEFT ARROW */}
+              <button
+                onClick={() => scroll("left")}
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-primary shadow-md rounded-full p-1 hover:bg-gray-100"
+              >
+                <ChevronLeft size={18} className="text-white" />
+              </button>
+
+              {/* SCROLLABLE FUNCTIONS */}
+              <div
+                ref={scrollRef}
+                className="flex gap-3 border rounded overflow-x-auto no-scrollbar py-2 px-8 text-gray-500 bg-gray-200 scroll-smooth"
+              >
                 {eventData?.eventFunctions?.map((func) => (
                   <div
                     key={func.id}
-                    onClick={() => handleFunctionChange(func.id)} // ✅ Changed this line
-                    className="cursor-pointer"
+                    onClick={() => handleFunctionChange(func.id)}
+                    className="cursor-pointer flex-shrink-0"
                   >
                     <FunctionCard
                       functionData={func}
@@ -1288,6 +1450,14 @@ const EventPlanningPage = ({ mode }) => {
                   </div>
                 ))}
               </div>
+
+              {/* RIGHT ARROW */}
+              <button
+                onClick={() => scroll("right")}
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-primary shadow-md rounded-full p-1 hover:bg-gray-100"
+              >
+                <ChevronRight size={18} className="text-white" />
+              </button>
             </div>
 
             <div className="flex flex-wrap items-center  gap-2 p-2 border rounded bg-gray-200">
@@ -1577,6 +1747,18 @@ const EventPlanningPage = ({ mode }) => {
         onClose={() => setEditPax(false)}
         eventData={eventData}
         onRefreshEvent={fetchEventData}
+      />
+      <AllCustomerToogle
+        isModalOpen={isAllCustomerToogleOpen}
+        setIsModalOpen={setIsAllCustomerToogleOpen}
+        onEventSelect={handleEventSelect}
+      />
+      <CopyMenuPlanning
+        isOpen={isCopyMenuModalOpen}
+        onClose={() => setIsCopyMenuModalOpen(false)}
+        onCopyFunction={handleCopyMenuFromFunction}
+        currentEventId={eventId}
+        currentFunctionId={selectedFunction}
       />
     </Fragment>
   );

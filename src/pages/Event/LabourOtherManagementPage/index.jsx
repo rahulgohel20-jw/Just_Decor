@@ -1,5 +1,7 @@
-import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
+import { Fragment, useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Container } from "@/components/container";
+import { toAbsoluteUrl } from "@/utils/Assets";
+
 import { Select } from "antd";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -8,9 +10,9 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import Swal from "sweetalert2";
 import LabourDetailSidebar from "./LabourSidebar/LabourDetailSidebar";
+import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import AddNotes from "@/partials/modals/add-notes/AddNotes.jsx";
 import AddExtraExpense from "@/partials/modals/add-extra-expense/AddExtraExpense";
-import MenuReport from "@/partials/modals/menu-report/MenuReport";
 import SelectMenureport from "../../../partials/modals/menu-report/SelectMenureport";
 import AddContactCategory from "../../../partials/modals/add-contact-category/AddContactCategory";
 import { useExtraExpense } from "./hooks/useExtraExpense";
@@ -18,7 +20,7 @@ import AddContactName from "@/pages/master/MenuItemMaster/components/AddContactN
 import AddLabourshift from "@/partials/modals/add-labour-shift/AddLabourshift";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import { FormattedMessage } from "react-intl";
-
+import AllLabour from "./component/AllLabour";
 import {
   Plus,
   ChevronDown,
@@ -34,7 +36,9 @@ import {
   AddUpdateLabor,
   GetEventLaborDetails,
   GetAllLabourShift,
+  GetEventLabourBySupplier,
 } from "@/services/apiServices";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
 dayjs.extend(customParseFormat);
 
@@ -42,7 +46,6 @@ const LABOUR_TYPE = "labour";
 const CATEGORIES = ["Labour"];
 const SHIFTS = [];
 
-// Utility functions
 const parseDate = (date, fallbackDate) => {
   const parsed = dayjs(
     date,
@@ -86,13 +89,14 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [activeRowId, setActiveRowId] = useState(null);
+  const activeRowIdRef = useRef(null);   
 
   const [contactTypeId, setContactTypeId] = useState(2);
   const [concatId, setConcatId] = useState(2);
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [activeTab, setActiveTab] = useState(null); // Changed to null initially
+  const [activeTab, setActiveTab] = useState(null);
   const [activeCategory, setActiveCategory] = useState("Labour");
   const [selectedFunctionPax, setSelectedFunctionPax] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,16 +113,17 @@ const LabourOtherManagementPage = ({ mode }) => {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isMenuReport, setIsMenuReport] = useState(false);
   const [isSelectMenureport, setIsSelectMenuReport] = useState(false);
-
+  const [allLabour, setAllLabour] = useState(false);
   const [menuReportEventId, setMenuReportEventId] = useState(null);
   const [currentNoteRowId, setCurrentNoteRowId] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [rowCategoryMap, setRowCategoryMap] = useState({});
-
   const [expandedRows, setExpandedRows] = useState({});
   const [shiftRows, setShiftRows] = useState({});
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const userId = localStorage.getItem("userId");
 
   const toggleRowExpansion = (rowId) => {
@@ -154,10 +159,7 @@ const LabourOtherManagementPage = ({ mode }) => {
     }));
 
     // Auto-expand when adding shift
-    setExpandedRows((prev) => ({
-      ...prev,
-      [parentRowId]: true,
-    }));
+    setExpandedRows({ [parentRowId]: true });
   };
 
   const deleteShiftRow = (parentRowId, shiftId) => {
@@ -217,27 +219,28 @@ const LabourOtherManagementPage = ({ mode }) => {
   }, [userId, FetchLabourShift]);
 
   const handleOpenAddLabourShift = () => {
-    setSelectedcontactType(null); // or existing shift if editing
+    setSelectedcontactType(null);
     setIsContactModalOpen(true);
   };
 
   const handleVendorAdded = async () => {
-    if (!activeRowId) return;
+  const lockedRowId = activeRowId;
+  if (!lockedRowId) return;
 
-    const categoryId = rowCategoryMap[activeRowId];
-    if (!categoryId) return;
+  const categoryId = rowCategoryMap[lockedRowId];
+  if (!categoryId) return;
 
-    // Refetch vendors for that category
+  try {
     const res = await GetPartyMasterByCatId(categoryId, userId);
     const updatedContacts = res?.data?.data?.["Party Details"] || [];
 
-    // Update master contacts
-    setAllContacts((prev) => ({
-      ...prev,
+    // ✅ Update allContactsRef directly — no state change = no effect trigger
+    allContactsRef.current = {
+      ...allContactsRef.current,
       [categoryId]: updatedContacts,
-    }));
+    };
 
-    // 🔥 Update dropdown ONLY for active row
+    // ✅ Only update filteredContacts for affected rows — targeted, no full reset
     setFilteredContacts((prev) => {
       const updated = { ...prev };
       Object.entries(rowCategoryMap).forEach(([rowId, catId]) => {
@@ -247,12 +250,73 @@ const LabourOtherManagementPage = ({ mode }) => {
       });
       return updated;
     });
-  };
+  } catch (e) {
+    console.error("Error refreshing vendor list:", e);
+  }
+};
+
 
   const activeFunction = useMemo(
     () => eventData?.eventFunctions?.find((fn) => fn.id === activeTab),
     [eventData, activeTab],
   );
+
+ const handleWhatsAppClick = useCallback(async (row, shift) => {
+  try {
+    const res = await GetEventLabourBySupplier(
+      activeFunction?.id,
+      eventData?.id,
+      row.contactId,
+    );
+
+    const data = res?.data?.data?.eventLabor?.[0];
+    if (!data) return;
+
+    const mobile = data.mobileNo || "";
+    if (!mobile) {
+      Swal.fire({ icon: "warning", title: "No mobile number found!" });
+      return;
+    }
+
+    const venue = eventData?.venue?.nameEnglish || "";
+    const notes = row.notesEnglish || "";
+
+    let shiftsToSend = [];
+
+    if (shift) {
+      shiftsToSend = [shift];
+    } else {
+      shiftsToSend = data.labourShift || [];
+    }
+
+    const shiftLines = shiftsToSend.map((s) => {
+      const shiftName = (s.laborshift || s.shift || "")
+        .replace(/^\w/, (c) => c.toUpperCase());
+      const qty = s.qty ?? s.quantity ?? "";
+      const dateStr = (s.labordatetime || s.dateTime)
+        ? dayjs(
+            s.labordatetime || s.dateTime,
+            "DD/MM/YYYY hh:mm A",
+          ).format("DD.MM.YYYY")
+        : "";
+
+      return `${shiftName} :\n qty-${qty}, date-(${dateStr})`;
+    }).join("\n");
+
+    const message =
+      `TO, ${data.contactname}\n` +
+      `Required : ${data.labortypename}\n` +
+      `Venue : ${venue}\n` +
+      shiftLines +
+      (notes ? `\nNotes : ${notes}` : "");
+
+    const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch (err) {
+    console.error("WhatsApp error:", err);
+    Swal.fire({ icon: "error", title: "Failed to fetch labour details" });
+  }
+}, [activeFunction?.id, eventData]);
 
   const filteredLabourData = useMemo(
     () =>
@@ -310,6 +374,14 @@ const LabourOtherManagementPage = ({ mode }) => {
   };
 
   useEffect(() => {
+  activeRowIdRef.current = activeRowId;
+}, [activeRowId]);
+
+
+
+
+
+  useEffect(() => {
     const fetchContacts = async () => {
       if (!userId || !labourCategories.length) return;
 
@@ -362,111 +434,106 @@ const LabourOtherManagementPage = ({ mode }) => {
     fetchEventData();
   }, [eventId]);
 
-  useEffect(() => {
-    const fetchLaborDetails = async () => {
-      if (!eventData || !activeTab) return;
+  const allContactsRef = useRef(allContacts);
+useEffect(() => {
+  allContactsRef.current = allContacts;
+}, [allContacts]);
 
-      const functionObj = eventData.eventFunctions.find(
-        (fn) => fn.id === activeTab,
-      );
+// Then change fetchLaborDetails (defined inside the useEffect) to read
+// from allContactsRef.current instead of allContacts directly.
+// AND remove allContacts from the dependency array:
 
-      if (!functionObj) return;
+useEffect(() => {
+  const fetchLaborDetails = async () => {
+    if (!eventData || !activeTab) return;
 
-      try {
-        const res = await GetEventLaborDetails(functionObj.id, eventData.id);
-        const laborData = res?.data?.data?.eventLabor || [];
+    const functionObj = eventData.eventFunctions.find(
+      (fn) => fn.id === activeTab,
+    );
+    if (!functionObj) return;
 
-        const categoryMap = {};
-        const contactMap = {};
-        const formattedRows = [];
-        const newShiftRows = {};
+    try {
+      const res = await GetEventLaborDetails(functionObj.id, eventData.id);
+      const laborData = res?.data?.data?.eventLabor || [];
 
-        // ✅ Process each labor entry with nested shifts
-        laborData.forEach((item) => {
-          const rowId = `server-${item.id}`;
+      const categoryMap = {};
+      const contactMap = {};
+      const formattedRows = [];
+      const newShiftRows = {};
 
-          // Store category and contact mappings
-          categoryMap[rowId] = item.labortypeid;
-          contactMap[rowId] = allContacts[item.labortypeid] || [];
+      laborData.forEach((item) => {
+        const rowId = `server-${item.id}`;
+        categoryMap[rowId] = item.labortypeid;
 
-          // Create parent row (one per labor type + contact combination)
-          formattedRows.push({
-            id: rowId,
-            isSaved: true,
-            labourType:
-              item.labortypename ||
-              labourCategories.find((c) => c.id === item.labortypeid)
-                ?.nameEnglish ||
-              "",
-            contact:
-              item.contactname ||
-              Object.values(allContacts)
-                .flat()
-                .find((c) => c.id === item.contactid)?.nameEnglish ||
-              "",
-            contactId: item.contactid,
-            notesEnglish: item.labourShift?.[0]?.notesEnglish || "",
-            notesGujarati: item.labourShift?.[0]?.notesGujarati || "",
-            notesHindi: item.labourShift?.[0]?.notesHindi || "",
-          });
+        // ✅ Read from ref, not from closure — always fresh, not a dep
+        contactMap[rowId] = allContactsRef.current[item.labortypeid] || [];
 
-          // ✅ Create shift rows from nested labourShift array
-          if (item.labourShift && Array.isArray(item.labourShift)) {
-            newShiftRows[rowId] = item.labourShift.map((shift, index) => ({
-              id: `shift-${item.id}-${index}`,
-              shift: shift.laborshift || "",
-              dateTime: parseDate(
-                shift.labordatetime,
-                eventData?.eventStartDateTime,
-              ),
-              price: shift.price || "",
-              quantity: shift.qty || "",
-              total: shift.totalprice || "",
-              place: shift.place || "At Venue",
-            }));
-          }
+        formattedRows.push({
+          id: rowId,
+          isSaved: true,
+          labourType:
+            item.labortypename ||
+            labourCategories.find((c) => c.id === item.labortypeid)
+              ?.nameEnglish ||
+            "",
+          contact:
+            item.contactname ||
+            Object.values(allContactsRef.current)
+              .flat()
+              .find((c) => c.id === item.contactid)?.nameEnglish ||
+            "",
+          contactId: item.contactid,
+          notesEnglish: item.labourShift?.[0]?.notesEnglish || "",
+          notesGujarati: item.labourShift?.[0]?.notesGujarati || "",
+          notesHindi: item.labourShift?.[0]?.notesHindi || "",
         });
 
-        // ✅ Update all states
-        setLabourData(formattedRows);
-        setRowCategoryMap(categoryMap);
-        setFilteredContacts(contactMap);
-        setShiftRows(newShiftRows); // ✅ Set the shift rows!
-
-        // ✅ Auto-expand rows that have shifts
-        // const expandedState = {};
-        // Object.keys(newShiftRows).forEach((rowId) => {
-        //   if (newShiftRows[rowId]?.length > 0) {
-        //     expandedState[rowId] = true;
-        //   }
-        // });
-        // setExpandedRows(expandedState);
-      } catch (err) {
-        console.error("Error fetching labour details:", err);
-      }
-    };
-
-    if (
-      eventData &&
-      activeTab &&
-      labourCategories.length &&
-      Object.keys(allContacts).length
-    ) {
-      fetchLaborDetails();
-    }
-  }, [eventData, activeTab, labourCategories, allContacts]);
-
-  useEffect(() => {
-    setFilteredContacts((prev) => {
-      const updated = { ...prev };
-
-      Object.entries(rowCategoryMap).forEach(([rowId, categoryId]) => {
-        updated[rowId] = allContacts[categoryId] || [];
+        if (item.labourShift && Array.isArray(item.labourShift)) {
+          newShiftRows[rowId] = item.labourShift.map((shift, index) => ({
+            id: `shift-${item.id}-${index}`,
+            shift: shift.laborshift || "",
+            dateTime: parseDate(
+              shift.labordatetime,
+              eventData?.eventStartDateTime,
+            ),
+            price: shift.price || "",
+            quantity: shift.qty || "",
+            total: shift.totalprice || "",
+            place: shift.place || "At Venue",
+          }));
+        }
       });
 
-      return updated;
+      setLabourData(formattedRows);
+      setRowCategoryMap(categoryMap);
+      setFilteredContacts(contactMap);
+      setShiftRows(newShiftRows);
+
+      if (formattedRows.length > 0) {
+        setExpandedRows({ [formattedRows[0].id]: true });
+      }
+    } catch (err) {
+      console.error("Error fetching labour details:", err);
+    }
+  };
+
+  if (eventData && activeTab && labourCategories.length) {
+    fetchLaborDetails();
+  }
+  // ✅ allContacts is NOT here — changing contacts no longer wipes your rows
+}, [eventData, activeTab, labourCategories]);
+
+  useEffect(() => {
+  setFilteredContacts((prev) => {
+    const updated = { ...prev };
+    Object.entries(rowCategoryMap).forEach(([rowId, categoryId]) => {
+      if (!updated[rowId] || updated[rowId].length === 0) {
+        updated[rowId] = allContacts[categoryId] || [];
+      }
     });
-  }, [allContacts, rowCategoryMap]);
+    return updated;
+  });
+}, [allContacts, rowCategoryMap]);
 
   const handleRowChange = useCallback((id, field, value) => {
     setHasUnsavedChanges(true);
@@ -514,7 +581,6 @@ const LabourOtherManagementPage = ({ mode }) => {
         (c) => c.nameEnglish === contactName,
       );
 
-      // ✅ Check for duplicate before updating
       const categoryId = rowCategoryMap[rowId];
       if (selectedContact && categoryId) {
         const isDuplicate = checkDuplicateVendor(
@@ -531,7 +597,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             confirmButtonColor: "#005BA8",
           });
 
-          // ✅ CLEAR THE CONTACT FIELD
           setLabourData((prev) =>
             prev.map((r) =>
               r.id === rowId ? { ...r, contact: "", contactId: null } : r,
@@ -558,9 +623,11 @@ const LabourOtherManagementPage = ({ mode }) => {
 
   const addLabourRow = useCallback(() => {
     setHasUnsavedChanges(true);
-    setLabourData((prev) => [...prev, createEmptyLabourRow()]);
-  }, []);
+    const newRow = createEmptyLabourRow();
+    setLabourData((prev) => [...prev, newRow]);
 
+    setExpandedRows({ [newRow.id]: true });
+  }, []);
   const deleteRow = useCallback((id) => {
     setHasUnsavedChanges(true);
     setLabourData((prev) => prev.filter((row) => row.id !== id));
@@ -926,14 +993,18 @@ const LabourOtherManagementPage = ({ mode }) => {
       }
     }
   };
-
+  const handleEventSelect = async (newEventId) => {
+    setSelectedEventId(newEventId);
+    setIsAllCustomerToogleOpen(false);
+    navigate(`/labour-and-other-management/${newEventId}`);
+  };
   return (
     <Fragment>
       <Container>
         {/* Breadcrumbs */}
         <div className="gap-2 mb-3">
           <div className="flex justify-between items-center mb-4">
-            {/* LEFT: Page Title + 3 Custom Buttons */}
+            {/* LEFT: Page Title + Buttons */}
             <div className="flex items-center gap-6">
               <h2 className="text-xl text-black font-semibold">
                 <FormattedMessage
@@ -942,8 +1013,8 @@ const LabourOtherManagementPage = ({ mode }) => {
                 />
               </h2>
 
-              {/* ONLY FOR THIS SCREEN */}
-              <div className="flex gap-2">
+              {/* DESKTOP & TABLET - Show all buttons */}
+              <div className="hidden md:flex gap-2">
                 <button
                   onClick={() => navigate(`/menu-preparation/${eventId}`)}
                   className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
@@ -987,24 +1058,101 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="4. Raw Material Distribution"
                   />
                 </button>
+
                 <button
-                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary "
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
                   onClick={() => navigate(`/dish-costing/${eventId}`)}
                 >
                   <i
-                    className="ki-filled ki-grid hover:!text-gray-400"
+                    className="ki-filled ki-grid"
                     style={{ color: "white" }}
                   ></i>{" "}
-                  6. Per Dish-costng
+                  6. Per Dish-costing
                 </button>
+              </div>
+
+              {/* MOBILE ONLY - Dropdown */}
+              <div className="relative md:hidden">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="btn btn-light text-white bg-primary font-semibold hover:!bg-primary hover:!text-white hover:!border-primary"
+                >
+                  <i
+                    className="ki-filled ki-menu"
+                    style={{ color: "white" }}
+                  ></i>
+                  <span className="ml-2">Menu</span>
+                  <i
+                    className={`ki-filled ${isDropdownOpen ? "ki-up" : "ki-down"} ml-2`}
+                    style={{ color: "white" }}
+                  ></i>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                    <button
+                      onClick={() => {
+                        navigate(`/menu-preparation/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                    >
+                      <i className="ki-filled ki-menu text-primary"></i>
+                      <FormattedMessage
+                        id="MENU_PLANNING.BUTTON"
+                        defaultMessage="2. Menu Planning"
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/menu-allocation/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                    >
+                      <i className="ki-filled ki-menu text-primary"></i>
+                      <FormattedMessage
+                        id="MENU_EXECUTION.BUTTON"
+                        defaultMessage="3. Menu Execution"
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/raw-material-allocation/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b border-gray-200"
+                    >
+                      <i className="ki-filled ki-gift text-primary"></i>
+                      <FormattedMessage
+                        id="RAW_MATERIAL_DISTRIBUTION.BUTTON"
+                        defaultMessage="4. Raw Material Distribution"
+                      />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/dish-costing/${eventId}`);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <i className="ki-filled ki-grid text-primary"></i>
+                      6. Per Dish-costing
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-
         {/* Event Info Card */}
         <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
+          <div className="flex flex-col md:flex-row md:flex-wrap items-start md:items-center justify-between p-4 gap-3 md:gap-4 lg:gap-6">
+            {" "}
             {/* ROW 1 */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
@@ -1015,12 +1163,14 @@ const LabourOtherManagementPage = ({ mode }) => {
                     defaultMessage="Event ID:"
                   />
                 </span>
-                <span className="text-sm font-medium text-gray-900">
+                <span
+                  className="text-sm font-medium text-gray-900 underline cursor-pointer"
+                  onClick={() => setIsAllCustomerToogleOpen(true)}
+                >
                   {eventData?.eventNo || "-"}
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-user text-success text-lg"></i>
               <div className="flex flex-col">
@@ -1035,7 +1185,6 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
               <div className="flex flex-col">
@@ -1050,7 +1199,6 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
               <div className="flex flex-col">
@@ -1065,10 +1213,8 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             {/* FORCE NEW ROW */}
             <div className="w-full h-0"></div>
-
             {/* ROW 2 LEFT — Event Venue */}
             <div className="flex items-center gap-3">
               <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
@@ -1084,9 +1230,9 @@ const LabourOtherManagementPage = ({ mode }) => {
                 </span>
               </div>
             </div>
-
             {/* ROW 2 RIGHT — Buttons */}
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-gray-200">
+            <div className="flex flex-wrap items-center justify-start sm:justify-end gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-gray-200 w-full md:w-auto">
+              {" "}
               {/* Report Button */}
               <button
                 onClick={handleSave}
@@ -1103,10 +1249,10 @@ const LabourOtherManagementPage = ({ mode }) => {
             </div>
           </div>
         </div>
-
         {/* Function Tabs */}
         <div className="w-full max-w-xxl bg-white shadow-md rounded-xl border border-gray-200 mb-4 p-2">
-          <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden">
+          <div className="inline-flex items-center bg-gray-50 border border-gray-300 rounded-lg overflow-hidden overflow-x-auto max-w-full">
+            {" "}
             {eventData?.eventFunctions?.map((fn, index) => (
               <button
                 key={fn.id}
@@ -1125,65 +1271,82 @@ const LabourOtherManagementPage = ({ mode }) => {
             ))}
           </div>
         </div>
-
         {/* Action Bar */}
         <div className="card mb-5">
           <div className="card-body p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <i className="ki-filled ki-users text-primary"></i>
-                <span className="text-2sm font-medium text-gray-700">
-                  <FormattedMessage
-                    id="COMMON.PERSON"
-                    defaultMessage="Person"
-                  />
-                </span>
-                <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
-                  {selectedFunctionPax || "-"}
-                </span>
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              {/* Categories */}
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`btn btn-md ${activeCategory === category ? "btn-primary" : "btn-light"}`}
+                  >
+                    {category}
+                  </button>
+                ))}
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={openSelectMenureport}
-                  className="btn btn-success btn-sm h-10"
-                >
-                  <i className="ki-filled ki-document"></i>
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.REPORT"
-                    defaultMessage="Report"
-                  />
-                </button>
+              {/* Right side: Person + Search + Buttons with space-between */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:flex-1 sm:justify-between">
+                {/* Person Count */}
+                <div className="flex items-center gap-3 whitespace-nowrap">
+                  <i className="ki-filled ki-users text-primary"></i>
+                  <span className="text-2sm font-medium text-gray-700">
+                    <FormattedMessage
+                      id="COMMON.PERSON"
+                      defaultMessage="Person"
+                    />
+                  </span>
+                  <span className="text-sm font-semibold bg-gray-300 rounded-md px-3 py-1">
+                    {selectedFunctionPax || "-"}
+                  </span>
+                </div>
 
-                <input
-                  type="text"
-                  placeholder="Search labour type..."
-                  className="input  h-10"
-                  style={{ width: "300px" }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                {/* Search + Buttons */}
+                <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                  <input
+                    type="text"
+                    placeholder="Search labour type..."
+                    className="input h-10 w-full sm:w-[250px]"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={openSelectMenureport}
+                      className="btn btn-success btn-sm h-10 flex-1 sm:flex-initial"
+                    >
+                      <i className="ki-filled ki-document"></i>
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.REPORT"
+                        defaultMessage="Report"
+                      />
+                    </button>
+                    <button
+                      disabled={true}
+                      onClick={() => setAllLabour(true)}
+                      className="btn btn-primary btn-sm h-10 flex-1 sm:flex-initial"
+                    >
+                      <img
+                        src={toAbsoluteUrl("/media/icons/payall.png")}
+                        className="size-6"
+                        alt=""
+                      />
+
+                      <FormattedMessage
+                        id="EVENT_MENU_ALLOCATION.REPORT"
+                        defaultMessage="Pay All Labour"
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
         {/* Category Tabs */}
-        <div className="card mb-5">
-          <div className="card-body p-3">
-            <div className="flex gap-2">
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`btn btn-md ${activeCategory === category ? "btn-primary" : "btn-light"}`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Labour Table */}
         {activeCategory === "Labour" && (
@@ -1217,16 +1380,21 @@ const LabourOtherManagementPage = ({ mode }) => {
             setActiveRowId={setActiveRowId}
             onSave={handleSave}
             onOpenAddLabourModal={() => setIsAddLabourModalOpen(true)}
-            onOpenAddVendor={() => {
-              if (!activeRowId && labourData.length) {
-                setActiveRowId(labourData[labourData.length - 1].id);
-              }
-              setIsMemberModalOpen(true);
-            }}
+
+           onOpenAddVendor={() => {
+  const rowId = activeRowId || (labourData.length ? labourData[labourData.length - 1].id : null);
+  if (rowId) {
+    activeRowIdRef.current = rowId;   // ← lock it
+    setActiveRowId(rowId);
+  }
+  setIsMemberModalOpen(true);
+}}
+
+            onWhatsAppClick={handleWhatsAppClick}
             onOpenAddLabourShift={handleOpenAddLabourShift}
+            
           />
         )}
-
         {/* Modals */}
         <AddNotes
           isOpen={isNotesOpen}
@@ -1251,7 +1419,6 @@ const LabourOtherManagementPage = ({ mode }) => {
           }
           onSave={handleSaveNotes}
         />
-
         <LabourDetailSidebar
           isOpen={isLabourSidebarOpen}
           onClose={() => setIsLabourSidebarOpen(false)}
@@ -1259,7 +1426,6 @@ const LabourOtherManagementPage = ({ mode }) => {
           eventId={eventData?.id}
           contactId={selectedRow?.contactId || null}
         />
-
         {isExtraExpenseModalOpen && (
           <AddExtraExpense
             isOpen={isExtraExpenseModalOpen}
@@ -1273,7 +1439,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             refreshData={refetchExpenses}
           />
         )}
-
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
           setIsSelectMenuReport={setIsSelectMenuReport}
@@ -1281,7 +1446,7 @@ const LabourOtherManagementPage = ({ mode }) => {
             setIsSelectMenuReport(false);
             setIsMenuReport(true);
           }}
-          setEventFunctionId={activeFunction?.id}
+          setEventFunctionId={-1}
           mode={mode}
         />
         {isAddLabourModalOpen && (
@@ -1299,7 +1464,6 @@ const LabourOtherManagementPage = ({ mode }) => {
             }}
           />
         )}
-
         <AddContactName
           isModalOpen={isMemberModalOpen}
           setIsModalOpen={setIsMemberModalOpen}
@@ -1315,11 +1479,17 @@ const LabourOtherManagementPage = ({ mode }) => {
           shiftData={selectedcontactType}
           refreshData={FetchLabourShift}
         />
+        <AllCustomerToogle
+          isModalOpen={isAllCustomerToogleOpen}
+          setIsModalOpen={setIsAllCustomerToogleOpen}
+          onEventSelect={handleEventSelect}
+        />
         <MenuReport
           isModalOpen={isMenuReport}
           setIsModalOpen={setIsMenuReport}
           eventId={menuReportEventId}
         />
+        <AllLabour isOpen={allLabour} onClose={() => setAllLabour(false)} />
       </Container>
       {isSaving && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -1376,14 +1546,16 @@ const LabourTable = ({
   onOpenAddLabourModal,
   onOpenAddVendor,
   onOpenAddLabourShift,
+  onWhatsAppClick,
 }) => {
   const toggleRowExpansion = (rowId) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [rowId]: !prev[rowId],
-    }));
+    setExpandedRows((prev) => {
+      if (prev[rowId]) {
+        return {};
+      }
+      return { [rowId]: true };
+    });
   };
-
   // Calculate totals for parent row
   const calculateRowTotals = (rowId) => {
     const shifts = shiftRows[rowId] || [];
@@ -1474,13 +1646,13 @@ const LabourTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="card shadow-sm rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+      {/* ===== TABLE HEADER — hidden on mobile, grid on md+ ===== */}
+      <div className="hidden md:block card shadow-sm rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
         <div className="p-4">
           <div className="grid grid-cols-12 gap-3 items-center">
             <div className="col-span-1 text-center font-semibold text-gray-700">
               #
             </div>
-
             <div className="col-span-3 font-semibold text-gray-700 flex items-center gap-2">
               Category
               <button
@@ -1491,7 +1663,6 @@ const LabourTable = ({
                 <Plus className="w-5 h-5 text-white bg-primary rounded-full p-0.5" />
               </button>
             </div>
-
             <div className="col-span-3 font-semibold text-gray-700 flex items-center gap-2">
               Vendors
               <button
@@ -1502,7 +1673,6 @@ const LabourTable = ({
                 <Plus className="w-5 h-5 text-white bg-primary rounded-full p-0.5" />
               </button>
             </div>
-
             <div className="col-span-1 text-center font-semibold text-gray-700">
               Total Qty
             </div>
@@ -1515,6 +1685,28 @@ const LabourTable = ({
           </div>
         </div>
       </div>
+
+      {/* ===== MOBILE ONLY — Plus buttons row ===== */}
+      <div className="flex md:hidden items-center justify-end gap-2 pb-1">
+        <button
+          onClick={onOpenAddLabourModal}
+          className="flex items-center gap-1 text-sm text-primary font-medium"
+          title="Add Category"
+        >
+          <Plus className="w-4 h-4 text-white bg-primary rounded-full p-0.5" />
+          Category
+        </button>
+        <button
+          onClick={onOpenAddVendor}
+          className="flex items-center gap-1 text-sm text-primary font-medium"
+          title="Add Vendor"
+        >
+          <Plus className="w-4 h-4 text-white bg-primary rounded-full p-0.5" />
+          Vendor
+        </button>
+      </div>
+
+      {/* ===== ROWS ===== */}
       {data.map((row, index) => {
         const isExpanded = expandedRows[row.id];
         const shifts = shiftRows[row.id] || [];
@@ -1525,16 +1717,42 @@ const LabourTable = ({
             key={row.id}
             className="card shadow-sm rounded-lg overflow-hidden border border-gray-200"
           >
-            {/* Parent Row */}
+            {/* ===== PARENT ROW ===== */}
             <div className="bg-white p-4">
-              <div className="grid grid-cols-12 gap-3 items-center">
-                {/* # */}
-                <div className="col-span-1 text-center font-medium">
-                  {index + 1}.
+              {/* MOBILE layout — card stack */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {/* Top: # + Actions */}
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-gray-700">
+                    {index + 1}.
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="p-2 hover:bg-red-100 rounded-full transition"
+                      onClick={() => onDelete(row.id)}
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-500" />
+                    </button>
+                    <button
+                      onClick={() => toggleRowExpansion(row.id)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition"
+                      title={isExpanded ? "Collapse" : "Expand"}
+                    >
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-gray-600" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-600" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Category */}
-                <div className="col-span-3">
+                <div>
+                  <span className="text-xs text-gray-500 mb-1 block">
+                    Category
+                  </span>
                   <Select
                     className="custom-select-sm w-full"
                     showSearch
@@ -1553,7 +1771,10 @@ const LabourTable = ({
                 </div>
 
                 {/* Vendors */}
-                <div className="col-span-3">
+                <div>
+                  <span className="text-xs text-gray-500 mb-1 block">
+                    Vendors
+                  </span>
                   <Select
                     className="custom-select-sm w-full"
                     onFocus={() => setActiveRowId(row.id)}
@@ -1571,7 +1792,74 @@ const LabourTable = ({
                   </Select>
                 </div>
 
-                {/* Total Qty */}
+                {/* Qty + Cost side by side */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <span className="text-xs text-gray-500 mb-1 block">
+                      Total Qty
+                    </span>
+                    <input
+                      type="text"
+                      className="input input-sm w-full text-center bg-gray-50"
+                      value={totalQty || "0"}
+                      readOnly
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-xs text-gray-500 mb-1 block">
+                      Est. Cost
+                    </span>
+                    <input
+                      type="text"
+                      className="input text-green-700 input-sm w-full text-center bg-gray-50"
+                      value={
+                        totalCost ? `₹ ${totalCost.toLocaleString()}` : "0"
+                      }
+                      readOnly
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DESKTOP layout — grid row (md+) */}
+              <div className="hidden md:grid grid-cols-12 gap-3 items-center">
+                <div className="col-span-1 text-center font-medium">
+                  {index + 1}.
+                </div>
+                <div className="col-span-3">
+                  <Select
+                    className="custom-select-sm w-full"
+                    showSearch
+                    onFocus={() => setActiveRowId(row.id)}
+                    placeholder="Select Category"
+                    value={row.labourType || undefined}
+                    onChange={(value) => onLabourTypeChange(row.id, value)}
+                    style={{ width: "100%" }}
+                  >
+                    {labourCategories.map((item) => (
+                      <Select.Option key={item.id} value={item.nameEnglish}>
+                        {item.nameEnglish}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="col-span-3">
+                  <Select
+                    className="custom-select-sm w-full"
+                    onFocus={() => setActiveRowId(row.id)}
+                    showSearch
+                    placeholder="Select Vendor"
+                    value={row.contact || undefined}
+                    onChange={(value) => onContactChange(row.id, value)}
+                    style={{ width: "100%" }}
+                  >
+                    {(filteredContacts[row.id] || []).map((c) => (
+                      <Select.Option key={c.id} value={c.nameEnglish}>
+                        {c.nameEnglish}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
                 <div className="col-span-1 text-center">
                   <input
                     type="text"
@@ -1580,8 +1868,6 @@ const LabourTable = ({
                     readOnly
                   />
                 </div>
-
-                {/* Estimated Cost */}
                 <div className="col-span-2">
                   <input
                     type="text"
@@ -1590,9 +1876,22 @@ const LabourTable = ({
                     readOnly
                   />
                 </div>
-
-                {/* Actions */}
+                 
                 <div className="col-span-2 flex items-center justify-center gap-2">
+
+                  <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            title="WhatsApp"
+            onClick={() => onWhatsAppClick(row, null)}
+          >
+            <svg
+              className="w-5 h-5 text-green-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+            </svg>
+          </button>
                   <button
                     className="p-2 hover:bg-red-100 rounded-full transition"
                     onClick={() => onDelete(row.id)}
@@ -1614,11 +1913,12 @@ const LabourTable = ({
                 </div>
               </div>
             </div>
-            {/* Expanded Shift Rows */}{" "}
+
+            {/* ===== EXPANDED SHIFT ROWS ===== */}
             {isExpanded && (
               <div className="bg-gray-50 border-t border-gray-200">
-                {/* Header */}
-                <div className="grid grid-cols-12 gap-3 px-4 py-3 bg-gray-100 border-b border-gray-200">
+                {/* Shift Header — hidden on mobile */}
+                <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-gray-100 border-b border-gray-200">
                   <div className="col-span-1"></div>
                   <div className="col-span-3 flex items-center gap-2">
                     <span className="text-sm font-semibold text-gray-700">
@@ -1648,6 +1948,19 @@ const LabourTable = ({
                   </div>
                 </div>
 
+                {/* Mobile — Add Shift button with label */}
+                <div className="flex md:hidden items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Shifts
+                  </span>
+                  <button
+                    onClick={onOpenAddLabourShift}
+                    className="flex-shrink-0"
+                  >
+                    <Plus className="w-5 h-5 text-white bg-blue-600 rounded-full p-0.5" />
+                  </button>
+                </div>
+
                 {/* Shift Rows */}
                 {shifts.map((shift, shiftIndex) => (
                   <ShiftRow
@@ -1657,18 +1970,20 @@ const LabourTable = ({
                     parentRowId={row.id}
                     shiftOptions={shiftOptions}
                     eventData={eventData}
-                    onShiftChange={onShiftRowChange} // ✅ Use prop
-                    onDelete={onDeleteShiftRow} // ✅ Use prop
+                    onShiftChange={onShiftRowChange}
+                    onDelete={onDeleteShiftRow}
                     onViewDetails={onViewDetails}
                     onAddNotes={onAddNotes}
                     row={row}
+                    onWhatsAppClick={onWhatsAppClick}  
                   />
                 ))}
+
                 {/* Add Shift Button */}
                 <div className="px-4 py-4 bg-white">
                   <button
                     onClick={() => onAddShiftToRow(row.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md  transition text-sm font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md transition text-sm font-medium"
                   >
                     <Plus className="w-4 h-4" />
                     Add Shift
@@ -1680,11 +1995,11 @@ const LabourTable = ({
         );
       })}
 
-      {/* Add Another Labor Category Button */}
-      <div className="flex justify-between items-center pt-4">
+      {/* ===== BOTTOM BUTTONS ===== */}
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 gap-3">
         <button
           onClick={onAddRow}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md  transition"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md transition"
         >
           <Plus className="w-4 h-4" />
           Add Another Labor Category
@@ -1717,6 +2032,7 @@ const ShiftRow = ({
   onViewDetails,
   onAddNotes,
   row,
+  onWhatsAppClick,
 }) => {
   const parseDateToObject = (dateString) => {
     if (!dateString) return null;
@@ -1732,137 +2048,235 @@ const ShiftRow = ({
   };
 
   return (
-    <div className="grid grid-cols-12 gap-3 px-4 py-3 bg-white border-b border-gray-200 items-center hover:bg-gray-50 transition">
-      {/* Empty space for # column */}
-      <div className="col-span-1"></div>
-
-      {/* Labour Shift - aligns with Category */}
-      <div className="col-span-3">
-        <select
-          className="select select-sm w-full bg-white border-gray-300"
-          value={shift.shift}
-          onChange={(e) => {
-            const selectedShiftName = e.target.value;
-            const selectedShift = shiftOptions.find(
-              (s) => s.name === selectedShiftName,
-            );
-
-            let finalDateTime = "";
-            if (eventData?.eventStartDateTime && selectedShift?.time) {
-              const [hour, minute] = selectedShift.time.split(":");
-              finalDateTime = dayjs(
-                eventData.eventStartDateTime,
-                "DD/MM/YYYY hh:mm A",
-              )
-                .hour(Number(hour))
-                .minute(Number(minute))
-                .second(0)
-                .format("DD/MM/YYYY hh:mm A");
-            }
-
-            onShiftChange(parentRowId, shift.id, "shift", selectedShiftName);
-            onShiftChange(parentRowId, shift.id, "dateTime", finalDateTime);
-          }}
-        >
-          <option value="">Select Shift</option>
-          {shiftOptions.map((s) => (
-            <option key={s.id} value={s.name}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Date & Time - aligns with Vendors */}
-      <div className="col-span-2">
-        <DatePicker
-          selected={getDateValue()}
-          onChange={(date) => {
-            const formattedDate = date
-              ? dayjs(date).format("DD/MM/YYYY hh:mm A")
-              : "";
-            onShiftChange(parentRowId, shift.id, "dateTime", formattedDate);
-          }}
-          showTimeSelect
-          timeFormat="hh:mm aa"
-          timeIntervals={15}
-          dateFormat="dd/MM/yyyy hh:mm aa"
-          className="input input-sm w-full"
-          placeholderText="Select date & time"
-        />
-      </div>
-
-      {/* Price */}
-      <div className="col-span-1">
-        <input
-          type="number"
-          className="input input-sm w-full text-center"
-          placeholder="0"
-          value={shift.price}
-          onChange={(e) =>
-            onShiftChange(parentRowId, shift.id, "price", e.target.value)
-          }
-        />
-      </div>
-
-      {/* Qty - This will be hidden, combined with Price column */}
-      <div className="col-span-1">
-        <input
-          type="number"
-          className="input input-sm w-full text-center"
-          placeholder="0"
-          value={shift.quantity}
-          onChange={(e) =>
-            onShiftChange(parentRowId, shift.id, "quantity", e.target.value)
-          }
-        />
-      </div>
-
-      {/* Total - aligns with Estimated Cost (col-span-2) */}
-      <div className="col-span-2">
-        <input
-          type="text"
-          className="input input-sm w-full text-center bg-gray-50"
-          value={shift.total ? `₹${shift.total.toLocaleString()}` : "₹0"}
-          readOnly
-        />
-      </div>
-
-      {/* Actions - aligns with parent Actions (col-span-2) */}
-      <div className="col-span-2 flex items-center justify-center gap-1">
-        {/* <button
-          className="p-2 hover:bg-gray-200 rounded-full transition"
-          onClick={() => onViewDetails({ ...row, ...shift })}
-          title="View Details"
-        >
-          <Eye className="w-4 h-4 text-green-600" />
-        </button> */}
-        <button
-          className="p-2 hover:bg-gray-200 rounded-full transition"
-          onClick={() => onAddNotes(row)}
-          title="Add Notes"
-        >
-          <FileText className="w-4 h-4 text-blue-600" />
-        </button>
-        <button
-          className="p-2 hover:bg-gray-200 rounded-full transition"
-          title="WhatsApp"
-        >
-          <svg
-            className="w-4 h-4 text-green-600"
-            fill="currentColor"
-            viewBox="0 0 24 24"
+    <div className="border-b border-gray-200 bg-white hover:bg-gray-50 transition">
+      {/* ===== MOBILE layout ===== */}
+      <div className="flex flex-col gap-3 p-4 md:hidden">
+        {/* Shift Select */}
+        <div>
+          <span className="text-xs text-gray-500 mb-1 block">Labour Shift</span>
+          <select
+            className="select select-sm w-full bg-white border-gray-300"
+            value={shift.shift}
+            onChange={(e) => {
+              const selectedShiftName = e.target.value;
+              const selectedShift = shiftOptions.find(
+                (s) => s.name === selectedShiftName,
+              );
+              let finalDateTime = "";
+              if (eventData?.eventStartDateTime && selectedShift?.time) {
+                const [hour, minute] = selectedShift.time.split(":");
+                finalDateTime = dayjs(
+                  eventData.eventStartDateTime,
+                  "DD/MM/YYYY hh:mm A",
+                )
+                  .hour(Number(hour))
+                  .minute(Number(minute))
+                  .second(0)
+                  .format("DD/MM/YYYY hh:mm A");
+              }
+              onShiftChange(parentRowId, shift.id, "shift", selectedShiftName);
+              onShiftChange(parentRowId, shift.id, "dateTime", finalDateTime);
+            }}
           >
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-          </svg>
-        </button>
-        <button
-          className="p-2 hover:bg-red-100 rounded-full transition"
-          onClick={() => onDelete(parentRowId, shift.id)}
-          title="Delete"
-        >
-          <Trash2 className="w-4 h-4 text-red-500" />
-        </button>
+            <option value="">Select Shift</option>
+            {shiftOptions.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date & Time */}
+        <div>
+          <span className="text-xs text-gray-500 mb-1 block">Date & Time</span>
+          <DatePicker
+            selected={getDateValue()}
+            onChange={(date) => {
+              const formattedDate = date
+                ? dayjs(date).format("DD/MM/YYYY hh:mm A")
+                : "";
+              onShiftChange(parentRowId, shift.id, "dateTime", formattedDate);
+            }}
+            showTimeSelect
+            timeFormat="hh:mm aa"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy hh:mm aa"
+            className="input input-sm w-full"
+            placeholderText="Select date & time"
+          />
+        </div>
+
+        {/* Price + Qty + Total — 3 equal columns */}
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <span className="text-xs text-gray-500 mb-1 block">Price</span>
+            <input
+              type="number"
+              className="input input-sm w-full text-center"
+              placeholder="0"
+              value={shift.price}
+              onChange={(e) =>
+                onShiftChange(parentRowId, shift.id, "price", e.target.value)
+              }
+            />
+          </div>
+          <div className="flex-1">
+            <span className="text-xs text-gray-500 mb-1 block">Qty</span>
+            <input
+              type="number"
+              className="input input-sm w-full text-center"
+              placeholder="0"
+              value={shift.quantity}
+              onChange={(e) =>
+                onShiftChange(parentRowId, shift.id, "quantity", e.target.value)
+              }
+            />
+          </div>
+          <div className="flex-1">
+            <span className="text-xs text-gray-500 mb-1 block">Total</span>
+            <input
+              type="text"
+              className="input input-sm w-full text-center bg-gray-50"
+              value={shift.total ? `₹${shift.total.toLocaleString()}` : "₹0"}
+              readOnly
+            />
+          </div>
+        </div>
+
+        {/* Actions — right aligned */}
+        <div className="flex items-center justify-end gap-1">
+          <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            onClick={() => onAddNotes(row)}
+            title="Add Notes"
+          >
+            <FileText className="w-4 h-4 text-blue-600" />
+          </button>
+         
+          <button
+            className="p-2 hover:bg-red-100 rounded-full transition"
+            onClick={() => onDelete(parentRowId, shift.id)}
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* ===== DESKTOP layout (md+) — exact same grid as before ===== */}
+      <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
+        {/* Empty spacer */}
+        <div className="col-span-1"></div>
+
+        {/* Labour Shift */}
+        <div className="col-span-3">
+          <select
+            className="select select-sm w-full bg-white border-gray-300"
+            value={shift.shift}
+            onChange={(e) => {
+              const selectedShiftName = e.target.value;
+              const selectedShift = shiftOptions.find(
+                (s) => s.name === selectedShiftName,
+              );
+              let finalDateTime = "";
+              if (eventData?.eventStartDateTime && selectedShift?.time) {
+                const [hour, minute] = selectedShift.time.split(":");
+                finalDateTime = dayjs(
+                  eventData.eventStartDateTime,
+                  "DD/MM/YYYY hh:mm A",
+                )
+                  .hour(Number(hour))
+                  .minute(Number(minute))
+                  .second(0)
+                  .format("DD/MM/YYYY hh:mm A");
+              }
+              onShiftChange(parentRowId, shift.id, "shift", selectedShiftName);
+              onShiftChange(parentRowId, shift.id, "dateTime", finalDateTime);
+            }}
+          >
+            <option value="">Select Shift</option>
+            {shiftOptions.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date & Time */}
+        <div className="col-span-2">
+          <DatePicker
+            selected={getDateValue()}
+            onChange={(date) => {
+              const formattedDate = date
+                ? dayjs(date).format("DD/MM/YYYY hh:mm A")
+                : "";
+              onShiftChange(parentRowId, shift.id, "dateTime", formattedDate);
+            }}
+            showTimeSelect
+            timeFormat="hh:mm aa"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy hh:mm aa"
+            className="input input-sm w-full"
+            placeholderText="Select date & time"
+          />
+        </div>
+
+        {/* Price */}
+        <div className="col-span-1">
+          <input
+            type="number"
+            className="input input-sm w-full text-center"
+            placeholder="0"
+            value={shift.price}
+            onChange={(e) =>
+              onShiftChange(parentRowId, shift.id, "price", e.target.value)
+            }
+          />
+        </div>
+
+        {/* Qty */}
+        <div className="col-span-1">
+          <input
+            type="number"
+            className="input input-sm w-full text-center"
+            placeholder="0"
+            value={shift.quantity}
+            onChange={(e) =>
+              onShiftChange(parentRowId, shift.id, "quantity", e.target.value)
+            }
+          />
+        </div>
+
+        {/* Total */}
+        <div className="col-span-2">
+          <input
+            type="text"
+            className="input input-sm w-full text-center bg-gray-50"
+            value={shift.total ? `₹${shift.total.toLocaleString()}` : "₹0"}
+            readOnly
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="col-span-2 flex items-center justify-center gap-1">
+          <button
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+            onClick={() => onAddNotes(row)}
+            title="Add Notes"
+          >
+            <FileText className="w-4 h-4 text-blue-600" />
+          </button>
+          
+          <button
+            className="p-2 hover:bg-red-100 rounded-full transition"
+            onClick={() => onDelete(parentRowId, shift.id)}
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2046,9 +2460,7 @@ const LabourRow = ({
           >
             <i className="ki-filled ki-notepad text-primary"></i>
           </button>
-          <button className="btn btn-sm btn-icon btn-clear">
-            <i className="ki-filled ki-whatsapp text-green-600"></i>
-          </button>
+          
           <button
             className="btn btn-sm btn-icon btn-clear"
             onClick={() => onDelete(row.id)}

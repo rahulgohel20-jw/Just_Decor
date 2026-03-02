@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/container";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import AddTheme from "./components/AddTheme";
-import { GetAllCustomTheme, GettemplatebyuserId } from "@/services/apiServices";
+import {
+  GetAllCustomTheme,
+  GettemplatebyuserId,
+  DeleteTemplate,
+} from "@/services/apiServices";
 import Swal from "sweetalert2";
 
 const ReportcustomeTheme = () => {
@@ -149,8 +153,7 @@ const ReportcustomeTheme = () => {
   const getFullImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith("http")) return path;
-    const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
     return `${baseUrl}${path}`;
   };
 
@@ -164,7 +167,7 @@ const ReportcustomeTheme = () => {
 
   const displayedThemes = showMore
     ? currentTemplates
-    : currentTemplates.slice(0, 8);
+    : currentTemplates.slice(0, 10);
 
   const openPDF = (theme) => {
     if (!theme.dummyPdf) {
@@ -202,6 +205,39 @@ const ReportcustomeTheme = () => {
     return templateList.filter(
       (template) => template.templateModuleMaster?.id === tabId,
     ).length;
+  };
+
+  const handleDeleteTheme = async (themeId) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await DeleteTemplate(themeId);
+
+        if (response?.data?.success) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Theme has been deleted successfully.",
+            icon: "success",
+          });
+
+          refreshTemplates();
+        } else {
+          Swal.fire("Error!", "Failed to delete theme.", "error");
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        Swal.fire("Error!", "Something went wrong.", "error");
+      }
+    }
   };
 
   return (
@@ -335,7 +371,7 @@ const ReportcustomeTheme = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {displayedThemes.map((theme, index) => (
                   <div
                     key={theme.id || index}
@@ -399,6 +435,30 @@ const ReportcustomeTheme = () => {
                           />
                         </svg>
                       </button>
+                      {/* Delete Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTheme(theme.id);
+                        }}
+                        className="bg-white/80 hover:bg-white text-red-600 hover:text-red-800 p-2 rounded-full shadow-md transition"
+                        title="Delete Theme"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22m-5-3H6a1 1 0 00-1 1v2h14V5a1 1 0 00-1-1z"
+                          />
+                        </svg>
+                      </button>
                     </div>
 
                     <div className="h-[250px] w-full overflow-hidden bg-gray-100">
@@ -450,7 +510,7 @@ const ReportcustomeTheme = () => {
                 ))}
               </div>
 
-              {currentTemplates.length > 8 && (
+              {currentTemplates.length > 10 && (
                 <div className="flex justify-center mt-8">
                   <button
                     onClick={() => setShowMore(!showMore)}

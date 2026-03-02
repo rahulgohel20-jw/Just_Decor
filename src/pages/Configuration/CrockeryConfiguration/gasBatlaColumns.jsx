@@ -1,287 +1,403 @@
-export const gasBatlaColumns = ({ onValueChange }) => [
-  {
-    id: "rawMaterial",
-    Header: "Name",
-    accessor: "rawMaterial",
-  },
-  {
-    id: "range_0_100",
-    Header: "0-100",
-    accessor: "range_0_100",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_0_100 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_0_100", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_101_200",
-    Header: "101-200",
-    accessor: "range_101_200",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_101_200 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_101_200", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_201_300",
-    Header: "201-300",
-    accessor: "range_201_300",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_201_300 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_201_300", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_301_400",
-    Header: "301-400",
-    accessor: "range_301_400",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_301_400 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_301_400", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_401_500",
-    Header: "401-500",
-    accessor: "range_401_500",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_401_500 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_401_500", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_501_600",
-    Header: "501-600",
-    accessor: "range_501_600",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_501_600 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_501_600", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_601_700",
-    Header: "601-700",
-    accessor: "range_601_700",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_601_700 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_601_700", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_701_800",
-    Header: "701-800",
-    accessor: "range_701_800",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_701_800 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_701_800", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_801_900",
-    Header: "801-900",
-    accessor: "range_801_900",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_801_900 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_801_900", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_901_1000",
-    Header: "901-1000",
-    accessor: "range_901_1000",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_901_1000 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_901_1000", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1001_1100",
-    Header: "1001-1100",
-    accessor: "range_1001_1100",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1001_1100 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1001_1100", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1101_1200",
-    Header: "1101-1200",
-    accessor: "range_1101_1200",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1101_1200 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1101_1200", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1201_1300",
-    Header: "1201-1300",
-    accessor: "range_1201_1300",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1201_1300 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1201_1300", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1301_1400",
-    Header: "1301-1400",
-    accessor: "range_1301_1400",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1301_1400 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1301_1400", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1401_1500",
-    Header: "1401-1500",
-    accessor: "range_1401_1500",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1401_1500 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1401_1500", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1501_1600",
-    Header: "1501-1600",
-    accessor: "range_1501_1600",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1501_1600 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1501_1600", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1601_1700",
-    Header: "1601-1700",
-    accessor: "range_1601_1700",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1601_1700 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1601_1700", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1701_1800",
-    Header: "1701-1800",
-    accessor: "range_1701_1800",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1701_1800 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1701_1800", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1801_1900",
-    Header: "1801-1900",
-    accessor: "range_1801_1900",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1801_1900 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1801_1900", e.target.value)
-        }
-      />
-    ),
-  },
-  {
-    id: "range_1901_2000",
-    Header: "1901-2000",
-    accessor: "range_1901_2000",
-    Cell: ({ row }) => (
-      <input
-        className="input"
-        value={row.original.range_1901_2000 || ""}
-        onChange={(e) =>
-          onValueChange(row.original.id, "range_1901_2000", e.target.value)
-        }
-      />
-    ),
-  },
-];
+export const gasBatlaColumns = ({ onValueChange }) => {
+  const inputStyle = {
+    minWidth: "110px",
+    minHeight: "48px",
+    fontSize: "15px",
+  };
+
+  const inputClassName =
+    "w-full px-3 py-3 text-center border border-gray-300 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all";
+
+  return [
+    {
+      id: "rawMaterial",
+      header: "Name",
+      accessorKey: "rawMaterialNameEnglish",
+      minWidth: 200,
+      size: 200,
+    },
+    {
+      id: "r_0_to_100",
+      header: "0-100",
+      accessorKey: "r_0_to_100",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_0_to_100 || ""}
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            onValueChange(row.original.id, "r_0_to_100", value);
+          }}
+          onFocus={(e) => e.target.select()}
+        />
+      ),
+    },
+    {
+      id: "r_101_to_200",
+      header: "101-200",
+      accessorKey: "r_101_to_200",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_101_to_200 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_101_to_200", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_201_to_300",
+      header: "201-300",
+      accessorKey: "r_201_to_300",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_201_to_300 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_201_to_300", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_301_to_400",
+      header: "301-400",
+      accessorKey: "r_301_to_400",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_301_to_400 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_301_to_400", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_401_to_500",
+      header: "401-500",
+      accessorKey: "r_401_to_500",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_401_to_500 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_401_to_500", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_501_to_600",
+      header: "501-600",
+      accessorKey: "r_501_to_600",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_501_to_600 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_501_to_600", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_601_to_700",
+      header: "601-700",
+      accessorKey: "r_601_to_700",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_601_to_700 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_601_to_700", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_701_to_800",
+      header: "701-800",
+      accessorKey: "r_701_to_800",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_701_to_800 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_701_to_800", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_801_to_900",
+      header: "801-900",
+      accessorKey: "r_801_to_900",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_801_to_900 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_801_to_900", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_901_to_1000",
+      header: "901-1000",
+      accessorKey: "r_901_to_1000",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_901_to_1000 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_901_to_1000", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1001_to_1100",
+      header: "1001-1100",
+      accessorKey: "r_1001_to_1100",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1001_to_1100 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1001_to_1100", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1101_to_1200",
+      header: "1101-1200",
+      accessorKey: "r_1101_to_1200",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1101_to_1200 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1101_to_1200", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1201_to_1300",
+      header: "1201-1300",
+      accessorKey: "r_1201_to_1300",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1201_to_1300 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1201_to_1300", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1301_to_1400",
+      header: "1301-1400",
+      accessorKey: "r_1301_to_1400",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1301_to_1400 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1301_to_1400", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1401_to_1500",
+      header: "1401-1500",
+      accessorKey: "r_1401_to_1500",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1401_to_1500 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1401_to_1500", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1501_to_1600",
+      header: "1501-1600",
+      accessorKey: "r_1501_to_1600",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1501_to_1600 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1501_to_1600", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1601_to_1700",
+      header: "1601-1700",
+      accessorKey: "r_1601_to_1700",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1601_to_1700 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1601_to_1700", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1701_to_1800",
+      header: "1701-1800",
+      accessorKey: "r_1701_to_1800",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1701_to_1800 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1701_to_1800", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1801_to_1900",
+      header: "1801-1900",
+      accessorKey: "r_1801_to_1900",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1801_to_1900 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1801_to_1900", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      id: "r_1901_to_2000",
+      header: "1901-2000",
+      accessorKey: "r_1901_to_2000",
+      minWidth: 130,
+      size: 130,
+      cell: ({ row }) => (
+        <input
+          type="text"
+          inputMode="numeric"
+          className={inputClassName}
+          style={inputStyle}
+          value={row.original.r_1901_to_2000 || ""}
+          onChange={(e) =>
+            onValueChange(row.original.id, "r_1901_to_2000", e.target.value)
+          }
+        />
+      ),
+    },
+  ];
+};

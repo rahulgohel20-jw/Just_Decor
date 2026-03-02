@@ -6,20 +6,16 @@ import {
   GetReportConfiguration,
   GetAgenciesForReportFilter,
   GetSelectedItemsForReportFilter,
+  GetAllRawMaterialAllocationCategory,
 } from "@/services/apiServices";
 import { successMsgPopup, errorMsgPopup } from "../../../underConstruction";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select } from "antd";
-import {
-  CalendarOutlined,
-  TeamOutlined,
-  AppstoreOutlined,
-} from "@ant-design/icons";
+import { TeamOutlined, AppstoreOutlined } from "@ant-design/icons";
 
 const MenuReport = ({
   isModalOpen,
@@ -36,11 +32,10 @@ const MenuReport = ({
   startDate: adminStartDate,
   endDate: adminEndDate,
   agencyType,
+  isAdminModuleReport = false,
 }) => {
-  
   const pdfPlugin = defaultLayoutPlugin();
   const userId = localStorage.getItem("userId");
-
   const [visibleOptions, setVisibleOptions] = useState([]);
   const [reportType, setReportType] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("english");
@@ -50,26 +45,77 @@ const MenuReport = ({
   const [showNamePlateUI, setShowNamePlateUI] = useState(false);
   const [isDropdownStatus, setisDropdownStatus] = useState();
   const [showAgencyDropdown, setShowAgencyDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showItemDropdown, setShowItemDropdown] = useState(false);
-
   const [isDateStatus, setisDateStatus] = useState();
-
-  // Filter states
   const [agencies, setAgencies] = useState([]);
+  const [category, setCategory] = useState([]);
   const [items, setItems] = useState([]);
-
   const [selectedAgency, setSelectedAgency] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loadingFilters, setLoadingFilters] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState([]);
 
-  const SIZE_LABELS = {
-    size1: "A4",
-    size2: "A6",
-  };
+  useEffect(() => {
+    if (!pdfUrl) return;
 
-  /* ---------------- FETCH CONFIG ---------------- */
+    let isPrinting = false; // Guard flag
+
+    const interceptedPrint = async () => {
+      if (isPrinting) return; // Prevent re-entry
+      isPrinting = true;
+
+      try {
+        const response = await fetch(pdfUrl);
+        if (!response.ok) throw new Error("Failed to fetch PDF");
+
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText =
+          "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;";
+        iframe.src = blobUrl;
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          setTimeout(() => {
+            try {
+              iframe.contentWindow.focus();
+              iframe.contentWindow.print();
+            } catch {
+              window.open(blobUrl, "_blank");
+            }
+
+            setTimeout(() => {
+              document.body.removeChild(iframe);
+              URL.revokeObjectURL(blobUrl);
+              isPrinting = false; // Allow next print
+            }, 3000);
+          }, 800);
+        };
+
+        iframe.onerror = () => {
+          window.open(pdfUrl, "_blank");
+          isPrinting = false;
+        };
+      } catch {
+        window.open(pdfUrl, "_blank");
+        isPrinting = false;
+      }
+    };
+
+    // Override print
+    window.print = interceptedPrint;
+
+    return () => {
+      window.print = Function.prototype; // Neutral cleanup
+    };
+  }, [pdfUrl]);
 
   useEffect(() => {
     if (!isModalOpen || !mappingId) return;
@@ -81,20 +127,43 @@ const MenuReport = ({
         if (!config) return;
 
         setReportType(config.type);
-        console.log(agencyType);
-        
-        if (agencyType == null) {
-          setisDropdownStatus(0);
-        
-        } else if (config.isAgency === 1 && config.isItem === 1) {
+        if (config.isRawMaterialCat === 1) {
           setisDropdownStatus(1);
+          setShowCategoryDropdown(true);
+          setShowAgencyDropdown(false);
+          setShowItemDropdown(false);
         }
 
-        setShowAgencyDropdown(config.isAgency === 1);
-        setShowItemDropdown(config.isItem === 1);
+        if (isAdminModuleReport || agencyType == null) {
+          setisDropdownStatus(0);
+          setShowAgencyDropdown(false);
+          setShowItemDropdown(false);
+          setShowCategoryDropdown(false);
+        } else if (config.isAgency === 1 && config.isItem === 1) {
+          setisDropdownStatus(1);
+          setShowAgencyDropdown(true);
+          setShowItemDropdown(true);
+          setShowCategoryDropdown(false);
+        } else if (config.isAgency === 1) {
+          setisDropdownStatus(1);
+          setShowAgencyDropdown(true);
+          setShowCategoryDropdown(false);
+        } else if (config.isItem === 1) {
+          setisDropdownStatus(1);
+          setShowItemDropdown(true);
+          setShowCategoryDropdown(false);
+        }
 
-        if (config.isDate === 1) {
-          setisDateStatus(1);
+        if (config.isDate === 1) setisDateStatus(1);
+        if (config.isStatus == 1) {
+          setShowStatusDropdown(true);
+          setSelectedStatus([0, 1, 2]);
+          setShowAgencyDropdown(false);
+          setShowItemDropdown(false);
+          setShowCategoryDropdown(false);
+        } else {
+          setShowStatusDropdown(false);
+          setSelectedStatus([]);
         }
 
         setOptions({
@@ -106,16 +175,11 @@ const MenuReport = ({
           CompanyInfo: config.isCompanyDetails === 1,
           companyLogo: config.isCompanyLogo === 1,
           itemImage: config.isItemImage === 0,
+          isCombo: config.isCombo === 0,
           partyDetails: config.isPartyDetails === 1,
           isWithQty: config.isWithQty === 1,
-          size1: {
-            label: config.size1,
-            enabled: Boolean(config.size1 === 0),
-          },
-          size2: {
-            label: config.size2,
-            enabled: Boolean(config.size2 === 0),
-          },
+          size1: { label: config.size1, enabled: Boolean(config.size1 === 1) },
+          size2: { label: config.size2, enabled: Boolean(config.size2 === 0) },
           isWithPrice: config.isWithPrice === 0,
         });
 
@@ -129,6 +193,7 @@ const MenuReport = ({
             itemInstruction: config.isItemInstruction,
             companyLogo: config.isCompanyLogo,
             itemImage: config.isItemImage,
+            isCombo: config.isCombo,
             partyDetails: config.isPartyDetails,
             isWithQty: config.isWithQty,
             size1: !!config.size1,
@@ -142,33 +207,29 @@ const MenuReport = ({
         console.error("Config fetch error", err);
       }
     };
-
     fetchConfig();
-  }, [isModalOpen, mappingId, moduleId]);
+  }, [isModalOpen, mappingId, moduleId, isAdminModuleReport, agencyType]);
 
-  /* ---------------- FETCH AGENCIES (INITIAL LOAD) ---------------- */
   useEffect(() => {
-    if (!isModalOpen || isDropdownStatus !== 1) return;
+    if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
 
     const fetchAgencies = async () => {
       setLoadingFilters(true);
       try {
-        // ✅ Fetch agencies with empty partyIds initially
         const agencyRes = await GetAgenciesForReportFilter(
           eventFunctionId,
           eventId,
           agencyType,
         );
-
-        console.log("🏢 Agencies fetched:", agencyRes);
-
         if (agencyRes?.data?.success && agencyRes?.data?.data) {
-          setAgencies(agencyRes.data.data);
+          const agencyList = agencyRes.data.data;
+          setAgencies(agencyList);
+          setSelectedAgency(agencyList.map((a) => a.id));
         } else {
           setAgencies([]);
+          setSelectedAgency([]);
         }
       } catch (err) {
-        console.error("Agency fetch error", err);
         errorMsgPopup("Failed to load agencies");
         setAgencies([]);
       } finally {
@@ -177,11 +238,49 @@ const MenuReport = ({
     };
 
     fetchAgencies();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, agencyType]);
+  }, [
+    isModalOpen,
+    isDropdownStatus,
+    eventFunctionId,
+    eventId,
+    agencyType,
+    isAdminModuleReport,
+  ]);
 
-  /* ---------------- FETCH ITEMS (WHEN AGENCY CHANGES) ---------------- */
   useEffect(() => {
-    if (!isModalOpen || isDropdownStatus !== 1 || selectedAgency.length === 0) {
+    if (!isModalOpen || isDropdownStatus !== 1 || isAdminModuleReport) return;
+
+    const fetchcategory = async () => {
+      setLoadingFilters(true);
+      try {
+        const categoryres = await GetAllRawMaterialAllocationCategory(eventId);
+        if (categoryres?.data?.success && categoryres?.data?.data) {
+          const categoryList =
+            categoryres.data.data["Raw Material Category Details"];
+          setCategory(categoryList);
+          setSelectedCategory(categoryList.map((a) => a.id));
+        } else {
+          setCategory([]);
+          setSelectedCategory([]);
+        }
+      } catch (err) {
+        errorMsgPopup("Failed to load agencies");
+        setCategory([]);
+      } finally {
+        setLoadingFilters(false);
+      }
+    };
+
+    fetchcategory();
+  }, [isModalOpen, isDropdownStatus, eventId, isAdminModuleReport]);
+
+  useEffect(() => {
+    if (
+      !isModalOpen ||
+      isDropdownStatus !== 1 ||
+      selectedAgency.length === 0 ||
+      isAdminModuleReport
+    ) {
       setItems([]);
       setSelectedItems([]);
       return;
@@ -190,23 +289,17 @@ const MenuReport = ({
     const fetchItemsByAgency = async () => {
       setLoadingFilters(true);
       try {
-        console.log("📦 Fetching items for agencies:", selectedAgency);
-
         const itemsRes = await GetSelectedItemsForReportFilter(
           eventFunctionId,
           eventId,
-          selectedAgency, // ✅ partyIds passed here
+          selectedAgency,
         );
-
-        console.log("📦 Items fetched:", itemsRes);
-
         if (itemsRes?.data?.success && itemsRes?.data?.data) {
           setItems(itemsRes.data.data);
         } else {
           setItems([]);
         }
       } catch (err) {
-        console.error("Items fetch error", err);
         errorMsgPopup("Failed to load items");
         setItems([]);
       } finally {
@@ -215,7 +308,14 @@ const MenuReport = ({
     };
 
     fetchItemsByAgency();
-  }, [isModalOpen, isDropdownStatus, eventFunctionId, eventId, selectedAgency]);
+  }, [
+    isModalOpen,
+    isDropdownStatus,
+    eventFunctionId,
+    eventId,
+    selectedAgency,
+    isAdminModuleReport,
+  ]);
 
   const formatAdminDate = (dateString) => {
     if (!dateString) return null;
@@ -226,49 +326,27 @@ const MenuReport = ({
   const toggleAll = (checked) => {
     setOptions((prev) => {
       const updated = { ...prev };
-
       visibleOptions.forEach((key) => {
-        if (key !== "size1" && key !== "size2") {
-          updated[key] = checked;
-        }
+        if (key !== "size1" && key !== "size2") updated[key] = checked;
       });
-
       return updated;
     });
   };
 
   const toggleOne = (key) => {
     setOptions((prev) => {
-      // Handle mutually exclusive sizes
-      if (key === "size1") {
+      if (key === "size1")
         return {
           ...prev,
-          size1: {
-            ...prev.size1,
-            enabled: true,
-          },
-          size2: {
-            ...prev.size2,
-            enabled: false,
-          },
+          size1: { ...prev.size1, enabled: true },
+          size2: { ...prev.size2, enabled: false },
         };
-      }
-
-      if (key === "size2") {
+      if (key === "size2")
         return {
           ...prev,
-          size1: {
-            ...prev.size1,
-            enabled: false,
-          },
-          size2: {
-            ...prev.size2,
-            enabled: true,
-          },
+          size1: { ...prev.size1, enabled: false },
+          size2: { ...prev.size2, enabled: true },
         };
-      }
-
-      // Normal toggle for other options
       return { ...prev, [key]: !prev[key] };
     });
   };
@@ -276,15 +354,16 @@ const MenuReport = ({
   const isCheckAll =
     visibleOptions.length > 0 && visibleOptions.every((key) => options[key]);
 
-  const formatDate = (date) => {
-    if (!date) return null;
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
   const handleReport = async () => {
+    console.log("🎯 Menu Report Props:", {
+      eventId,
+      eventFunctionId,
+      moduleId,
+      mappingId,
+      selectedTemplateId,
+      isAdminModuleReport,
+    });
+
     if (isNamePlateTheme) {
       setShowNamePlateUI(true);
       return;
@@ -299,7 +378,9 @@ const MenuReport = ({
     const payload = {
       eventId,
       eventFunctionId: eventFunctionId ?? -1,
-      adminTemplateModuleId: selectedTemplateId ?? 0,
+      adminTemplateModuleId: isAdminModuleReport
+        ? (selectedTemplateId ?? mappingId) // sends 446
+        : (selectedTemplateId ?? 0),
       type: reportType || null,
       userId,
       lang:
@@ -312,6 +393,7 @@ const MenuReport = ({
       isCategoryInstruction: options.categoryInstruction,
       isCategorySlogan: options.categorySlogan,
       isItemImage: options.itemImage,
+      isCombo: options.isCombo,
       isItemInstruction: options.itemInstruction,
       isItemSlogan: options.itemSlogan,
       isCompanyDetails: options.CompanyInfo,
@@ -322,15 +404,11 @@ const MenuReport = ({
       isWithPrice: options.isWithPrice,
       agencyId: selectedAgency,
       itemId: selectedItems,
-      ...(adminStartDate && {
-        startDate: formatAdminDate(adminStartDate),
-      }),
-      ...(adminEndDate && {
-        endDate: formatAdminDate(adminEndDate),
-      }),
+      rawMaterialCatIds: selectedCategory,
+      ...(adminStartDate && { startDate: formatAdminDate(adminStartDate) }),
+      ...(adminEndDate && { endDate: formatAdminDate(adminEndDate) }),
+      ...(showStatusDropdown && { eventStatus: selectedStatus }),
     };
-
-    console.log("📤 Report payload:", payload);
 
     if (!payload.eventId || !payload.adminTemplateModuleId) {
       errorMsgPopup("Missing required data");
@@ -348,6 +426,7 @@ const MenuReport = ({
         );
       }
     });
+
     setLoading(true);
     try {
       const { data } = await AddExclusiveReport(formData);
@@ -368,18 +447,18 @@ const MenuReport = ({
     setPdfUrl(null);
     setShowNamePlateUI(false);
     setIsModalOpen(false);
-    // Reset filters
     setSelectedAgency([]);
     setSelectedItems([]);
     setStartDate(null);
     setEndDate(null);
+    setSelectedStatus([]);
+    setShowStatusDropdown(false);
   };
 
-  const handleWhatsAppShare = (pdfUrl) => {
+  const handleWhatsAppShare = () => {
     const name = eventName || "there";
     const mobile = PartyNumber || "";
     if (!mobile) return alert("Mobile number not available");
-
     const message = `Hi ${name},\nPlease find the attached PDF.\n\n${pdfUrl}`;
     window.open(
       `https://web.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`,
@@ -391,14 +470,10 @@ const MenuReport = ({
     <button
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-        checked ? "bg-blue-600" : "bg-gray-300"
-      }`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${checked ? "bg-blue-600" : "bg-gray-300"}`}
     >
       <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-          checked ? "translate-x-5" : "translate-x-1"
-        }`}
+        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${checked ? "translate-x-5" : "translate-x-1"}`}
       />
     </button>
   );
@@ -419,7 +494,7 @@ const MenuReport = ({
               Close
             </button>
             <button
-              onClick={() => handleWhatsAppShare(pdfUrl)}
+              onClick={handleWhatsAppShare}
               className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
             >
               Share on WhatsApp
@@ -429,11 +504,7 @@ const MenuReport = ({
           <button
             onClick={handleReport}
             disabled={loading}
-            className={`px-6 py-2 text-white rounded transition ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#005BA8] hover:bg-[#004a8d]"
-            }`}
+            className={`px-6 py-2 text-white rounded transition ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#005BA8] hover:bg-[#004a8d]"}`}
           >
             {loading ? "Generating..." : "Generate Report"}
           </button>
@@ -444,7 +515,6 @@ const MenuReport = ({
         <NamePlateReport onClose={() => setShowNamePlateUI(false)} />
       ) : !pdfUrl ? (
         <div className="space-y-6">
-          {/* Language Selector */}
           <div>
             <label className="block font-medium mb-2 text-gray-700">
               Select Language
@@ -454,64 +524,34 @@ const MenuReport = ({
                 <button
                   key={lang}
                   onClick={() => setSelectedLanguage(lang)}
-                  className={`flex-1 py-2.5 font-medium transition ${
-                    selectedLanguage === lang
-                      ? "bg-[#005BA8] text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`flex-1 py-2.5 font-medium transition ${selectedLanguage === lang ? "bg-[#005BA8] text-white" : "bg-white text-gray-700 hover:bg-gray-50"}`}
                 >
                   {lang.charAt(0).toUpperCase() + lang.slice(1)}
                 </button>
               ))}
             </div>
           </div>
-          {(isDateStatus === 1 || showAgencyDropdown || showItemDropdown) && (
-            <div className=" p-5 rounded-xl border-2 ">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Dropdowns */}
-                {showAgencyDropdown && (
-                  <>
-                    <div className="relative">
-                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        <TeamOutlined className="mr-1" />
-                        Agency
-                      </label>
-                      <Select
-                        mode="multiple"
-                        value={selectedAgency}
-                        onChange={setSelectedAgency}
-                        placeholder="Select agencies..."
-                        className="w-full custom-select"
-                        size="large"
-                        loading={loadingFilters}
-                        showSearch
-                        optionFilterProp="children"
-                        filterOption={(input, option) =>
-                          (option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        options={agencies.map((agency) => ({
-                          value: agency.id,
-                          label: agency.nameEnglish,
-                        }))}
-                        maxTagCount="responsive"
-                        allowClear
-                      />
-                    </div>
 
-                    {showItemDropdown && (
-                      <div className="relative">
+          {!isAdminModuleReport &&
+            (isDateStatus === 1 ||
+              showAgencyDropdown ||
+              showItemDropdown ||
+              showCategoryDropdown) && (
+              <div className="p-5 rounded-xl border-2">
+                <div className="grid grid-cols-2 gap-4">
+                  {showAgencyDropdown && (
+                    <>
+                      <div>
                         <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                          <AppstoreOutlined className="mr-1" />
-                          Items
+                          <TeamOutlined className="mr-1" />
+                          Agency
                         </label>
                         <Select
                           mode="multiple"
-                          value={selectedItems}
-                          onChange={setSelectedItems}
-                          placeholder="Select items..."
-                          className="w-full custom-select"
+                          value={selectedAgency}
+                          onChange={setSelectedAgency}
+                          placeholder="Select agencies..."
+                          className="w-full"
                           size="large"
                           loading={loadingFilters}
                           showSearch
@@ -521,26 +561,110 @@ const MenuReport = ({
                               .toLowerCase()
                               .includes(input.toLowerCase())
                           }
-                          options={items.map((item) => ({
-                            value: item.id,
-                            label: item.nameEnglish,
+                          options={agencies.map((a) => ({
+                            value: a.id,
+                            label: a.nameEnglish,
                           }))}
                           maxTagCount="responsive"
                           allowClear
-                          disabled={selectedAgency.length === 0}
-                          style={{
-                            borderRadius: "8px",
-                          }}
                         />
                       </div>
-                    )}
-                  </>
-                )}
+                      {showItemDropdown && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                            <AppstoreOutlined className="mr-1" />
+                            Items
+                          </label>
+                          <Select
+                            mode="multiple"
+                            value={selectedItems}
+                            onChange={setSelectedItems}
+                            placeholder="Select items..."
+                            className="w-full"
+                            size="large"
+                            loading={loadingFilters}
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input, option) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            options={items.map((i) => ({
+                              value: i.id,
+                              label: i.nameEnglish,
+                            }))}
+                            maxTagCount="responsive"
+                            allowClear
+                            disabled={selectedAgency.length === 0}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {showCategoryDropdown && (
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                        <AppstoreOutlined className="mr-1" />
+                        Category
+                      </label>
+                      <Select
+                        mode="multiple"
+                        value={selectedCategory}
+                        onChange={setSelectedCategory}
+                        placeholder="Select items..."
+                        className="w-full"
+                        size="large"
+                        loading={loadingFilters}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          (option?.label ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        options={category.map((i) => ({
+                          value: i.id,
+                          label: i.nameEnglish,
+                        }))}
+                        maxTagCount="responsive"
+                        allowClear
+                        disabled={setSelectedCategory.length === 0}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+          {showStatusDropdown && (
+            <div className="grid grid-cols-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                  Status
+                </label>
+
+                <Select
+                  mode="multiple"
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
+                  placeholder="Select status..."
+                  className="w-full"
+                  size="large"
+                  options={[
+                    { value: 0, label: "Inquiry" },
+                    { value: 1, label: "Confirm" },
+                    { value: 2, label: "Cancel" },
+                  ]}
+                  allowClear
+                  maxTagCount="responsive"
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                  dropdownStyle={{ zIndex: 9999 }}
+                />
               </div>
             </div>
           )}
 
-          {/* Report Options */}
           {!isNamePlateTheme && (
             <>
               <div className="flex justify-between items-center border-b pb-3 mb-3">
@@ -552,7 +676,6 @@ const MenuReport = ({
                   onChange={() => toggleAll(!isCheckAll)}
                 />
               </div>
-
               <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                 {visibleOptions.map((key) => (
                   <div
@@ -564,7 +687,6 @@ const MenuReport = ({
                         ? `Size ${options[key]?.label}`
                         : key.replace(/([A-Z])/g, " $1")}
                     </span>
-
                     <Toggle
                       checked={
                         key === "size1" || key === "size2"

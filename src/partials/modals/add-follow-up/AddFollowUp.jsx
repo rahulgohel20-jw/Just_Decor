@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { DatePicker as AntDatePicker } from "antd";
 import dayjs from "dayjs";
 
 const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
+  // ✅ Static Client Data
+  const clientData = {
+    id: 1,
+    name: "John Doe",
+    mobile: "9876543210",
+    email: "john@example.com",
+    leadCode: "LD1001",
+  };
   const [followupdate, setFollowUpDate] = useState(null);
   const [followUpType, setFollowUpType] = useState("Call");
   const [isReminderEnabled, setIsReminderEnabled] = useState(false);
@@ -12,7 +20,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
   const [followUpData, setFollowUpData] = useState({ customerName: "" });
 
   useEffect(() => {
-    if (isOpen && clientData?.clientName) {
+    if (isModalOpen && clientData?.clientName) {
       setFollowUpData((prev) => ({
         ...prev,
         customerName: clientData.clientName || "",
@@ -20,7 +28,7 @@ const AddFollowUp = ({ isModalOpen, setIsModalOpen }) => {
         phone: clientData.contactNumber || "",
       }));
     }
-  }, [isOpen, clientData]);
+  }, [isModalOpen, clientData]);
 
   const handleFollowUpTypeChange = (type) => {
     setFollowUpType(type);

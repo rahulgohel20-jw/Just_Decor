@@ -138,6 +138,7 @@ export default function BankDetail() {
         branchName: bankDetails.branchName.trim(),
         ifscCode: bankDetails.ifscCode.trim().toUpperCase(),
         upiId: bankDetails.upiId.trim() || null,
+        isPrimary: true,
       };
 
       // Call API to add or update bank details

@@ -112,6 +112,17 @@ export const columns = (setSelectedRow, setIsModalOpen, onDelete) => [
     cell: ({ row }) => <YesNoIcon value={row.original.isItemPage} />,
   },
   {
+    accessorKey: "isCombo",
+    header: "Is Combo",
+    cell: ({ row }) => <YesNoIcon value={row.original.isCombo} />,
+  },
+  {
+    accessorKey: "isRawMaterialCat",
+    header: "Is Raw Material Category",
+    cell: ({ row }) => <YesNoIcon value={row.original.isRawMaterialCat} />,
+  },
+
+  {
     accessorKey: "action",
     header: "Action",
     cell: ({ row }) => (

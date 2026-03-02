@@ -1,7 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AddLabourShift,
   EditLabourShiftAPI,
@@ -133,36 +133,12 @@ const AddLabourshift = ({ isOpen, onClose, shiftData, refreshData }) => {
                   <InputWithFormik label="Name (हिन्दी)" name="nameHindi" />
                 </div>
 
-                <div className="mb-6">
-                  <label className="text-gray-700 mb-1 block">
-                    Time (HH:mm)*:
-                  </label>
-                  <Field name="time">
-                    {({ field, form }) => (
-                      <input
-                        {...field}
-                        type="text"
-                        placeholder="HH:mm"
-                        inputMode="numeric"
-                        className="border border-gray-300 rounded-md p-2 w-40"
-                        onChange={(e) => {
-                          form.setFieldValue(field.name, e.target.value);
-                        }}
-                        onBeforeInput={(e) => {
-                          if (!/[0-9:]/.test(e.data)) {
-                            e.preventDefault();
-                          }
-                        }}
-                      />
-                    )}
-                  </Field>
-
-                  <ErrorMessage
-                    name="time"
-                    component="div"
-                    className="text-red-500 text-sm mt-1"
-                  />
-                </div>
+                <TimePickerField
+                  name="time"
+                  label="Time (HH:mm)*"
+                  value={values.time}
+                  setFieldValue={setFieldValue}
+                />
 
                 <div className="flex justify-end gap-3">
                   <button
@@ -205,5 +181,30 @@ const InputWithFormik = ({ label, name }) => (
     />
   </div>
 );
+
+
+const TimePickerField = ({ name, label, value, setFieldValue }) => {
+  return (
+    <div className="mb-6">
+      <label className="text-gray-700 mb-1 block">{label}:</label>
+
+      <Field
+        type="time"
+        name={name}
+        value={value}
+        onChange={(e) => setFieldValue(name, e.target.value)}
+        className="border border-gray-300 rounded-lg p-2 w-48"
+        placeholder="HH:mm"
+      />
+
+      <ErrorMessage
+        name={name}
+        component="div"
+        className="text-red-500 text-sm mt-1"
+      />
+    </div>
+  );
+};
+
 
 export default AddLabourshift;

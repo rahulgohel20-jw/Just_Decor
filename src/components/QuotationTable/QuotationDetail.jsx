@@ -161,7 +161,7 @@ const QuotationDetail = ({ Eventid }) => {
   const fetchEventData = async (id) => {
     if (!id) return;
     try {
-      const response = await GetQuotation(id);
+      const response = await GetQuotation(id, 0);
       const data = response?.data?.data;
       const quotationDetails = data?.["Event Functions Quotation Details"]?.[0];
 
@@ -228,7 +228,7 @@ const QuotationDetail = ({ Eventid }) => {
     const userId = localStorage.getItem("userId");
     const activeEventId = Eventid || EventId;
 
-    GetQuotationReport(activeEventId, userId)
+    GetQuotationReport(activeEventId, userId, 0)
       .then((response) => {
         if (response.data) {
           const pdfPath = response.data?.report_path;

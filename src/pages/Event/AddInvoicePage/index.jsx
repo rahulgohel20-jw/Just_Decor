@@ -17,7 +17,7 @@ import Swal from "sweetalert2";
 import { Tooltip, message } from "antd";
 import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router";
-import { GetInvoiceByEventId } from "@/services/apiServices";
+import { GetInvoiceByEventId, GetQuotation } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
 import { GetQuotationReport } from "../../../services/apiServices";
 
@@ -29,7 +29,13 @@ const AddInvoicePage = () => {
   const location = useLocation();
   const intl = useIntl();
 
-  const { eventId, eventTypeId } = location.state || {};
+  // ✅ Destructure fromQuotation and quotationData from navigation state
+  const {
+    eventId,
+    eventTypeId,
+    fromQuotation,
+    quotationData: passedQuotationData,
+  } = location.state || {};
 
   const [loading, setLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
@@ -61,69 +67,19 @@ const AddInvoicePage = () => {
   });
 
   const responsiveStyles = `
-  /* Mobile-first responsive styles for Invoice */
   @media (max-width: 768px) {
-    /* Event Header */
-    .event-info-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-    
-    .event-info-item {
-      flex-direction: column;
-      align-items: flex-start !important;
-      gap: 0.25rem;
-    }
-    
-    /* Billing Grid */
-    .billing-grid {
-      grid-template-columns: 1fr !important;
-    }
-    
-    .billing-section {
-      border-right: none !important;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    
-    /* Mobile Labels */
-    .mobile-field-label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
-      margin-bottom: 0.25rem;
-      text-transform: uppercase;
-    }
-    
-    /* Edit Actions */
-    .edit-actions {
-      flex-direction: row;
-      gap: 0.5rem;
-    }
-    
-    /* Buttons */
-    .action-buttons {
-      flex-direction: column;
-      width: 100%;
-    }
-    
-    .action-buttons button {
-      width: 100%;
-      justify-content: center;
-    }
-    
-    /* Modal */
-    .ant-modal {
-      max-width: 95vw !important;
-      margin: 0 auto;
-    }
+    .event-info-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .event-info-item { flex-direction: column; align-items: flex-start !important; gap: 0.25rem; }
+    .billing-grid { grid-template-columns: 1fr !important; }
+    .billing-section { border-right: none !important; border-bottom: 1px solid #e5e7eb; }
+    .mobile-field-label { display: block; font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-bottom: 0.25rem; text-transform: uppercase; }
+    .edit-actions { flex-direction: row; gap: 0.5rem; }
+    .action-buttons { flex-direction: column; width: 100%; }
+    .action-buttons button { width: 100%; justify-content: center; }
+    .ant-modal { max-width: 95vw !important; margin: 0 auto; }
   }
-  
   @media (min-width: 769px) {
-    .mobile-field-label {
-      display: none;
-    }
+    .mobile-field-label { display: none; }
   }
 `;
 
@@ -186,7 +142,6 @@ const AddInvoicePage = () => {
     try {
       setLoadingPdf(true);
 
-      // Save invoice silently (without success popup)
       const UserId = localStorage.getItem("userId");
 
       const formatDateForAPI = (date) => {
@@ -205,12 +160,10 @@ const AddInvoicePage = () => {
       const convertDisplayDateToAPI = (displayDate) => {
         if (!displayDate) return null;
         try {
-          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
+          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate))
             return `${displayDate} 12:00 AM`;
-          }
-          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate)) {
+          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate))
             return displayDate;
-          }
           const monthMap = {
             Jan: "01",
             Feb: "02",
@@ -230,9 +183,7 @@ const AddInvoicePage = () => {
             const day = parts[0].padStart(2, "0");
             const month = monthMap[parts[1]];
             const year = parts[2];
-            if (month) {
-              return `${day}/${month}/${year} 12:00 AM`;
-            }
+            if (month) return `${day}/${month}/${year} 12:00 AM`;
           }
           const date = new Date(displayDate);
           if (!isNaN(date.getTime())) {
@@ -305,20 +256,13 @@ const AddInvoicePage = () => {
         userId: UserId,
       };
 
-      // Save without showing success message
       const response = await UpdateInvoice(invoiceData?.id, payload);
 
       if (response?.data?.success === true) {
         setIsEdited(false);
         setRows((prevRows) =>
-          prevRows.map((row) => ({
-            ...row,
-            isNewRow: false,
-            isCustom: true,
-          })),
+          prevRows.map((row) => ({ ...row, isNewRow: false, isCustom: true })),
         );
-
-        // Then generate and show the report
         await handleGenerateInvoiceReport();
       } else {
         throw new Error(response?.data?.msg || "Failed to save invoice");
@@ -336,30 +280,20 @@ const AddInvoicePage = () => {
     }
   };
 
-  // WhatsApp Share
   const handleWhatsAppShare = (pdfUrl) => {
     const name = invoiceData?.event?.party?.nameEnglish || "there";
     const mobile = invoiceData?.event?.party?.mobileno || "";
-
-    const message = `Hi ${name},
-Hope you're doing well!
-
-Please find the invoice PDF below:
-${pdfUrl}
-
-Thanks!`;
-
-    const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
+    const msg = `Hi ${name},\nHope you're doing well!\n\nPlease find the invoice PDF below:\n${pdfUrl}\n\nThanks!`;
+    const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
   useEffect(() => {
     if (invoiceData?.createdAt) {
-      setInvoiceDate(invoiceData.createdAt.split("T")[0]); // yyyy-mm-dd
+      setInvoiceDate(invoiceData.createdAt.split("T")[0]);
     }
   }, [invoiceData]);
 
-  // Initialize billing name and GST number from invoiceData
   useEffect(() => {
     if (invoiceData) {
       setTempValues({
@@ -371,13 +305,303 @@ Thanks!`;
       });
     }
   }, [invoiceData]);
-
-  // Fetch invoice data when component mounts
+  // ✅ MAIN EFFECT: decide which API to call
   useEffect(() => {
-    if (eventId) {
+    if (!eventId) return;
+
+    if (fromQuotation) {
+      fetchFromQuotation();
+    } else {
       fetchInvoiceData();
     }
   }, [eventId]);
+
+  // ✅ MAIN EFFECT: decide which path to take based on fromQuotation flag
+  const fetchFromQuotation = async () => {
+    try {
+      setLoading(true);
+      const res = await GetQuotation(eventId, 1);
+      console.log("datassss", res);
+      // copyToInvoice = 1
+      const apiData = res?.data?.data?.["Event Functions Quotation Details"];
+
+      if (!apiData || apiData.length === 0) {
+        message.warning("No quotation data found");
+        return;
+      }
+
+      const qInfo = apiData[0];
+
+      const formatAmount = (value) => {
+        const num = Number(value) || 0;
+        return num % 1 === 0 ? num.toString() : num.toFixed(2);
+      };
+
+      // Map functionQuotationItems → invoice rows
+      const hasFunctionItems =
+        qInfo.functionQuotationItems && qInfo.functionQuotationItems.length > 0;
+
+      const mappedRows = hasFunctionItems
+        ? qInfo.functionQuotationItems.map((item, index) => {
+            // Convert "DD/MM/YYYY hh:mm A" string → display string
+            let dateStr = "";
+            if (item.functionDate) {
+              const parsed = dayjs(item.functionDate, "DD/MM/YYYY hh:mm A");
+              dateStr = parsed.isValid()
+                ? parsed.format("DD MMM YYYY") // matches formatDateForDisplay output
+                : item.functionDate;
+            }
+            return {
+              key: `${index + 1}-${Math.random()}`,
+              name: item.functionName || "",
+              date: dateStr,
+              person: item.pax ?? 0,
+              extra: item.extraPax ?? 0,
+              rate: item.ratePerPlate ?? 0,
+              amount: item.amount ?? 0,
+              isCustom: false,
+              isEventFunction: item.isEventFunction === true,
+              id: 0, // new invoice rows — no existing invoice item id
+              isNewRow: false,
+            };
+          })
+        : qInfo.event?.eventFunctions?.length > 0
+          ? qInfo.event.eventFunctions.map((fn, index) => ({
+              key: `${index + 1}-${Math.random()}`,
+              name: fn.function?.nameEnglish || "",
+              date: fn.functionStartDateTime
+                ? dayjs(fn.functionStartDateTime).format("DD MMM YYYY")
+                : "",
+              person: fn.pax ?? 0,
+              extra: 0,
+              rate: fn.rate ?? 0,
+              amount: (fn.pax ?? 0) * (fn.rate ?? 0),
+              isCustom: false,
+              isEventFunction: true,
+              id: 0,
+              isNewRow: false,
+            }))
+          : [
+              {
+                key: 1,
+                name: "",
+                date: "",
+                person: "",
+                extra: "",
+                rate: "",
+                amount: "",
+                isCustom: true,
+                isEventFunction: false,
+                id: 0,
+                isNewRow: true,
+              },
+            ];
+
+      setRows(mappedRows);
+
+      // Footer / tax
+      setFooterData({
+        notes: qInfo.notes || "Thanks for your Business...",
+        gst: 0,
+        cgst: parseFloat(qInfo.cgst) || 0,
+        sgst: parseFloat(qInfo.sgst) || 0,
+        igst: parseFloat(qInfo.igst) || 0,
+        discount: parseFloat(qInfo.discount) || 0,
+        roundOff: parseFloat(qInfo.roundOff) || 0,
+        subTotal: parseFloat(qInfo.subTotal) || 0,
+        totalAmount: parseFloat(qInfo.grandTotal) || 0,
+        cgstAmnt: parseFloat(qInfo.cgstAmnt) || 0,
+        sgstAmnt: parseFloat(qInfo.sgstAmnt) || 0,
+        igstAmnt: parseFloat(qInfo.igstAmnt) || 0,
+        grandTotal: parseFloat(qInfo.grandTotal) || 0,
+      });
+
+      // Billing fields
+      setTempValues({
+        billingaddress: qInfo.billingaddress || "",
+        billingname: qInfo.billingname || "",
+        shipaddress: qInfo.shipaddress || "",
+        shipname: qInfo.shipname || "",
+        gstnumber: qInfo.gstnumber || "",
+      });
+
+      // Due date
+      if (qInfo.duedate) {
+        const parsed = dayjs(qInfo.duedate, "DD/MM/YYYY");
+        if (parsed.isValid()) setDueDate(parsed);
+      }
+
+      // Invoice date = today (new invoice)
+      setInvoiceDate(dayjs().format("YYYY-MM-DD"));
+
+      // Build synthetic invoiceData so the JSX renders party/venue/event info
+      setInvoiceData({
+        id: qInfo.invoiceId || null, // null = new invoice
+        billingname: qInfo.billingname || "",
+        billingaddress: qInfo.billingaddress || "",
+        shipname: qInfo.shipname || "",
+        shipaddress: qInfo.shipaddress || "",
+        gstnumber: qInfo.gstnumber || "",
+        notes: qInfo.notes || "",
+        duedate: qInfo.duedate || "",
+        createdAt: new Date().toISOString(),
+        eventInvoiceFunctionPayments: [],
+        event: qInfo.event || {
+          inquiryDate: "",
+          mobileno: qInfo.event?.mobileno || "",
+          eventType: { nameEnglish: qInfo.event?.eventType?.nameEnglish || "" },
+          party: {
+            nameEnglish: qInfo.event?.party?.nameEnglish || "",
+            mobileno: qInfo.event?.party?.mobileno || "",
+          },
+          venue: { nameEnglish: qInfo.event?.venue?.nameEnglish || "" },
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching quotation for invoice:", error);
+      message.error("Failed to load quotation data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Maps raw quotation API response (copyToInvoice=1) into invoice state.
+  // passedQuotationData = the full quotation object from location.state.quotationData
+  // which was passed from QuotationPage's handleCopyToInvoice.
+  const loadFromQuotationApiResponse = (qData) => {
+    setLoading(true);
+    try {
+      // --- ROWS: map functionQuotationItems → invoice rows ---
+      const items = qData.functions || []; // already mapped in QuotationPage
+      const mappedRows = items.map((fn, index) => {
+        // fn.date may be a plain string "27/02/2026 08:00 AM" (already serialized)
+        // or a serialized dayjs plain object { $d: Date, ... }
+        let dateStr = "";
+        if (fn.date) {
+          if (typeof fn.date === "string") {
+            dateStr = fn.date;
+          } else {
+            try {
+              const rewrapped = dayjs(fn.date?.$d ?? fn.date);
+              dateStr = rewrapped.isValid()
+                ? rewrapped.format("DD/MM/YYYY hh:mm A")
+                : "";
+            } catch {
+              dateStr = "";
+            }
+          }
+        }
+        return {
+          key: `${index + 1}-${Math.random()}`,
+          name: fn.name || "",
+          date: dateStr,
+          person: fn.persons ?? fn.pax ?? 0,
+          extra: fn.extra ?? fn.extraPax ?? 0,
+          rate: fn.rate ?? fn.ratePerPlate ?? 0,
+          amount: fn.totalPrice ?? fn.amount ?? 0,
+          isCustom: false,
+          isEventFunction: fn.isFromQuotationItems === true,
+          id: 0,
+          isNewRow: false,
+        };
+      });
+
+      setRows(
+        mappedRows.length > 0
+          ? mappedRows
+          : [
+              {
+                key: 1,
+                name: "",
+                date: "",
+                person: "",
+                extra: "",
+                rate: "",
+                amount: "",
+                isCustom: true,
+                isEventFunction: false,
+                id: 0,
+                isNewRow: true,
+              },
+            ],
+      );
+
+      // --- FOOTER: tax/totals from quotation ---
+      const cgstTax = (qData.taxDetails || []).find((t) => t.label === "CGST");
+      const sgstTax = (qData.taxDetails || []).find((t) => t.label === "SGST");
+      const igstTax = (qData.taxDetails || []).find((t) => t.label === "IGST");
+      const discountTx = (qData.taxDetails || []).find(
+        (t) => t.label === "Discount",
+      );
+      const roundOffTx = (qData.taxDetails || []).find(
+        (t) => t.label === "Round Off",
+      );
+
+      setFooterData({
+        notes: qData.notes || "Thanks for your Business...",
+        gst: 0,
+        cgst: parseFloat(cgstTax?.percentage || qData.cgst || 0),
+        sgst: parseFloat(sgstTax?.percentage || qData.sgst || 0),
+        igst: parseFloat(igstTax?.percentage || qData.igst || 0),
+        discount: parseFloat(discountTx?.amount || qData.discount || 0),
+        roundOff: parseFloat(roundOffTx?.amount || qData.roundOff || 0),
+        subTotal: parseFloat(qData.subtotal || 0),
+        totalAmount: parseFloat(qData.grandTotal || 0),
+        cgstAmnt: parseFloat(qData.cgstAmnt || cgstTax?.amount || 0),
+        sgstAmnt: parseFloat(qData.sgstAmnt || sgstTax?.amount || 0),
+        igstAmnt: parseFloat(qData.igstAmnt || igstTax?.amount || 0),
+        grandTotal: parseFloat(qData.grandTotal || 0),
+      });
+
+      // --- BILLING fields ---
+      setTempValues({
+        billingaddress: qData.billingaddress || "",
+        billingname: qData.billingname || "",
+        shipaddress: qData.shipaddress || "",
+        shipname: qData.shipname || "",
+        gstnumber: qData.gstnumber || "",
+      });
+
+      // --- DUE DATE ---
+      if (qData.duedate) {
+        const parsed = dayjs(qData.duedate, "DD/MM/YYYY");
+        if (parsed.isValid()) setDueDate(parsed);
+      }
+
+      // --- INVOICE DATE: today (new invoice) ---
+      setInvoiceDate(dayjs().format("YYYY-MM-DD"));
+
+      // --- INVOICE DATA: build a synthetic invoiceData object ---
+      // QuotationPage maps event fields to flat keys (partyName, venueName, etc.)
+      // AND also passes the raw `event` object if available.
+      // Build the nested shape that AddInvoicePage's JSX expects.
+      setInvoiceData({
+        id: qData.invoiceId || null,
+        billingname: qData.billingname || "",
+        billingaddress: qData.billingaddress || "",
+        shipname: qData.shipname || "",
+        shipaddress: qData.shipaddress || "",
+        gstnumber: qData.gstnumber || "",
+        notes: qData.notes || "",
+        duedate: qData.duedate || "",
+        createdAt: new Date().toISOString(),
+        eventInvoiceFunctionPayments: [],
+        // Build event object from either the raw event (if passed) or the flat fields
+        event: qData.event || {
+          inquiryDate: qData.estimateDate || "",
+          mobileno: qData.mobileNumber || "",
+          eventType: { nameEnglish: qData.eventName || "" },
+          party: {
+            nameEnglish: qData.partyName || "",
+            mobileno: qData.mobileNumber || "",
+          },
+          venue: { nameEnglish: qData.venueName || "" },
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchInvoiceData = async () => {
     try {
@@ -392,7 +616,6 @@ Thanks!`;
           const invoiceDetails = invoiceDetailsArray[0];
           setInvoiceData(invoiceDetails);
 
-          // Set due date if available
           if (invoiceDetails.duedate) {
             setDueDate(dayjs(invoiceDetails.duedate, "DD/MM/YYYY"));
           }
@@ -402,16 +625,11 @@ Thanks!`;
           const formatDateForDisplay = (dateString) => {
             if (!dateString) return "";
             try {
-              let datePart;
-              if (dateString.includes(" ")) {
-                datePart = dateString.split(" ")[0];
-              } else {
-                datePart = dateString;
-              }
-
+              let datePart = dateString.includes(" ")
+                ? dateString.split(" ")[0]
+                : dateString;
               const [day, month, year] = datePart.split("/");
               const date = new Date(year, month - 1, day);
-
               return date.toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
@@ -429,7 +647,6 @@ Thanks!`;
                 const isManuallyAdded =
                   item.isEventFunction === false ||
                   (item.id > 0 && !item.isEventFunction);
-
                 return {
                   key: `${index + 1}-${Math.random()}`,
                   name: item.functionName || item.name || "",
@@ -512,23 +729,19 @@ Thanks!`;
       const person = parseFloat(updatedRows[index].person) || 0;
       const extra = parseFloat(updatedRows[index].extra) || 0;
       const rate = parseFloat(updatedRows[index].rate) || 0;
-
-      const calculatedAmount = (person + extra) * rate;
-      updatedRows[index].amount = calculatedAmount;
+      updatedRows[index].amount = (person + extra) * rate;
     }
 
     setRows(updatedRows);
   };
+
   const handleDeleteRow = (key) => {
     setIsEdited(true);
-
     setRows(rows.filter((row) => row.key !== key));
   };
 
   const handleAddRow = () => {
     setIsEdited(true);
-
-    const lastRow = rows[rows.length - 1];
     setRows([
       ...rows,
       {
@@ -552,35 +765,21 @@ Thanks!`;
     setFooterData(newFooterData);
   };
 
-  // Toggle edit mode
   const toggleEdit = (field) => {
-    setEditStates((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
+    setEditStates((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  // Handle temp value changes
   const handleTempValueChange = (field, value) => {
     setIsEdited(true);
-    handleTempValueChange;
-    setTempValues((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setTempValues((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Save changes
   const saveChanges = (field) => {
-    setInvoiceData((prev) => ({
-      ...prev,
-      ...tempValues,
-    }));
+    setInvoiceData((prev) => ({ ...prev, ...tempValues }));
     toggleEdit(field);
     message.success("Changes saved successfully");
   };
 
-  // Cancel changes
   const cancelChanges = (field) => {
     setTempValues({
       billingaddress: invoiceData?.billingaddress || "",
@@ -592,7 +791,6 @@ Thanks!`;
     toggleEdit(field);
   };
 
-  // Helper function to format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return dateString;
@@ -612,7 +810,6 @@ Thanks!`;
     const UserId = localStorage.getItem("userId");
 
     try {
-      // Helper function to format date as DD/MM/YYYY hh:mm A
       const formatDateForAPI = (date) => {
         if (!date) return null;
         const d = new Date(date);
@@ -629,14 +826,10 @@ Thanks!`;
       const convertDisplayDateToAPI = (displayDate) => {
         if (!displayDate) return null;
         try {
-          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate)) {
+          if (/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate))
             return `${displayDate} 12:00 AM`;
-          }
-
-          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate)) {
+          if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(displayDate))
             return displayDate;
-          }
-
           const monthMap = {
             Jan: "01",
             Feb: "02",
@@ -651,17 +844,13 @@ Thanks!`;
             Nov: "11",
             Dec: "12",
           };
-
           const parts = displayDate.split(" ");
           if (parts.length === 3) {
             const day = parts[0].padStart(2, "0");
             const month = monthMap[parts[1]];
             const year = parts[2];
-            if (month) {
-              return `${day}/${month}/${year} 12:00 AM`;
-            }
+            if (month) return `${day}/${month}/${year} 12:00 AM`;
           }
-
           const date = new Date(displayDate);
           if (!isNaN(date.getTime())) {
             const d = String(date.getDate()).padStart(2, "0");
@@ -669,7 +858,6 @@ Thanks!`;
             const y = date.getFullYear();
             return `${d}/${m}/${y} 12:00 AM`;
           }
-
           return null;
         } catch (error) {
           console.error("Error converting date:", displayDate, error);
@@ -677,7 +865,6 @@ Thanks!`;
         }
       };
 
-      // Calculate remaining amount (grandTotal - advance payments)
       const totalAdvancePayment =
         invoiceData?.eventInvoiceFunctionPayments?.reduce(
           (sum, payment) => sum + (Number(payment.advancePayment) || 0),
@@ -686,7 +873,6 @@ Thanks!`;
 
       const remainingAmount = footerData.grandTotal - totalAdvancePayment;
 
-      // Prepare payload with all data including footer data
       const payload = {
         billingaddress: tempValues.billingaddress || "",
         billingname: tempValues.billingname || "",
@@ -695,7 +881,6 @@ Thanks!`;
         discount: footerData.discount,
         duedate: dueDate ? dueDate.format("DD/MM/YYYY") : "",
         eventId: eventId,
-
         eventInvoiceFunctionPayments:
           invoiceData?.eventInvoiceFunctionPayments?.map((payment) => ({
             advancePayment: Number(payment.advancePayment) || 0,
@@ -741,7 +926,6 @@ Thanks!`;
 
       if (response?.data?.success === true) {
         setIsEdited(false);
-        // ✅ SUCCESS ALERT
         Swal.fire({
           title: response?.data?.msg || "Invoice saved successfully!",
           text: "",
@@ -750,21 +934,6 @@ Thanks!`;
           color: "#003f73",
           confirmButtonText: "Okay",
           confirmButtonColor: "#005BA8",
-          showClass: {
-            popup: `
-        animate__animated
-        animate__fadeInDown
-        animate__faster
-      `,
-          },
-
-          hideClass: {
-            popup: `
-      animate__animated
-      animate__fadeOutUp
-      animate__faster
-    `,
-          },
           customClass: {
             popup: "rounded-2xl shadow-xl",
             title: "text-2xl font-bold",
@@ -778,7 +947,6 @@ Thanks!`;
               isCustom: true,
             })),
           );
-
           fetchInvoiceData();
         });
       } else {
@@ -849,7 +1017,6 @@ Thanks!`;
                     : {invoiceData?.event?.eventType?.nameEnglish || "Sangeet"}
                   </p>
 
-                  {/* Action Buttons - Responsive */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:self-start">
                     <button
                       className="btn btn-primary w-full sm:w-auto"
@@ -877,9 +1044,8 @@ Thanks!`;
                   </div>
                 </div>
 
-                {/* Event Info Grid - Responsive */}
+                {/* Event Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                  {/* Party Name */}
                   <div className="flex items-start gap-3">
                     <i className="ki-filled ki-user text-success text-lg flex-shrink-0 mt-1"></i>
                     <div className="flex flex-col min-w-0">
@@ -896,7 +1062,6 @@ Thanks!`;
                     </div>
                   </div>
 
-                  {/* Venue Name */}
                   <div className="flex items-start gap-3">
                     <i className="ki-filled ki-geolocation-home text-success text-lg flex-shrink-0 mt-1"></i>
                     <div className="flex flex-col min-w-0">
@@ -908,12 +1073,11 @@ Thanks!`;
                         :
                       </span>
                       <span className="text-sm font-medium text-gray-900 truncate">
-                        {invoiceData?.event?.venue.nameEnglish || "N/A"}
+                        {invoiceData?.event?.venue?.nameEnglish || "N/A"}
                       </span>
                     </div>
                   </div>
 
-                  {/* Invoice Date */}
                   <div className="flex items-start gap-3">
                     <i className="ki-filled ki-calendar-tick text-success text-lg flex-shrink-0 mt-1"></i>
                     <div className="flex flex-col min-w-0 w-full">
@@ -963,7 +1127,6 @@ Thanks!`;
                     </div>
                   </div>
 
-                  {/* Event Date */}
                   <div className="flex items-start gap-3">
                     <i className="ki-filled ki-calendar-tick text-success text-lg flex-shrink-0 mt-1"></i>
                     <div className="flex flex-col min-w-0">
@@ -980,7 +1143,6 @@ Thanks!`;
                     </div>
                   </div>
 
-                  {/* Due Date */}
                   <div className="flex items-start gap-3">
                     <i className="ki-filled ki-calendar-tick text-success text-lg flex-shrink-0 mt-1"></i>
                     <div className="flex flex-col min-w-0 w-full">
@@ -1044,7 +1206,6 @@ Thanks!`;
                       </Tooltip>
                     )}
                   </h4>
-
                   {editStates.billingAddress ? (
                     <div className="space-y-2">
                       <TextArea
@@ -1107,7 +1268,6 @@ Thanks!`;
                       </Tooltip>
                     )}
                   </h4>
-
                   <div className="flex items-start">
                     {editStates.shippingAddress ? (
                       <div className="space-y-2 w-full">
@@ -1156,7 +1316,6 @@ Thanks!`;
 
               {/* GST Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 border-t">
-                {/* Billing Name */}
                 <div className="p-4 border-b md:border-b-0 md:border-r">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
@@ -1177,7 +1336,6 @@ Thanks!`;
                         </Tooltip>
                       )}
                     </div>
-
                     {editStates.billingName ? (
                       <div className="flex items-center gap-2">
                         <Input
@@ -1212,7 +1370,7 @@ Thanks!`;
                       </div>
                     ) : (
                       <span className="text-sm text-gray-700">
-                        {invoiceData?.billingname || (
+                        {tempValues.billingname || (
                           <FormattedMessage id="COMMON.NA" />
                         )}
                       </span>
@@ -1220,7 +1378,6 @@ Thanks!`;
                   </div>
                 </div>
 
-                {/* GST Number */}
                 <div className="p-4">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
@@ -1241,7 +1398,6 @@ Thanks!`;
                         </Tooltip>
                       )}
                     </div>
-
                     {editStates.gstNumber ? (
                       <div className="flex items-center gap-2">
                         <Input
@@ -1276,7 +1432,7 @@ Thanks!`;
                       </div>
                     ) : (
                       <span className="text-sm text-gray-700">
-                        {invoiceData?.gstnumber || (
+                        {tempValues.gstnumber || (
                           <FormattedMessage id="COMMON.NA" />
                         )}
                       </span>
@@ -1286,7 +1442,6 @@ Thanks!`;
               </div>
             </div>
 
-            {/* ItemTable */}
             <ItemTable
               rows={rows}
               onInputChange={handleInputChange}
@@ -1294,7 +1449,6 @@ Thanks!`;
               onDeleteRow={handleDeleteRow}
             />
 
-            {/* InvoiceFooter */}
             <InvoiceFooter
               invoiceData={invoiceData}
               rows={rows}
@@ -1306,6 +1460,7 @@ Thanks!`;
           </div>
         </div>
       </Container>
+
       {/* PDF Modal */}
       <Modal
         title={

@@ -21,7 +21,6 @@ export default function AdminModuleReport() {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [expandedSection, setExpandedSection] = useState(null);
 
   const [modules, setModules] = useState([]);
   const [moduleTemplates, setModuleTemplates] = useState({});
@@ -29,6 +28,7 @@ export default function AdminModuleReport() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [agencyType, setAgencyType] = useState("");
 
   const [isMenuReportOpen, setIsMenuReportOpen] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
@@ -100,6 +100,7 @@ export default function AdminModuleReport() {
                 "Chef Agency Theme",
                 "Labour Agency Theme",
                 "Outside Agency Theme",
+                "Order Summary Theme", 
               ].includes(module.nameEnglish),
           );
 
@@ -111,6 +112,11 @@ export default function AdminModuleReport() {
           }));
 
           setModules(formattedModules);
+
+          // Fetch templates for all modules immediately
+          formattedModules.forEach((module) => {
+            fetchTemplatesForModule(module.id);
+          });
         }
       } finally {
         setLoading(false);
@@ -131,14 +137,14 @@ export default function AdminModuleReport() {
         return "ki-people";
       case "Outside Agency Theme":
         return "ki-shop";
+         case "Order Summary Theme":   
+      return "ki-notepad-edit";
       default:
         return "ki-document";
     }
   };
 
-  /* -----------------------------
-     Fetch Templates for a Module
-  ------------------------------*/
+  
   const fetchTemplatesForModule = async (moduleId) => {
     if (moduleTemplates[moduleId]) return; // Already loaded
 
@@ -157,9 +163,10 @@ export default function AdminModuleReport() {
         templates = res.data.data.map((item) => ({
           id: item.id,
           name: item.templateMaster.name,
-          description: `${item.templateMaster.name} - Custom theme template`,
+          description: item.templateMaster.description,
           mappingId: item.templateMappingResponseDto?.id || item.id,
           isDate: item.templateMappingResponseDto?.isDate || 0,
+          nameEnglish: item.templateModuleMaster?.nameEnglish || "",
         }));
       }
 
@@ -181,23 +188,6 @@ export default function AdminModuleReport() {
   /* -----------------------------
      Handlers
   ------------------------------*/
-  const toggleSection = (moduleId) => {
-    const isExpanding = expandedSection !== moduleId;
-
-    setExpandedSection(isExpanding ? moduleId : null);
-
-    // Fetch templates when expanding
-    if (isExpanding) {
-      fetchTemplatesForModule(moduleId);
-    }
-  };
-
-  const shouldShowDateFilter = (moduleId) => {
-    const templates = moduleTemplates[moduleId];
-    if (!templates || templates.length === 0) return false;
-    return templates.some((template) => template.isDate === 1);
-  };
-
   const handleGenerateReport = (moduleId, template) => {
     setSelectedCard(template.id);
     setSelectedModuleId(moduleId);
@@ -205,6 +195,21 @@ export default function AdminModuleReport() {
     setSelectedTemplateIdForReport(template.id);
     setSelectedTemplateName(template.name);
     setSelectedTemplateIsDate(template.isDate || 0);
+
+    const selectedModule = modules.find((m) => m.id === moduleId);
+
+    if (selectedModule?.nameEnglish === "Chef Agency Theme") {
+      setAgencyType("chef");
+    } else if (selectedModule?.nameEnglish === "Labour Agency Theme") {
+      setAgencyType("labour");
+    } else if (selectedModule?.nameEnglish === "Outside Agency Theme") {
+      setAgencyType("outside");
+      
+    }else if (selectedModule?.nameEnglish === "Order Summary Theme") { 
+  setAgencyType("order_summary");      
+     } else {
+      setAgencyType("");
+    }
 
     setIsMenuReportOpen(true);
   };
@@ -224,7 +229,7 @@ export default function AdminModuleReport() {
           <h1 className="text-2xl font-bold">
             <FormattedMessage
               id="REPORTS.ADMIN_MODULE_REPORT"
-              defaultMessage="Admin Module Report"
+              defaultMessage="Date Wise Report"
             />
           </h1>
         </div>
@@ -329,7 +334,6 @@ export default function AdminModuleReport() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    max={getTodayDate()}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="DD/MM/YYYY"
                   />
@@ -343,7 +347,6 @@ export default function AdminModuleReport() {
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     min={startDate || undefined}
-                    max={getTodayDate()}
                     disabled={!startDate}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="DD/MM/YYYY"
@@ -357,81 +360,74 @@ export default function AdminModuleReport() {
               </div>
             </div>
 
-            {/* Module Sections with Collapse */}
+            {/* Module Sections - Always Visible */}
             {modules.length > 0 ? (
               modules.map((module) => (
                 <div
                   key={module.id}
-                  className="bg-white border rounded-xl mb-4"
+                  className="bg-white border rounded-xl mb-4 p-6"
                 >
-                  {/* Module Header - Collapsible */}
-                  <div
-                    onClick={() => toggleSection(module.id)}
-                    className="p-6 mb-2 lg:mb-0 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <i
-                        className={`ki-filled ${module.icon} text-primary text-xl`}
-                      />
-                      <h3 className="font-bold text-lg">{module.name}</h3>
-                    </div>
+                  {/* Module Header */}
+                  <div className="flex items-center gap-3 mb-4">
                     <i
-                      className={`ki-filled ${
-                        expandedSection === module.id ? "ki-up" : "ki-down"
-                      } text-gray-600`}
+                      className={`ki-filled ${module.icon} text-primary text-xl`}
                     />
+                    <h3 className="font-bold text-lg">{module.name}</h3>
                   </div>
 
-                  {/* Module Content - Templates */}
-                  {expandedSection === module.id && (
-                    <div className="p-6 pt-0 space-y-3">
-                      {templatesLoading[module.id] ? (
-                        <div className="flex justify-center py-8">
-                          <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" />
-                        </div>
-                      ) : moduleTemplates[module.id]?.filter(
-                          (template) => template.isDate === 1,
-                        ).length > 0 ? (
-                        moduleTemplates[module.id]
-                          .filter((template) => template.isDate === 1)
-                          .map((template) => (
-                            <div
-                              key={template.id}
-                              className={`border shadow-lg p-4 rounded-lg flex flex-col sm:flex-row gap-3 justify-between items-center ${
-                                selectedCard === template.id
-                                  ? "border-primary bg-blue-50"
-                                  : "border-gray-300"
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <i className="ki-filled ki-calendar-tick text-primary text-lg" />
-                                <div>
-                                  <h4 className="font-semibold text-primary">
-                                    {template.name}
-                                  </h4>
-                                  <p className="text-sm text-gray-500">
-                                    {template.description}
-                                  </p>
-                                </div>
+                  {/* Module Content - Templates Always Visible */}
+                  <div className="space-y-3">
+                    {templatesLoading[module.id] ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" />
+                      </div>
+                    ) : moduleTemplates[module.id]?.filter(
+                        (template) => {
+    if (module.nameEnglish === "Order Summary Theme") return true;
+    return template.isDate === 1;
+  }).length > 0 ? (
+  moduleTemplates[module.id]
+    .filter((template) => {
+      if (module.nameEnglish === "Order Summary Theme") return true;
+      return template.isDate === 1;
+    })
+    .map((template) => (
+                          <div
+                            key={template.id}
+                            className={`border shadow-lg p-4 rounded-lg flex flex-col sm:flex-row gap-3 justify-between items-center ${
+                              selectedCard === template.id
+                                ? "border-primary bg-blue-50"
+                                : "border-gray-300"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <i className="ki-filled ki-calendar-tick text-primary text-lg" />
+                              <div>
+                                <h4 className="font-semibold text-primary">
+                                  {template.name}
+                                </h4>
+                                <p className="text-sm text-gray-500">
+                                  {template.description}
+                                </p>
                               </div>
-                              <button
-                                className="btn btn-primary rounded-3xl px-6 py-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleGenerateReport(module.id, template);
-                                }}
-                              >
-                                Generate Report
-                              </button>
                             </div>
-                          ))
-                      ) : (
-                        <div className="text-center text-gray-500 py-8">
-                          No templates available for this module
-                        </div>
-                      )}
-                    </div>
-                  )}
+                            <button
+                              className="btn btn-primary rounded-3xl px-6 py-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGenerateReport(module.id, template);
+                              }}
+                            >
+                              Generate Report
+                            </button>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="text-center text-gray-500 py-8">
+                        No templates available for this module
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))
             ) : (
@@ -449,7 +445,7 @@ export default function AdminModuleReport() {
         isModalOpen={isMenuReportOpen}
         setIsModalOpen={setIsMenuReportOpen}
         eventId={-1}
-        eventFunctionId={-1} // All functions
+        eventFunctionId={-1}
         moduleId={selectedModuleId}
         mappingId={selectedMappingId}
         selectedTemplateId={selectedTemplateIdForReport}
@@ -459,6 +455,8 @@ export default function AdminModuleReport() {
         isNamePlateTheme={false}
         startDate={startDate}
         endDate={endDate}
+        isAdminModuleReport={false}
+        agencyType={agencyType}
       />
     </Fragment>
   );

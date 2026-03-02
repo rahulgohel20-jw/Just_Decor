@@ -23,6 +23,7 @@ const HeaderTopbar = () => {
   const [checkInModal, setCheckInModal] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const { user, refreshUser } = useUser();
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     refreshUser();
@@ -41,13 +42,17 @@ const HeaderTopbar = () => {
       </div>
 
       <div className="flex items-center gap-2 lg:gap-3">
-        <button
-          onClick={() => navigate(`/price`)}
-          className="btn btn-sm btn-primary"
-          title="Upgrade"
-        >
-          Upgrade
-        </button>
+        {userId != 73 ? (
+          <button
+            onClick={() => navigate(`/price`)}
+            className="btn btn-sm btn-primary"
+            title="Upgrade"
+          >
+            Upgrade
+          </button>
+        ) : (
+          ""
+        )}
 
         {/* Icons Section */}
         <div className="fixed left-0 right-0 bottom-10 flex justify-center md:static">

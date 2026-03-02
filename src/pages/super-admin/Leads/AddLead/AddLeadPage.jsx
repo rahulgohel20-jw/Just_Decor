@@ -9,12 +9,13 @@ import { Fragment } from "react";
 import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toAbsoluteUrl } from "@/utils";
-import { EyeIcon } from "lucide-react";
-
+import { EyeIcon, ReceiptEuro } from "lucide-react";
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 const { Option } = Select;
 
 import {
+  GETallpipeline,
   AddLead,
   fetchStatesByCountry,
   fetchCitiesByState,
@@ -23,6 +24,7 @@ import {
   GetAllPlans,
   UpdateleadbyID,
   GetFilteredFollowUps,
+  Getstagesbypipeline,
 } from "@/services/apiServices";
 import Swal from "sweetalert2";
 
@@ -42,7 +44,17 @@ export default function AddLeadPage() {
   const [viewingFollowUp, setViewingFollowUp] = useState(null);
   const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
   const [selectedGetLead, setSelectedGetLead] = useState("");
-
+  const [followupDate, setFollowupDate] = useState(null);
+  const [pipelines, setPipelines] = useState([]);
+  const [selectedPipeline, setSelectedPipeline] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+  const [estimateAmount, setEstimateAmount] = useState("");
+  const [openStageId, setOpenStageId] = useState(undefined);
+  const [closeStageId, setCloseStageId] = useState(undefined);
+  const [openStages, setOpenStages] = useState([]);
+  const [closeStages, setCloseStages] = useState([]);
+  const [selectedStageId, setSelectedStageId] = useState(undefined);
+  const [isSaving, setIsSaving] = useState(false);
   const [customRangeCreatedAt, setCustomRangeCreatedAt] = useState({
     start: "",
     end: "",
@@ -60,13 +72,13 @@ export default function AddLeadPage() {
     leadType: "",
     leadStatus: "",
     leadSource: "",
-    leadRemark: "",
     leadAssign: "",
     leadAssignName: "",
     selectPrefix: "",
     clientName: "",
     emailId: "",
     contactNumber: "",
+    clientRemarks: "",
     address: "",
     pinCode: "",
     city: "",
@@ -76,6 +88,9 @@ export default function AddLeadPage() {
     overallRemark: "",
     plan: "",
     planName: "",
+    leadTitle: "", // ✅ for Lead Title
+    leadRemark: "", // ✅ for Lead Remarks
+    estimateAmount: "",
     followUpDetails: [],
   });
 
@@ -218,7 +233,7 @@ export default function AddLeadPage() {
       setLeadData({
         id: editData.id || 0,
         leadCode: editData.leadCode || "",
-        leadType: editData.leadType || "",
+        leadType: "",
         leadStatus: editData.leadStatus || "",
         leadSource: editData.leadSource || "",
         leadRemark: editData.leadRemark || "",
@@ -238,6 +253,7 @@ export default function AddLeadPage() {
         planName: editData.planName || "",
         overallRemark: editData.overallRemark || "",
         followUpDetails: editData.followUpDetails || [],
+        leadTitle: editData.leadTitle || "",
       });
 
       if (editData.followUpDetails && editData.followUpDetails.length > 0) {
@@ -248,10 +264,65 @@ export default function AddLeadPage() {
           followUpDate: fu.followUpDate || "",
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          memberId: fu.memberId ? Number(fu.memberId) : null,
+          createdAt: fu.createdAt || null, // ✅ ADD THIS LINE
         }));
-
         setFollowUps(normalized);
       }
+      // ✅ REPLACE WITH THIS:
+      if (editData.pipelineId) {
+        setSelectedPipeline(editData.pipelineId);
+
+        const userId =
+          localStorage.getItem("userId") || localStorage.getItem("id");
+
+        Getstagesbypipeline(editData.pipelineId, userId)
+          .then((res) => {
+            const data = res?.data?.data || {};
+            const allStages = Object.values(data).flat();
+            const stageOptions = allStages.map((stage) => ({
+              label: stage.stageName,
+              value: stage.stageId,
+              stageType: stage.stageType,
+            }));
+            setOpenStages(stageOptions); // ✅ populate dropdown
+
+            // ✅ Now set stage AFTER options are ready
+            const stageId = editData.openStageId || editData.closeStageId;
+            if (stageId) {
+              setSelectedStageId(stageId);
+              if (editData.openStageId) {
+                setOpenStageId(editData.openStageId);
+                setCloseStageId(0);
+              } else {
+                setCloseStageId(editData.closeStageId);
+                setOpenStageId(0);
+              }
+            }
+          })
+          .catch(console.error);
+      }
+      // ✅ Pre-populate estimate amount
+      // ✅ Fix estimate amount - check editData directly
+      if (
+        editData.estimateAmount !== undefined &&
+        editData.estimateAmount !== null &&
+        editData.estimateAmount !== ""
+      ) {
+        setEstimateAmount(String(editData.estimateAmount));
+      }
+      if (editData.leadFollowUpDate) {
+        const parsed = dayjs(editData.leadFollowUpDate, [
+          "YYYY-MM-DD HH:mm:ss", // ✅ API format: "2026-02-04 00:00:00"
+          "DD/MM/YYYY", // ✅ mapped format: "04/02/2026"
+          "YYYY-MM-DD",
+        ]);
+        if (parsed.isValid()) {
+          setFollowupDate(parsed);
+        }
+      }
+
+      // ✅ Pre-populate follow-up date
     } else {
       const loadLeadCode = async () => {
         try {
@@ -331,17 +402,41 @@ export default function AddLeadPage() {
   const handleSaveFollowUp = (followUp) => {
     const normalized = {
       id: followUp.id || 0,
-      followUpType: followUp.followType || followUp.followUpType || "",
+      followUpType: followUp.followUpType || followUp.followType || "",
       followUpStatus: followUp.followUpStatus || "Open",
-      followUpDate: followUp.followupDate || followUp.followUpDate || "",
-      clientRemarks: followUp.clientRemarks || "",
+      followUpDate: followUp.followUpDate || followUp.followupDate || "",
+      clientRemarks: followUp.clientRemarks || followUp.description || "",
       employeeRemarks: followUp.employeeRemarks || "",
+      memberId: followUp.memberId || followUp.managerId || null,
+      createdAt: followUp.createdAt || dayjs().format("DD/MM/YYYY hh:mm A"), // ✅ ADD THIS
     };
 
     setFollowUps((prev) => [...prev, normalized]);
   };
 
   const handleSaveLead = async () => {
+    if (!leadData.clientName) {
+      Swal.fire("Validation", "Please select a client name.", "warning");
+      return;
+    }
+    if (!leadData.contactNumber) {
+      Swal.fir("Validation", "Please select a Contcatname.", "warning");
+      return;
+    }
+    if (!selectedPipeline) {
+      Swal.fire("Validation", "Please select a Pipeline.", "warning");
+      return;
+    }
+    if (!selectedStageId) {
+      Swal.fire("Validation", "Please select a Lead Stage.", "warning");
+      return;
+    }
+    if (!leadData.leadAssign) {
+      Swal.fire("Validation", "Please assign a Lead.", "warning");
+      return;
+    }
+
+    setIsSaving(true);
     try {
       const finalLeadId = isEditMode ? Number(leadData.id) : 0;
 
@@ -349,16 +444,22 @@ export default function AddLeadPage() {
         address: leadData.address || "",
         cityId: leadData.city ? Number(leadData.city) : 0,
         clientName: leadData.clientName || "",
+        closeStageId: closeStageId ? Number(closeStageId) : 0,
         contactNumber: leadData.contactNumber || "",
         emailId: leadData.emailId || "",
+        estimateAmount: estimateAmount ? Number(estimateAmount) : 0,
         leadAssignId: leadData.leadAssign ? Number(leadData.leadAssign) : 0,
         leadCode: leadData.leadCode || "",
+        leadFollowUpDate: followupDate ? followupDate.format("DD/MM/YYYY") : "", // ✅ Lead-level follow-up date
         leadRemark: leadData.leadRemark || "",
         leadSource: leadData.leadSource || "",
         leadStatus: leadData.leadStatus || "",
-        leadType: leadData.leadType || "",
+        leadType: "",
+        leadTitle: leadData.leadTitle || "",
+        openStageId: openStageId ? Number(openStageId) : 0,
         overallRemark: leadData.overallRemark || "",
         pinCode: leadData.pinCode || "",
+        pipelineId: selectedPipeline ? Number(selectedPipeline) : 0,
         planId: leadData.plan ? Number(leadData.plan) : 0,
         selectPrefix: leadData.selectPrefix || "",
         stateId: leadData.state ? Number(leadData.state) : 0,
@@ -366,11 +467,12 @@ export default function AddLeadPage() {
         followUpDetails: followUps.map((fu) => ({
           id: fu.id ? Number(fu.id) : 0,
           leadId: finalLeadId,
-          followUpType: fu.followUpType || fu.followType || "",
+          followUpType: fu.followUpType || "",
           followUpStatus: fu.followUpStatus || "Open",
-          followUpDate: fu.followUpDate || fu.followupDate || "",
+          followUpDate: fu.followUpDate || "", // ✅ Individual follow-up date (different from leadFollowUpDate)
           clientRemarks: fu.clientRemarks || "",
           employeeRemarks: fu.employeeRemarks || "",
+          memberId: fu.memberId || 0,
         })),
       };
 
@@ -405,6 +507,8 @@ export default function AddLeadPage() {
     } catch (error) {
       console.error("❌ SERVER ERROR:", error);
       Swal.fire("Error", "Server error!", "error");
+    } finally {
+      setIsSaving(false); // ← ADD THIS
     }
   };
 
@@ -425,6 +529,66 @@ export default function AddLeadPage() {
       });
   };
 
+  const filteredFollowUps = followUps.filter((item) => {
+    const search = searchText.toLowerCase();
+
+    return (
+      leadData.clientName?.toLowerCase().includes(search) ||
+      item.followUpType?.toLowerCase().includes(search) ||
+      item.clientRemarks?.toLowerCase().includes(search) ||
+      item.followUpDate?.toLowerCase().includes(search) ||
+      item.followUpStatus?.toLowerCase().includes(search)
+    );
+  });
+
+  useEffect(() => {
+    fetchPipelines();
+  }, []);
+
+  const fetchPipelines = () => {
+    setLoading(true);
+    GETallpipeline()
+      .then((res) => {
+        const data = res?.data?.data || [];
+        const mapped = data.map((p) => ({
+          label: p.name || p.pipelineName || "Unnamed", // ✅ p.name first
+          value: p.id,
+        }));
+        setPipelines(mapped);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch pipelines:", err);
+        setPipelines([]);
+      })
+      .finally(() => setLoading(false));
+  };
+  // handlePipelineChange - pass userId here
+  const handlePipelineChange = async (value) => {
+    setSelectedPipeline(value); // ✅ set FIRST
+    setSelectedStageId(undefined);
+    setOpenStageId(undefined);
+    setCloseStageId(undefined);
+    setOpenStages([]);
+
+    if (!value) return;
+
+    const userId = localStorage.getItem("userId") || localStorage.getItem("id");
+
+    try {
+      const res = await Getstagesbypipeline(value, userId);
+      const data = res?.data?.data || {};
+      const allStages = Object.values(data).flat();
+      const stageOptions = allStages.map((stage) => ({
+        label: stage.stageName,
+        value: stage.stageId,
+        stageType: stage.stageType,
+      }));
+      setOpenStages(stageOptions);
+    } catch (err) {
+      console.error("Failed to fetch pipeline stages:", err);
+      setOpenStages([]);
+    }
+  };
   return (
     <Fragment>
       <Container>
@@ -464,82 +628,158 @@ export default function AddLeadPage() {
                       readOnly
                     />
                   </div>
-
+                  {/* Select Pipeline - Required */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Type
+                      Select Pipeline <span className="text-red-500">*</span>
                     </label>
                     <Select
-                      placeholder="-- Select Lead Type --"
-                      value={leadData.leadType || undefined}
-                      onChange={(value) =>
-                        setLeadData({ ...leadData, leadType: value })
-                      }
+                      showSearch
+                      optionFilterProp="label"
+                      placeholder="-- Select Pipeline --"
                       className="w-full"
-                    >
-                      <Select.Option value="Hot">Hot</Select.Option>
-                      <Select.Option value="Cold">Cold</Select.Option>
-                      <Select.Option value="Inquire">Inquire</Select.Option>
-                    </Select>
+                      value={selectedPipeline}
+                      onChange={handlePipelineChange}
+                      options={pipelines}
+                      status={!selectedPipeline ? "error" : ""}
+                    />
+                    {!selectedPipeline && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Pipeline is required
+                      </span>
+                    )}
                   </div>
 
+                  {/* Lead Stages - Required, disabled until pipeline selected */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Status
+                      Lead Stages <span className="text-red-500">*</span>
                     </label>
                     <Select
-                      placeholder="-- Select Lead Status --"
-                      value={leadData.leadStatus || undefined}
-                      onChange={(value) =>
-                        setLeadData({ ...leadData, leadStatus: value })
+                      showSearch
+                      optionFilterProp="label"
+                      placeholder={
+                        !selectedPipeline
+                          ? "Select pipeline first"
+                          : "-- Select Lead Stage --"
                       }
+                      value={selectedStageId}
+                      onChange={(value, option) => {
+                        setSelectedStageId(value);
+                        setLeadData((prev) => ({ ...prev, leadType: null }));
+                        if (option.stageType === "open_stage") {
+                          setOpenStageId(value);
+                          setCloseStageId(0);
+                        } else {
+                          setCloseStageId(value);
+                          setOpenStageId(0);
+                        }
+                      }}
                       className="w-full"
-                    >
-                      <Select.Option value="Pending">Pending</Select.Option>
-                      <Select.Option value="Confirmed">Confirmed</Select.Option>
-                      <Select.Option value="Cancel">Cancel</Select.Option>
-                      <Select.Option value="Open">Open</Select.Option>
-                      <Select.Option value="Closed">Closed</Select.Option>
-                    </Select>
+                      disabled={!selectedPipeline}
+                      status={
+                        selectedPipeline && !selectedStageId ? "error" : ""
+                      }
+                      options={openStages}
+                    />
+                    {selectedPipeline && !selectedStageId && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Lead Stage is required
+                      </span>
+                    )}
                   </div>
-
+                  {/* <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Lead Status
+                      </label>
+                      <Select
+                        placeholder="-- Select Lead Status --"
+                        value={leadData.leadStatus || undefined}
+                        onChange={(value) =>
+                          setLeadData({ ...leadData, leadStatus: value })
+                        }
+                        className="w-full"
+                      >
+                        <Select.Option value="Pending">Pending</Select.Option>
+                        <Select.Option value="Confirmed">Confirmed</Select.Option>
+                        <Select.Option value="Cancel">Cancel</Select.Option>
+                        <Select.Option value="Open">Open</Select.Option>
+                        <Select.Option value="Closed">Closed</Select.Option>
+                      </Select>
+                    </div> */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Source
                     </label>
-                    <Input
-                      placeholder="e.g. Website, Referral"
-                      value={leadData.leadSource}
-                      onChange={(e) =>
-                        setLeadData({
-                          ...leadData,
-                          leadSource: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
 
+                    <Select
+                      showSearch
+                      optionFilterProp="children"
+                      placeholder="-- Select Lead Source --"
+                      value={leadData.leadSource}
+                      onChange={(value) =>
+                        setLeadData({ ...leadData, leadSource: value })
+                      }
+                      className="w-full"
+                    >
+                      <Select.Option value="Whatsapp">Whatsapp</Select.Option>
+                      <Select.Option value="FaceBook Ads">
+                        FaceBook Ads
+                      </Select.Option>
+                      <Select.Option value="Reference">Reference</Select.Option>
+                      <Select.Option value="Exhibition">
+                        Exhibition
+                      </Select.Option>
+                      <Select.Option value="Other">Other</Select.Option>
+                    </Select>
+
+                    {/* ✅ Show input only when Other is selected */}
+                    {leadData.leadSource === "Other" && (
+                      <Input
+                        placeholder="Enter Other Lead Source"
+                        className="mt-3"
+                        value={leadData.otherSource}
+                        onChange={(e) =>
+                          setLeadData({
+                            ...leadData,
+                            otherSource: e.target.value,
+                          })
+                        }
+                      />
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Lead Remarks
+                      Lead Title
                     </label>
                     <Input
-                      placeholder="Initial notes..."
-                      value={leadData.leadRemark}
+                      placeholder="Enter lead title..."
+                      value={leadData.leadTitle}
                       onChange={(e) =>
-                        setLeadData({
-                          ...leadData,
-                          leadRemark: e.target.value,
-                        })
+                        setLeadData({ ...leadData, leadTitle: e.target.value })
                       }
                     />
                   </div>
-
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Lead Close Date
+                    </label>
+                    <DatePicker
+                      value={followupDate}
+                      onChange={(date) => setFollowupDate(date)}
+                      format="DD-MM-YYYY"
+                      placeholder="Select follow-up date"
+                      className="w-full h-[30px]"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Lead Assign
+                      <span className="text-red-500">*</span>
                     </label>
                     <Select
+                      showSearch // ✅ Enable search
+                      optionFilterProp="label"
                       placeholder="-- Assign Employee --"
                       value={leadData.leadAssign || undefined}
                       onChange={(value) =>
@@ -547,14 +787,22 @@ export default function AddLeadPage() {
                       }
                       className="w-full"
                       options={managers}
+                      status={!leadData.leadAssign ? "error" : ""}
                     />
-                  </div>
 
+                    {!leadData.leadAssign && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        Lead Assign is required
+                      </span>
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Product Type
                     </label>
                     <Select
+                      showSearch // ✅ Enable search
+                      optionFilterProp="label"
                       placeholder="-- Select Product Type --"
                       className="w-full"
                       value={leadData.plan || undefined}
@@ -563,6 +811,44 @@ export default function AddLeadPage() {
                       }
                       options={plans}
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Estimate Amount
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="Enter estimate amount..."
+                      value={estimateAmount}
+                      onChange={(e) => setEstimateAmount(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Lead Remarks
+                    </label>
+                    <Input
+                      placeholder="Enter remarks..."
+                      value={leadData.leadRemark}
+                      onChange={(e) =>
+                        setLeadData({ ...leadData, leadRemark: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description
+                    </label>
+
+                    <textarea
+                      name="description"
+                      rows={4}
+                      placeholder="Enter description here..."
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 
+                focus:border-blue-500 transition duration-200 resize-none"
+                    ></textarea>
                   </div>
                 </div>
               </CardContent>
@@ -599,7 +885,7 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Client Name
+                      Client Name <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="Enter Guest Name"
@@ -611,6 +897,11 @@ export default function AddLeadPage() {
                         })
                       }
                     />
+                    {!leadData.clientName && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        client Name is required
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -631,7 +922,7 @@ export default function AddLeadPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Number
+                      Contact Number <span className="text-red-500">*</span>
                     </label>
                     <Input
                       placeholder="Enter Contact Number"
@@ -643,6 +934,11 @@ export default function AddLeadPage() {
                         })
                       }
                     />
+                    {!leadData.contactNumber && (
+                      <span className="text-red-500 text-xs mt-1 block">
+                        contact name is required
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -897,7 +1193,7 @@ export default function AddLeadPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {followUps.length === 0 ? (
+                  {filteredFollowUps.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-6 text-gray-500 text-sm">
                       <img
                         src={toAbsoluteUrl("/media/illustrations/nofound.jpg")}
@@ -907,7 +1203,7 @@ export default function AddLeadPage() {
                       <span>No Follow-Up Found</span>
                     </div>
                   ) : (
-                    followUps.map((item, index) => (
+                    filteredFollowUps.map((item, index) => (
                       <div
                         key={index}
                         className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -921,10 +1217,14 @@ export default function AddLeadPage() {
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between mb-3">
-                              <div>
-                                <h3 className="font-semibold text-gray-900 text-sm">
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-gray-900 text-sm mb-1">
                                   {leadData.clientName}
                                 </h3>
+                                <span className="text-sm w-40x">
+                                  {item.clientRemarks}
+                                </span>
+                                {/* ✅ Display Client Remarks */}
                               </div>
 
                               <div className="text-right ml-4">
@@ -945,84 +1245,86 @@ export default function AddLeadPage() {
                                     {item.followUpDate || "N/A"}
                                   </span>
                                 </div>
+                                <div className="flex items-center gap-1 text-sm font-medium mt-0.5">
+                                  <span className="text-gray-500">
+                                    created at:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {(() => {
+                                      if (!item.createdAt) {
+                                        return "Not Available";
+                                      }
+
+                                      try {
+                                        return dayjs(item.createdAt, [
+                                          "DD/MM/YYYY hh:mm A",
+                                          "DD/MM/YYYY",
+                                        ]).format("DD MMM YYYY, hh:mm A");
+                                      } catch (e) {
+                                        return item.createdAt;
+                                      }
+                                    })()}
+                                  </span>
+                                </div>
                               </div>
-                              <Select
-                                value={item.followUpStatus}
-                                className="w-[120px]"
-                                optionLabelProp="label" // ✅ ensures selected value shows colored label
-                                onChange={(value) => {
-                                  setFollowUps((prev) =>
-                                    prev.map((fu, i) =>
-                                      i === index
-                                        ? { ...fu, followUpStatus: value }
-                                        : fu
-                                    )
-                                  );
-                                }}
-                              >
-                                <Option
-                                  value="Open"
-                                  label={
+                              {/* <Select
+                                  value={item.followUpStatus}
+                                  className="w-[120px]"
+                                  optionLabelProp="label" 
+                                  onChange={(value) => {
+                                    setFollowUps((prev) =>
+                                      prev.map((fu, i) =>
+                                        i === index
+                                          ? { ...fu, followUpStatus: value }
+                                          : fu,
+                                      ),
+                                    );
+                                  }}
+                                >
+                                  <Option
+                                    value="Open"
+                                    label={
+                                      <span className="px-2 py-1 rounded text-white bg-green-500">
+                                        Open
+                                      </span>
+                                    }
+                                  >
                                     <span className="px-2 py-1 rounded text-white bg-green-500">
                                       Open
                                     </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-green-500">
-                                    Open
-                                  </span>
-                                </Option>
+                                  </Option>
 
-                                <Option
-                                  value="Closed"
-                                  label={
+                                  <Option
+                                    value="Closed"
+                                    label={
+                                      <span className="px-2 py-1 rounded text-white bg-red-500">
+                                        Closed
+                                      </span>
+                                    }
+                                  >
                                     <span className="px-2 py-1 rounded text-white bg-red-500">
                                       Closed
                                     </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-red-500">
-                                    Closed
-                                  </span>
-                                </Option>
+                                  </Option>
 
-                                <Option
-                                  value="Pending"
-                                  label={
+                                  <Option
+                                    value="Pending"
+                                    label={
+                                      <span className="px-2 py-1 rounded text-white bg-yellow-500">
+                                        Pending
+                                      </span>
+                                    }
+                                  >
                                     <span className="px-2 py-1 rounded text-white bg-yellow-500">
                                       Pending
                                     </span>
-                                  }
-                                >
-                                  <span className="px-2 py-1 rounded text-white bg-yellow-500">
-                                    Pending
-                                  </span>
-                                </Option>
-                              </Select>
+                                  </Option>
+                                </Select> */}
                             </div>
 
                             <hr className="my-3 border-gray-300" />
 
                             <div className="flex items-center gap-6 text-xs text-gray-600 flex-wrap">
-                              <div className="flex items-center gap-2">
-                                <svg
-                                  className="w-6 h-6 text-gray-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                  />
-                                </svg>
-                                <span className="text-sm">
-                                  {leadData.clientName}
-                                </span>
-                              </div>
-
                               <div className="flex items-center gap-2">
                                 <svg
                                   className="w-6 h-6 text-gray-400"
@@ -1055,26 +1357,16 @@ export default function AddLeadPage() {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                   />
                                 </svg>
+
                                 <span className="text-sm">
-                                  {item.contactNumber ||
-                                    leadData.contactNumber ||
-                                    "No Contact"}
+                                  {item.followUpDate || "N/A"}
                                 </span>
                               </div>
 
                               <div className="ml-auto flex items-center gap-2">
-                                <button
-                                  onClick={() => {
-                                    setViewingFollowUp(item); // the specific follow-up
-                                    setIsFollowUpOpen(true);
-                                  }}
-                                >
-                                  <EyeIcon /> {/* your eye button */}
-                                </button>
-
                                 <button
                                   onClick={() => handleDelete(index)}
                                   className="text-gray-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50"
@@ -1113,22 +1405,50 @@ export default function AddLeadPage() {
               </button>
               <button
                 onClick={handleSaveLead}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
+                disabled={isSaving}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                {isEditMode ? "Update" : "Save"}
+                {isSaving ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                    {isEditMode ? "Updating..." : "Saving..."}
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {isEditMode ? "Update" : "Save"}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1143,7 +1463,37 @@ export default function AddLeadPage() {
         onSave={handleSaveFollowUp}
         clientName={leadData.clientName}
         viewOnlyFollowUp={viewingFollowUp}
+        defaultManager={leadData.leadAssign}
       />
+      {isSaving && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white px-8 py-6 rounded-xl shadow-lg flex flex-col items-center gap-4">
+            <svg
+              className="w-10 h-10 animate-spin text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
+            </svg>
+
+            <span className="text-gray-700 font-medium">
+              {isEditMode ? "Updating Lead..." : "Saving Lead..."}
+            </span>
+          </div>
+        </div>
+      )}
     </Fragment>
   );
 }

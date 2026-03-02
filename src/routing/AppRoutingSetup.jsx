@@ -153,6 +153,7 @@ import EstimatePage from "@/pages/Event/EstimatePage";
 import { Contact } from "lucide-react";
 import StateSearchForm from "@/pages/StateSearch";
 import AllUser from "@/pages/master/user-master/alluser";
+import AllVendor from "../pages/master/user-master/vendor";
 import AllPlan from "@/pages/master/user-master/allplan";
 import RoleMaster from "@/pages/master/role";
 import RawMaterialMaster from "@/pages/master/raw-material-category";
@@ -215,6 +216,29 @@ import { CrockeryConfiguration } from "../pages/Configuration/CrockeryConfigurat
 import AllReports from "../pages/Event/AllReportsPage/AllReports";
 import AdminModuleReport from "../pages/Event/AdminModuleReport/AdminModuleReport";
 import RecivedPayments from "../pages/payments/RecivedPayments";
+import AccountLedger from "../pages/payments/AccountLedger";
+import LeadDetails from "../pages/super-admin/Leads/LeadDetails";
+import Pipeline from "../pages/lead/pipeline";
+import BankPayment from "../pages/payments/BankPayment";
+import CashRecipet from "../pages/payments/CashRecipet";
+import BankDetails from "../pages/master/Bank-Details";
+import EmployeeDashboard from "../pages/super-admin/employeeDashboard/EmployeeDashboard";
+import FollowUpPage from "../pages/super-admin/Leads/Followup/FollowUpPage";
+import EmployeePerformance from "../pages/super-admin/employeeDashboard/Employeeperformance";
+import TeamPerformance from "../pages/super-admin/employeeDashboard/Teamperformance";
+import VendorSignup from "../vendorsignup/VendorSignup";
+import StockType from "../pages/stockmanagement/stocktype/StockType";
+import Purchase from "../pages/stockmanagement/purchase/Purchase";
+import AddPurchase from "../pages/stockmanagement/purchase/AddPurchase";
+import PurchaseReturn from "../pages/stockmanagement/purchasereturn/PurchaseReturn";
+import AddPurchaseReturn from "../pages/stockmanagement/purchasereturn/AddPurchaseReturn";
+import StorePo from "../pages/stockmanagement/storepo/StorePo";
+import AddStorePO from "../pages/stockmanagement/storepo/AddStorePO";
+import StoreLedger from "../pages/stockmanagement/storeledger/StoreLedger";
+import AllExpense from "../pages/super-admin/Expense";
+import RecipeDashboard from "../pages/recipe/recipeDashboard/RecipeDashboard";
+import ExploreRecipe from "../pages/recipe/recipeDashboard/ExploreRecipe";
+import ItemRecipe from "../pages/recipe/ItemRecipe";
 const AppRoutingSetup = () => {
   return (
     <Routes>
@@ -223,6 +247,7 @@ const AppRoutingSetup = () => {
           {/* project routs */}
           <Route path="/StateSearch" element={<StateSearchForm />} />
           <Route path="/" element={<ClientDashboard />} />
+          <Route path="/vendor" element={<VendorSignup />} />
           <Route path="/super-dashboard" element={<Dashboard />} />
           <Route path="/contacts/details" element={<ContactDetail />} />
           <Route path="/contacts" element={<ContactListPage />} />
@@ -256,11 +281,9 @@ const AppRoutingSetup = () => {
             element={<CreateEventPage mode="edit" />}
           />
 
-          <Route
-            path="/Payments"
-            element={< RecivedPayments  />}
-          />
-         
+          <Route path="/Payments" element={<RecivedPayments />} />
+          <Route path="/account" element={<AccountLedger />} />
+
           <Route
             path="/edit-event/:eventId/copy"
             element={<CreateEventPage mode="copy" />}
@@ -362,6 +385,8 @@ const AppRoutingSetup = () => {
             path="/master/raw-material-type-master"
             element={<RawMaterialTypeMaster />}
           />
+
+          <Route path="/master/bank-details" element={<BankDetails />} />
           <Route path="/master/all-members" element={<AllMemberMaster />} />
           <Route path="/superadmin/members" element={<SuperadminMember />} />
           <Route path="/master/functions" element={<FunctionsMaster />} />
@@ -370,11 +395,59 @@ const AppRoutingSetup = () => {
             path="/master/contact-categories"
             element={<ContactCategoryMaster />}
           />
+
+          {/* Stock Management Route */}
+          <Route path="/stock-management/stock-type" element={<StockType />} />
+          <Route path="/stock-management/purchase" element={<Purchase />} />
+          <Route
+            path="/stock-management/purchase/add"
+            element={<AddPurchase />}
+          />
+          <Route
+            path="/stock-management/purchase-return"
+            element={<PurchaseReturn />}
+          />
+          <Route
+            path="/stock-management/purchase-return/add"
+            element={<AddPurchaseReturn />}
+          />
+          <Route path="/stock-management/store-po" element={<StorePo />} />
+          <Route
+            path="/stock-management/storepo/add"
+            element={<AddStorePO />}
+          />
+          <Route
+            path="/stock-management/store-ledger"
+            element={<StoreLedger />}
+          />
+
+          {/* Recipe Route */}
+          <Route path="/recipe" element={<RecipeDashboard />} />
+          <Route path="/recipe/explorerecipe" element={<ExploreRecipe />} />
+          <Route path="/recipe/itemrecipe" element={<ItemRecipe />} />
+
+          <Route
+            path="/recipe/list"
+            element={<div style={{ padding: 20 }}>Recipe List Page</div>}
+          />
+
+          <Route
+            path="/recipe/add"
+            element={<div style={{ padding: 20 }}>Add Recipe Page</div>}
+          />
+
+          <Route
+            path="/recipe/category"
+            element={<div style={{ padding: 20 }}>Recipe Category Page</div>}
+          />
+
           <Route path="/master/event-type" element={<EventTypeMaster />} />
           <Route path="/master/venue-type" element={<VenuetypeMaster />} />
           <Route path="/master/godown" element={<GodownMaster />} />
           <Route path="/master/unit" element={<UnitMaster />} />
           <Route path="/master/user-master" element={<AllUser />} />
+          <Route path="/vendors" element={<AllVendor />} />
+          <Route path="/expense" element={<AllExpense />} />
           <Route path="/superadmin-logs" element={<SuperAdminUserLogs />} />
           <Route path="/Superadmin-member/:id" element={<SuperAdminMember />} />
           <Route path="/allreports/:eventId" element={<AllReports />} />
@@ -390,9 +463,15 @@ const AppRoutingSetup = () => {
           <Route path="/super-Leads" element={<SuperLeads />} />
           <Route path="/super-leads/addlead" element={<AddLeadPage />} />
           <Route
+            path="/super-leads/lead-details/:id"
+            element={<LeadDetails />}
+          />
+          <Route
             path="/super-contact-type-master"
             element={<SuperContactTypeMaster />}
           />
+          <Route path="/bank-payment" element={<BankPayment />} />
+          <Route path="/cash-recipet" element={<CashRecipet />} />
 
           <Route path="/pages-master" element={<PageMaster />} />
           <Route path="/extrapayment" element={<ExtraPaymentMaster />} />
@@ -402,6 +481,18 @@ const AppRoutingSetup = () => {
             path="/super-raw-material-type-master"
             element={<SuperRawMaterialType />}
           />
+
+          <Route path="/pipeline" element={<Pipeline />} />
+
+          <Route
+            path="/superadmin/employeeperformance"
+            element={<EmployeePerformance />}
+          />
+          <Route
+            path="/superadmin/teamperformance"
+            element={<TeamPerformance />}
+          />
+
           <Route path="/super-unit-master" element={<SuperUnitMaster />} />
           <Route
             path="/super-template-name-master"
@@ -512,6 +603,11 @@ const AppRoutingSetup = () => {
           <Route path="/billing/wallet-logs" element={<WalletLogsPage />} />
           {/* Theme route */}
           <Route path="/dark-sidebar" element={<Demo1DarkSidebarPage />} />
+          <Route
+            path="/superadmin/employeedashboard"
+            element={<EmployeeDashboard />}
+          />
+          <Route path="/superadmin/lead/followup" element={<FollowUpPage />} />
           <Route
             path="/public-profile/profiles/default"
             element={<ProfileDefaultPage />}

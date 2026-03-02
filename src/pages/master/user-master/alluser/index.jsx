@@ -7,51 +7,55 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { TableComponent } from "@/components/table/TableComponent";
 import { columns } from "../alluser/constant";
 import { getAllByRoleId, LoginWithOtp } from "@/services/apiServices";
-import EditUserModal from "@/partials/modals/edit-user/EditUserModal";
 import ApproveOtp from "../approveotp";
+
 const AllUser = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [editingUserId, setEditingUserId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [selectedThemeUserId, setSelectedThemeUserId] = useState(null);
 
   const formatUsers = (users) => {
-    const managerMap = {};
-    users.forEach((u) => {
-      managerMap[u.id] = `${u.firstName} ${u.lastName}`;
-    });
     return users
       .sort((a, b) => b.id - a.id)
-      .map((user) => ({
-        id: user.id,
-        fullName: `${user.firstName} ${user.lastName}`,
-        city: user.userBasicDetails?.city?.name || "-",
-        contactNo: user.contactNo,
-        companyName: user.userBasicDetails?.companyName || "-",
-        plan: user.userPlan?.plan?.name || "-",
-        isActive: user.isActive,
-        isApprove: user.isApprove,
-        createdAt: user.createdAt,
-        email: user.email,
-        userCode: user.userCode || "-",
-        remark: user.remarks || "-",
-        database: user.database || "-",
-      }));
+      .map((user) => {
+        const planPrice = Number(user.userPlan?.planAmount) || 0;
+        const basePrice = Number(user.userPlan?.planBaseAmount) || 0;
+
+        return {
+          id: user.id,
+          fullName: `${user.firstName} ${user.lastName}`,
+          city: user.userBasicDetails?.city?.name || "-",
+          contactNo: user.contactNo,
+          companyName: user.userBasicDetails?.companyName || "-",
+          plan: user.userPlan?.plan?.name || "-",
+          isActive: user.isActive,
+          isApprove: user.isApprove,
+          createdAt: user.createdAt,
+          email: user.email,
+          userCode: user.userCode || "-",
+          remark: user.remarks || "-",
+          database: user.database || "-",
+          planPrice,
+          basePrice,
+          dueAmount: planPrice - basePrice, // ✅ Important
+        };
+      });
   };
 
   const handleFetchByRoleId = async (roleId = 1) => {
     try {
       setLoading(true);
       const response = await getAllByRoleId(roleId);
+
       if (response.data.success) {
         const users =
           response.data.data?.["User Details"] || response.data.data || [];
+
         const formatted = formatUsers(users);
         setTableData(formatted);
         setFilteredData(formatted);
@@ -88,28 +92,6 @@ const AllUser = () => {
     }
   }, [searchText, tableData]);
 
-  const handleEdit = (user) => {
-    setEditingUserId(user);
-    setIsModalOpen(true);
-  };
-
-  const handleApprove = async (userId) => {
-    try {
-      setLoading(true);
-      const res = await updateStatusApprove(userId);
-      if (res.data.success) {
-        message.success("User approved successfully");
-        handleFetchByRoleId();
-      } else {
-        message.error(res.data.msg || "Failed to approve user");
-      }
-    } catch (err) {
-      console.error(err);
-      message.error("Error approving user");
-    } finally {
-      setLoading(false);
-    }
-  };
   const handleThemeClick = (userId) => {
     setSelectedThemeUserId(userId);
     setIsThemeModalOpen(true);
@@ -152,7 +134,7 @@ const AllUser = () => {
 
         <Link to="/auth/signup">
           <button className="btn btn-primary flex items-center gap-1">
-            <i className="ki-filled ki-plus"></i> Add User
+            Add User
           </button>
         </Link>
       </div>
@@ -164,23 +146,19 @@ const AllUser = () => {
       ) : (
         <TableComponent
           columns={columns(
-            handleEdit,
-            handleApprove,
             navigate,
             handleThemeClick,
             handleApproveOtp
           )}
           data={filteredData}
           paginationSize={10}
+          rowClassName={(row) =>
+            row.dueAmount > 0
+              ? "bg-red-100 border-l-4 border-red-600"
+              : ""
+          }
         />
       )}
-
-      <EditUserModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        refreshData={handleFetchByRoleId}
-        userId={editingUserId}
-      />
 
       <ApproveOtp
         isModalOpen={isOtpModalOpen}

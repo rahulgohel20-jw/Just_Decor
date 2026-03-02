@@ -17,7 +17,7 @@ const AddTheme = ({
 }) => {
   const [nameplateName, setNameplateName] = useState("");
   const [templates, setTemplates] = useState([]);
-  const [nameplate, setNameplate] = useState(null);
+  const [nameplates, setNameplates] = useState([]);
   const [headingColor, setHeadingColor] = useState("rgba(31,41,55,1)");
   const [contentColor, setContentColor] = useState("rgba(75,85,99,1)");
   const [errors, setErrors] = useState({});
@@ -28,12 +28,13 @@ const AddTheme = ({
   const [activeTab, setActiveTab] = useState("template");
   const [removedExistingImages, setRemovedExistingImages] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
-
+  const [description, setDescription] = useState("");
   const [themeTemplateName, setThemeTemplateName] = useState("");
   const [themeTemplateModule, setThemeTemplateModule] = useState("");
   const [themeModuleOptions, setThemeModuleOptions] = useState([]);
   const [isLoadingThemeModules, setIsLoadingThemeModules] = useState(false);
-
+  const [price, setPrice] = useState("");
+  const [isDefault, setIsDefault] = useState(false);
   const [nameplateTemplateName, setNameplateTemplateName] = useState("");
   const [nameplateTemplateModule, setNameplateTemplateModule] = useState("");
   const [nameplateModuleOptions, setNameplateModuleOptions] = useState([]);
@@ -76,7 +77,7 @@ const AddTheme = ({
             setThemeTemplateModule("");
           } else {
             const currentModuleExists = moduleOptions.some(
-              (opt) => opt.id.toString() === themeTemplateModule.toString()
+              (opt) => opt.id.toString() === themeTemplateModule.toString(),
             );
             if (!currentModuleExists && moduleOptions.length > 0) {
               setThemeTemplateModule("");
@@ -129,7 +130,7 @@ const AddTheme = ({
             setNameplateTemplateModule("");
           } else {
             const currentModuleExists = moduleOptions.some(
-              (opt) => opt.id.toString() === nameplateTemplateModule.toString()
+              (opt) => opt.id.toString() === nameplateTemplateModule.toString(),
             );
             if (!currentModuleExists && moduleOptions.length > 0) {
               setNameplateTemplateModule("");
@@ -158,20 +159,43 @@ const AddTheme = ({
 
   useEffect(() => {
     if (isEditMode && editingTheme) {
+      setPrice(editingTheme.price || "");
+      setIsDefault(editingTheme.isDefault || false);
+      setDescription(editingTheme.description || "");
       if (editingTheme.isNamePlate) {
         setActiveTab("nameplate");
         setNameplateName(editingTheme.name || "");
 
         setNameplateTemplateName(
-          editingTheme.templateModuleMaster?.id?.toString() || ""
+          editingTheme.templateModuleMaster?.id?.toString() || "",
         );
 
-        if (editingTheme.namePlateBg) {
-          setNameplate({
-            file: null,
-            url: editingTheme.namePlateBg,
-            isExisting: true,
-          });
+        if (editingTheme.namePlateBg || editingTheme.namePlateCoverBg) {
+          const existingImages = [];
+
+          if (
+            editingTheme.namePlateBg &&
+            !editingTheme.namePlateBg.includes("null")
+          ) {
+            existingImages.push({
+              file: null,
+              url: editingTheme.namePlateBg,
+              isExisting: true,
+            });
+          }
+
+          if (
+            editingTheme.namePlateCoverBg &&
+            !editingTheme.namePlateCoverBg.includes("null")
+          ) {
+            existingImages.push({
+              file: null,
+              url: editingTheme.namePlateCoverBg,
+              isExisting: true,
+            });
+          }
+
+          setNameplates(existingImages);
         }
       } else {
         setActiveTab("template");
@@ -180,7 +204,7 @@ const AddTheme = ({
         setContentColor(editingTheme.contentFontColor || "rgba(75,85,99,1)");
 
         setThemeTemplateName(
-          editingTheme.templateModuleMaster?.id?.toString() || ""
+          editingTheme.templateModuleMaster?.id?.toString() || "",
         );
 
         // Set existing templates
@@ -248,7 +272,7 @@ const AddTheme = ({
       const templateMappingId = editingTheme.templateMapping?.id?.toString();
       if (templateMappingId) {
         const moduleExists = themeModuleOptions.some(
-          (opt) => opt.id.toString() === templateMappingId
+          (opt) => opt.id.toString() === templateMappingId,
         );
         if (moduleExists) {
           setThemeTemplateModule(templateMappingId);
@@ -268,7 +292,7 @@ const AddTheme = ({
       const templateMappingId = editingTheme.templateMapping?.id?.toString();
       if (templateMappingId) {
         const moduleExists = nameplateModuleOptions.some(
-          (opt) => opt.id.toString() === templateMappingId
+          (opt) => opt.id.toString() === templateMappingId,
         );
         if (moduleExists) {
           setNameplateTemplateModule(templateMappingId);
@@ -416,8 +440,9 @@ const AddTheme = ({
     if (!nameplateTemplateModule)
       err.templateModule = "Please select template module";
     if (!nameplateName) err.nameplateName = "Please enter nameplate name";
-    if (!nameplate) err.nameplate = "Add one nameplate image";
-
+    if (nameplates.length === 0)
+      err.nameplate = "Add at least one nameplate image";
+    if (nameplates.length > 2) err.nameplate = "Maximum 2 images allowed";
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -472,7 +497,9 @@ const AddTheme = ({
       formData.append("templateMappingId", themeTemplateModule);
       formData.append("templateModuleId", themeTemplateName);
       formData.append("userId", userId);
-
+      formData.append("price", price);
+      formData.append("isDefault", isDefault);
+      formData.append("description", description);
       if (isEditMode && editingTheme) {
         formData.append("id", editingTheme.id);
       }
@@ -523,7 +550,7 @@ const AddTheme = ({
       } else {
         throw new Error(
           response?.data?.msg ||
-            `Failed to ${isEditMode ? "update" : "add"} template`
+            `Failed to ${isEditMode ? "update" : "add"} template`,
         );
       }
     } catch (error) {
@@ -553,6 +580,7 @@ const AddTheme = ({
       formData.append("isNamePlate", "true");
       formData.append("name", nameplateName);
       formData.append("userId", userId);
+      formData.append("description", description);
 
       console.log("datatat", formData);
 
@@ -560,13 +588,12 @@ const AddTheme = ({
         formData.append("id", editingTheme.id);
       }
 
-      if (nameplate && !nameplate.isExisting && nameplate.file) {
-        formData.append("namePlateBg", nameplate.file);
-        console.log("under if ");
+      const newNameplates = nameplates.filter((n) => !n.isExisting && n.file);
+      if (newNameplates.length > 0) {
+        newNameplates.forEach((n) => formData.append("namePlateBg", n.file));
       } else {
         formData.append("namePlateBg", null);
       }
-
       const response = isEditMode
         ? await UpdateCustomTheme(formData) // ✅ New API call
         : await AddCustomTheme(formData);
@@ -589,7 +616,7 @@ const AddTheme = ({
       } else {
         throw new Error(
           response?.data?.msg ||
-            `Failed to ${isEditMode ? "update" : "add"} nameplate`
+            `Failed to ${isEditMode ? "update" : "add"} nameplate`,
         );
       }
     } catch (error) {
@@ -614,8 +641,6 @@ const AddTheme = ({
     }
   };
 
-  
-
   const resetForm = () => {
     setThemeTemplateName("");
     setThemeTemplateModule("");
@@ -627,7 +652,7 @@ const AddTheme = ({
 
     setNameplateName("");
     setTemplates([]);
-    setNameplate(null);
+    setNameplates([]);
     setHeadingColor("rgba(31,41,55,1)");
     setContentColor("rgba(75,85,99,1)");
     setDummyPdf(null);
@@ -635,6 +660,9 @@ const AddTheme = ({
     setActiveTab("template");
     setRemovedExistingImages([]);
     setFileInputKey(Date.now());
+    setPrice(); // Add this
+    setIsDefault(false); // Add this
+    setDescription("");
   };
 
   const handleAddTemplate = (files) => {
@@ -704,49 +732,63 @@ const AddTheme = ({
     setFileInputKey(Date.now());
   };
 
-  const handleAddNameplate = (file) => {
-    if (!file) return;
+  const handleAddNameplate = (files) => {
+    if (!files || files.length === 0) return;
 
+    const fileArr = Array.from(files);
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!validTypes.includes(file.type)) {
-      Swal.fire({
-        title: "Invalid File Type",
-        text: "Please upload a valid image file (JPG, PNG, WEBP)",
-        icon: "error",
-      });
-      setFileInputKey(Date.now());
-      return;
-    }
-
     const maxSize = 15 * 1024 * 1024;
-    if (file.size > maxSize) {
+
+    // 🚨 LIMIT CHECK (MAX 2)
+    if (nameplates.length + fileArr.length > 2) {
       Swal.fire({
-        title: "File Too Large",
-        text: "Nameplate image must be less than 15MB",
-        icon: "error",
+        title: "Maximum Limit Reached",
+        text: "You can upload maximum 2 nameplate images only.",
+        icon: "warning",
       });
       setFileInputKey(Date.now());
       return;
     }
 
-    if (nameplate && nameplate.url && !nameplate.isExisting) {
-      URL.revokeObjectURL(nameplate.url);
+    for (let file of fileArr) {
+      if (!validTypes.includes(file.type)) {
+        Swal.fire({
+          title: "Invalid File Type",
+          text: `${file.name} is not valid`,
+          icon: "error",
+        });
+        setFileInputKey(Date.now());
+        return;
+      }
+
+      if (file.size > maxSize) {
+        Swal.fire({
+          title: "File Too Large",
+          text: `${file.name} exceeds 15MB`,
+          icon: "error",
+        });
+        setFileInputKey(Date.now());
+        return;
+      }
     }
 
-    setNameplate({
+    const newItems = fileArr.map((file) => ({
       file,
       url: URL.createObjectURL(file),
       isExisting: false,
-    });
+    }));
 
+    setNameplates((prev) => [...prev, ...newItems]);
     setFileInputKey(Date.now());
   };
 
-  const removeNameplate = () => {
-    if (nameplate) {
-      URL.revokeObjectURL(nameplate.url);
-    }
-    setNameplate(null);
+  const removeNameplate = (index) => {
+    setNameplates((prev) => {
+      const updated = [...prev];
+      if (!updated[index].isExisting) URL.revokeObjectURL(updated[index].url);
+      updated.splice(index, 1);
+      return updated;
+    });
   };
 
   return (
@@ -941,6 +983,19 @@ const AddTheme = ({
                     </div>
                   )}
                 </div>
+                {/* ADD DESCRIPTION FIELD HERE */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter description (optional)"
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
 
                 {/* TEMPLATE UPLOAD - Max 6 */}
                 <div>
@@ -1021,6 +1076,45 @@ const AddTheme = ({
                   )}
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Price
+                  </label>
+                  <input
+                    id="price"
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="Enter price"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                {/* IS DEFAULT TOGGLE */}
+                <div>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm font-medium">Set as Default</span>
+                    <div className="relative inline-block w-12 h-6">
+                      <input
+                        type="checkbox"
+                        checked={isDefault}
+                        onChange={(e) => setIsDefault(e.target.checked)}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`block w-12 h-6 rounded-full transition-colors ${
+                          isDefault ? "bg-blue-600" : "bg-gray-300"
+                        }`}
+                      >
+                        <div
+                          className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ${
+                            isDefault ? "translate-x-6" : "translate-x-0"
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
                 {/* COLOR SCHEME */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -1068,40 +1162,33 @@ const AddTheme = ({
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg">Nameplate Preview</h3>
-                {nameplate ? (
-                  <div className="relative border rounded-lg overflow-hidden">
-                    <img
-                      src={nameplate.url}
-                      alt="Nameplate"
-                      className="w-full h-64 object-cover"
-                    />
-                    <button
-                      onClick={removeNameplate}
-                      className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1.5 text-sm rounded hover:bg-red-600"
+                <div className="grid grid-cols-2 gap-2">
+                  {nameplates.map((n, i) => (
+                    <div
+                      key={i}
+                      className="relative border rounded-lg overflow-hidden"
                     >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 flex items-center justify-center text-gray-400">
-                    <div className="text-center">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
+                      <img
+                        src={n.url}
+                        alt={`Nameplate ${i + 1}`}
+                        className="w-full h-32 object-cover"
+                      />
+                      <button
+                        onClick={() => removeNameplate(i)}
+                        className="absolute top-1 right-1 bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
                       >
-                        <path
-                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <p className="mt-2 text-sm">No Nameplate Image</p>
+                        Remove
+                      </button>
                     </div>
-                  </div>
-                )}
+                  ))}
+                  {nameplates.length === 0 && (
+                    <div className="col-span-2 border-2 border-dashed border-gray-300 rounded-lg h-64 flex items-center justify-center text-gray-400">
+                      <div className="text-center">
+                        <p className="mt-2 text-sm">No Nameplate Images</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* RIGHT SIDE - NAMEPLATE FORM */}
@@ -1140,6 +1227,19 @@ const AddTheme = ({
                   )}
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter description (optional)"
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
                 {/* TEMPLATE MODULE - Dependent Dropdown */}
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -1167,7 +1267,7 @@ const AddTheme = ({
                       </option>
                     ))}
                   </select>
-                  
+
                   {errors.templateModule && (
                     <div className="text-red-500 text-sm mt-1">
                       {errors.templateModule}
@@ -1203,7 +1303,8 @@ const AddTheme = ({
                     id="nameplateUpload"
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/webp"
-                    onChange={(e) => handleAddNameplate(e.target.files[0])}
+                    multiple
+                    onChange={(e) => handleAddNameplate(e.target.files)}
                     className="hidden"
                   />
                   <div
@@ -1216,7 +1317,7 @@ const AddTheme = ({
                       Click to upload nameplate
                     </div>
                     <div className="text-gray-400 text-sm mt-1">
-                      JPG, PNG, WEBP (Max 5MB)
+                      JPG, PNG, WEBP (Max 15MB each, Maximum 2 images)
                     </div>
                   </div>
                   {errors.nameplate && (

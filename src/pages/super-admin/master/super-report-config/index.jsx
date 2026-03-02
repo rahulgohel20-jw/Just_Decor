@@ -14,13 +14,14 @@ const SuperReportConfig = () => {
   const [tableData, setTableData] = useState([]);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchData = async () => {
     try {
       const res = await GETAllreportconfiguration();
       const list = res?.data?.data || [];
       console.log(list);
-      
+
       const mapped = list.map((item, index) => ({
         sr_no: index + 1,
         mappingName: item.mappingNameEnglish,
@@ -41,12 +42,14 @@ const SuperReportConfig = () => {
         rawid: item.id,
         mappingId: item.templateMappingId,
         moduleId: item.templateModuleId,
-        dropdown:item.isDropDown,
-        WithPrice:item.isWithPrice,
-        isAgency:item.isAgency,
-        isItem:item.isItem,
-        isItemColumn:item.isItemColumn,
-        isItemPage:item.isItemPage
+        dropdown: item.isDropDown,
+        WithPrice: item.isWithPrice,
+        isAgency: item.isAgency,
+        isItem: item.isItem,
+        isItemColumn: item.isItemColumn,
+        isItemPage: item.isItemPage,
+        isCombo: item.isCombo,
+        isRawMaterialCat: item.isRawMaterialCat,
       }));
 
       setTableData(mapped);
@@ -74,10 +77,19 @@ const SuperReportConfig = () => {
     }
   };
 
+  const filteredData = tableData.filter((item) => {
+    const value = searchTerm.toLowerCase();
+
+    return (
+      item.mappingName?.toLowerCase().includes(value) ||
+      item.moduleName?.toLowerCase().includes(value)
+    );
+  });
+
   return (
     <Fragment>
       <Container>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
           <h1 className="text-xl font-semibold">
             <FormattedMessage
               id="REPORT.CONFIGURATION"
@@ -85,27 +97,43 @@ const SuperReportConfig = () => {
             />
           </h1>
 
-          {/* ADD REPORT BUTTON */}
-          <button
-            onClick={() => setSelectedRow(null) || setIsReportModalOpen(true)}
-            className="px-4 py-2 bg-[#005BA8] text-white rounded hover:bg-[#004a8f]"
-          >
-            <FormattedMessage id="ADD.REPORT" defaultMessage="Add Report" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* SEARCH INPUT */}
+            <div className="relative">
+              <i className="ki-filled ki-magnifier absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input
+                type="text"
+                placeholder="Search Template / Module..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input pl-8 w-64"
+              />
+            </div>
+
+            {/* ADD REPORT BUTTON */}
+            <button
+              onClick={() => {
+                setSelectedRow(null);
+                setIsReportModalOpen(true);
+              }}
+              className="px-4 py-2 bg-[#005BA8] text-white rounded hover:bg-[#004a8f]"
+            >
+              <FormattedMessage id="ADD.REPORT" defaultMessage="Add Report" />
+            </button>
+          </div>
         </div>
 
         <TableComponent
           columns={columns(setSelectedRow, setIsReportModalOpen, handleDelete)}
-          data={tableData}
+          data={filteredData}
           paginationSize={10}
         />
-
         {/* MODAL */}
         <AddReportConfig
           isModalOpen={isReportModalOpen}
           setIsModalOpen={setIsReportModalOpen}
-          editId={selectedRow?.rawid} // null for Add, ID for Edit
-          onSave={fetchData} // refresh table after add/update
+          editId={selectedRow?.rawid}
+          onSave={fetchData}
         />
       </Container>
     </Fragment>

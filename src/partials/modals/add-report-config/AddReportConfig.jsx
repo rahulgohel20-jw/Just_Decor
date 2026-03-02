@@ -25,8 +25,11 @@ const defaultOptions = {
   size2: "",
   isAgency: false,
   isItem: false,
-  isItemColumn:false,
-  isItemPage:false,
+  isItemColumn: false,
+  isItemPage: false,
+  isCombo: false,
+  isRawMaterialCat: false,
+  isStatus: false,
 };
 
 const optionLabels = {
@@ -46,8 +49,11 @@ const optionLabels = {
   isWithPrice: "Is With Price ",
   isAgency: "Is Agency",
   isItem: "Is Item",
-  isItemColumn:"Is Item Column",
-  isItemPage:"Is Item Page",
+  isItemColumn: "Is Item Column",
+  isItemPage: "Is Item Page",
+  isCombo: "Is Combo",
+  isRawMaterialCat: "Is Rawmaterial Category",
+  isStatus: "Is Status",
 };
 
 const AddReportConfig = ({
@@ -163,7 +169,10 @@ const AddReportConfig = ({
             isAgency: !!data.isAgency,
             isItem: !!data.isItem,
             isItemColumn: !!data.isItemColumn,
-            isItemPage:!!data.isItemPage,
+            isItemPage: !!data.isItemPage,
+            isCombo: !!data.isCombo,
+            isRawMaterialCat: !!data.isRawMaterialCat,
+            isStatus: !!data.isStatus,
           });
         }
       } catch (error) {
@@ -252,9 +261,12 @@ const AddReportConfig = ({
       isAgency: booleanToNumber(options.isAgency),
       isItem: booleanToNumber(options.isItem),
       isItemColumn: booleanToNumber(options.isItemColumn),
-      isItemPage:booleanToNumber(options.isItemPage),
+      isItemPage: booleanToNumber(options.isItemPage),
       size1: options.size1,
       size2: options.size2,
+      isCombo: booleanToNumber(options.isCombo),
+      isRawMaterialCat: booleanToNumber(options.isRawMaterialCat),
+      isStatus: booleanToNumber(options.isStatus),
     };
 
     try {
@@ -369,6 +381,7 @@ const AddReportConfig = ({
             <option value="outside">Outside</option>
             <option value="inside">Inside</option>
             <option value="chef">Chef</option>
+            <option value="labor">Labour</option>
           </select>
         </div>
       </div>

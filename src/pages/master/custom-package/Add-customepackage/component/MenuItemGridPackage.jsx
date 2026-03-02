@@ -54,7 +54,7 @@ function MenuItemGridPackage({
           pageNum,
           PAGE_SIZE,
           USER_ID,
-          categoryIdToPass
+          categoryIdToPass,
         );
 
         const newItems = response.data?.data?.items || [];
@@ -82,7 +82,7 @@ function MenuItemGridPackage({
         isFetchingRef.current = false;
       }
     },
-    [USER_ID, Getmenuitemsusingcatid]
+    [USER_ID, Getmenuitemsusingcatid],
   );
 
   // Infinite scroll observer
@@ -113,7 +113,7 @@ function MenuItemGridPackage({
     return menuItems.filter((item) =>
       (item.nameEnglish || item.name || "")
         .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+        .includes(searchQuery.toLowerCase()),
     );
   }, [menuItems, searchQuery]);
 
@@ -147,7 +147,7 @@ function MenuItemGridPackage({
         </div>
       </div>
 
-      <div ref={gridContainerRef} className="flex-1 overflow-y-auto p-2">
+      <div ref={gridContainerRef} className="flex-1 overflow-y-auto p-4">
         {filteredItems.length === 0 && !loading && (
           <div className="flex items-center justify-center h-64 text-gray-500">
             {searchQuery
@@ -156,7 +156,7 @@ function MenuItemGridPackage({
           </div>
         )}
 
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {filteredItems.map((item) => (
             <div
               key={item.id}
@@ -192,9 +192,11 @@ function MenuItemGridPackage({
               </p>
             </div>
           ))}
-
           {hasMore && (
-            <div ref={observerRef} className="col-span-4 py-4">
+            <div
+              ref={observerRef}
+              className="col-span-2 sm:col-span-3 lg:col-span-4 py-4"
+            >
               {loading && (
                 <div className="flex items-center justify-center">
                   <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
@@ -205,9 +207,8 @@ function MenuItemGridPackage({
               )}
             </div>
           )}
-
           {!hasMore && menuItems.length > 0 && (
-            <div className="col-span-4 py-4 text-center text-gray-500 text-sm">
+            <div className="col-span-2 sm:col-span-3 lg:col-span-4 py-4 text-center text-gray-500 text-sm">
               You've reached the end of the menu items.
             </div>
           )}

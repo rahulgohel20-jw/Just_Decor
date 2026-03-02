@@ -7,6 +7,7 @@ import { GetAllPages } from "@/services/apiServices";
 import Swal from "sweetalert2";
 import { FormattedMessage, useIntl } from "react-intl";
 import AddPage from "../../../../partials/modals/add-pages/AddPage";
+import { useAuthContext } from "@/auth";
 
 const PageMaster = () => {
   const [isPageModalOpen, setIsPageModalOpen] = useState(false);
@@ -14,6 +15,8 @@ const PageMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const intl = useIntl();
+  const { currentUser, loading } = useAuthContext();
+  const roleId = Number(currentUser?.userBasicDetails?.role?.id);
 
   useEffect(() => {
     FetchPages();
@@ -22,17 +25,19 @@ const PageMaster = () => {
   // SEARCH FUNCTION
   useEffect(() => {
     const handler = setTimeout(() => {
-      GetAllPages()
+      const istrue = roleId !== 1;
+      const iscombo = roleId === 1 ? true : false;
+      GetAllPages(istrue, iscombo)
         .then((res) => {
           const modules = res?.data?.data?.ModuleWiseUserRights;
-  
+
           if (!Array.isArray(modules)) {
             setTableData([]);
             return;
           }
-  
+
           let srNo = 1;
-  
+
           let flatData = modules.flatMap((module) =>
             (module.userRightsPages || []).map((page) => ({
               sr_no: srNo++,
@@ -41,17 +46,15 @@ const PageMaster = () => {
               pageid: page.pageId,
               moduleId: module.moduleId,
               isActive: page.isActive ?? true,
-            }))
+            })),
           );
-  
+
           if (searchQuery.trim()) {
             flatData = flatData.filter((item) =>
-              item.pagename
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase())
+              item.pagename.toLowerCase().includes(searchQuery.toLowerCase()),
             );
           }
-  
+
           setTableData(flatData);
         })
         .catch((error) => {
@@ -59,24 +62,24 @@ const PageMaster = () => {
           setTableData([]);
         });
     }, 500);
-  
+
     return () => clearTimeout(handler);
   }, [searchQuery]);
-  
 
   // FETCH PAGES
   const FetchPages = () => {
-    GetAllPages()
+    const istrue = roleId !== 1;
+    GetAllPages(istrue)
       .then((res) => {
         const modules = res?.data?.data?.ModuleWiseUserRights;
-  
+
         if (!Array.isArray(modules)) {
           setTableData([]);
           return;
         }
-  
+
         let srNo = 1;
-  
+
         const formatted = modules.flatMap((module) =>
           (module.userRightsPages || []).map((page) => ({
             sr_no: srNo++,
@@ -85,9 +88,9 @@ const PageMaster = () => {
             pageid: page.pageId,
             moduleId: module.moduleId,
             isActive: page.isActive ?? true, // fallback if backend doesn’t send it
-          }))
+          })),
         );
-  
+
         setTableData(formatted);
       })
       .catch((error) => {
@@ -95,7 +98,6 @@ const PageMaster = () => {
         setTableData([]);
       });
   };
-  
 
   const DeletePage = (pageid) => {
     Swal.fire({

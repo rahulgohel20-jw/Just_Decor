@@ -20,14 +20,18 @@ import {
   SyncRawmaterialMenuallocation,
   MenuAllocationTypeSummary,
   GETallGodown,
+  GettemplatebyuserId,
+  GetAllCustomThemeByUserIdAndModuleId,
 } from "@/services/apiServices";
 import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import PlaceSelect from "../../../components/PlaceSelect/PlaceSelect";
 import AgencyAllocationSidebar from "../AgencyAllocationSidebar/AgenyAllocationSidebar";
 import { message } from "antd";
+import { toAbsoluteUrl } from "@/utils/Assets";
+import AllVendor from "./components/AllVendor";
+import AllCustomerToogle from "@/components/modal/AllCustomerToggle";
 
-// ============= LANGUAGE HELPER FUNCTIONS =============
 /**
  * Get the current language from localStorage
  * @returns {string} - Language code (e.g., 'en', 'gu', 'hi')
@@ -70,10 +74,9 @@ const getLocalizedValue = (obj, baseFieldName, fallbackValue = "-") => {
 };
 
 /**
- * Get display name based on current language
- * @param {Object} row - Row data
- * @param {string} fieldType - 'categoryName' or 'itemName'
- * @returns {string} - Localized name
+ * @param {Object} row
+ * @param {string} fieldType
+ * @returns {string}
  */
 const getDisplayName = (row, fieldType) => {
   const lang = getCurrentLanguage();
@@ -85,11 +88,6 @@ const getDisplayName = (row, fieldType) => {
   return row[langMap[lang]] || row[fieldType] || "";
 };
 
-// Add these helper functions at the top with your other helper functions
-
-/**
- * Get localized party name
- */
 const getPartyName = (party) => {
   if (!party) return "-";
   const lang = getCurrentLanguage();
@@ -99,9 +97,6 @@ const getPartyName = (party) => {
   return party.nameEnglish || "-";
 };
 
-/**
- * Get localized event type name
- */
 const getEventTypeName = (eventType) => {
   if (!eventType) return "N/A";
   const lang = getCurrentLanguage();
@@ -113,9 +108,6 @@ const getEventTypeName = (eventType) => {
   return eventType.nameEnglish || "N/A";
 };
 
-/**
- * Get localized venue name
- */
 const getVenueName = (venue) => {
   if (!venue) return "-";
   const lang = getCurrentLanguage();
@@ -125,9 +117,6 @@ const getVenueName = (venue) => {
   return venue.nameEnglish || "-";
 };
 
-/**
- * Get localized function name
- */
 const getFunctionName = (functionObj) => {
   if (!functionObj) return "Unnamed";
   const lang = getCurrentLanguage();
@@ -139,57 +128,52 @@ const getFunctionName = (functionObj) => {
   return functionObj.nameEnglish || "Unnamed";
 };
 
-// ============= COMPONENTS =============
-
 const TopTabs = ({ value, onChange, functions }) => {
   return (
-    <div className="flex gap-3 overflow-x-auto">
-      {functions.map((item) => {
-        const dateTime = item?.functionStartDateTime || "";
-        const parts = dateTime.split(" ");
+    <Container>
+      <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-gray-100 pb-1.5 px-0.5">
+        {functions.map((item) => {
+          const dateTime = item?.functionStartDateTime || "";
+          const parts = dateTime.split(" ");
+          const date = parts[0];
+          const time = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : "";
+          const isActive = value?.id === item.id;
 
-        const date = parts[0]; // 26/12/2025
-        const time = parts.length >= 3 ? `${parts[1]} ${parts[2]}` : "";
-
-        return (
-          <button
-            key={item.id || item.function?.id}
-            onClick={() => onChange(item)}
-            className={
-              "min-w-[96px] rounded-md px-5 py-2 text-sm font-medium transition whitespace-nowrap " +
-              (value?.id === item.id
-                ? "bg-primary text-white shadow"
-                : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50")
-            }
-          >
-            <p className="font-semibold">
-              {getFunctionName(item.function)} {/* ✅ Updated */}
-            </p>
-
-            <p
-              className={
-                value?.id === item.id
-                  ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700  hover:bg-gray-50"
-              }
+          return (
+            <button
+              key={item.id || item.function?.id}
+              onClick={() => onChange(item)}
+              className={`min-w-[100px] max-w-[140px] flex-shrink-0 rounded-lg px-3 py-2 text-xs font-medium transition-all border ${
+                isActive
+                  ? "bg-primary text-white border-primary shadow-md"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary"
+              }`}
             >
-              {date}
-            </p>
-            <p
-              className={
-                value?.id === item.id
-                  ? "bg-primary text-white shadow"
-                  : "bg-white text-gray-700  hover:bg-gray-50"
-              }
-            >
-              {time}
-            </p>
-          </button>
-        );
-      })}
-    </div>
+              <p className="font-semibold text-xs truncate text-center">
+                {getFunctionName(item.function)}
+              </p>
+              {date && (
+                <p
+                  className={`text-center mt-0.5 ${isActive ? "text-white/80" : "text-gray-400"}`}
+                >
+                  {date}
+                </p>
+              )}
+              {time && (
+                <p
+                  className={`text-center ${isActive ? "text-white/70" : "text-gray-400"}`}
+                >
+                  {time}
+                </p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </Container>
   );
 };
+
 const OrderSummary = ({
   groups,
   onItemClick,
@@ -198,7 +182,6 @@ const OrderSummary = ({
   groupedByFunction,
   rows,
 }) => {
-  // Helper function to get localized names
   console.log(groups, groupedByFunction);
 
   const getItemName = (item) => {
@@ -521,7 +504,7 @@ const OrderSummary = ({
                       <Fragment key={`${g.categoryId}-${it.menuItemId}`}>
                         <div
                           className="col-span-9 pl-6 hover:text-primary"
-                          onClick={() => onItemClick(it, g)}
+                          onClick={() => onItemClick(it, g, null)}
                         >
                           {it.menuItemName}{" "}
                           <span className="text-primary font-bold">
@@ -591,22 +574,53 @@ const OrderSummary = ({
   );
 };
 
-const TableHeader = () => (
+const TableHeader = ({
+  onChefCheckAll,
+  onOutsourceCheckAll,
+  onInsideCheckAll,
+  allChefChecked,
+  allOutsourceChecked,
+  allInsideChecked,
+}) => (
   <div
-    className="grid grid-cols-12 items-center gap-3 border-b border-gray-200 px-4 py-3 text-xs font-medium uppercase tracking-wide text-gray-500 bg-white sticky z-10"
-    style={{ top: "230px" }}
+    className="grid grid-cols-12 items-center gap-2 border-b border-gray-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 sticky z-10 rounded-t-xl"
+    style={{ top: "220px" }}
   >
-    <div className="col-span-2">
+    <div className="col-span-2 text-left">
       <FormattedMessage id="COMMON.NAME" defaultMessage="Name" />
     </div>
     <div className="col-span-1 text-center">
-      <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef Labour" />
+      <div className="flex flex-col items-center gap-1">
+        <span>
+          <FormattedMessage id="COMMON.CHEF_LABOUR" defaultMessage="Chef" />
+        </span>
+        <Checkbox
+          checked={allChefChecked}
+          onChange={(e) => onChefCheckAll(e.target.checked)}
+        />
+      </div>
     </div>
     <div className="col-span-2 text-center">
-      <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
+      <div className="flex flex-col items-center gap-1">
+        <span>
+          <FormattedMessage id="COMMON.OUTSIDE" defaultMessage="Outsource" />
+        </span>
+        <Checkbox
+          checked={allOutsourceChecked}
+          onChange={(e) => onOutsourceCheckAll(e.target.checked)}
+        />
+      </div>
     </div>
     <div className="col-span-2 text-center">
-      <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside kitchen" />
+      <div className="flex flex-col items-center gap-1">
+        <span>
+          <FormattedMessage id="COMMON.INSIDE" defaultMessage="Inside" />
+        </span>
+        <Checkbox
+          checked={allInsideChecked}
+          onChange={(e) => onInsideCheckAll(e.target.checked)}
+        />
+      </div>
     </div>
     <div className="col-span-1 text-center">
       <FormattedMessage id="COMMON.PERSON" defaultMessage="Person" />
@@ -614,7 +628,7 @@ const TableHeader = () => (
     <div className="col-span-2 text-center">
       <FormattedMessage id="COMMON.PLACE" defaultMessage="Place" />
     </div>
-    <div className="col-span-2">
+    <div className="col-span-2 text-left">
       <FormattedMessage
         id="COMMON.INSTRUCTIONS"
         defaultMessage="Instructions"
@@ -623,23 +637,24 @@ const TableHeader = () => (
   </div>
 );
 
-const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
-  const [localPersonCount, setLocalPersonCount] = useState(row.personCount); // ✅ Added missing state
+const TableRow = ({ row, onChange, disabled }) => {
+  const [localPersonCount, setLocalPersonCount] = useState(row.personCount);
   const [hasError, setHasError] = useState(false);
+
   useEffect(() => {
     setLocalPersonCount(row.personCount);
     setHasError(false);
   }, [row.personCount]);
+
   const handleCheckboxChange = (type, checked) => {
-    const updated = {
+    onChange({
       ...row,
       chefLabour: type === "chef" ? checked : false,
       outside: type === "outside" ? checked : false,
       inside: type === "inside" ? checked : false,
-    };
-
-    onChange(updated);
+    });
   };
+
   const handlePersonCountChange = (e) => {
     setLocalPersonCount(Number(e.target.value) || 0);
     setHasError(false);
@@ -647,55 +662,54 @@ const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
 
   const handlePersonCountBlur = () => {
     const value = Number(localPersonCount);
-
     if (value === 0) {
       setHasError(true);
       message.error("Value cannot be zero");
       return;
     }
-
     if (isNaN(value) || value < 0) {
       setHasError(true);
       message.error("Invalid person value");
       return;
     }
-
-    if (value !== row.personCount) {
-      onChange({ ...row, personCount: value });
-    }
+    if (value !== row.personCount) onChange({ ...row, personCount: value });
   };
 
   return (
-    <div className="grid grid-cols-12 items-center gap-3 border-b border-gray-100 px-4 py-4 text-sm">
+    <div className="grid grid-cols-12 items-center gap-2 border-b border-gray-100 px-4 py-3 text-sm hover:bg-blue-50/40 transition-colors group">
+      {/* Name */}
       <div className="col-span-2 font-medium text-gray-800">
-        <div className="flex flex-col">
-          <span className="text-xs text-gray-500">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] text-gray-400 uppercase tracking-wide">
             {getDisplayName(row, "categoryName")}
           </span>
-          <span>{getDisplayName(row, "itemName")}</span>
+          <span className="text-sm font-semibold text-gray-800 leading-tight">
+            {getDisplayName(row, "itemName")}
+          </span>
         </div>
       </div>
 
-      <div className="col-span-1 flex justify-center items-center gap-2">
+      {/* Chef */}
+      <div className="col-span-1 flex justify-center items-center gap-1.5">
         <Checkbox
           checked={row.chefLabour}
           disabled={disabled}
           onChange={(e) => handleCheckboxChange("chef", e.target.checked)}
         />
-
         {row.chefLabour && !disabled && (
           <button
             type="button"
-            onClick={() => row.openChefSidebar && row.openChefSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Chef Labour Details"
+            onClick={() => row.openChefSidebar?.()}
+            className="text-primary hover:text-blue-700"
+            title="Edit Chef Labour"
           >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
+            <i className="ki-filled ki-notepad-edit text-sm" />
           </button>
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center items-center gap-2">
+      {/* Outside */}
+      <div className="col-span-2 flex justify-center items-center gap-1.5">
         <Checkbox
           checked={row.outside}
           disabled={disabled}
@@ -704,16 +718,17 @@ const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
         {row.outside && (
           <button
             type="button"
-            onClick={() => row.openSidebar && row.openSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Outside Details"
+            onClick={() => row.openSidebar?.()}
+            className="text-primary hover:text-blue-700"
+            title="Edit Outside"
           >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
+            <i className="ki-filled ki-notepad-edit text-sm" />
           </button>
         )}
       </div>
 
-      <div className="col-span-2 flex justify-center items-center gap-2">
+      {/* Inside */}
+      <div className="col-span-2 flex justify-center items-center gap-1.5">
         <Checkbox
           checked={row.inside}
           disabled={disabled}
@@ -722,15 +737,16 @@ const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
         {row.inside && (
           <button
             type="button"
-            onClick={() => row.openInsideSidebar && row.openInsideSidebar()}
-            className="text-blue-500 hover:text-blue-700"
-            title="Edit Inside Details"
+            onClick={() => row.openInsideSidebar?.()}
+            className="text-primary hover:text-blue-700"
+            title="Edit Inside"
           >
-            <i className="ki-filled ki-notepad-edit text-primary"></i>
+            <i className="ki-filled ki-notepad-edit text-sm" />
           </button>
         )}
       </div>
 
+      {/* Person Count */}
       <div className="col-span-1 flex justify-center">
         <Input
           min={0}
@@ -739,10 +755,11 @@ const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
           onChange={handlePersonCountChange}
           onBlur={handlePersonCountBlur}
           status={hasError ? "error" : ""}
-          className="w-16 p-1 text-center"
+          className="w-14 text-center text-sm p-1"
         />
       </div>
 
+      {/* Place */}
       <div className="col-span-2">
         <PlaceSelect
           value={row.place}
@@ -750,44 +767,43 @@ const TableRow = ({ row, onChange, disabled, onPaxBlur }) => {
         />
       </div>
 
+      {/* Instructions */}
       <div className="col-span-2">
         <Input
           size="small"
-          placeholder="Add..."
+          placeholder="Add note..."
           value={row.instructions}
           onChange={(e) => onChange({ ...row, instructions: e.target.value })}
-          className="w-full p-1"
+          className="w-full text-sm"
         />
       </div>
     </div>
   );
 };
-
-// Function Section Label
 const FunctionSectionLabel = ({ functionName, functionDateTime, pax }) => {
   return (
     <div
-      className="sticky bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary px-6 py-4 mb-2 shadow-sm"
-      style={{ top: "280px", zIndex: 5 }}
+      className="sticky bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-primary px-5 py-3 shadow-sm"
+      style={{ top: "268px", zIndex: 4 }} // ← lowered zIndex below TableHeader (z-10)
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <i className="ki-filled ki-calendar text-primary text-xl"></i>
-            <div>
-              <h3 className="text-lg font-bold text-gray-800 uppercase">
-                {functionName} {/* This will now show localized name */}
-              </h3>
-              <p className="text-sm text-gray-600">{functionDateTime}</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <i className="ki-filled ki-calendar text-primary text-lg" />
+          <div>
+            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
+              {functionName}
+            </h3>
+            {functionDateTime && (
+              <p className="text-xs text-gray-500 mt-0.5">{functionDateTime}</p>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
-          <i className="ki-filled ki-people text-primary"></i>
-          <span className="text-sm font-medium text-gray-700">
+        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-gray-100">
+          <i className="ki-filled ki-people text-primary text-sm" />
+          <span className="text-xs text-gray-500">
             <FormattedMessage id="COMMON.PAX" defaultMessage="Pax:" />
           </span>
-          <span className="text-lg font-bold text-primary">{pax}</span>
+          <span className="text-sm font-bold text-primary">{pax}</span>
         </div>
       </div>
     </div>
@@ -836,12 +852,80 @@ const EventMenuAllocationPage = ({ mode }) => {
   ]);
   const [placeLoading, setPlaceLoading] = useState(false);
   const personSaveTimeoutRef = useRef(null);
+  const [allVendor, setAllVendor] = useState(false);
+  const [menuForHMModuleId, setMenuForHMModuleId] = useState(null);
+  const [menuForHMMappingId, setMenuForHMMappingId] = useState(null);
+  const [menuForHMTemplateId, setMenuForHMTemplateId] = useState(null);
 
   // ============= LANGUAGE STATE =============
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
   const lastSavedPersonRef = useRef({});
   const isInitialLoadRef = useRef(true);
+  const [allChefChecked, setAllChefChecked] = useState(false);
+  const [allOutsourceChecked, setAllOutsourceChecked] = useState(false);
+  const [allInsideChecked, setAllInsideChecked] = useState(false);
+  const [isAllCustomerToogleOpen, setIsAllCustomerToogleOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [isMenuForHMOpen, setIsMenuForHMOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
+  // ✅ NEW: Track which rows had PAX changes
+  const changedPaxRowsRef = useRef(new Set());
+
+  const fetchMenuForHMModule = async () => {
+    try {
+      const res = await GettemplatebyuserId();
+
+      if (res?.data?.success && res?.data?.data) {
+        const menuForHMModule = res.data.data.find(
+          (module) =>
+            module.nameEnglish === "Menu For HM" &&
+            module.isActive &&
+            !module.isDelete,
+        );
+
+        if (menuForHMModule) {
+          setMenuForHMModuleId(menuForHMModule.id);
+
+          const templatesRes = await GetAllCustomThemeByUserIdAndModuleId(
+            localStorage.getItem("userId"),
+            menuForHMModule.id,
+          );
+
+          // ✅ ADD THIS DEBUG CODE
+          console.log("📦 All Templates:", templatesRes?.data?.data);
+          templatesRes?.data?.data?.forEach((template, index) => {
+            console.log(`Template ${index}:`, {
+              name: template.templateMaster?.name,
+              mappingId: template.templateMappingResponseDto?.id,
+            });
+          });
+
+          if (
+            templatesRes?.data?.success &&
+            templatesRes?.data?.data?.length > 0
+          ) {
+            const firstTemplate = templatesRes.data.data[0];
+
+            const templateId = firstTemplate.id; // 446
+            const mappingId =
+              firstTemplate.templateMappingResponseDto?.id || firstTemplate.id; // 49
+
+            console.log("🔗 Template ID (446) for payload:", templateId);
+            console.log("🔗 Mapping ID (49) for config:", mappingId);
+
+            setMenuForHMTemplateId(templateId);
+            setMenuForHMMappingId(mappingId);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  useEffect(() => {
+    if (eventId) fetchMenuForHMModule();
+  }, [eventId]);
   // ============= LISTEN FOR LANGUAGE CHANGES =============
   useEffect(() => {
     const handleStorageChange = () => {
@@ -851,10 +935,8 @@ const EventMenuAllocationPage = ({ mode }) => {
       }
     };
 
-    // Listen for storage changes from other tabs
     window.addEventListener("storage", handleStorageChange);
 
-    // Also check on interval (in case same tab changes it)
     const interval = setInterval(() => {
       const newLang = getCurrentLanguage();
       if (newLang !== currentLang) {
@@ -868,6 +950,9 @@ const EventMenuAllocationPage = ({ mode }) => {
     };
   }, [currentLang]);
 
+  useEffect(() => {
+    if (eventId) fetchMenuForHMModule();
+  }, [eventId]);
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
@@ -883,6 +968,48 @@ const EventMenuAllocationPage = ({ mode }) => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [hasUnsavedChanges]);
+
+  const handleChefCheckAll = (checked) => {
+    setAllChefChecked(checked);
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        chefLabour: checked,
+        outside: false,
+        inside: false,
+      }));
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
+  };
+
+  const handleOutsourceCheckAll = (checked) => {
+    setAllOutsourceChecked(checked);
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        chefLabour: false,
+        outside: checked,
+        inside: false,
+      }));
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
+  };
+
+  const handleInsideCheckAll = (checked) => {
+    setAllInsideChecked(checked);
+    setRows((prevRows) => {
+      const updatedRows = prevRows.map((row) => ({
+        ...row,
+        chefLabour: false,
+        outside: false,
+        inside: checked,
+      }));
+      setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
+      return updatedRows;
+    });
+  };
 
   const handleNavigateWithWarning = async (path, state = null) => {
     if (hasUnsavedChanges) {
@@ -1001,7 +1128,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleOrderSummaryItemClick = async (
     item,
-    group,
+    category,
     clickedFunctionId,
   ) => {
     try {
@@ -1012,6 +1139,7 @@ const EventMenuAllocationPage = ({ mode }) => {
       } else {
         eventFunctionId = getEventFunctionId(activeFunction);
       }
+      console.log(eventFunctionId, "data");
 
       const menuItemId = item.menuItemId || item.id;
 
@@ -1023,7 +1151,6 @@ const EventMenuAllocationPage = ({ mode }) => {
       if (matchingRow?.outside) {
         return;
       }
-
 
       let allocationType = "inside";
       if (matchingRow?.chefLabour) {
@@ -1046,11 +1173,9 @@ const EventMenuAllocationPage = ({ mode }) => {
       setIsCategoryModal(true);
       setMenuLoading(true);
 
-  
       const res = await SelectedItemNameMenuAllocation(
         eventFunctionId,
         menuItemId,
-     
       );
 
       if (res?.data?.success) {
@@ -1119,11 +1244,9 @@ const EventMenuAllocationPage = ({ mode }) => {
         (d) => d.menuAllocation || [],
       );
 
-      // ============= UPDATED: Store all language variants =============
       const transformedRows = mergedMenuAllocation.map((item) => ({
         key: `${item.menuItemId}-${item.menuCategoryId}-${item.eventFunctionId}`,
         id: item.id,
-        // Store all language variants
         categoryName: getLocalizedValue(item, "menuCategoryName", ""),
         categoryNameEn: item.menuCategoryName,
         categoryNameGu: item.menuCategoryNameGujarati,
@@ -1280,46 +1403,6 @@ const EventMenuAllocationPage = ({ mode }) => {
 
         setOrderSummaryGroups(summaryGroups);
       }
-
-      const updatedRowsPromises = transformedRows.map(async (row) => {
-        try {
-          const res = await SelectedItemNameMenuAllocation(
-            row.eventFunctionId,
-            row.menuItemId,
-          );
-
-          if (res?.data?.success) {
-            const apiData = res.data.data;
-            const rawMaterials =
-              apiData["MenuItem RawMaterial Details"] ||
-              apiData.menuItemRawMaterials ||
-              [];
-
-            return {
-              ...row,
-              menuItemRawMaterials: rawMaterials,
-            };
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching raw materials for item ${row.menuItemId}:`,
-            error,
-          );
-        }
-        return row;
-      });
-
-      const updatedRows = await Promise.all(updatedRowsPromises);
-      setRows(updatedRows);
-      setInitialRows(JSON.parse(JSON.stringify(updatedRows)));
-
-      const personSnapshot = {};
-      updatedRows.forEach((r) => {
-        personSnapshot[r.key] = r.personCount;
-      });
-      lastSavedPersonRef.current = personSnapshot;
-
-      isInitialLoadRef.current = false;
     } catch (error) {
       console.error("Error fetching menu allocation:", error);
       setRows([]);
@@ -1344,22 +1427,25 @@ const EventMenuAllocationPage = ({ mode }) => {
   useEffect(() => {
     if (eventData?.eventFunctions?.length > 0) {
       setActiveFunction(allFunctionTab);
+      changedPaxRowsRef.current.clear(); // ✅ Clear on initial load
       fetchMenuAllocation(-1);
     }
   }, [eventData?.eventFunctions]);
 
   useEffect(() => {
     if (isInitialLoadRef.current) return;
-
     if (rows.length === 0) return;
+    if (isSaving) return;
 
-    if (rows.some((r) => r.personCount === 0)) return;
+    // Only fire when at least one PAX row was actually changed
+    const hasPaxChanged = changedPaxRowsRef.current.size > 0;
+    if (!hasPaxChanged) return;
 
-    const hasPersonChanged = rows.some(
-      (r) => lastSavedPersonRef.current[r.key] !== r.personCount,
+    // Block save only if a *changed* row still has 0 — not all rows
+    const changedRowsHaveZero = rows.some(
+      (r) => changedPaxRowsRef.current.has(r.key) && r.personCount === 0,
     );
-
-    if (!hasPersonChanged) return;
+    if (changedRowsHaveZero) return;
 
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -1369,8 +1455,12 @@ const EventMenuAllocationPage = ({ mode }) => {
       handleMainSave();
     }, 1000);
 
-    return () => clearTimeout(saveTimeoutRef.current);
-  }, [rows]);
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [rows, isSaving]);
 
   const totalPax = useMemo(() => {
     if (activeFunction?.id === -1) {
@@ -1421,9 +1511,16 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const updateRow = (updated) => {
     setRows((prevRows) => {
-      const updatedRows = prevRows.map((x) =>
-        x.key === updated.key ? updated : x,
-      );
+      const updatedRows = prevRows.map((x) => {
+        if (x.key === updated.key) {
+          // ✅ Check if personCount changed for THIS specific row
+          if (x.personCount !== updated.personCount) {
+            changedPaxRowsRef.current.add(updated.key);
+          }
+          return updated;
+        }
+        return x;
+      });
 
       updateOrderSummaryPrices(updated.menuItemId, updatedRows);
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
@@ -1434,6 +1531,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleFunctionChange = (functionItem) => {
     setActiveFunction(functionItem);
+    changedPaxRowsRef.current.clear(); // ✅ Clear tracked changes
     const functionId = functionItem?.id;
     fetchMenuAllocation(functionId);
   };
@@ -1443,10 +1541,13 @@ const EventMenuAllocationPage = ({ mode }) => {
     if (isNaN(adjustment) || adjustment === 0) return;
 
     setRows((prevRows) => {
-      const updatedRows = prevRows.map((row) => ({
-        ...row,
-        personCount: Math.max(0, (row.personCount || 0) + adjustment),
-      }));
+      const updatedRows = prevRows.map((row) => {
+        changedPaxRowsRef.current.add(row.key); // ✅ Mark all rows as having PAX changes
+        return {
+          ...row,
+          personCount: Math.max(0, (row.personCount || 0) + adjustment),
+        };
+      });
 
       setHasUnsavedChanges(checkForChanges(updatedRows, initialRows));
 
@@ -1528,7 +1629,7 @@ const EventMenuAllocationPage = ({ mode }) => {
     currentLang,
     placeOptions,
     placeLoading,
-  ]); // Add currentLang as dependency
+  ]);
 
   const handleInsideSave = (saveData) => {
     setAllocationData((prev) => ({
@@ -1804,19 +1905,14 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     setIsCategoryModal(false);
 
-    // ✅ NEW: Refresh all data if shouldRefresh flag is true
     if (saveData.shouldRefresh) {
       const currentActiveFunctionId = activeFunction?.id;
 
       if (currentActiveFunctionId) {
-        // Show loading indicator
         setTableLoading(true);
 
         try {
-          // Refresh the menu allocation data
           await fetchMenuAllocation(currentActiveFunctionId);
-
-          // Optional: Show success message
           console.log("Data refreshed successfully after category save");
         } catch (error) {
           console.error("Error refreshing data after category save:", error);
@@ -1833,22 +1929,18 @@ const EventMenuAllocationPage = ({ mode }) => {
     }
   };
 
-  // ✅ NEW: Fetch godown data once on component mount
   useEffect(() => {
     const fetchGodowns = async () => {
       try {
         setPlaceLoading(true);
 
-        // Get userId from localStorage
         const userId = localStorage.getItem("userId");
 
-        // Validate userId
         if (!userId || userId === "undefined" || userId === "null") {
           console.warn("No valid userId found, skipping godown fetch");
           return;
         }
 
-        // Pass userId to the API call
         const res = await GETallGodown(userId);
 
         if (res?.data?.data?.length) {
@@ -1872,6 +1964,7 @@ const EventMenuAllocationPage = ({ mode }) => {
 
     fetchGodowns();
   }, []);
+
   if (loading) {
     return (
       <Container>
@@ -1884,11 +1977,13 @@ const EventMenuAllocationPage = ({ mode }) => {
 
   const handleMainSave = async () => {
     try {
+      setIsSaving(true);
       let Id = localStorage.getItem("userId");
 
       const validEventId = Number(eventId);
       const validEventFunctionId = getValidFunctionId(activeFunction);
       const hasInvalidPerson = rows.some((r) => r.personCount === 0);
+
       if (hasInvalidPerson) {
         Swal.fire({
           icon: "error",
@@ -1897,6 +1992,7 @@ const EventMenuAllocationPage = ({ mode }) => {
         });
         return;
       }
+
       const currentActiveFunctionId = activeFunction?.id;
       if (!validEventId || !validEventFunctionId) {
         Swal.fire({
@@ -1976,28 +2072,8 @@ const EventMenuAllocationPage = ({ mode }) => {
           menuAllocationOrders.push(...insideAllocations);
         }
 
-        const rawMaterialsSource =
-          allocationData[`${r.menuItemId}-category`]?.rawMaterials?.length > 0
-            ? allocationData[`${r.menuItemId}-category`].rawMaterials
-            : r.menuItemRawMaterials || [];
-
-        console.log(rawMaterialsSource, "data");
-
-        const menuItemRawMaterials = rawMaterialsSource.map((rm) => ({
-          dateTime: rm.dateTime || "",
-          eventFunctionId: r.eventFunctionId,
-          eventId: validEventId,
-          id: rm.id ?? 0,
-          menuItemId: rm.menuItemId || r.menuItemId || 0,
-          partyId: rm.partyId || rm.party_id || rm.party?.id || 0,
-          place: rm.place || "",
-          rate: rm.rate || 0,
-          rawMaterialId: rm.rawMaterialId || 0,
-          rawmaterial_rate: rm.rawmaterial_rate || 0,
-          rawmaterial_weight: rm.rawmaterial_weight || 0,
-          unitId: rm.unitId || rm.unit_id || rm.unit?.id || 0,
-          weight: rm.weight || 0,
-        }));
+        // ✅ Check if THIS specific row had a PAX change
+        const rowHadPaxChange = changedPaxRowsRef.current.has(r.key);
 
         return {
           chefLabour: r.chefLabour || false,
@@ -2006,10 +2082,11 @@ const EventMenuAllocationPage = ({ mode }) => {
           id: r.id || 0,
           inside: r.inside || false,
           instructions: r.instructions || "",
+          isPaxChange: rowHadPaxChange,
           menuAllocationOrders,
           menuCategoryId: r.menuCategoryId || 0,
           menuItemId: r.menuItemId || 0,
-          menuItemRawMaterials,
+          menuItemRawMaterials: [],
           outside: r.outside || false,
           personCount: r.personCount || 0,
           place: r.place || "venue",
@@ -2027,12 +2104,17 @@ const EventMenuAllocationPage = ({ mode }) => {
           confirmButtonColor: "#3085d6",
         });
 
-        await fetchMenuAllocation(currentActiveFunctionId);
+        // ✅ Clear the tracked PAX changes after successful save
+        changedPaxRowsRef.current.clear();
+
         const personSnapshot = {};
         rows.forEach((r) => {
           personSnapshot[r.key] = r.personCount;
         });
         lastSavedPersonRef.current = personSnapshot;
+
+        await fetchMenuAllocation(currentActiveFunctionId);
+
         setHasUnsavedChanges(false);
         setInitialRows(JSON.parse(JSON.stringify(rows)));
       } else {
@@ -2056,8 +2138,11 @@ const EventMenuAllocationPage = ({ mode }) => {
         icon: "error",
         confirmButtonColor: "#d33",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
+
   function openSelectMenureport() {
     setMenuReportEventId(eventId);
     setIsSelectMenuReport(true);
@@ -2087,7 +2172,6 @@ const EventMenuAllocationPage = ({ mode }) => {
   const handleSyncRawMaterial = async () => {
     try {
       const eventFunctionId = activeFunction?.id || -1;
-      console.log(eventFunctionId);
 
       if (!eventFunctionId) {
         Swal.fire({
@@ -2146,6 +2230,12 @@ const EventMenuAllocationPage = ({ mode }) => {
         confirmButtonColor: "#d33",
       });
     }
+  };
+
+  const handleEventSelect = async (newEventId) => {
+    setSelectedEventId(newEventId);
+    setIsAllCustomerToogleOpen(false);
+    navigate(`/menu-allocation/${newEventId}`);
   };
 
   return (
@@ -2213,102 +2303,99 @@ const EventMenuAllocationPage = ({ mode }) => {
           </div>
         </div>
 
-        <div className="card min-w-full rtl:[background-position:right_center] [background-position:right_center] bg-no-repeat bg-[length:500px] user-access-bg mb-5">
-          <div className="flex flex-wrap items-center justify-between p-4 gap-3">
-            {/* ROW 1 */}
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_ID"
-                    defaultMessage="Event ID:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {eventData?.eventNo || "-"}
-                </span>
-              </div>
+        <div className=" card min-w-full bg-white border border-gray-200 shadow-sm rounded-xl mb-5">
+          <div className="flex flex-wrap items-center justify-between px-5 py-4 gap-4">
+            {/* Event Info Grid */}
+            <div className="flex flex-wrap gap-6 flex-1">
+              {[
+                {
+                  icon: "ki-calendar-tick",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_ID"
+                      defaultMessage="Event ID"
+                    />
+                  ),
+                  value: (
+                    <span
+                      className="underline cursor-pointer text-primary font-semibold"
+                      onClick={() => setIsAllCustomerToogleOpen(true)}
+                    >
+                      {eventData?.eventNo || "-"}
+                    </span>
+                  ),
+                },
+                {
+                  icon: "ki-user",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.PARTY_NAME"
+                      defaultMessage="Party"
+                    />
+                  ),
+                  value: getPartyName(eventData?.party),
+                },
+                {
+                  icon: "ki-geolocation-home",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_NAME"
+                      defaultMessage="Event"
+                    />
+                  ),
+                  value: getEventTypeName(eventData?.eventType),
+                },
+                {
+                  icon: "ki-calendar-tick",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
+                      defaultMessage="Date & Time"
+                    />
+                  ),
+                  value: eventData?.eventStartDateTime || "-",
+                },
+                {
+                  icon: "ki-calendar-tick",
+                  label: (
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
+                      defaultMessage="Venue"
+                    />
+                  ),
+                  value: getVenueName(eventData?.venue),
+                },
+              ].map((field, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2.5 min-w-[140px]"
+                >
+                  <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                    <i
+                      className={`ki-filled ${field.icon} text-success text-sm`}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400">{field.label}</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {field.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-user text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.PARTY_NAME"
-                    defaultMessage="Party Name:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getPartyName(eventData?.party)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-geolocation-home text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_NAME"
-                    defaultMessage="Event Name:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getEventTypeName(eventData?.eventType)}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_DATE_TIME"
-                    defaultMessage="Event Date & Time:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {eventData?.eventStartDateTime || ""}
-                </span>
-              </div>
-            </div>
-
-            {/* FORCE NEW ROW */}
-            <div className="w-full h-0"></div>
-
-            {/* ROW 2 LEFT — Event Venue */}
-            <div className="flex items-center gap-3">
-              <i className="ki-filled ki-calendar-tick text-success text-lg"></i>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                  <FormattedMessage
-                    id="EVENT_MENU_ALLOCATION.EVENT_VENUE"
-                    defaultMessage="Event Venue:"
-                  />
-                </span>
-                <span className="text-sm font-medium text-gray-900">
-                  {getVenueName(eventData?.venue)}
-                </span>
-              </div>
-            </div>
-
-            {/* ROW 2 RIGHT — Buttons */}
-            <div className="ml-auto flex items-center gap-2">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 className="btn btn-sm btn-primary"
-                title="Save"
                 onClick={handleMainSave}
                 disabled={!hasUnsavedChanges}
               >
                 <FormattedMessage id="COMMON.SAVE" defaultMessage="Save" />
               </button>
-
               <button
                 className="btn btn-sm btn-primary"
-                title="Sync Raw Material"
                 onClick={handleSyncRawMaterial}
               >
                 <FormattedMessage
@@ -2316,13 +2403,28 @@ const EventMenuAllocationPage = ({ mode }) => {
                   defaultMessage="Sync Raw Material"
                 />
               </button>
+              <button
+                disabled
+                className="btn btn-sm btn-success opacity-50 cursor-not-allowed"
+                onClick={() => setAllVendor(true)}
+              >
+                <img
+                  src={toAbsoluteUrl("/media/icons/payall.png")}
+                  className="size-4"
+                  alt=""
+                />
+                <FormattedMessage
+                  id="COMMON.SAVE"
+                  defaultMessage="Pay Vendor"
+                />
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-4">
-          <div className="w-[70%] flex flex-col">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-[#FAFAFA] p-3 rounded-lg overflow-x-auto mb-3">
+        <div className="grid grid-cols-10 gap-4">
+          <div className="col-span-7 flex flex-col">
+            <div className="bg-[#FAFAFA] p-3 rounded-lg mb-3">
               <TopTabs
                 value={activeFunction}
                 onChange={handleFunctionChange}
@@ -2332,7 +2434,6 @@ const EventMenuAllocationPage = ({ mode }) => {
                 ]}
               />
             </div>
-
             <div
               className="sticky z-10 bg-white pb-2 rounded-lg shadow-sm mb-3"
               style={{ top: "70px" }}
@@ -2373,28 +2474,71 @@ const EventMenuAllocationPage = ({ mode }) => {
                   </div>
                 </div>
 
-                <div className="flex flex-row gap-4 items-end">
-                  <Input
-                    placeholder={intl.formatMessage({
-                      id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
-                      defaultMessage: "Enter Person",
-                    })}
-                    value={percentage}
-                    onChange={(e) => setPercentage(e.target.value)}
-                    className="p-1 pl-2 w-28"
-                  />
-                  <Tooltip title="It will increase or decrease the number of persons by the entered number.">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      title="Adjust Person"
-                      onClick={handleAdjustPerson}
-                    >
-                      <FormattedMessage
-                        id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
-                        defaultMessage="Adjust Person"
-                      />
-                    </button>
-                  </Tooltip>
+                <div className="flex flex-row gap-4 items-end flex-1 justify-between">
+                  <div className="flex flex-row gap-4 items-end">
+                    <Input
+                      placeholder={intl.formatMessage({
+                        id: "EVENT_MENU_ALLOCATION.ENTER_PERSON",
+                        defaultMessage: "Enter Person",
+                      })}
+                      value={percentage}
+                      onChange={(e) => setPercentage(e.target.value)}
+                      className="p-1 pl-2 w-28"
+                    />
+                    <Tooltip title="It will increase or decrease the number of persons by the entered number.">
+                      <button
+                        className="btn btn-sm btn-primary"
+                        title="Adjust Person"
+                        onClick={handleAdjustPerson}
+                      >
+                        <FormattedMessage
+                          id="EVENT_MENU_ALLOCATION.ADJUST_PERSON"
+                          defaultMessage="Adjust Person"
+                        />
+                      </button>
+                    </Tooltip>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      console.log("🔘 Menu for HM BUTTON CLICKED!");
+                      console.log("📋 Debug Info:", {
+                        moduleId: menuForHMModuleId,
+                        mappingId: menuForHMMappingId,
+                        eventId: eventId,
+                        activeFunction: activeFunction?.id,
+                      });
+
+                      if (!menuForHMMappingId) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Configuration Missing",
+                          text: "Menu for HM template is not configured. Please set up the template first.",
+                          confirmButtonColor: "#d33",
+                        });
+                        return;
+                      }
+
+                      if (!eventId) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Error",
+                          text: "Event ID is missing. Please refresh the page.",
+                          confirmButtonColor: "#d33",
+                        });
+                        return;
+                      }
+
+                      setIsMenuForHMOpen(true);
+                    }}
+                    className="bg-primary text-white text-sm px-3 py-2 rounded-md transition "
+                    title="Menu for HM"
+                  >
+                    <FormattedMessage
+                      id="EVENT_MENU_ALLOCATION.MENU_FOR_HM"
+                      defaultMessage="Menu for HM"
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -2470,7 +2614,14 @@ const EventMenuAllocationPage = ({ mode }) => {
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-              <TableHeader />
+              <TableHeader
+                onChefCheckAll={handleChefCheckAll}
+                onOutsourceCheckAll={handleOutsourceCheckAll}
+                onInsideCheckAll={handleInsideCheckAll}
+                allChefChecked={allChefChecked}
+                allOutsourceChecked={allOutsourceChecked}
+                allInsideChecked={allInsideChecked}
+              />
 
               {tableLoading ? (
                 <div className="flex items-center justify-center p-8">
@@ -2534,9 +2685,9 @@ const EventMenuAllocationPage = ({ mode }) => {
             </div>
           </div>
 
-          <div className="w-[30%]">
+          <div className="col-span-3">
             <div className="sticky bg-white " style={{ top: "70px" }}>
-              <div className="max-h-[calc(100vh-100px)] overflow-y-auto">
+              <div className="max-h-[calc(100vh-100px)] overflow-y-auto no-scrollbar">
                 <OrderSummary
                   groups={orderSummaryGroups}
                   loading={menuLoading}
@@ -2613,10 +2764,22 @@ const EventMenuAllocationPage = ({ mode }) => {
           open={iswhatsAppSidebar}
           onClose={() => setIsWhatsAppSidebar(false)}
         />
+
         <MenuReport
-          isModalOpen={isMenuReport}
-          setIsModalOpen={setIsMenuReport}
-          eventId={menuReportEventId}
+          isModalOpen={isMenuForHMOpen}
+          setIsModalOpen={setIsMenuForHMOpen}
+          eventId={eventId}
+          eventFunctionId={getEventFunctionId(activeFunction)}
+          moduleId={menuForHMModuleId}
+          mappingId={menuForHMMappingId}
+          selectedTemplateId={menuForHMTemplateId}
+          eventName={eventData?.party?.nameEnglish}
+          selectedTemplateName="Menu for HM"
+          PartyNumber={eventData?.party?.mobileno}
+          isNamePlateTheme={false}
+          agencyType={null}
+          isAdminModuleReport={true}
+          adminTemplateModuleId={menuForHMMappingId}
         />
         <SelectMenureport
           isSelectMenureport={isSelectMenureport}
@@ -2664,6 +2827,12 @@ const EventMenuAllocationPage = ({ mode }) => {
           }}
           eventId={eventId}
           eventFunctionId={getEventFunctionId(activeFunction)}
+        />
+        <AllVendor isOpen={allVendor} onClose={() => setAllVendor(false)} />
+        <AllCustomerToogle
+          isModalOpen={isAllCustomerToogleOpen}
+          setIsModalOpen={setIsAllCustomerToogleOpen}
+          onEventSelect={handleEventSelect}
         />
       </Container>
     </Fragment>

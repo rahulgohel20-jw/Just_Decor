@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { Tooltip, DatePicker, Popconfirm } from "antd";
 import { useParams } from "react-router-dom";
 import { successMsgPopup } from "../../../underConstruction";
+import { useNavigate } from "react-router-dom";
 import {
   GetQuotation,
   UpdateQuotation,
@@ -40,103 +41,104 @@ const QuotationPage = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
   const pdfPlugin = defaultLayoutPlugin();
+  const navigate = useNavigate();
 
   const intl = useIntl();
 
   const responsiveStyles = `
-  /* Mobile Optimizations */
-  @media (max-width: 768px) {
-    /* Event Details Card */
-    .event-header-actions {
-      flex-direction: column;
-      width: 100%;
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      /* Event Details Card */
+      .event-header-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .event-header-actions > div {
+        width: 100%;
+      }
+      
+      /* Function Table */
+      .function-table-header {
+        display: none !important;
+      }
+      
+      .function-row {
+        flex-direction: column !important;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem !important;
+        margin-bottom: 1rem;
+        background: white;
+      }
+      
+      .function-cell {
+        width: 100% !important;
+        padding: 0.5rem 0 !important;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      
+      .function-cell:last-child {
+        border-bottom: none;
+      }
+      
+      .mobile-field-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+      }
+      
+      /* Summary Section */
+      .summary-row {
+        padding: 0.75rem 1rem !important;
+      }
+      
+      .summary-label,
+      .summary-value {
+        font-size: 0.875rem !important;
+      }
+      
+      /* Tax Details */
+      .tax-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+      }
+      
+      .tax-input-group {
+        width: 100% !important;
+      }
+      
+      /* Payment Details */
+      .payment-card {
+        padding: 0.75rem !important;
+      }
+      
+      /* Buttons */
+      .btn-group-mobile {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .btn-group-mobile button {
+        width: 100%;
+      }
     }
     
-    .event-header-actions > div {
-      width: 100%;
+    @media (min-width: 769px) {
+      .mobile-field-label {
+        display: none;
+      }
+      
+      .function-row {
+        display: flex !important;
+        flex-direction: row !important;
+      }
     }
-    
-    /* Function Table */
-    .function-table-header {
-      display: none !important;
-    }
-    
-    .function-row {
-      flex-direction: column !important;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 1rem !important;
-      margin-bottom: 1rem;
-      background: white;
-    }
-    
-    .function-cell {
-      width: 100% !important;
-      padding: 0.5rem 0 !important;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    
-    .function-cell:last-child {
-      border-bottom: none;
-    }
-    
-    .mobile-field-label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
-      margin-bottom: 0.25rem;
-      text-transform: uppercase;
-    }
-    
-    /* Summary Section */
-    .summary-row {
-      padding: 0.75rem 1rem !important;
-    }
-    
-    .summary-label,
-    .summary-value {
-      font-size: 0.875rem !important;
-    }
-    
-    /* Tax Details */
-    .tax-row {
-      flex-direction: column;
-      align-items: flex-start !important;
-      gap: 0.5rem;
-    }
-    
-    .tax-input-group {
-      width: 100% !important;
-    }
-    
-    /* Payment Details */
-    .payment-card {
-      padding: 0.75rem !important;
-    }
-    
-    /* Buttons */
-    .btn-group-mobile {
-      flex-direction: column;
-      width: 100%;
-    }
-    
-    .btn-group-mobile button {
-      width: 100%;
-    }
-  }
-  
-  @media (min-width: 769px) {
-    .mobile-field-label {
-      display: none;
-    }
-    
-    .function-row {
-      display: flex !important;
-      flex-direction: row !important;
-    }
-  }
-`;
+  `;
 
   const [quotationData, setQuotationData] = useState({
     eventName: "",
@@ -224,7 +226,7 @@ const QuotationPage = () => {
   };
 
   const FetchGetQuotation = () => {
-    GetQuotation(eventId)
+    GetQuotation(eventId, 0)
       .then((res) => {
         const apiData = res?.data?.data?.["Event Functions Quotation Details"];
 
@@ -240,13 +242,13 @@ const QuotationPage = () => {
             QuotationDate:
               quotationInfo.quotationdate ||
               quotationInfo.createdAt ||
-              todayDate, // Use quotationdate if available, fallback to createdAt or today
+              todayDate,
             eventName: quotationInfo.event?.eventType?.nameEnglish || "Event",
             partyName: quotationInfo.event?.party?.nameEnglish || "",
             billingname: quotationInfo.billingname || "",
             gstnumber: quotationInfo.gstnumber || "",
             duedate: quotationInfo.duedate || "",
-            venueName: quotationInfo.event?.venue.nameEnglish || "",
+            venueName: quotationInfo.event?.venue?.nameEnglish || "",
             mobileNumber: quotationInfo.event?.mobileno || "-",
             estimateDate: quotationInfo.event?.eventStartDateTime
               ? new Date(
@@ -257,45 +259,51 @@ const QuotationPage = () => {
                   year: "numeric",
                 })
               : "",
+
+            // ✅ FIXED: Always take from functionQuotationItems when present
+            // Maps all fields correctly from the API response structure:
+            // { id, functionName, eventFunctionId, functionDate, pax, extraPax, ratePerPlate, amount, isEventFunction }
             functions: hasFunctionQuotationItems
-              ? quotationInfo.functionQuotationItems.map((item, index) => ({
-                  id: item.id || 0,
+              ? quotationInfo.functionQuotationItems.map((item) => ({
+                  id: item.id ?? 0, // null id → 0 (new record)
+                  eventFunctionId: item.eventFunctionId || 0, // keep for payload reference
                   name: item.functionName || "",
                   date:
                     item.functionDate &&
                     dayjs(item.functionDate, "DD/MM/YYYY hh:mm A").isValid()
                       ? dayjs(item.functionDate, "DD/MM/YYYY hh:mm A")
                       : null,
-                  persons: item.pax?.toString() || "",
-                  extra: 0,
-                  rate: item.ratePerPlate?.toString() || "",
-                  totalPrice: formatAmount(item.amount),
-                  isFromQuotationItems: item.isEventFunction,
+                  persons: item.pax != null ? item.pax.toString() : "", // ✅ pax (100, 50)
+                  extra: item.extraPax ?? 0, // ✅ extraPax
+                  rate:
+                    item.ratePerPlate != null
+                      ? item.ratePerPlate.toString()
+                      : "0", // ✅ ratePerPlate (0 is valid, not empty)
+                  totalPrice: formatAmount(item.amount), // ✅ amount
+                  isFromQuotationItems: item.isEventFunction === true, // ✅ lock name/date/pax when true
                 }))
               : quotationInfo.event?.eventFunctions?.length > 0
-                ? quotationInfo.event.eventFunctions.map(
-                    (eventFunc, index) => ({
-                      id: 0,
-                      name: eventFunc.function?.nameEnglish || "",
-                      date: eventFunc.functionStartDateTime
-                        ? dayjs(
-                            eventFunc.functionStartDateTime,
-                            "DD/MM/YYYY hh:mm A",
-                          )
-                        : null,
-                      persons: eventFunc.pax?.toString() || "",
-                      extra: 0,
-                      rate: eventFunc.rate?.toString() || "",
-                      totalPrice:
-                        eventFunc.pax && eventFunc.rate
-                          ? eventFunc.pax * eventFunc.rate
-                          : "0",
-                      isFromQuotationItems: true,
-                    }),
-                  )
+                ? quotationInfo.event.eventFunctions.map((eventFunc) => ({
+                    id: 0,
+                    name: eventFunc.function?.nameEnglish || "",
+                    date: eventFunc.functionStartDateTime
+                      ? dayjs(
+                          eventFunc.functionStartDateTime,
+                          "DD/MM/YYYY hh:mm A",
+                        )
+                      : null,
+                    persons: eventFunc.pax?.toString() || "",
+                    extra: 0,
+                    rate: eventFunc.rate?.toString() || "",
+                    totalPrice:
+                      eventFunc.pax && eventFunc.rate
+                        ? eventFunc.pax * eventFunc.rate
+                        : "0",
+                    isFromQuotationItems: true,
+                  }))
                 : [
                     {
-                      id: 1,
+                      id: 0,
                       name: "",
                       date: null,
                       persons: "",
@@ -340,9 +348,10 @@ const QuotationPage = () => {
 
             advancePayments:
               quotationInfo.eventFunctionQuotationPayments &&
-              Array.isArray(quotationInfo.eventFunctionQuotationPayments)
+              Array.isArray(quotationInfo.eventFunctionQuotationPayments) &&
+              quotationInfo.eventFunctionQuotationPayments.length > 0
                 ? quotationInfo.eventFunctionQuotationPayments.map((p) => ({
-                  id: p.id || 0,
+                    id: p.id || 0,
                     amount: p.advancePayment || 0,
                     date:
                       p.advancePaymentDate &&
@@ -356,7 +365,7 @@ const QuotationPage = () => {
                   }))
                 : [
                     {
-                      id: p.id || 0,
+                      id: 0,
                       amount: quotationInfo.advancePayment || 0,
                       date:
                         quotationInfo.advancePaymentDate &&
@@ -570,12 +579,14 @@ const QuotationPage = () => {
 
     const grandTotal =
       amountAfterDiscount + cgstAmnt + sgstAmnt + igstAmnt + roundOff;
-    const payments = (quotationData.advancePayments || []).map((p) => ({
-      id: p.id || 0,
-      advancePayment: parseFloat(p.amount) || 0,
-      advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
-      advancePaymentNotes: p.description || "",
-    }));
+    const payments = (quotationData.advancePayments || [])
+      .filter((p) => parseFloat(p.amount) > 0)
+      .map((p) => ({
+        id: p.id || 0,
+        advancePayment: parseFloat(p.amount) || 0,
+        advancePaymentDate: p.date ? p.date.format("DD/MM/YYYY hh:mm A") : null,
+        advancePaymentNotes: p.description || "",
+      }));
     const totalPaid = (quotationData.advancePayments || []).reduce((sum, p) => {
       const val = parseFloat(p.amount) || 0;
       return sum + val;
@@ -600,44 +611,23 @@ const QuotationPage = () => {
       const parsed = dayjs(quotationDate, "YYYY-MM-DD");
       if (parsed.isValid()) {
         formattedQuotationDate = parsed.format("DD/MM/YYYY");
-        console.log(
-          "Using edited quotationDate (YYYY-MM-DD → DD/MM/YYYY):",
-          formattedQuotationDate,
-        );
       } else {
-        // Invalid edited date, use QuotationDate
         formattedQuotationDate =
           quotationData.QuotationDate || dayjs().format("DD/MM/YYYY");
-        console.log(
-          "Edited date invalid, using QuotationDate or today:",
-          formattedQuotationDate,
-        );
       }
     } else if (quotationData.QuotationDate) {
-      // Date from API - already in DD/MM/YYYY format
       const parsed = dayjs(quotationData.QuotationDate, "DD/MM/YYYY");
       if (parsed.isValid()) {
         formattedQuotationDate = parsed.format("DD/MM/YYYY");
-        console.log(
-          "Using QuotationDate (already DD/MM/YYYY):",
-          formattedQuotationDate,
-        );
       } else {
-        // Fallback: try to parse as ISO
         const parsedISO = dayjs(quotationData.QuotationDate);
         formattedQuotationDate = parsedISO.isValid()
           ? parsedISO.format("DD/MM/YYYY")
           : dayjs().format("DD/MM/YYYY");
-        console.log("Parsed as ISO or using today:", formattedQuotationDate);
       }
     } else {
-      // Default to today
       formattedQuotationDate = dayjs().format("DD/MM/YYYY");
-      console.log("Using today's date:", formattedQuotationDate);
     }
-
-    console.log("Final formattedQuotationDate:", formattedQuotationDate);
-    console.log("=== END QUOTATION DATE DEBUG ===\n");
 
     const payload = {
       eventFunctionQuotationPayments: payments,
@@ -652,6 +642,7 @@ const QuotationPage = () => {
         pax: parseInt(fn.persons) || 0,
         ratePerPlate: parseFloat(fn.rate) || 0,
         isEventFunction: fn.isFromQuotationItems === true,
+        eventFunctionId: fn.eventFunctionId || 0,
       })),
       subTotal: parseFloat(subtotal),
       grandTotal: grandTotal,
@@ -674,8 +665,6 @@ const QuotationPage = () => {
       quotationdate: formattedQuotationDate,
     };
 
-
-
     return payload;
   };
 
@@ -691,28 +680,6 @@ const QuotationPage = () => {
         color: "#7a0000",
         confirmButtonText: "Okay",
         confirmButtonColor: "#d33",
-        customClass: {
-          popup: "rounded-2xl shadow-xl",
-          title: "text-2xl font-bold",
-          confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
-        },
-      });
-      return;
-    }
-
-    // Validate that all advance payment dates are set
-    const hasEmptyDate = quotationData.advancePayments.some(
-      (payment) => !payment.date,
-    );
-    if (hasEmptyDate) {
-      Swal.fire({
-        title: "Validation Error",
-        text: "Please select a date and time for all advance payments.",
-        icon: "warning",
-        background: "#fffbf0",
-        color: "#8B4513",
-        confirmButtonText: "Okay",
-        confirmButtonColor: "#FFA500",
         customClass: {
           popup: "rounded-2xl shadow-xl",
           title: "text-2xl font-bold",
@@ -742,17 +709,17 @@ const QuotationPage = () => {
             confirmButtonColor: "#005BA8",
             showClass: {
               popup: `
-             animate__animated
-             animate__fadeInDown
-             animate__faster
-           `,
+              animate__animated
+              animate__fadeInDown
+              animate__faster
+            `,
             },
             hideClass: {
               popup: `
-             animate__animated
-             animate__fadeOutUp
-             animate__faster
-           `,
+              animate__animated
+              animate__fadeOutUp
+              animate__faster
+            `,
             },
             customClass: {
               popup: "rounded-2xl shadow-xl",
@@ -787,13 +754,6 @@ const QuotationPage = () => {
         }
       })
       .catch((error) => {
-        console.error("=== ERROR DETAILS ===");
-        console.error("Full error object:", error);
-        console.error("Error response:", error?.response);
-        console.error("Error response data:", error?.response?.data);
-        console.error("Error response status:", error?.response?.status);
-        console.error("=== END ERROR DETAILS ===");
-
         const beMsg = getErrorMessage(
           error,
           "Something went wrong while saving quotation",
@@ -852,7 +812,7 @@ const QuotationPage = () => {
       ...prev,
       advancePayments: [
         ...prev.advancePayments,
-        { id: 0, amount: "0", date: dayjs(), description: "" },
+        { id: 0, amount: "", date: null, description: "" },
       ],
     }));
   };
@@ -964,54 +924,97 @@ const QuotationPage = () => {
     let mobile = quotationData.mobileNumber || "";
 
     const message = `Hi ${name},
-  Hope you're doing well!
-  
-  Please find the quotation PDF below:
-  ${pdfUrl}
-  
-  Thanks!`;
+    Hope you're doing well!
+    
+    Please find the quotation PDF below:
+    ${pdfUrl}
+    
+    Thanks!`;
 
     const url = `https://api.whatsapp.com/send?phone=${mobile}&text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const handleCopyToInvoice = () => {
+    if (!quotationId) {
+      Swal.fire({
+        title: "Error",
+        text: "Quotation not loaded yet. Please wait.",
+        icon: "error",
+        confirmButtonColor: "#005BA8",
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Copy to Invoice?",
+      text: "Do you want to copy this quotation data to the invoice?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Copy",
+      cancelButtonText: "No",
+      confirmButtonColor: "#005BA8",
+      cancelButtonColor: "#d33",
+      background: "#f5faff",
+      color: "#003f73",
+      customClass: {
+        popup: "rounded-2xl shadow-xl",
+        title: "text-2xl font-bold",
+        confirmButton: "px-6 py-2 text-white font-semibold rounded-lg",
+        cancelButton: "px-6 py-2 text-white font-semibold rounded-lg",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // ✅ Navigate with fromQuotation=true
+        // AddInvoicePage will call GetQuotation(eventId, 1) itself — no pre-call here
+        navigate(`/add-invoice/${eventId}`, {
+          state: {
+            eventId,
+            fromQuotation: true,
+            quotationId: quotationId,
+            quotationData: null,
+          },
+        });
+      }
+    });
+  };
   return (
     <Fragment>
       <style>
         {`
-          .user-access-bg {
-            background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
-          }
-          .dark .user-access-bg {
-            background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
-          }
-          
-          /* Custom responsive table styles */
-          .responsive-table-container {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-          }
-          
-          .responsive-table {
-            min-width: 100%;
-            width: max-content;
-          }
-          
-          /* Responsive breakpoints */
-          @media (max-width: 1200px) {
-            .responsive-table {
-              min-width: 1000px;
+            .user-access-bg {
+              background-image: url('${toAbsoluteUrl("/images/bg_01.png")}');
             }
-          }
-          
-          @media (max-width: 768px) {
-            .responsive-table {
-              min-width: 800px;
+            .dark .user-access-bg {
+              background-image: url('${toAbsoluteUrl("/images/bg_01_dark.png")}');
             }
-          }
-        `}
+            
+            /* Custom responsive table styles */
+            .responsive-table-container {
+              width: 100%;
+              overflow-x: auto;
+              -webkit-overflow-scrolling: touch;
+            }
+            
+            .responsive-table {
+              min-width: 100%;
+              width: max-content;
+            }
+            
+            /* Responsive breakpoints */
+            @media (max-width: 1200px) {
+              .responsive-table {
+                min-width: 1000px;
+              }
+            }
+            
+            @media (max-width: 768px) {
+              .responsive-table {
+                min-width: 800px;
+              }
+            }
+          `}
       </style>
 
       <div className="w-full overflow-x-hidden">
@@ -1118,7 +1121,9 @@ const QuotationPage = () => {
                           defaultMessage="Quotation Date:"
                         />
                       </span>
+
                       <div className="flex items-center gap-2">
+                        
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">
@@ -1225,7 +1230,32 @@ const QuotationPage = () => {
               </div>
 
               {/* Right side - Print Button */}
-              <div className="w-full lg:w-auto lg:self-start">
+              <div className="w-full lg:w-auto lg:self-start flex flex-col lg:flex-row gap-2">
+                <button
+                  className="btn btn-primary w-full lg:w-auto"
+                  onClick={handleCopyToInvoice}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <FormattedMessage
+                    id="COMMON.COPY_TO_INVOICE"
+                    defaultMessage="Copy to Invoice"
+                  />
+                </button>
+
+                {/* Print */}
                 <button
                   className="btn btn-primary w-full lg:w-auto"
                   onClick={handleSaveAndOpenPdf}
@@ -1257,7 +1287,7 @@ const QuotationPage = () => {
                         <rect x="6" y="14" width="12" height="8" rx="1" />
                       </svg>
                       <FormattedMessage
-                        id="COMMON.SHARE"
+                        id="COMMON.PRINT"
                         defaultMessage="Print"
                       />
                     </>
@@ -1773,17 +1803,16 @@ const QuotationPage = () => {
                           <div className="flex flex-col gap-2">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                               <i className="ki-filled ki-calendar text-gray-500"></i>
-                              <div className="flex flex-col w-full">
-                                <label className="text-xs font-medium text-gray-700 mb-1">
+                              <div className="flex flex-col gap-1 flex-1">
+                                <label className="text-xs font-medium text-gray-700">
                                   {intl.formatMessage({
                                     id: "COMMON.PAYMENT_DATE_TIME",
                                     defaultMessage: "Payment date & time",
                                   })}
-                                  <span className="text-red-500 ml-1">*</span>
                                 </label>
                                 <DatePicker
                                   id={`advance-payment-date-${i}`}
-                                  className={`input w-full sm:w-[200px] ${!pay.date ? "border-red-500" : ""}`}
+                                  className="input w-full"
                                   showTime={{
                                     use12Hours: true,
                                     format: "hh:mm A",
@@ -1797,16 +1826,7 @@ const QuotationPage = () => {
                                     id: "COMMON.PAYMENT_DATE_TIME",
                                     defaultMessage: "Payment date & time",
                                   })}
-                                  status={!pay.date ? "error" : ""}
                                 />
-                                {!pay.date && (
-                                  <span className="text-xs text-red-500 mt-1">
-                                    {intl.formatMessage({
-                                      id: "COMMON.DATE_REQUIRED",
-                                      defaultMessage: "Date is required",
-                                    })}
-                                  </span>
-                                )}
                               </div>
                             </div>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3">

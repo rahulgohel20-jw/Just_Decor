@@ -40,11 +40,12 @@ export default function SelectMenureport({
   const [eventName, setEventName] = useState("");
   const [PartyNumber, setPartyNumber] = useState("");
   const [selectedTemplateName, setSelectedTemplateName] = useState("");
-  const [isNamePlateTheme, setIsNamePlateTheme] = useState(false); // NEW STATE
+  const [isNamePlateTheme, setIsNamePlateTheme] = useState(1); // NEW STATE
   const [openNamePlate, setOpenNamePlate] = useState(false);
   const [openNamePlateTest, setOpenNamePlateTest] = useState(false);
   const [isCostingReportOpen, setIsCostingReportOpen] = useState(false);
   const [agencyType, setAgencyType] = useState(null);
+  const [isModalOpenWithLogo, setIsModalOpenWithLogo] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,6 +102,8 @@ export default function SelectMenureport({
     const fetchTemplateModules = async () => {
       try {
         const res = await GettemplatebyuserId();
+
+        console.log(res);
 
         if (res?.data?.success && res?.data?.data) {
           let modules = res.data.data.filter(
@@ -184,9 +187,8 @@ export default function SelectMenureport({
         ) {
           dynamicTemplates = res.data.data.map((item) => ({
             id: item.id,
-            name: item.templateMaster.name,
-
-            description: `${item.templateMaster.name} - Custom theme template`,
+            name: item.templateMaster.name || "",
+            description: item.templateMaster.description || "",
             headingFontColor: item.templateMaster.headingFontColor,
             contentFontColor: item.templateMaster.contentFontColor,
             frontPage: item.templateMaster.frontPage,
@@ -199,6 +201,7 @@ export default function SelectMenureport({
             isStatic: false,
             mappingId: item.templateMappingResponseDto?.id || item.id,
             namePlateType: item.templateMappingResponseDto?.namePlateType || "",
+            type: item.templateMappingResponseDto.nameEnglish || "",
           }));
         }
 
@@ -266,6 +269,8 @@ export default function SelectMenureport({
       type = "outside";
     } else if (selectedTab?.nameEnglish === "Labour Agency Theme") {
       type = "labour";
+    } else if (selectedTab?.nameEnglish === "Raw Material Theme") {
+      type = "supplier";
     }
 
     setAgencyType(type);
@@ -280,39 +285,49 @@ export default function SelectMenureport({
       return;
     }
 
-    // 🔄 BACKEND WORKAROUND: Backend sends "Table Menu" but it's actually Main Standy data
-    // So when backend says "Table Menu" → Open MainStandyMenuReport
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Counter Name Plate With Logo"
+    ) {
+      setIsModalOpen(true);
+      return;
+    }
+
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Table Menu"
     ) {
-      setOpenNamePlate(true); // Opens MainStandyMenuReport
+      setOpenNamePlate(true);
       return;
     }
 
-    // 🔄 BACKEND WORKAROUND: Backend sends "Main Standy" but it's actually Table Menu data
-    // So when backend says "Main Standy" → Open NamePlateReport
+    if (
+      isNamePlateTheme &&
+      template.isNamePlate &&
+      template.namePlateType === "Table Menu Exclusive"
+    ) {
+      setOpenNamePlate(true);
+      return;
+    }
+
     if (
       isNamePlateTheme &&
       template.isNamePlate &&
       template.namePlateType === "Main Standy"
     ) {
-      setOpenNamePlateTest(true); // Opens NamePlateReport
+      setOpenNamePlateTest(true);
       return;
     }
 
-    // Default: Normal menu report
-
     setIsMenuReportOpen(true);
   };
-  // ✅ COSTING REPORT
 
   const handleFunctionChange = (e) => {
     setSelectedFunctionId(Number(e.target.value));
   };
 
-  // NEW: Handle tab change and update isNamePlateTheme
   const handleTabChange = (tabKey) => {
     setActiveTab(tabKey);
     const selectedTab = tabs.find((tab) => tab.key === tabKey);
@@ -528,70 +543,92 @@ export default function SelectMenureport({
             </div>
           ) : templates.length > 0 ? (
             <div className="space-y-4">
-              {templates.map((template) => {
-                const isActive = selectedCard === template.id;
+              {templates
+                .filter((template) => {
+                  const selectedTab = tabs.find((tab) => tab.key === activeTab);
+                  if (!selectedTab) return true;
+                  const tabName = selectedTab.nameEnglish;
+                  if (
+                    tabName === "Chef Agency Theme" &&
+                    template.type === "Type 8"
+                  ) {
+                    return false;
+                  }
+                  if (
+                    tabName === "Outside Agency Theme" &&
+                    template.type === "Type 3"
+                  ) {
+                    return false;
+                  }
+                  if (
+                    tabName === "Labour Agency Theme" &&
+                    template.type === "Type 8"
+                  ) {
+                    return false;
+                  }
+                  return true;
+                })
+                .map((template) => {
+                  const isActive = selectedCard === template.id;
 
-                return (
-                  <div
-                    key={template.id}
-                    className={`
+                  return (
+                    <div
+                      key={template.id}
+                      className={`
             flex items-center gap-6 bg-white rounded-xl  
             border-2 ${isActive ? "border-[#005BA8]" : "border-gray-200"}
             shadow-sm hover:shadow-md transition-all duration-300
           `}
-                  >
-                    {/* Image (Left) */}
-                    <div className="w-24 h-24 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
-                      {template.frontPage ? (
-                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
+                    >
+                      <div className="w-24 h-24 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
+                        {template.frontPage ? (
+                          <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
+                            <img
+                              src={toAbsoluteUrl("/media/icons/reportcard.png")}
+                              alt={template.name || "Template"}
+                              className="w-8 h-8 object-contain"
+                            />
+                          </div>
+                        ) : (
                           <img
                             src={toAbsoluteUrl("/media/icons/reportcard.png")}
-                            alt={template.name || "Template"}
-                            className="w-8 h-8 object-contain"
+                            alt="Template"
+                            className="w-12 h-12 object-contain"
                           />
-                        </div>
-                      ) : (
-                        <img
-                          src={toAbsoluteUrl("/media/icons/reportcard.png")}
-                          alt="Template"
-                          className="w-12 h-12 object-contain"
-                        />
-                      )}
-                    </div>
+                        )}
+                      </div>
 
-                    {/* Content (Middle) */}
-                    <div className="flex-1">
-                      <h3
-                        className={`text-base font-bold ${
-                          isActive ? "text-[#005BA8]" : "text-gray-800"
-                        }`}
-                      >
-                        {template.name}
-                      </h3>
+                      <div className="flex-1">
+                        <h3
+                          className={`text-base font-bold ${
+                            isActive ? "text-[#005BA8]" : "text-gray-800"
+                          }`}
+                        >
+                          {template.name}
+                        </h3>
 
-                      <p className="text-sm text-gray-500 mt-1">
-                        {template.description}
-                      </p>
-                    </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {template.description}
+                        </p>
+                      </div>
 
-                    {/* Action (Right) */}
-                    <div className="flex-shrink-0 pe-3">
-                      <button
-                        className="btn btn-primary px-6 h-[50px] w-[200px] text-md rounded-full flex items-center justify-center"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGenerateReport(template);
-                        }}
-                      >
-                        <FormattedMessage
-                          id="REPORTS.GENERATE_REPORT"
-                          defaultMessage="Generate Report"
-                        />
-                      </button>
+                      <div className="flex-shrink-0 pe-3">
+                        <button
+                          className="btn btn-primary px-6 h-[50px] w-[200px] text-md rounded-full flex items-center justify-center"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGenerateReport(template);
+                          }}
+                        >
+                          <FormattedMessage
+                            id="REPORTS.GENERATE_REPORT"
+                            defaultMessage="Generate Report"
+                          />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
@@ -613,6 +650,7 @@ export default function SelectMenureport({
         PartyNumber={PartyNumber}
         isNamePlateTheme={isNamePlateTheme}
         agencyType={agencyType}
+        isAdminModuleReport={false}
       />
 
       <CounterNameplate
@@ -623,6 +661,17 @@ export default function SelectMenureport({
         currentlang={currentlang}
         adminTemplatemoduleId={selectedModuleId || activeTab}
         selectedTemplateId={selectedTemplateId}
+      />
+
+      <CounterNameplate
+        isModalOpen={isModalOpenWithLogo}
+        setIsModalOpen={setIsModalOpen}
+        eventId={finalEventId}
+        eventFunctionId={selectedFunctionId}
+        currentlang={currentlang}
+        adminTemplatemoduleId={selectedModuleId || activeTab}
+        selectedTemplateId={selectedTemplateId}
+        withLogo={true}
       />
       {openNamePlateTest && (
         <MainStandyMenuReport

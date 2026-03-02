@@ -48,55 +48,51 @@ const UserRights = () => {
   const handleOpenPermission = async (role) => {
     setSelectedRole(role);
     setIsPermissionModalOpen(true);
-  
+    const istrue = role !== 1;
+
     try {
       const [pagesRes, rightsRes] = await Promise.all([
-        GetPages(),
+        GetPages(istrue),
         GetRightsBYroleId(role.roleId),
       ]);
-  
- 
+
       const rightsModules = rightsRes?.data?.data?.UserRights || [];
-  
+
       const rightsMap = {};
       rightsModules.forEach((module) => {
         module.userRights?.forEach((page) => {
           rightsMap[`${module.moduleId}_${page.pageid}`] = page;
         });
       });
-  
- 
-      const moduleWisePages =
-        pagesRes?.data?.data?.ModuleWiseUserRights || [];
-  
+
+      const moduleWisePages = pagesRes?.data?.data?.ModuleWiseUserRights || [];
+
       const finalPermissions = moduleWisePages.flatMap((module) =>
         (module.userRightsPages || []).map((page) => {
           const key = `${module.moduleId}_${page.pageId}`;
           const right = rightsMap[key];
-  
+
           return {
             moduleId: module.moduleId,
             moduleName: module.moduleName,
             pageId: page.pageId,
             name: page.pagename,
-  
+
             add: right ? Boolean(right.add) : false,
             edit: right ? Boolean(right.edit) : false,
             view: right ? Boolean(right.view) : false,
             delete: right ? Boolean(right.delete) : false,
-  
+
             roleId: role.roleId,
           };
-        })
+        }),
       );
-  
+
       setPermissions(finalPermissions);
     } catch (error) {
       console.error("Error loading permissions:", error);
     }
   };
-  
-  
 
   const columns = [
     {
@@ -135,11 +131,7 @@ const UserRights = () => {
       <Container>
         <h1 className="text-xl font-semibold mb-4">User Rights</h1>
 
-        <TableComponent
-          columns={columns}
-          data={tableData}
-          loading={loading}
-        />
+        <TableComponent columns={columns} data={tableData} loading={loading} />
 
         <Addpermission
           isOpen={isPermissionModalOpen}

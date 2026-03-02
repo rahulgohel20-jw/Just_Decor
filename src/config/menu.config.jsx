@@ -6,7 +6,7 @@ export const disableMenuItems = (menuItems) => {
     return {
       ...item,
       disabled: !isPlanPage,
-      statusLabel: isPlanPage ? undefined : "Locked 🔒",
+      statusLabel: isPlanPage ? undefined : "Locked",
       children: item.children ? disableMenuItems(item.children) : undefined,
     };
   });
@@ -19,6 +19,7 @@ export const allMenuItems = [
     ),
     icon: "element-11 text-primary text-lg",
     path: "/",
+    pageName: "Dashboard",
   },
   {
     title: <FormattedMessage id="COMMON.EVENTS" defaultMessage="Events" />,
@@ -54,6 +55,7 @@ export const allMenuItems = [
             defaultMessage="Types"
           />
         ),
+        pageName: "Types",
         path: "/master/contact-type",
       },
       {
@@ -63,6 +65,7 @@ export const allMenuItems = [
             defaultMessage="Categories"
           />
         ),
+        pageName: "Categories",
         path: "/master/contact-categories",
       },
       {
@@ -70,6 +73,7 @@ export const allMenuItems = [
           <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Customers" />
         ),
         path: "/master/customers",
+        pageName: "Customers",
       },
       {
         title: (
@@ -79,15 +83,17 @@ export const allMenuItems = [
           />
         ),
         path: "/master/vendor-master",
+        pageName: "Vendor",
       },
       {
         title: (
           <FormattedMessage
             id="COMMON.EVENTSIDEBAR_TYPE"
-            defaultMessage="Events "
+            defaultMessage="Events"
           />
         ),
         path: "/master/event-type",
+        pageName: "Events",
       },
       {
         title: (
@@ -97,15 +103,17 @@ export const allMenuItems = [
           />
         ),
         path: "/master/functions",
+        pageName: "Function",
       },
       {
         title: (
           <FormattedMessage
             id="COMMON.MEALSIDEBAR_TYPE"
-            defaultMessage="Food Prefrence "
+            defaultMessage="Food Prefrence"
           />
         ),
         path: "/master/meals",
+        pageName: "Food Prefrence",
       },
 
       {
@@ -116,6 +124,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/venue-type",
+        pageName: "Venue",
       },
       {
         title: (
@@ -125,6 +134,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/godown",
+        pageName: "Godown",
       },
       {
         title: (
@@ -134,6 +144,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/labour-shift",
+        pageName: "Labour Shift",
       },
       {
         title: (
@@ -143,6 +154,18 @@ export const allMenuItems = [
           />
         ),
         path: "/master/custom-package",
+        pageName: "Menu Packages",
+      },
+
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CUSTOMSIDEBAR_BANK_DETAILS"
+            defaultMessage="Bank Details"
+          />
+        ),
+        path: "/master/bank-details",
+        pageName: "Bank Details",
       },
 
       {
@@ -159,6 +182,7 @@ export const allMenuItems = [
               />
             ),
             path: "/master/all-members",
+            pageName: "User Master",
           },
           {
             title: (
@@ -168,6 +192,7 @@ export const allMenuItems = [
               />
             ),
             path: "/master/role",
+            pageName: "Department",
           },
         ],
       },
@@ -186,10 +211,11 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.RAW_MATERIALSIDEBAR_TYPE"
-            defaultMessage=" Type"
+            defaultMessage="Type"
           />
         ),
         path: "/master/raw-material-type-master",
+        pageName: "Type",
       },
       {
         title: (
@@ -199,6 +225,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/raw-material-master",
+        pageName: "Category",
       },
       {
         title: (
@@ -208,12 +235,14 @@ export const allMenuItems = [
           />
         ),
         path: "/master/raw-material",
+        pageName: "Items",
       },
       {
         title: (
           <FormattedMessage id="COMMONSIDEBAR.UNIT" defaultMessage="Unit" />
         ),
         path: "/master/unit",
+        pageName: "Unit",
       },
     ],
   },
@@ -231,6 +260,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/menu-category",
+        pageName: "Category",
       },
       {
         title: (
@@ -240,6 +270,7 @@ export const allMenuItems = [
           />
         ),
         path: "/master/menu-sub-category",
+        pageName: "Sub Category",
       },
 
       // {
@@ -255,10 +286,11 @@ export const allMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.MENUSIDEBAR_ITEM"
-            defaultMessage=" Items With Recipe "
+            defaultMessage="Items With Recipe "
           />
         ),
         path: "/master/menu-item",
+        pageName: "Items With Recipe",
       },
     ],
   },
@@ -295,6 +327,7 @@ export const allMenuItems = [
     ),
     icon: "ki-filled ki-color-swatch text-primary",
     path: "/adminreportcustomtheme",
+    pageName: "Custom Themes",
   },
   {
     title: (
@@ -305,6 +338,25 @@ export const allMenuItems = [
     ),
     icon: " ki-filled ki-document text-primary",
     path: "/adminmodulereport",
+    children: [
+      // {
+      //   title: (
+      //     <FormattedMessage id="COMMON.QUOTATION" defaultMessage="All Booking Reports" />
+      //   ),
+      //   path: "/allreports/",
+      //   disabled: true
+      // },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.INVOICE"
+            defaultMessage="Datewise Order Reports"
+          />
+        ),
+        path: "/adminmodulereport",
+        pageName: "Datewise Order Reports",
+      },
+    ],
   },
   {
     title: <FormattedMessage id="COMMON.SALES" defaultMessage="Sales" />,
@@ -315,12 +367,14 @@ export const allMenuItems = [
           <FormattedMessage id="COMMON.QUOTATION" defaultMessage="Quotation" />
         ),
         path: "/quotation-dashboard",
+        pageName: "Quotation",
       },
       {
         title: (
           <FormattedMessage id="COMMON.INVOICE" defaultMessage="Invoice" />
         ),
         path: "/sales/invoice-dashboard",
+        pageName: "Invoice",
       },
     ],
   },
@@ -353,6 +407,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/CrockeryConfiguration",
+        pageName: "Crockery Configuration",
       },
       {
         title: (
@@ -362,6 +417,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/changerawraterialcategory",
+        pageName: "Change Raw Material Category",
       },
       {
         title: (
@@ -371,6 +427,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/changemenuitemcategory",
+        pageName: "Change Menu Item Category",
       },
 
       {
@@ -381,6 +438,7 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/confimenuitemallocate",
+        pageName: "Menu Item Allocation",
       },
       {
         title: (
@@ -390,19 +448,165 @@ export const allMenuItems = [
           />
         ),
         path: "/configuration/allocationsupplier",
+        pageName: "Allocate Supplier",
       },
     ],
   },
   {
     title: (
-      <FormattedMessage
-        id="COMMON.CUSTOM_THEMES"
-        defaultMessage="Payments"
-      />
+      <>
+        <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Account" />
+        <span
+          className="text-primary"
+          style={{ marginLeft: "8px", fontSize: "12px" }}
+        >
+          Coming Soon
+        </span>
+      </>
     ),
-    icon: "ki-filled ki-color-swatch text-primary",
-    path: "/Payments",
+    icon: "ki-filled ki-bank text-primary",
+    // children: [
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Credit"
+    //       />
+    //     ),
+    //     path: "/bank-payment",
+    //   },
+
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Debit"
+    //       />
+    //     ),
+    //     path: "/cash-recipet",
+    //   },
+
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Account Ledger"
+    //       />
+    //     ),
+    //     path: "/account",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.CHANGESIDEARRAWMATIRAL"
+    //         defaultMessage="Payments"
+    //       />
+    //     ),
+    //     path: "/Payments",
+    //   },
+    // ],
   },
+
+  {
+    title: (
+      <>
+        <FormattedMessage id="COMMON.STOCK_MANAGEMENT" defaultMessage="Stock" />
+        <span
+          className="text-primary"
+          style={{ marginLeft: "26px", fontSize: "12px" }}
+        >
+          Coming Soon
+        </span>
+      </>
+    ),
+    icon: "ki-filled ki-chart-simple text-primary text-lg",
+    disabled: false,
+    // children: [
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STOCK_TYPE"
+    //         defaultMessage="Stock Type"
+    //       />
+    //     ),
+    //     path: "/stock-management/stock-type",
+    //     pageName: "Stock Type",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="BREADCRUMBS_PURCHASE"
+    //         defaultMessage="Purchase"
+    //       />
+    //     ),
+    //     path: "/stock-management/purchase",
+    //     pageName: "Purchase",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.PURCHASE_RETURN"
+    //         defaultMessage="Purchase Return"
+    //       />
+    //     ),
+    //     path: "/stock-management/purchase-return",
+    //     pageName: "Purchase Return",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STORE_PO"
+    //         defaultMessage="Store PO"
+    //       />
+    //     ),
+    //     path: "/stock-management/store-po",
+    //     pageName: "Store PO",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STOCK_LEDGER"
+    //         defaultMessage="Stock Ledger"
+    //       />
+    //     ),
+    //     path: "/stock-management/store-ledger",
+    //     pageName: "Store Ledger",
+    //   },
+    //   {
+    //     title: (
+    //       <FormattedMessage
+    //         id="COMMON.STOCK_REPORT"
+    //         defaultMessage="Stock Report"
+    //       />
+    //     ),
+    //     path: "/stock-management/stock-report",
+    //     pageName: "Stock Report",
+    //   },
+
+    // {
+    //   title: (
+    //     <FormattedMessage
+    //       id="COMMON.NOTIFICATIONS"
+    //       defaultMessage="Notifications"
+    //     />
+    //   ),
+    //   path: "settings/notifications",
+    // },
+    // ],
+  },
+
+  {
+  title: (
+    <FormattedMessage
+      id="COMMON.RECIPE"
+      defaultMessage="Recipe"
+    />
+  ),
+  icon: "ki-filled ki-book text-primary text-lg",
+  path: "/recipe",
+  pageName: "Recipe",
+},
+  
   {
     title: <FormattedMessage id="COMMON.SETTINGS" defaultMessage="Settings" />,
     icon: "ki-filled ki-setting-2 text-primary  text-lg",
@@ -416,6 +620,7 @@ export const allMenuItems = [
           />
         ),
         path: "/settings/general",
+        pageName: "Company Profile",
       },
       {
         title: (
@@ -425,6 +630,7 @@ export const allMenuItems = [
           />
         ),
         path: "/user-rights",
+        pageName: "User Rights",
       },
       {
         title: (
@@ -434,6 +640,7 @@ export const allMenuItems = [
           />
         ),
         path: "/utility",
+        pageName: "Utility Page",
       },
       {
         title: (
@@ -443,6 +650,7 @@ export const allMenuItems = [
           />
         ),
         path: "/settings/subscription",
+        pageName: "Subscription",
       },
       {
         title: (
@@ -452,6 +660,7 @@ export const allMenuItems = [
           />
         ),
         path: "/setting/payment-history",
+        pageName: "Payment History",
       },
 
       // {
@@ -474,82 +683,43 @@ export const superAdminMenuItems = [
     ),
     icon: "element-11 text-primary",
     path: "/super-dashboard",
+    pageName: "Dashboard",
   },
   {
-    title: "Calander",
+    title: "Calender",
     icon: "ki-filled ki-calendar-tick text-primary",
     path: "/super-calendar",
+    pageName: "Calendar",
   },
   {
     title: (
-      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member List" />
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Member " />
     ),
     icon: "ki-filled ki-user text-primary",
     path: "/master/user-master/",
+    pageName: "Members",
+  },
+  {
+    title: <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Vendor" />,
+    icon: "ki-filled ki-users text-primary",
+    path: "/vendors",
+    pageName: "Vendors",
+  },
+  {
+    title: (
+      <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Expense" />
+    ),
+    icon: "ki-filled ki-users text-primary",
+    path: "/expense",
+    pageName: "Expense",
   },
 
   {
     title: (
-      <FormattedMessage
-        id="COMMON.INVOICE_LIST"
-        defaultMessage="Invoice List"
-      />
+      <FormattedMessage id="COMMON.MASTER" defaultMessage="Superadmin Master" />
     ),
-    icon: "ki-filled ki-minus-folder text-primary",
-    path: "/admin-invoice",
-  },
-  {
-    title: (
-      <FormattedMessage
-        id="COMMON.CUSTOM_THEMES"
-        defaultMessage="Custom Themes"
-      />
-    ),
-    icon: "ki-filled ki-color-swatch text-primary",
-    path: "/super-reportcustomethemes",
-  },
-  {
-    title: "Plans",
-    icon: "ki-filled ki-crown text-primary",
-    path: "/plans",
-  },
-  {
-    title: "Database",
-    icon: "ki-filled ki-abstract-26 text-primary",
-    path: "/database",
-  },
-  {
-    title: (
-      <FormattedMessage
-        id="COMMON.RENEWAL_CUSTOMER"
-        defaultMessage="Renewal Customer"
-      />
-    ),
-    icon: "ki-filled ki-users text-primary",
-    path: "/renewal-history",
-  },
-  {
-    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Leads" />,
     icon: "ki-filled ki-abstract-26 text-primary",
     children: [
-      {
-        title: (
-          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
-        ),
-        path: "/super-leads",
-      },
-    ],
-  },
-  {
-    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Master" />,
-    icon: "ki-filled ki-abstract-26 text-primary",
-    children: [
-      {
-        title: (
-          <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Members" />
-        ),
-        path: "/superadmin/members",
-      },
       {
         title: (
           <FormattedMessage
@@ -558,6 +728,7 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-contact-type-master",
+        pageName: "Categories",
       },
       {
         title: (
@@ -567,22 +738,26 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-raw-material-type-master",
+        pageName: "Raw Material",
       },
       {
         title: <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Unit" />,
         path: "/super-unit-master",
+        pageName: "Unit",
       },
       {
         title: (
           <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Theme Type" />
         ),
         path: "/super-templateMapping",
+        pageName: "Theme Type",
       },
       {
         title: (
           <FormattedMessage id="COMMON.CUSTOMERS" defaultMessage="Theme" />
         ),
         path: "super-template-name-master",
+        pageName: "Theme",
       },
       {
         title: (
@@ -592,6 +767,7 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/interaction-master",
+        pageName: "Interaction",
       },
       {
         title: (
@@ -601,6 +777,7 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/super-allreport-config",
+        pageName: "Report Configuration",
       },
 
       {
@@ -611,15 +788,103 @@ export const superAdminMenuItems = [
           />
         ),
         path: "/extrapayment",
+        pageName: "Extra Payments",
       },
       {
         title: (
           <FormattedMessage id="COMMON.COUPONS" defaultMessage="Coupons" />
         ),
         path: "/coupon",
+        pageName: "Coupons",
       },
     ],
   },
+
+  {
+    title: <FormattedMessage id="COMMON.MASTER" defaultMessage="Leads" />,
+    icon: "ki-filled ki-abstract-26 text-primary",
+    children: [
+      {
+        title: (
+          <FormattedMessage id="COMMON.MEMBER_LIST" defaultMessage="Users" />
+        ),
+        icon: "ki-filled ki-users text-primary",
+        path: "/superadmin/members",
+        pageName: "Users",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage=" Dashboard"
+          />
+        ),
+        path: "/superadmin/teamperformance",
+        pageName: "Empoloyee Dashboard",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage=" Performance"
+          />
+        ),
+        path: "/superadmin/employeeperformance",
+        pageName: " Performance",
+      },
+
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Pipelines"
+          />
+        ),
+        path: "/pipeline",
+        pageName: "Pipelines",
+      },
+      {
+        title: (
+          <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Leads" />
+        ),
+        path: "/super-leads",
+        pageName: "Leads",
+      },
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.CONTACT_TYPE"
+            defaultMessage="Follow Up"
+          />
+        ),
+        path: "/superadmin/lead/followup",
+        pageName: "Follow Up",
+      },
+      // {
+      //   title: (
+      //     <FormattedMessage
+      //       id="COMMON.CONTACT_TYPE"
+      //       defaultMessage="Employee Dashbaord"
+      //     />
+      //   ),
+      //   path: "/superadmin/employeedashboard",
+      //   pageName: "Employee Dashbaord",
+      // },
+
+      {
+        title: (
+          <FormattedMessage
+            id="COMMON.DEPARTMENTSIDEBAR"
+            defaultMessage="Department"
+          />
+        ),
+        icon: "ki-filled ki-users text-primary",
+        path: "/master/role",
+        pageName: "Department",
+      },
+    ],
+  },
+
   {
     title: (
       <FormattedMessage id="COMMON.MASTER" defaultMessage="User Right Master" />
@@ -630,18 +895,63 @@ export const superAdminMenuItems = [
         title: (
           <FormattedMessage
             id="COMMON.CUSTOMERS"
-            defaultMessage="Module Right  Name"
+            defaultMessage="Module Right Name"
           />
         ),
         path: "/ModuleRights",
+        pageName: "Module Right Name",
       },
       {
         title: (
           <FormattedMessage id="COMMON.CONTACT_TYPE" defaultMessage="Pages" />
         ),
         path: "/pages-master",
+        pageName: "Pages",
       },
     ],
+  },
+  {
+    title: (
+      <FormattedMessage id="COMMON.CUSTOM_THEMES" defaultMessage="Themes" />
+    ),
+    icon: "ki-filled ki-color-swatch text-primary",
+    path: "/super-reportcustomethemes",
+    pageName: "Themes",
+  },
+  {
+    title: "Plans",
+    icon: "ki-filled ki-crown text-primary",
+    path: "/plans",
+    pageName: "Plans",
+  },
+  {
+    title: "Database",
+    icon: "ki-filled ki-abstract-26 text-primary",
+    path: "/database",
+    pageName: "Database",
+  },
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.RENEWAL_CUSTOMER"
+        defaultMessage="Renewal Customer"
+      />
+    ),
+    icon: "ki-filled ki-users text-primary",
+    path: "/renewal-history",
+    pageName: "Renewal Customer",
+  },
+
+  {
+    title: (
+      <FormattedMessage
+        id="COMMON.INVOICE_LIST"
+        defaultMessage="superadmin Invoices"
+      />
+    ),
+    icon: "ki-filled ki-minus-folder text-primary",
+    path: "/admin-invoice",
+    pageName: "superadmin Invoices",
   },
 ];
 

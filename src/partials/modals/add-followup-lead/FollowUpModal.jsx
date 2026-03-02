@@ -1,21 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Select, Input, DatePicker, Button } from "antd";
 import dayjs from "dayjs";
+import { Fetchmanager } from "@/services/apiServices";
 
-export default function FollowUpModal({
+export default function AddFollowUpModal({
   isOpen,
   onClose,
   onSave,
   clientName,
   viewOnlyFollowUp,
+  defaultManager,
+  zIndex,
 }) {
   const [customerName, setCustomerName] = useState("");
+  const [managers, setManagers] = useState([]);
+  const [selectedManager, setSelectedManager] = useState(null);
+
   const [description, setDescription] = useState("");
   const [followType, setFollowType] = useState("Call");
   const [followupDate, setFollowupDate] = useState(null);
 
   // Determine if modal is view-only
   const isViewOnly = !!viewOnlyFollowUp;
+
+  useEffect(() => {
+    if (isOpen) {
+      if (viewOnlyFollowUp?.memberId) {
+        setSelectedManager(viewOnlyFollowUp.memberId);
+      } else if (defaultManager) {
+        setSelectedManager(defaultManager); // ✅ AUTO SELECT
+      }
+    }
+  }, [isOpen, defaultManager, viewOnlyFollowUp]);
+
+  useEffect(() => {
+    const FetchManager = () => {
+      Fetchmanager(1)
+        .then((res) => {
+          if (res?.data?.data?.userDetails) {
+            const managerList = res.data.data.userDetails.map((man) => ({
+              value: man.id,
+              label: man.firstName || "-",
+            }));
+            setManagers(managerList);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch managers:", err);
+          setManagers([]);
+        });
+    };
+
+    if (isOpen) {
+      FetchManager();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isViewOnly && viewOnlyFollowUp) {
@@ -25,7 +64,7 @@ export default function FollowUpModal({
       setFollowupDate(
         viewOnlyFollowUp.followUpDate
           ? dayjs(viewOnlyFollowUp.followUpDate)
-          : null
+          : null,
       );
     } else if (clientName) {
       setCustomerName(clientName);
@@ -43,16 +82,18 @@ export default function FollowUpModal({
 
     onSave({
       customerName,
-      description,
+      clientRemarks: description, // ✅ This is what shows in the list
+      description: description,
       followUpType: followType,
       followupDate: dayjs(followupDate).format("DD/MM/YYYY hh:mm A"),
+      memberId: selectedManager, // 👈 added
     });
 
-    // Reset modal state
     setCustomerName("");
     setDescription("");
     setFollowType("Call");
     setFollowupDate(null);
+    setSelectedManager(null);
 
     onClose(false);
   };
@@ -65,6 +106,7 @@ export default function FollowUpModal({
       footer={null}
       centered
       width={700}
+      zIndex={zIndex || 1100}
     >
       <div className="space-y-5 p-2">
         {/* Customer Name */}
@@ -75,6 +117,18 @@ export default function FollowUpModal({
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             readOnly={isViewOnly}
+          />
+        </div>
+        {/* Manager Dropdown */}
+        <div className="flex flex-col">
+          <label className="form-label mb-1">Assign Member</label>
+          <Select
+            placeholder="Select Member"
+            options={managers}
+            value={selectedManager}
+            onChange={(value) => setSelectedManager(value)}
+            disabled={isViewOnly}
+            className="w-full"
           />
         </div>
 
@@ -122,7 +176,10 @@ export default function FollowUpModal({
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex justify-end gap-3 mt-6">
+        <div
+          className="flex justify-end g
+        ap-3 mt-6"
+        >
           <Button onClick={() => onClose(false)}>Close</Button>
           {!isViewOnly && (
             <Button type="primary" onClick={handleSave}>

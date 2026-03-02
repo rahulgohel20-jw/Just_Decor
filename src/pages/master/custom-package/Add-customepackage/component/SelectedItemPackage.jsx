@@ -1,15 +1,6 @@
-import {
-  Eye,
-  EyeOff,
-  Trash2,
-  GripVertical,
-  FileText,
-  Notebook,
-  NotebookTabs,
-} from "lucide-react";
+import { Eye, EyeOff, Trash2, GripVertical } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 export default function SelectedItemPackage({
@@ -19,8 +10,6 @@ export default function SelectedItemPackage({
   categoryMap = {},
   onReorder,
   categoryItemCounts,
-  onUpdateNotes,
-  onOpenNotes,
 }) {
   const [showRates, setShowRates] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
@@ -55,14 +44,14 @@ export default function SelectedItemPackage({
     }
 
     const newCategories = currentCategories.filter(
-      (cat) => !categoryOrder.includes(cat)
+      (cat) => !categoryOrder.includes(cat),
     );
     if (newCategories.length > 0) {
       setCategoryOrder((prev) => [...prev, ...newCategories]);
     }
 
     const validCategories = categoryOrder.filter((cat) =>
-      currentCategories.includes(cat)
+      currentCategories.includes(cat),
     );
     if (validCategories.length !== categoryOrder.length) {
       setCategoryOrder(validCategories);
@@ -102,34 +91,26 @@ export default function SelectedItemPackage({
       return;
     }
 
-    // CATEGORY REORDERING
     if (type === "CATEGORY") {
-      // Create new array with reordered categories
       const newCategoryOrder = Array.from(categoryOrder);
       const [movedCategory] = newCategoryOrder.splice(source.index, 1);
       newCategoryOrder.splice(destination.index, 0, movedCategory);
 
-      // Update local state immediately
       setCategoryOrder(newCategoryOrder);
 
-      // Reconstruct the full items array in new category order
       const reorderedItems = [];
       newCategoryOrder.forEach((catId) => {
         const categoryItems = groupedItems[catId] || [];
         categoryItems.forEach((item) => {
-          // Create a clean copy without currentIndex
           const { currentIndex, ...cleanItem } = item;
           reorderedItems.push(cleanItem);
         });
       });
 
-      // Return complete reordered array to parent
       onReorder(reorderedItems);
       return;
     }
 
-    // ITEM REORDERING
-    // ITEM REORDERING
     if (type === "ITEM") {
       const sourceCatId = source.droppableId.replace("cat-", "");
       const destCatId = destination.droppableId.replace("cat-", "");
@@ -139,13 +120,11 @@ export default function SelectedItemPackage({
         newGroupedItems[catId] = [...groupedItems[catId]];
       });
 
-      // Remove dragged item
       const [draggedItem] = newGroupedItems[sourceCatId].splice(
         source.index,
-        1
+        1,
       );
 
-      // Add to destination
       if (sourceCatId === destCatId) {
         newGroupedItems[sourceCatId].splice(destination.index, 0, draggedItem);
       } else {
@@ -153,14 +132,12 @@ export default function SelectedItemPackage({
         newGroupedItems[destCatId].splice(destination.index, 0, updatedItem);
       }
 
-      // 🔥 Fix: Remove empty categories and rebuild order
       const newCategoryOrderFinal = Object.keys(newGroupedItems).filter(
-        (id) => newGroupedItems[id].length > 0
+        (id) => newGroupedItems[id].length > 0,
       );
 
       setCategoryOrder(newCategoryOrderFinal);
 
-      // Build final reordered list
       const reorderedItems = [];
       newCategoryOrderFinal.forEach((catId) => {
         (newGroupedItems[catId] || []).forEach((item) => {
@@ -268,7 +245,6 @@ export default function SelectedItemPackage({
                             </button>
                           </div>
 
-                          {/* ITEMS */}
                           {expandedCategories[catId] && (
                             <Droppable droppableId={`cat-${catId}`} type="ITEM">
                               {(provided, snapshot) => (
@@ -331,8 +307,8 @@ export default function SelectedItemPackage({
                                                     onUpdateRate(
                                                       item.currentIndex,
                                                       parseInt(
-                                                        e.target.value
-                                                      ) || 0
+                                                        e.target.value,
+                                                      ) || 0,
                                                     )
                                                   }
                                                   onClick={(e) =>
@@ -391,7 +367,6 @@ export default function SelectedItemPackage({
         </DragDropContext>
       </div>
 
-      {/* FOOTER */}
       <div className="border-t px-4 py-3 bg-white flex justify-between text-sm font-semibold">
         <span>Total Items: {selectedItems.length}</span>
         <span>Total: ₹ {total.toFixed(2)}</span>

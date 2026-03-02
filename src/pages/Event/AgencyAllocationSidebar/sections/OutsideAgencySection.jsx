@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import AllocateRowOutside from "../components/AllocateRowOutside";
 import OutsideAgencyTable from "../components/OutsideAgencyTable";
 import { MenuAllocationSave } from "@/services/apiServices";
@@ -15,187 +15,224 @@ export default function OutsideAgencySection({
   const [menuItems, setMenuItems] = useState([]);
   const [saving, setSaving] = useState(false);
 
+  const changedPaxItemsRef = useRef(new Set());
+  const initialMenuItemsRef = useRef([]);
+
+  // ✅ Keep a ref always in sync with menuItems state
+  // so callbacks can read latest value without being deps
+  const menuItemsRef = useRef([]);
+  useEffect(() => {
+    menuItemsRef.current = menuItems;
+  }, [menuItems]);
+
   useEffect(() => {
     if (data && Array.isArray(data)) {
       if (isAllFunctions) {
-        // For all functions, flatten all menuAllocation arrays from all functions
         const allMenuItems = data.flatMap((functionData, functionIndex) => {
           const allocations = functionData?.menuAllocation || [];
-          
-          // Add function metadata to each menu item
-          return allocations.map(allocation => ({
+          return allocations.map((allocation) => ({
             ...allocation,
             _functionIndex: functionIndex,
             _functionId: functionData.eventFunction?.id,
             _functionName: functionData.eventFunction?.function?.nameEnglish,
             _functionPax: functionData.eventFunction?.pax,
             eventFunctionId: functionData.eventFunction?.id,
-            eventFunctionName: functionData.eventFunction?.function?.nameEnglish,
+            eventFunctionName:
+              functionData.eventFunction?.function?.nameEnglish,
           }));
         });
-        
+
         setMenuItems(allMenuItems);
-        console.log("📊 All Functions - Total items:", allMenuItems.length);
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(allMenuItems));
       } else {
-        // For single function, use existing logic
-        setMenuItems(data[0]?.menuAllocation || []);
+        const allocations = data[0]?.menuAllocation || [];
+        setMenuItems(allocations);
+        initialMenuItemsRef.current = JSON.parse(JSON.stringify(allocations));
       }
     } else {
       setMenuItems([]);
+      initialMenuItemsRef.current = [];
     }
+
+    changedPaxItemsRef.current.clear();
   }, [data, isAllFunctions]);
 
   const selectedCount = useMemo(() => {
     return Object.values(selectedItems).filter(Boolean).length;
   }, [selectedItems]);
 
-  const handleItemSelect = useCallback((itemKey, isChecked, menuIndex, allocationIndex) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [itemKey]: isChecked,
-    }));
-  }, []);
+  const handleItemSelect = useCallback(
+    (itemKey, isChecked, menuIndex, allocationIndex) => {
+      setSelectedItems((prev) => ({
+        ...prev,
+        [itemKey]: isChecked,
+      }));
+    },
+    [],
+  );
 
-  const handleAllocate = useCallback((allocationData) => {
-    const { partyId, partyName, pax } = allocationData;
+  const handleAllocate = useCallback(
+    (allocationData) => {
+      const hasSelectedItems = Object.values(selectedItems).some(Boolean);
 
-    if (!partyId || !pax) {
-      Swal.fire({
-        title: "Warning",
-        text: "Vendor and pax are required",
-        icon: "warning",
-      });
-      return;
-    }
+      if (!hasSelectedItems) {
+        Swal.fire({
+          title: "Warning",
+          text: "Please select at least one item to allocate",
+          icon: "warning",
+        });
+        return false;
+      }
 
-    // Check if any items are selected
-    const hasSelectedItems = Object.values(selectedItems).some(
-      (isSelected) => isSelected,
-    );
+      if (!allocationData.partyId && !allocationData.pax) {
+        Swal.fire({
+          title: "Warning",
+          text: "Please provide at least one allocation value (Vendor or Pax)",
+          icon: "warning",
+        });
+        return false;
+      }
 
-    if (!hasSelectedItems) {
-      Swal.fire({
-        title: "Warning",
-        text: "Please select at least one item to allocate",
-        icon: "warning",
-      });
-      return;
-    }
+      let allocatedCount = 0;
 
-    let allocatedCount = 0;
+      // ✅ Read from ref — no stale closure, no dep needed
+      const current = menuItemsRef.current;
 
-    const updatedMenuItems = menuItems.map((menuItem, menuIndex) => {
-      const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
-        (allocation, allocationIndex) => {
-          const itemKey = `${menuIndex}-${allocationIndex}`;
+      const updatedMenuItems = current.map((menuItem, menuIndex) => {
+        const updatedAllocations = menuItem.eventFunctionMenuAllocations.map(
+          (allocation, allocationIndex) => {
+            const itemKey = `${menuIndex}-${allocationIndex}`;
 
-          // Only update if this item is selected
-          if (selectedItems[itemKey]) {
-            allocatedCount++;
+            if (selectedItems[itemKey]) {
+              allocatedCount++;
+              const updates = {};
 
-            return {
-              ...allocation,
-              partyId: partyId,
-              partyName: partyName,
-              pax: pax,
-            };
+              if (allocationData.partyId !== undefined) {
+                updates.partyId = allocationData.partyId;
+                updates.partyName = allocationData.partyName || "";
+              }
+
+              if (allocationData.pax !== undefined) {
+                updates.pax = allocationData.pax;
+              }
+
+              return { ...allocation, ...updates };
+            }
+
+            return allocation;
+          },
+        );
+
+        const hasUpdatedAllocations =
+          menuItem.eventFunctionMenuAllocations.some((_, allocationIndex) => {
+            const itemKey = `${menuIndex}-${allocationIndex}`;
+            return selectedItems[itemKey];
+          });
+
+        if (hasUpdatedAllocations && allocationData.pax !== undefined) {
+          const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
+          const initialItem = initialMenuItemsRef.current[menuIndex];
+          if (initialItem && initialItem.personCount !== allocationData.pax) {
+            changedPaxItemsRef.current.add(itemKey);
           }
+        }
 
-          // Return unchanged if not selected
-          return allocation;
-        },
-      );
+        return {
+          ...menuItem,
+          eventFunctionMenuAllocations: updatedAllocations,
+          ...(hasUpdatedAllocations &&
+            allocationData.pax !== undefined && {
+              personCount: allocationData.pax,
+            }),
+        };
+      });
 
-      // Check if any allocations in this menu item were updated
-      const hasUpdatedAllocations = menuItem.eventFunctionMenuAllocations.some(
-        (_, allocationIndex) => {
-          const itemKey = `${menuIndex}-${allocationIndex}`;
-          return selectedItems[itemKey];
-        },
-      );
+      setMenuItems(updatedMenuItems);
+      setSelectedItems({});
 
-      return {
-        ...menuItem,
-        eventFunctionMenuAllocations: updatedAllocations,
-        // Update personCount only if this menu item had selected allocations
-        ...(hasUpdatedAllocations && { personCount: pax }),
-      };
-    });
+      Swal.fire({
+        title: "Success",
+        text: `Updated ${allocatedCount} selected item(s) successfully`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
-    setMenuItems(updatedMenuItems);
+      return true;
+    },
+    [selectedItems],
+  );
 
-    if (onDataUpdate) {
-      onDataUpdate(updatedMenuItems);
-    }
-
-    // Clear selections after successful allocation
-    setSelectedItems({});
-
-    Swal.fire({
-      title: "Success",
-      text: `Allocated to ${allocatedCount} selected item(s) successfully`,
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-  }, [menuItems, selectedItems, onDataUpdate]);
-
+  
   const handleMenuItemUpdate = useCallback((menuIndex, updatedMenuItem) => {
-    const updatedData = [...menuItems];
-    updatedData[menuIndex] = updatedMenuItem;
-    setMenuItems(updatedData);
-
-    if (onDataUpdate) {
-      onDataUpdate(updatedData);
+    const initialItem = initialMenuItemsRef.current[menuIndex];
+    if (
+      initialItem &&
+      initialItem.personCount !== updatedMenuItem.personCount
+    ) {
+      const itemKey = `${updatedMenuItem.menuItemId}-${updatedMenuItem.menuCategoryId}-${updatedMenuItem.eventFunctionId}`;
+      changedPaxItemsRef.current.add(itemKey);
     }
-  }, [menuItems, onDataUpdate]);
+
+    setMenuItems((prev) => {
+      const updatedData = [...prev];
+      updatedData[menuIndex] = updatedMenuItem;
+      return updatedData;
+    });
+
+    
+  }, []); 
 
   const buildPayload = useCallback(() => {
     const userId = Number(localStorage.getItem("userId"));
 
-    return menuItems.map((menuItem) => ({
-      chefLabour: false,
-      eventFunctionId: menuItem.eventFunctionId || 0,
-      eventId: menuItem.eventId || 0,
-      id: menuItem.id || 0,
-      inside: false,
-      outside: true,
-      instructions: menuItem.instructions || "",
-      menuCategoryId: menuItem.menuCategoryId || 0,
-      menuItemId: menuItem.menuItemId || 0,
-      personCount: menuItem.personCount || 0,
-      oldPersonCount: menuItem.oldPersonCount || 0,
-      place: menuItem.place || "",
-      menuItemRawMaterials: [],
-      userId,
+    return menuItemsRef.current.map((menuItem) => {
+      const itemKey = `${menuItem.menuItemId}-${menuItem.menuCategoryId}-${menuItem.eventFunctionId}`;
+      const isPaxChange = changedPaxItemsRef.current.has(itemKey);
 
-      menuAllocationOrders:
-        menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
-          id: allocation.id || 0,
-          partyId: allocation.partyId || 0,
-          number: allocation.number || "",
-          serviceType: "",
-          quantity: allocation.quantity,
-          price: allocation.price || 0,
-          counterQuantity: 0,
-          counterPrice: 0,
-          helperQuantity: 0,
-          helperPrice: 0,
-          totalPrice: allocation.totalPrice || 0,
-          unitId: allocation.unitId || 0,
-          remarks: "",
-          menuItemRawMaterials: [],
-          isOutside: true,
-        })) || [],
-    }));
-  }, [menuItems]);
+      return {
+        chefLabour: false,
+        eventFunctionId: menuItem.eventFunctionId || 0,
+        eventId: menuItem.eventId || 0,
+        id: menuItem.id || 0,
+        inside: false,
+        outside: true,
+        instructions: menuItem.instructions || "",
+        menuCategoryId: menuItem.menuCategoryId || 0,
+        menuItemId: menuItem.menuItemId || 0,
+        personCount: menuItem.personCount || 0,
+        oldPersonCount: menuItem.oldPersonCount || 0,
+        isPaxChange,
+        place: menuItem.place || "",
+        menuItemRawMaterials: [],
+        userId,
+        menuAllocationOrders:
+          menuItem.eventFunctionMenuAllocations?.map((allocation) => ({
+            id: allocation.id || 0,
+            partyId: allocation.partyId || 0,
+            number: allocation.number || "",
+            serviceType: "",
+            quantity: allocation.quantity,
+            price: allocation.price || 0,
+            counterQuantity: 0,
+            counterPrice: 0,
+            helperQuantity: 0,
+            helperPrice: 0,
+            totalPrice: allocation.totalPrice || 0,
+            unitId: allocation.unitId || 0,
+            remarks: "",
+            menuItemRawMaterials: [],
+            isOutside: true,
+          })) || [],
+      };
+    });
+  }, []); 
 
   const handleSave = async () => {
     try {
       setSaving(true);
 
       const payload = buildPayload();
-
       const res = await MenuAllocationSave(payload);
 
       if (res?.data?.success === true) {
@@ -206,6 +243,15 @@ export default function OutsideAgencySection({
           timer: 2000,
           showConfirmButton: false,
         });
+
+        changedPaxItemsRef.current.clear();
+        initialMenuItemsRef.current = JSON.parse(
+          JSON.stringify(menuItemsRef.current),
+        );
+
+        if (onDataUpdate) {
+          onDataUpdate(menuItemsRef.current);
+        }
 
         close?.();
       } else {
