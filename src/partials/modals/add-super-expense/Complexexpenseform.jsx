@@ -1,10 +1,16 @@
-import { Addupdateemployeeexpense, GETAllCity } from "@/services/apiServices";
+import {
+  Addupdateemployeeexpense,
+  GETAllCity,
+  Fetchmanager,
+} from "@/services/apiServices";
 import { CustomModal } from "@/components/custom-modal/CustomModal";
 import { Formik, Form, Field, FieldArray } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import { Upload, Trash2, Plus, FileText } from "lucide-react";
 import Select from "react-select";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
 import {
   TAB_CONFIG,
   inputClass,
@@ -14,12 +20,12 @@ import {
   SubmitFooter,
 } from "./Expenseconfig";
 
-// ─── Date Helper ──────────────────────────────────────────────────────────────
+// ─── Date Helpers ─────────────────────────────────────────────────────────────
+const toInputDate = (dateStr) => {
+  if (!dateStr) return "";
+  return String(dateStr).slice(0, 10);
+};
 
-/**
- * "YYYY-MM-DD" (HTML input value) → "DD/MM/YYYY" (what the API expects on submit)
- * Input type="date" ALWAYS gives YYYY-MM-DD, so this is the only conversion needed.
- */
 const toApiDate = (dateStr) => {
   if (!dateStr) return "";
   const [y, m, d] = dateStr.split("-");
@@ -37,13 +43,12 @@ const buildFormData = (
 ) => {
   const fd = new FormData();
   fd.append("title", values[titleKey] ?? "");
-  fd.append("userId", userId);
+  fd.append("userId", values.memberId ?? userId);
   fd.append("totalAmount", values.amount);
   fd.append("expenseType", expenseType);
   fd.append("id", expenseId ?? -1);
-  fd.append("remark", values.remarks ?? "");
+  fd.append("remark", values.remark ?? "");
 
-  // ✅ All date fields go through toApiDate → "DD/MM/YYYY" for API
   if (values.startDate) fd.append("fromDate", toApiDate(values.startDate));
   if (values.endDate) fd.append("toDate", toApiDate(values.endDate));
   if (values.dueDate) fd.append("dueDate", toApiDate(values.dueDate));
@@ -56,21 +61,29 @@ const buildFormData = (
   (values.expenseRows ?? []).forEach((row, i) => {
     const k = (field) => `detailRequestDtos[${i}].${field}`;
     fd.append(k("perticular"), row.description ?? "");
-    fd.append(k("expenseDate"), toApiDate(row.date)); // ✅ DD/MM/YYYY to API
+    fd.append(k("expenseDate"), toApiDate(row.date));
     fd.append(k("paymentMode"), row.paymentMode || "gpay");
-    fd.append(k("remarks"), row.remarks ?? "");
+    fd.append(k("remark"), row.remarks ?? "");
     fd.append(k("userId"), userId);
     fd.append(k("amount"), row.amount ?? 0);
     fd.append(k("id"), row.id ?? -1);
     fd.append(k("expenseId"), row.expenseId ?? -1);
+    fd.append(k("km"), row.km ?? 0);
     if (row.file instanceof File) fd.append(k("file"), row.file);
   });
 
   return fd;
 };
 
+// ─── Helper: get the minimum allowed date for a row ──────────────────────────
+const getMinDateForRow = (expenseRows, currentIndex) => {
+  if (currentIndex === 0) return "";
+
+  const prevDate = expenseRows[currentIndex - 1]?.date;
+
+  return prevDate || "";
+};
 // ─── ComplexExpenseForm ───────────────────────────────────────────────────────
-// editData: null = new  |  object = edit (all date fields already "YYYY-MM-DD")
 const ComplexExpenseForm = ({
   isOpen,
   onClose,
@@ -85,6 +98,7 @@ const ComplexExpenseForm = ({
   const [rowPreviews, setRowPreviews] = useState({});
   const [apiError, setApiError] = useState("");
   const [cityOptions, setCityOptions] = useState([]);
+  const [members, setMembers] = useState([]);
 
   const citySelectOptions = cityOptions.map((c) => ({
     value: c.id,
@@ -93,33 +107,25 @@ const ComplexExpenseForm = ({
   const titleKey = config.titleField.name;
   const isEditing = !!editData?.id;
 
-  // ── Build initial values ───────────────────────────────────────────────────
-  // editData dates are already "YYYY-MM-DD" (toInputDate was applied in AllExpense)
-  // so we pass them straight into Formik — no conversion needed here.
-  const buildInitialValues = (data = null) => ({
-    id: data?.id ?? null,
-    [titleKey]: data?.[titleKey] ?? data?.title ?? "",
-    startDate: data?.startDate ?? "", // "YYYY-MM-DD" or ""
-    endDate: data?.endDate ?? "", // "YYYY-MM-DD" or ""
-    fromCity: data?.fromCity ?? null,
-    toCity: data?.toCity ?? null,
-    amount: data?.amount ?? "",
-    ...(isSuperAdmin ? { dueDate: data?.dueDate ?? "" } : {}),
-    remark: data?.remarks ?? "",
-    expenseRows: (data?.expenseRows ?? []).map((r) => ({
-      id: r.id ?? -1,
-      expenseId: r.expenseId ?? data?.id ?? -1,
-      date: r.date ?? "", // "YYYY-MM-DD" or ""
-      description: r.description ?? "",
-      paymentMode: r.paymentMode ?? "gpay",
-      amount: r.amount ?? "",
-      remarks: r.remarks ?? "",
-      file: null,
-      existingDocUrl: r.existingDocUrl ?? null,
-    })),
-  });
+  // ── Fetch members ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (isOpen && isSuperAdmin) {
+      Fetchmanager(1)
+        .then((res) => {
+          if (res?.data?.data?.userDetails) {
+            setMembers(
+              res.data.data.userDetails.map((man) => ({
+                value: man.id,
+                label: man.firstName || "-",
+              })),
+            );
+          }
+        })
+        .catch(() => setMembers([]));
+    }
+  }, [isOpen, isSuperAdmin]);
 
-  // ── Fetch cities when modal opens ──────────────────────────────────────────
+  // ── Fetch cities ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen && config.showCities) {
       GETAllCity()
@@ -128,7 +134,7 @@ const ComplexExpenseForm = ({
     }
   }, [isOpen, config.showCities]);
 
-  // ── Sync row previews when editData changes ────────────────────────────────
+  // ── Sync row previews ──────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
       setApiError("");
@@ -144,6 +150,35 @@ const ComplexExpenseForm = ({
     }
   }, [isOpen, editData]);
 
+  // ── Build initial values ───────────────────────────────────────────────────
+  const buildInitialValues = (data = null) => ({
+    id: data?.id ?? null,
+    [titleKey]: data?.[titleKey] ?? data?.title ?? "",
+    startDate: toInputDate(data?.fromDate ?? data?.startDate ?? ""),
+    endDate: toInputDate(data?.toDate ?? data?.endDate ?? ""),
+    fromCity: data?.fromCityId ?? data?.fromCity ?? null,
+    toCity: data?.toCityId ?? data?.toCity ?? null,
+    amount: data?.totalAmount ?? data?.amount ?? "",
+    remark: data?.remark ?? "",
+    memberId: data?.userId ?? null,
+    ...(isSuperAdmin ? { dueDate: toInputDate(data?.dueDate ?? "") } : {}),
+    expenseRows: (data?.detailRequestDtos ?? data?.expenseRows ?? []).map(
+      (r) => ({
+        id: r.id ?? -1,
+        expenseId: r.expenseId ?? data?.id ?? -1,
+        date: toInputDate(r.expenseDate ?? r.date ?? ""),
+        description: r.perticular ?? r.description ?? "",
+        paymentMode: r.paymentMode ?? "gpay",
+        amount: r.amount ?? "",
+        remarks: r.remarks ?? "",
+        km: r.km ?? "-",
+        file: null,
+
+        existingDocUrl: r.docPath ?? r.existingDocUrl ?? null,
+      }),
+    ),
+  });
+
   // ── Per-row file handler ───────────────────────────────────────────────────
   const handleRowFile = (e, index, form) => {
     const file = e.currentTarget.files[0];
@@ -155,6 +190,20 @@ const ComplexExpenseForm = ({
         ? URL.createObjectURL(file)
         : file.name,
     }));
+  };
+
+  // ── When a row's date changes, clear later rows if they're now invalid ─────
+  const handleRowDateChange = (e, index, form) => {
+    const newDate = e.target.value;
+    form.setFieldValue(`expenseRows.${index}.date`, newDate);
+
+    // Clear dates of all subsequent rows that are now before the new date
+    const rows = form.values.expenseRows;
+    rows.forEach((row, i) => {
+      if (i > index && row.date && row.date < newDate) {
+        form.setFieldValue(`expenseRows.${i}.date`, "");
+      }
+    });
   };
 
   // ── Submit ─────────────────────────────────────────────────────────────────
@@ -169,6 +218,7 @@ const ComplexExpenseForm = ({
         values.id ?? null,
       );
       await Addupdateemployeeexpense(fd);
+      fetchExpenses?.();
       onClose();
     } catch (err) {
       const msg =
@@ -202,7 +252,6 @@ const ComplexExpenseForm = ({
       width="960px"
     >
       <Formik
-        // ✅ key forces clean remount on new vs edit, or switching between records
         key={`complex-${expenseType}-${editData?.id ?? "new"}`}
         initialValues={buildInitialValues(editData)}
         validationSchema={Yup.object({
@@ -223,6 +272,7 @@ const ComplexExpenseForm = ({
           if (values.amount !== rowTotal) {
             setTimeout(() => setFieldValue("amount", rowTotal), 0);
           }
+
           return (
             <Form>
               <div className="max-h-[72vh] overflow-y-auto pr-1 space-y-4 pb-1">
@@ -232,48 +282,85 @@ const ComplexExpenseForm = ({
                     {apiError}
                   </div>
                 )}
-
-                {/* ── Info Section ───────────────────────────────────────────── */}
+                {/* ── Info Section ─────────────────────────────────────── */}
                 <Section title={config.sectionTitle} icon={config.icon}>
                   <div
-                    className={
-                      config.showDates || config.showCities ? "mb-4" : ""
-                    }
+                    className={`grid grid-cols-2 gap-4 ${config.showDates || config.showCities ? "mb-4" : ""}`}
                   >
-                    <FormLabel required>{config.titleField.label}</FormLabel>
-                    <Field
-                      name={titleKey}
-                      placeholder={config.titleField.placeholder}
-                      className={inputClass}
-                    />
-                    <ErrorMsg name={titleKey} />
-                  </div>
+                    <div>
+                      <FormLabel required>{config.titleField.label}</FormLabel>
+                      <Field
+                        name={titleKey}
+                        placeholder={config.titleField.placeholder}
+                        className={inputClass}
+                      />
+                      <ErrorMsg name={titleKey} />
+                    </div>
 
-                  {/* Date range — browser renders YYYY-MM-DD as locale date (DD/MM/YYYY in India) */}
-                  {config.showDates && (
-                    <div
-                      className={`grid grid-cols-2 gap-4 ${config.showCities ? "mb-4" : ""}`}
-                    >
+                    {isSuperAdmin && (
                       <div>
-                        <FormLabel>{config.dateLabels.start}</FormLabel>
-                        <Field
-                          name="startDate"
-                          type="date"
-                          className={inputClass}
+                        <FormLabel>Select Member</FormLabel>
+                        <Select
+                          options={members}
+                          placeholder="Search member..."
+                          value={
+                            members.find((m) => m.value === values.memberId) ??
+                            null
+                          }
+                          onChange={(sel) =>
+                            setFieldValue("memberId", sel?.value ?? null)
+                          }
+                          isClearable
+                          noOptionsMessage={() => "No members found"}
                         />
                       </div>
+                    )}
+                  </div>
+
+                  {config.showDates && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* From Date */}
                       <div>
-                        <FormLabel>{config.dateLabels.end}</FormLabel>
-                        <Field
-                          name="endDate"
-                          type="date"
-                          className={inputClass}
+                        <FormLabel>From Date</FormLabel>
+                        <DatePicker
+                          format="DD/MM/YYYY"
+                          className="w-full"
+                          value={
+                            values.startDate ? dayjs(values.startDate) : null
+                          }
+                          onChange={(date) =>
+                            setFieldValue(
+                              "startDate",
+                              date ? date.format("YYYY-MM-DD") : "",
+                            )
+                          }
+                        />
+                      </div>
+
+                      {/* To Date */}
+                      <div>
+                        <FormLabel>To Date</FormLabel>
+                        <DatePicker
+                          format="DD/MM/YYYY"
+                          className="w-full"
+                          value={values.endDate ? dayjs(values.endDate) : null}
+                          onChange={(date) =>
+                            setFieldValue(
+                              "endDate",
+                              date ? date.format("YYYY-MM-DD") : "",
+                            )
+                          }
+                          disabledDate={(current) =>
+                            values.startDate
+                              ? current &&
+                                current < dayjs(values.startDate).startOf("day")
+                              : false
+                          }
                         />
                       </div>
                     </div>
                   )}
 
-                  {/* Cities */}
                   {config.showCities && (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -311,8 +398,7 @@ const ComplexExpenseForm = ({
                     </div>
                   )}
                 </Section>
-
-                {/* ── Payment Details ────────────────────────────────────────── */}
+                {/* ── Payment Details ───────────────────────────────────── */}
                 <Section
                   title="Payment Details"
                   icon={
@@ -369,20 +455,36 @@ const ComplexExpenseForm = ({
                     )}
                   </div>
                 </Section>
-
-                {/* ── Remarks ───────────────────────────────────────────────── */}
+                {/* ── Remarks ───────────────────────────────────────────── */}
                 <Section>
-                  <FormLabel>Remarks</FormLabel>
-                  <Field
-                    as="textarea"
-                    name="remarks"
-                    rows="3"
-                    placeholder="Add any notes or context..."
-                    className={`${inputClass} resize-none`}
-                  />
+                  <div
+                    className={`grid gap-4 ${isSuperAdmin ? "grid-cols-2" : "grid-cols-1"}`}
+                  >
+                    <div>
+                      <FormLabel>Remarks</FormLabel>
+                      <Field
+                        as="textarea"
+                        name="remark"
+                        rows="3"
+                        placeholder="Add any notes or context..."
+                        className={`${inputClass} resize-none`}
+                      />
+                    </div>
+
+                    {isSuperAdmin && (
+                      <div>
+                        <FormLabel>Paid Date</FormLabel>
+                        <Field
+                          type="date"
+                          name="paidDate"
+                          className={inputClass}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </Section>
 
-                {/* ── Expense Rows ───────────────────────────────────────────── */}
+                {/* ── Expense Rows ───────────────────────────────────────── */}
                 <FieldArray name="expenseRows">
                   {({ push, remove, form }) => (
                     <Section
@@ -431,11 +533,13 @@ const ComplexExpenseForm = ({
                             <thead>
                               <tr className="bg-gray-50">
                                 {[
-                                  "Date",
+                                  "Expense Date",
                                   "Description",
                                   "Payment Mode",
                                   "Amount (₹)",
-                                  "Bill",
+                                  "KM",
+
+                                  "Action",
                                   "",
                                 ].map((h) => (
                                   <th
@@ -447,120 +551,145 @@ const ComplexExpenseForm = ({
                                 ))}
                               </tr>
                             </thead>
+
                             <tbody>
-                              {form.values.expenseRows.map((row, index) => (
-                                <tr
-                                  key={index}
-                                  className="border-t border-gray-50 hover:bg-blue-50/20 transition"
-                                >
-                                  {/* Date — browser shows DD/MM/YYYY in India locale; value is YYYY-MM-DD */}
-                                  <td className="px-3 py-2">
-                                    <Field
-                                      type="date"
-                                      name={`expenseRows.${index}.date`}
-                                      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition"
-                                    />
-                                  </td>
+                              {form.values.expenseRows.map((row, index) => {
+                                // ── The minimum allowed date for this row ──
+                                const minDate = getMinDateForRow(
+                                  form.values.expenseRows,
+                                  index,
+                                );
 
-                                  {/* Description */}
-                                  <td className="px-3 py-2">
-                                    <Field
-                                      name={`expenseRows.${index}.description`}
-                                      placeholder="e.g. Taxi fare"
-                                      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition min-w-[120px]"
-                                    />
-                                  </td>
+                                return (
+                                  <tr
+                                    key={index}
+                                    className="border-t border-gray-100 hover:bg-blue-50/20 transition"
+                                  >
+                                    {/* Expense Date — constrained by previous row's date */}
+                                    <td className="px-3 py-2">
+                                      <div className="relative">
+                                        <input
+                                          type="date"
+                                          name={`expenseRows.${index}.date`}
+                                          value={row.date}
+                                          min={minDate || undefined}
+                                          onChange={(e) =>
+                                            handleRowDateChange(e, index, form)
+                                          }
+                                          className={`table-input px-3 py-2 ${
+                                            minDate &&
+                                            row.date &&
+                                            row.date < minDate
+                                              ? "border-red-300 bg-red-50"
+                                              : ""
+                                          }`}
+                                        />
+                                        {/* Tooltip hint when a min date applies */}
+                                        {minDate && (
+                                          <p className="text-[10px] text-gray-400 mt-0.5 whitespace-nowrap">
+                                            From{" "}
+                                            <span className="font-semibold text-blue-500">
+                                              {minDate
+                                                .split("-")
+                                                .reverse()
+                                                .join("/")}
+                                            </span>
+                                          </p>
+                                        )}
+                                      </div>
+                                    </td>
 
-                                  {/* Payment Mode */}
-                                  <td className="px-3 py-2">
-                                    <Field
-                                      as="select"
-                                      name={`expenseRows.${index}.paymentMode`}
-                                      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition bg-white cursor-pointer"
-                                    >
-                                      <option value="gpay">GPay</option>
-                                      <option value="cash">Cash</option>
-                                      <option value="card">Card</option>
-                                      <option value="netbanking">
-                                        Net Banking
-                                      </option>
-                                    </Field>
-                                  </td>
+                                    {/* Description */}
+                                    <td className="px-3 py-2">
+                                      <Field
+                                        name={`expenseRows.${index}.description`}
+                                        placeholder="Taxi fare"
+                                        className=" px-3 py-2 table-input min-w-[150px]"
+                                      />
+                                    </td>
 
-                                  {/* Amount */}
-                                  <td className="px-3 py-2">
-                                    <div className="relative">
-                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">
-                                        ₹
-                                      </span>
+                                    {/* Payment Mode */}
+                                    <td className="px-3 py-2">
+                                      <Field
+                                        as="select"
+                                        name={`expenseRows.${index}.paymentMode`}
+                                        className=" px-3 py-2table-input bg-white"
+                                      >
+                                        <option value="">Select</option>
+                                        <option value="gpay">G Pay</option>
+                                      </Field>
+                                    </td>
+
+                                    {/* Amount */}
+                                    <td className="px-3 py-2">
+                                      <div className="relative">
+                                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                                          ₹
+                                        </span>
+                                        <Field
+                                          type="number"
+                                          name={`expenseRows.${index}.amount`}
+                                          placeholder="0"
+                                          className="table-input pl-6 min-w-[90px]"
+                                        />
+                                      </div>
+                                    </td>
+
+                                    {/* KM */}
+                                    <td className="px-3 py-2">
                                       <Field
                                         type="number"
-                                        name={`expenseRows.${index}.amount`}
+                                        name={`expenseRows.${index}.km`}
                                         placeholder="0"
-                                        className="w-full border border-gray-200 rounded-lg pl-6 pr-2.5 py-1.5 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition min-w-[80px]"
+                                        className="table-input min-w-[80px]"
                                       />
-                                    </div>
-                                  </td>
+                                    </td>
 
-                                  {/* Bill Upload */}
-                                  <td className="px-3 py-2">
-                                    <input
-                                      type="file"
-                                      accept=".png,.jpg,.jpeg,.pdf"
-                                      id={`rowFile-${index}`}
-                                      className="hidden"
-                                      onChange={(e) =>
-                                        handleRowFile(e, index, form)
-                                      }
-                                    />
-                                    <label
-                                      htmlFor={`rowFile-${index}`}
-                                      title={
-                                        rowPreviews[index]
-                                          ? String(rowPreviews[index])
-                                          : "Upload Bill"
-                                      }
-                                      className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition cursor-pointer"
-                                    >
-                                      {rowPreviews[index] ? (
-                                        <FileText className="w-4 h-4 text-blue-500" />
-                                      ) : (
-                                        <Upload className="w-4 h-4 text-gray-400" />
-                                      )}
-                                    </label>
-                                    {/* ✅ View link for existing doc when editing */}
-                                    {!form.values.expenseRows[index]?.file &&
-                                      row.existingDocUrl && (
-                                        <a
-                                          href={row.existingDocUrl}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="block text-[10px] text-blue-500 hover:underline mt-0.5 max-w-[60px] truncate"
-                                        >
-                                          View
-                                        </a>
-                                      )}
-                                  </td>
+                                    {/* Paid Date */}
 
-                                  {/* Delete Row */}
-                                  <td className="px-3 py-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        remove(index);
-                                        setRowPreviews((p) => {
-                                          const n = { ...p };
-                                          delete n[index];
-                                          return n;
-                                        });
-                                      }}
-                                      className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition border-0 bg-transparent cursor-pointer"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
+                                    {/* Bill Upload */}
+                                    <td className="px-3 py-2 text-center">
+                                      <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg,.pdf"
+                                        id={`rowFile-${index}`}
+                                        className="hidden"
+                                        onChange={(e) =>
+                                          handleRowFile(e, index, form)
+                                        }
+                                      />
+                                      <label
+                                        htmlFor={`rowFile-${index}`}
+                                        className="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition"
+                                      >
+                                        {rowPreviews[index] ? (
+                                          <FileText className="w-4 h-4 text-blue-500" />
+                                        ) : (
+                                          <Upload className="w-4 h-4 text-gray-400" />
+                                        )}
+                                      </label>
+                                    </td>
+
+                                    {/* Delete */}
+                                    <td className="px-3 py-2 text-center">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          remove(index);
+                                          setRowPreviews((p) => {
+                                            const n = { ...p };
+                                            delete n[index];
+                                            return n;
+                                          });
+                                        }}
+                                        className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>

@@ -69,58 +69,69 @@ const StatusBadge = ({ status }) => {
 // ─── Payout Button ────────────────────────────────────────────────────────────
 const DROPDOWN_W = 176;
 
-const calcPos = (btnEl, dropH) => {
-  const rect = btnEl.getBoundingClientRect();
-  const vh = window.innerHeight;
-  const vw = window.innerWidth;
-
-  // Flip above button if not enough room below
-  const top =
-    rect.bottom + dropH + 8 > vh ? rect.top - dropH - 4 : rect.bottom + 4;
-
-  // Align to right of button but keep on screen
-  const left = Math.min(
-    Math.max(rect.right - DROPDOWN_W, 8),
-    vw - DROPDOWN_W - 8,
-  );
-
-  return { top, left };
-};
-
 const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
-  const [view, setView] = useState("menu"); // "menu" | "pending-input"
+  const [view, setView] = useState("menu");
   const [pendingAmount, setPendingAmount] = useState("");
+  const handleConfirmAmount = () => {
+    const amt = parseFloat(pendingAmount);
 
+    if (!pendingAmount || isNaN(amt) || amt <= 0) return;
+
+    const payoutType = view === "paid-input" ? "Paid" : "Pending";
+
+    onPayout?.(payoutType, amt);
+    setOpen(false);
+  };
   const btnRef = useRef(null);
   const dropRef = useRef(null);
 
   const reposition = (currentView) => {
     if (!btnRef.current) return;
-    const dropH = currentView === "pending-input" ? 116 : 124;
-    setPos(calcPos(btnRef.current, dropH));
+    const rect = btnRef.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const dropH = currentView === "pending-input" ? 116 : 132;
+
+    // Place below button; flip above if it would overflow viewport bottom
+    const top =
+      rect.bottom + dropH + 6 > vh ? rect.top - dropH - 4 : rect.bottom + 4;
+
+    // Right-align to button edge, clamped inside viewport
+    const left = Math.min(
+      Math.max(rect.right - DROPDOWN_W, 8),
+      vw - DROPDOWN_W - 8,
+    );
+
+    setPos({ top, left });
   };
 
   const openDropdown = () => {
-    const nextOpen = !open;
-    if (nextOpen) {
-      setView("menu");
-      setPendingAmount("");
-      reposition("menu");
+    if (open) {
+      setOpen(false);
+      return;
     }
-    setOpen(nextOpen);
+    setView("menu");
+    setPendingAmount("");
+    // Defer one frame so the button rect is stable after any React re-render
+    requestAnimationFrame(() => {
+      reposition("menu");
+      setOpen(true);
+    });
   };
 
-  // Reposition when sub-view changes height
+  // Reposition when sub-view changes (different heights)
   useEffect(() => {
     if (open) reposition(view);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
-  // Close on outside click
+  // Close on outside click OR any scroll (scroll shifts button → dropdown would drift)
   useEffect(() => {
-    const handler = (e) => {
+    if (!open) return;
+
+    const handleOutside = (e) => {
       if (
         dropRef.current &&
         !dropRef.current.contains(e.target) &&
@@ -130,29 +141,30 @@ const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+
+    // true = capture phase so we catch scroll inside overflow containers too
+    const handleScroll = () => setOpen(false);
+
+    document.addEventListener("mousedown", handleOutside);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [open]);
 
   const handleSelect = (status) => {
     if (status === "Paid") {
-      onPayout?.(status, rowAmount);
-      setOpen(false);
+      setView("paid-input");
+      setPendingAmount(rowAmount?.toString() || "");
     } else if (status === "Unpaid") {
       onPayout?.(status, 0);
       setOpen(false);
     } else {
-      // Switch to amount-input sub-view for Pending
       setView("pending-input");
       setPendingAmount("");
     }
-  };
-
-  const handlePendingConfirm = () => {
-    const amt = parseFloat(pendingAmount);
-    if (!pendingAmount || isNaN(amt) || amt <= 0) return;
-    onPayout?.("Pending", amt);
-    setOpen(false);
   };
 
   return (
@@ -172,8 +184,14 @@ const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
         ReactDOM.createPortal(
           <div
             ref={dropRef}
-            style={{ top: pos.top, left: pos.left, width: DROPDOWN_W }}
-            className="fixed z-[9999] bg-white rounded-xl shadow-xl border border-gray-100 p-2"
+            style={{
+              position: "fixed",
+              top: pos.top,
+              left: pos.left,
+              width: DROPDOWN_W,
+              zIndex: 9999,
+            }}
+            className="bg-white rounded-xl shadow-xl border border-gray-100 p-2"
           >
             {view === "menu" ? (
               <>
@@ -208,7 +226,6 @@ const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
                 </button>
               </>
             ) : (
-              /* ── Pending amount input sub-view ── */
               <div className="px-1 py-1">
                 <button
                   onClick={() => setView("menu")}
@@ -217,8 +234,16 @@ const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
                   ← Back
                 </button>
 
-                <p className="text-xs font-semibold text-orange-600 mb-2">
-                  ⏳ Enter Paid Amount
+                <p
+                  className={`text-xs font-semibold mb-2 ${
+                    view === "paid-input"
+                      ? "text-emerald-600"
+                      : "text-orange-600"
+                  }`}
+                >
+                  {view === "paid-input"
+                    ? "✅ Enter Paid Amount"
+                    : "⏳ Enter Pending Amount"}
                 </p>
 
                 <div className="relative mb-2">
@@ -233,7 +258,7 @@ const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
                     value={pendingAmount}
                     onChange={(e) => setPendingAmount(e.target.value)}
                     onKeyDown={(e) =>
-                      e.key === "Enter" && handlePendingConfirm()
+                      e.key === "Enter" && handleConfirmAmount()
                     }
                     placeholder="0.00"
                     className="w-full pl-5 pr-2 py-1.5 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-gray-50"
@@ -241,7 +266,7 @@ const PayoutButton = ({ onPayout, rowAmount = 0 }) => {
                 </div>
 
                 <button
-                  onClick={handlePendingConfirm}
+                  onClick={handleConfirmAmount}
                   disabled={
                     !pendingAmount ||
                     isNaN(parseFloat(pendingAmount)) ||
@@ -281,7 +306,7 @@ export const columns = (
 
   {
     accessorKey: "user",
-    header: <FormattedMessage id="EXPENSE.USER" defaultMessage="User" />,
+    header: <FormattedMessage id="EXPENSE.USER" defaultMessage="Employee" />,
     cell: ({ row, table }) => {
       const index = table
         .getCoreRowModel()
@@ -303,6 +328,29 @@ export const columns = (
       );
     },
     meta: { headerClassName: "w-[12%]", cellClassName: "w-[12%]" },
+  },
+
+  {
+    accessorKey: "title",
+    header: <FormattedMessage id="EXPENSE.TITLE" defaultMessage="Trip Title" />,
+    cell: ({ row }) => {
+      const user = row.original.user ?? {};
+      return (
+        <button
+          type="button"
+          onClick={() => onUserClick?.(row.original)}
+          className="flex items-start gap-3 group bg-transparent border-0 cursor-pointer text-left p-0 w-full"
+        >
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              {row.original.title}
+            </span>
+            <span className="text-xs text-gray-500">{user.name}</span>
+          </div>
+        </button>
+      );
+    },
+    meta: { headerClassName: "w-[20%]", cellClassName: "w-[20%]" },
   },
 
   {
@@ -410,6 +458,15 @@ export const columns = (
             <i className="ki-filled ki-trash text-danger" />
           </button>
         </Tooltip>
+        <Tooltip title="Export Excel">
+          <button
+            type="button"
+            className="btn btn-sm btn-icon btn-clear"
+            onClick={() => handleExportRow(row.original)}
+          >
+            <i className="ki-filled ki-file-down text-success" />
+          </button>
+        </Tooltip>
 
         <PayoutButton
           rowAmount={row.original.amount ?? 0}
@@ -422,3 +479,170 @@ export const columns = (
     meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
   },
 ];
+// ─── Simple Expense Columns (employees, office, serve, other) ─────────────────
+export const simpleColumns = (
+  onEdit,
+  onDelete,
+  onStatusChange,
+  onPayout,
+  onUserClick,
+  expenseType,
+) => {
+  const isServe = expenseType === "serve";
+
+  const cols = [
+    {
+      accessorKey: "sr_no",
+      header: <FormattedMessage id="COMMON.SR_NO" defaultMessage="Sr No#" />,
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-400 font-medium">
+          {row.original.sr_no}
+        </span>
+      ),
+      meta: { headerClassName: "w-[5%]", cellClassName: "w-[5%]" },
+    },
+
+    // ── Employee Name — hidden for "serve" tab ──
+    !isServe && {
+      accessorKey: "user",
+      header: (
+        <FormattedMessage id="EXPENSE.USER" defaultMessage="Employee Name" />
+      ),
+      cell: ({ row, table }) => {
+        const index = table
+          .getCoreRowModel()
+          .rows.findIndex((r) => r.id === row.id);
+        const user = row.original.user ?? {};
+        return (
+          <button
+            type="button"
+            onClick={() => onUserClick?.(row.original)}
+            className="flex items-center gap-3 group bg-transparent border-0 cursor-pointer text-left p-0 w-full"
+          >
+            <Avatar name={user.name ?? ""} index={index} />
+            <p className="text-sm font-semibold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+              {user.name}
+            </p>
+          </button>
+        );
+      },
+      meta: { headerClassName: "w-[18%]", cellClassName: "w-[18%]" },
+    },
+
+    {
+      accessorKey: "remarks",
+      header: (
+        <FormattedMessage id="EXPENSE.REMARKS" defaultMessage="Description" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {row.original.remarks || "—"}
+        </span>
+      ),
+      meta: { headerClassName: "w-[18%]", cellClassName: "w-[18%]" },
+    },
+    {
+      accessorKey: "startDate",
+      header: (
+        <FormattedMessage id="EXPENSE.START_DATE" defaultMessage="Start Date" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500 whitespace-nowrap">
+          {row.original.startDate}
+        </span>
+      ),
+      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    },
+    {
+      accessorKey: "dueDate",
+      header: (
+        <FormattedMessage id="EXPENSE.DUE_DATE" defaultMessage="Due Date" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500 whitespace-nowrap">
+          {row.original.dueDate}
+        </span>
+      ),
+      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    },
+    {
+      accessorKey: "amount",
+      header: <FormattedMessage id="EXPENSE.AMOUNT" defaultMessage="Amount" />,
+      cell: ({ row }) => (
+        <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+          ₹{row.original.amount?.toLocaleString()}/-
+        </span>
+      ),
+      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    },
+    {
+      accessorKey: "paidAmount",
+      header: (
+        <FormattedMessage id="EXPENSE.PAID_AMOUNT" defaultMessage="Paid" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm font-medium text-emerald-600 whitespace-nowrap">
+          ₹{(row.original.paidAmount ?? 0).toLocaleString()}/-
+        </span>
+      ),
+      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    },
+    {
+      accessorKey: "remainingAmount",
+      header: (
+        <FormattedMessage id="EXPENSE.REMAINING" defaultMessage="Remaining" />
+      ),
+      cell: ({ row }) => {
+        const remaining =
+          (row.original.amount ?? 0) - (row.original.paidAmount ?? 0);
+        return (
+          <span className="text-sm font-medium text-red-500 whitespace-nowrap">
+            ₹{remaining.toLocaleString()}/-
+          </span>
+        );
+      },
+      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    },
+    {
+      accessorKey: "status",
+      header: <FormattedMessage id="COMMON.STATUS" defaultMessage="Status" />,
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      meta: { headerClassName: "w-[10%]", cellClassName: "w-[10%]" },
+    },
+    {
+      accessorKey: "action",
+      header: <FormattedMessage id="COMMON.ACTIONS" defaultMessage="Actions" />,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-0.5">
+          <Tooltip title="Edit Expense">
+            <button
+              type="button"
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => onEdit?.(row.original)}
+            >
+              <i className="ki-filled ki-notepad-edit text-primary" />
+            </button>
+          </Tooltip>
+          <Tooltip title="Delete Expense">
+            <button
+              type="button"
+              className="btn btn-sm btn-icon btn-clear"
+              onClick={() => onDelete?.(row.original.id)}
+            >
+              <i className="ki-filled ki-trash text-danger" />
+            </button>
+          </Tooltip>
+          <PayoutButton
+            rowAmount={row.original.amount ?? 0}
+            onPayout={(status, payoutAmount) =>
+              onPayout?.(row.original.id, status, payoutAmount)
+            }
+          />
+        </div>
+      ),
+      meta: { headerClassName: "w-[9%]", cellClassName: "w-[9%]" },
+    },
+  ].filter(Boolean); // ← removes the `false` entry when isServe
+
+  return cols;
+};
