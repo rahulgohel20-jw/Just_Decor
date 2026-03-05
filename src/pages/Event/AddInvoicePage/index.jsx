@@ -4,7 +4,13 @@ import { Breadcrumbs } from "@/layouts/demo1/breadcrumbs/Breadcrumbs";
 import { DatePicker, Input, Switch, Button, Spin } from "antd";
 import ItemTable from "@/components/InvoiceTable/ItemTable";
 import InvoiceFooter from "@/components/InvoiceTable/InvoiceFooter";
-import { AddInvoice, UpdateInvoice } from "@/services/apiServices";
+import {
+  AddInvoice,
+  UpdateInvoice,
+  GetQuotationReport,
+  GetInvoiceByEventId,
+  GetQuotation,
+} from "@/services/apiServices";
 import dayjs from "dayjs";
 import { Modal } from "antd";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -17,9 +23,7 @@ import Swal from "sweetalert2";
 import { Tooltip, message } from "antd";
 import { EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router";
-import { GetInvoiceByEventId, GetQuotation } from "@/services/apiServices";
 import { FormattedMessage, useIntl } from "react-intl";
-import { GetQuotationReport } from "../../../services/apiServices";
 
 dayjs.extend(customParseFormat);
 
@@ -1229,7 +1233,6 @@ const AddInvoicePage = () => {
                         <FormattedMessage id="COMMON.NA" />
                       )}
                       <br />
-                      {invoiceData?.billingname || ""}
                     </p>
                   )}
                 </div>

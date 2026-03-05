@@ -6,13 +6,12 @@ import { FormattedMessage } from "react-intl";
 import { Button, Modal } from "antd";
 import {
   EditOutlined,
-  ShareAltOutlined,
-  SendOutlined,
+  MailOutlined,
   PrinterOutlined,
   DollarCircleOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
-import { GetQuotationReport } from "@/services/apiServices";
+import { GetQuotationReport, GetSendInvoice } from "@/services/apiServices";
 import RecordPayment from "../../../../components/recordpayment/RecordPayment";
 import { useParams } from "react-router-dom";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -20,21 +19,23 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 export default function InvoiceViewPage() {
+  const navigate = useNavigate();
   const { EventId } = useParams();
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isPdfModalVisible, setIsPdfModalVisible] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
   const [loadingPdf, setLoadingPdf] = useState(false);
+  const [loadingEmail, setLoadingEmail] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
-  const [editPaymentData, setEditPaymentData] = useState(null); 
-  const [refreshKey, setRefreshKey] = useState(0); 
+  const [editPaymentData, setEditPaymentData] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [apiDueAmount, setApiDueAmount] = useState(0);
   const [invoiceRefreshKey, setInvoiceRefreshKey] = useState(0);
 
-  
   const pdfPlugin = defaultLayoutPlugin();
 
   const handleInvoiceDataLoad = (data) => {
@@ -42,13 +43,12 @@ export default function InvoiceViewPage() {
   };
 
   const refreshPayments = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const refreshInvoice = () => {
-  setInvoiceRefreshKey(prev => prev + 1);
-};
-
+    setInvoiceRefreshKey((prev) => prev + 1);
+  };
 
   const handleEditPayment = (payment) => {
     setEditPaymentData(payment);
@@ -96,13 +96,75 @@ export default function InvoiceViewPage() {
   };
 
   const activeEventId = selectedInvoice ?? EventId;
+  const handleSendEmail = async () => {
+    try {
+      setLoadingEmail(true);
+
+      const userId = localStorage.getItem("userId");
+      const lang = localStorage.getItem("lang");
+      const language =
+        lang == "en" ? 0 : lang == "hi" ? 1 : lang == "gu" ? 2 : 0;
+
+      const response = await GetSendInvoice(activeEventId, language, userId);
+      if (response.data) {
+        Swal.fire({
+          title: "Mail Sent Successfully",
+          text: response.data.message,
+          icon: "success",
+          confirmButtonColor: "#005BA8",
+        });
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      Swal.fire({
+        title: "Error",
+        text: error?.response?.data?.message || "Failed to send email",
+        icon: "error",
+        confirmButtonColor: "#005BA8",
+      });
+    } finally {
+      setLoadingEmail(false);
+    }
+  };
+
+  const handleWhatsApp = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      const activeEventId = selectedInvoice || EventId;
+
+      const response = await GetQuotationReport(activeEventId, userId, 1);
+
+      if (response.data) {
+        const pdfPath = response.data?.report_path;
+
+        const phone = invoiceData?.event?.mobileno || "";
+
+        const message = encodeURIComponent(
+          `Dear ${invoiceData?.event?.party?.nameEnglish || ""},\n\nYour invoice has been generated successfully.\nYou can view or download the invoice by clicking the link below.\n\nDownload PDF: ${pdfPath}`,
+        );
+
+        const url = phone
+          ? `https://wa.me/${phone}?text=${message}`
+          : `https://web.whatsapp.com/send?text=${message}`;
+
+        window.open(url, "_blank");
+      }
+    } catch (error) {
+      console.error("Error fetching PDF for WhatsApp:", error);
+      Swal.fire({
+        title: "Error",
+        text: error?.response?.data?.message || "Failed to generate PDF link",
+        icon: "error",
+        confirmButtonColor: "#005BA8",
+      });
+    }
+  };
 
   return (
     <>
       {/* Main Content */}
       <div className="px-2 sm:px-4 pb-4">
         <div className="flex flex-col lg:flex-row gap-4">
-          
           {/* Invoice List */}
           <div className="w-full lg:w-auto lg:flex-shrink-0">
             <InvoiceList onSelectInvoice={setSelectedInvoice} />
@@ -110,7 +172,6 @@ export default function InvoiceViewPage() {
 
           {/* Invoice Detail */}
           <div className="w-full lg:flex-1 lg:min-w-0 space-y-4">
-
             <div className="flex items-center justify-between gap-2 w-full">
               <h2 className="text-2xl font-bold text-primary">
                 {invoiceData?.invoiceCode || "INV – 0001"}
@@ -119,10 +180,16 @@ export default function InvoiceViewPage() {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-3 sm:gap-4 w-full">
-
               <Button
-                icon={<EditOutlined className="text-primary"/>}
+                icon={<EditOutlined className="text-primary" />}
                 className="rounded-lg border font-bold text-primary w-full"
+                onClick={() =>
+                  navigate(`/add-invoice/${activeEventId}`, {
+                    state: {
+                      eventId: activeEventId,
+                    },
+                  })
+                }
               >
                 <FormattedMessage
                   id="SALES.CLONE_INVOICE"
@@ -131,17 +198,30 @@ export default function InvoiceViewPage() {
               </Button>
 
               <Button
-                icon={<ShareAltOutlined className="text-primary" />}
                 className="rounded-lg border font-bold text-primary w-full"
+                onClick={handleWhatsApp}
               >
+                <i class="ki-filled ki-whatsapp"></i>
                 <FormattedMessage id="COMMON.SHARE" defaultMessage="Share" />
               </Button>
 
               <Button
-                icon={<SendOutlined className="text-primary" />}
+                icon={<MailOutlined className="text-primary" />}
                 className="rounded-lg border font-bold text-primary w-full"
+                onClick={handleSendEmail}
+                disabled={loadingEmail}
               >
-                <FormattedMessage id="COMMON.SEND" defaultMessage="Send" />
+                {loadingEmail ? (
+                  <>
+                    <i className="ki-filled ki-loading animate-spin"></i>
+                    <FormattedMessage
+                      id="COMMON.LOADING"
+                      defaultMessage="Loading..."
+                    />
+                  </>
+                ) : (
+                  <FormattedMessage id="COMMON.SEND" defaultMessage="Send" />
+                )}
               </Button>
 
               <Button
@@ -150,19 +230,22 @@ export default function InvoiceViewPage() {
                 onClick={handleGenerateReport}
                 disabled={loadingPdf}
               >
-                 {loadingPdf ? (
-                <>
-                  <i className="ki-filled ki-loading animate-spin"></i>
-                  <FormattedMessage
-                    id="COMMON.LOADING"
-                    defaultMessage="Loading..."
-                  />
-                </>
-              ) : (
-                <>
-                  <FormattedMessage id="COMMON.PRINT" defaultMessage="Print" />
-                </>
-              )}
+                {loadingPdf ? (
+                  <>
+                    <i className="ki-filled ki-loading animate-spin"></i>
+                    <FormattedMessage
+                      id="COMMON.LOADING"
+                      defaultMessage="Loading..."
+                    />
+                  </>
+                ) : (
+                  <>
+                    <FormattedMessage
+                      id="COMMON.PRINT"
+                      defaultMessage="Print"
+                    />
+                  </>
+                )}
               </Button>
 
               <Button
@@ -184,26 +267,21 @@ export default function InvoiceViewPage() {
               >
                 More
               </Button>
-
             </div>
 
-           <PaymentReceived
-  salesInvoiceData={invoiceData?.salesInvoiceData}
-  onEditPayment={handleEditPayment}
-  refreshKey={invoiceRefreshKey}
-  onDueAmountLoad={(amount) => setApiDueAmount(amount)}
-  onRefresh={refreshInvoice}
-/>
+            <PaymentReceived
+              salesInvoiceData={invoiceData?.salesInvoiceData}
+              onEditPayment={handleEditPayment}
+              refreshKey={invoiceRefreshKey}
+              onDueAmountLoad={(amount) => setApiDueAmount(amount)}
+              onRefresh={refreshInvoice}
+            />
 
-
-            <InvoiceDetail 
-  Eventid={activeEventId}
-  refreshKey={invoiceRefreshKey}
-  onInvoiceDataLoad={handleInvoiceDataLoad}
-/>
-
-
-
+            <InvoiceDetail
+              Eventid={activeEventId}
+              refreshKey={invoiceRefreshKey}
+              onInvoiceDataLoad={handleInvoiceDataLoad}
+            />
           </div>
         </div>
       </div>
@@ -257,20 +335,21 @@ export default function InvoiceViewPage() {
       </Modal>
 
       <RecordPayment
-  isModalOpen={isPaymentOpen}
-  setIsModalOpen={handleClosePayment}
-  eventId={activeEventId}
-  refreshData={() => {
-    refreshInvoice();      
-    setIsPaymentOpen(false);
-  }}
-  invoiceData={{
-    ...invoiceData,
-    due_amount: editPaymentData ? editPaymentData.due_amount : apiDueAmount,  // USE apiDueAmount
-  }}
-  editPayment={editPaymentData}
-/>
-
+        isModalOpen={isPaymentOpen}
+        setIsModalOpen={handleClosePayment}
+        eventId={activeEventId}
+        refreshData={() => {
+          refreshInvoice();
+          setIsPaymentOpen(false);
+        }}
+        invoiceData={{
+          ...invoiceData,
+          due_amount: editPaymentData
+            ? editPaymentData.due_amount
+            : apiDueAmount, // USE apiDueAmount
+        }}
+        editPayment={editPaymentData}
+      />
     </>
   );
 }

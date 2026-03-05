@@ -861,6 +861,12 @@ export const GetInvoiceByEventId = (eventId) => {
   return GET(`/invoice/getbyeventid?eventId=${eventId}`);
 };
 
+export const GetSendInvoice = (eventId, lang, userId) => {
+  return GET(
+    `/sendFile/sendQuotation?eventId=${eventId}&lang=${lang}&userId=${userId}`,
+  );
+};
+
 export const GetInvoiceByUserId = (id) => {
   return GET(`/invoice/getalluserid?userid=${id}`);
 };

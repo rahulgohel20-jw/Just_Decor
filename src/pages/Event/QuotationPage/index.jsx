@@ -513,22 +513,29 @@ const QuotationPage = () => {
   const handleFunctionChange = (index, field, value) => {
     setIsEdited(true);
     const newFunctions = [...quotationData.functions];
-    newFunctions[index][field] = value;
+    // Spread to avoid mutating original object reference
+    newFunctions[index] = { ...newFunctions[index], [field]: value };
 
     if (field === "persons" || field === "rate") {
-      const persons = parseFloat(newFunctions[index].persons) || 0;
-      // const extra = parseFloat(newFunctions[index].extra) || 0;
-      const rate = parseFloat(newFunctions[index].rate) || 0;
+      const persons =
+        parseFloat(field === "persons" ? value : newFunctions[index].persons) ||
+        0;
+      const rate =
+        parseFloat(field === "rate" ? value : newFunctions[index].rate) || 0;
 
       const total = persons * rate;
-      newFunctions[index].totalPrice =
-        total % 1 === 0 ? total.toString() : total.toFixed(2);
+      newFunctions[index] = {
+        ...newFunctions[index],
+        totalPrice: total % 1 === 0 ? total.toString() : total.toFixed(2),
+      };
     }
 
     if (field === "totalPrice") {
       const total = parseFloat(value) || 0;
-      newFunctions[index].totalPrice =
-        total % 1 === 0 ? total.toString() : total.toFixed(2);
+      newFunctions[index] = {
+        ...newFunctions[index],
+        totalPrice: total % 1 === 0 ? total.toString() : total.toFixed(2),
+      };
     }
 
     setQuotationData((prev) => ({
@@ -1136,7 +1143,6 @@ const QuotationPage = () => {
                       </span>
 
                       <div className="flex items-center gap-2">
-                        
                         {!isQuotationDateEditing ? (
                           <>
                             <span className="text-sm font-medium text-gray-900">
