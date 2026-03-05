@@ -34,8 +34,8 @@ const Addpipeline = ({ isModalOpen, setIsModalOpen, onSuccess }) => {
   useEffect(() => {
     if (isModalOpen) {
       fetchManagers();
-      setOpenStages([""]); // minimum 1 open
-      setCloseStages([""]); // minimum 1 close
+      setOpenStages([""]);
+      setCloseStages([""]);
     }
   }, [isModalOpen]);
 

@@ -3,7 +3,7 @@ import SimpleExpenseForm from "../../../partials/modals/add-super-expense/Simple
 import ComplexExpenseForm from "../../../partials/modals/add-super-expense/Complexexpenseform";
 import UserExpenseDrawer from "../../../partials/modals/add-super-expense/Userexpensedrawer";
 import { TableComponent } from "@/components/table/TableComponent";
-import { columns } from "./constant";
+import { columns, simpleColumns } from "./constant";
 import { toAbsoluteUrl } from "@/utils";
 import Swal from "sweetalert2";
 import {
@@ -15,17 +15,36 @@ import {
   GETofficeexpenseById,
   updatepayoutforoffice,
   updatepayoutforTrip,
+  Fetchmanager,
 } from "@/services/apiServices";
+import { DatePicker } from "antd";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SIMPLE_TYPES = ["employees", "office", "serve"];
+const SIMPLE_TYPES = ["employees", "office", "serve", "other"];
 
-const expenseTabs = [
+const ALL_TABS = [
   { key: "trip", label: "Trip Expenses" },
   { key: "employees", label: "Employees Expenses" },
   { key: "office", label: "Office Expenses" },
   { key: "serve", label: "Serve Expenses" },
   { key: "other", label: "Other Expenses" },
+];
+
+const RESTRICTED_TABS = [{ key: "trip", label: "Trip Expenses" }];
+
+const MONTHS = [
+  { value: 1, label: "January" },
+  { value: 2, label: "February" },
+  { value: 3, label: "March" },
+  { value: 4, label: "April" },
+  { value: 5, label: "May" },
+  { value: 6, label: "June" },
+  { value: 7, label: "July" },
+  { value: 8, label: "August" },
+  { value: 9, label: "September" },
+  { value: 10, label: "October" },
+  { value: 11, label: "November" },
+  { value: 12, label: "December" },
 ];
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -73,6 +92,17 @@ const IconSearch = () => (
     />
   </svg>
 );
+const IconChevron = () => (
+  <svg
+    className="w-4 h-4 text-gray-400 pointer-events-none"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+  </svg>
+);
 
 // ─── Date Utilities ───────────────────────────────────────────────────────────
 export const formatDate = (raw) => {
@@ -96,7 +126,16 @@ export const toInputDate = (raw) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const AllExpense = () => {
+  const userId = Number(localStorage.getItem("mainId"));
+  const isSuperAdmin = userId === 1;
+
+  const expenseTabs = isSuperAdmin ? ALL_TABS : RESTRICTED_TABS;
+
+  // Default selected month = current month
+  const currentMonth = new Date().getMonth() + 1;
+
   const [activeTab, setActiveTab] = useState("trip");
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [data, setData] = useState([]);
@@ -112,21 +151,65 @@ const AllExpense = () => {
     remaing_expense: 0,
   });
 
-  const userId = Number(localStorage.getItem("mainId"));
+  const [managers, setManagers] = useState([]);
+  const [selectedManagerId, setSelectedManagerId] = useState("all");
+  const [managersLoading, setManagersLoading] = useState(false);
+
   const currentTab = expenseTabs.find((t) => t.key === activeTab);
   const isSimple = SIMPLE_TYPES.includes(activeTab);
 
+  // ── Fetch managers ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    const fetchManagers = async () => {
+      setManagersLoading(true);
+      try {
+        const res = await Fetchmanager(1);
+        const userDetails = res?.data?.data?.userDetails ?? [];
+        setManagers(
+          userDetails.map((man) => ({
+            id: man.id,
+            name:
+              man.firstName ||
+              man.fullName ||
+              man.username ||
+              `Manager #${man.id}`,
+          })),
+        );
+      } catch (err) {
+        console.error("Failed to fetch managers:", err);
+        setManagers([]);
+      } finally {
+        setManagersLoading(false);
+      }
+    };
+    fetchManagers();
+  }, [isSuperAdmin]);
+
   // ── Fetch list ─────────────────────────────────────────────────────────────
-  const fetchExpenses = async (tab = activeTab) => {
+  const fetchExpenses = async (
+    tab = activeTab,
+    managerId = selectedManagerId,
+    month = selectedMonth,
+  ) => {
     setLoading(true);
     setData([]);
     try {
       const simple = SIMPLE_TYPES.includes(tab);
-      const res = simple
-        ? await GEtEmpofficeExpensebytype(userId, tab)
-        : await GEtEmployeeExpensebytype(userId, tab);
+      const targetUserId =
+        isSuperAdmin && managerId !== "all" ? Number(managerId) : userId;
 
-      // API shape: { total_expense, paid_expense, remaing_expense, data: [...] }
+      // ── Compute start/end date for selected month ──
+      const year = new Date().getFullYear();
+      const mm = String(month).padStart(2, "0");
+      const lastDay = new Date(year, month, 0).getDate(); // last day of month
+      const startDate = `01/${mm}/${year}`;
+      const endDate = `${lastDay}/${mm}/${year}`;
+
+      const res = simple
+        ? await GEtEmpofficeExpensebytype(targetUserId, tab, startDate, endDate)
+        : await GEtEmployeeExpensebytype(targetUserId, tab, startDate, endDate);
+
       const payload = res?.data?.data ?? res?.data ?? {};
 
       setSummary({
@@ -150,12 +233,7 @@ const AllExpense = () => {
             avatar: null,
           },
           amount: item.totalAmount ?? item.expenseAmount ?? 0,
-          status:
-            item.payoutAmount > 0 && item.remaingAmount === 0
-              ? "Paid"
-              : item.payoutAmount > 0 && item.remaingAmount > 0
-                ? "Pending"
-                : "Unpaid",
+          status: item.isPayout ?? "Unpaid",
           remarks: item.remark ?? item.remarks ?? "",
           startDate: formatDate(item.fromDate ?? item.expenseDate),
           dueDate: formatDate(item.dueDate),
@@ -179,8 +257,8 @@ const AllExpense = () => {
   };
 
   useEffect(() => {
-    fetchExpenses(activeTab);
-  }, [activeTab]);
+    fetchExpenses(activeTab, selectedManagerId, selectedMonth);
+  }, [activeTab, selectedManagerId, selectedMonth]);
 
   // ── Doc-path sanity ────────────────────────────────────────────────────────
   const validDoc = (url) =>
@@ -195,24 +273,26 @@ const AllExpense = () => {
         const d = res?.data?.data ?? {};
         setEditData({
           id: d.id ?? row.id,
-          title: d.title ?? "",
+          title: d.title ?? "-",
           employeeName: d.title ?? "",
           officeName: d.title ?? "",
           serveName: d.title ?? "",
           expenseDate: toInputDate(d.expenseDate),
           amount: d.expenseAmount ?? "",
-          dueDate: toInputDate(d.dueDate),
+          paidDate: toInputDate(d.paidDate?.split(" ")[0] ?? ""), // ← split off time part          dueDate: toInputDate(d.dueDate),
+
           paymentMethod: d.paymentMode ?? "gpay",
-          remarks: d.remarks ?? "",
+          remark: d.remark ?? "",
           billFile: null,
           existingDocUrl: validDoc(d.docPath),
+          employeeId: d.userId ?? null,
         });
       } else {
         const res = await GETtripexpenseById(row.id);
         const d = res?.data?.data ?? {};
         setEditData({
           id: d.id ?? row.id,
-          title: d.title ?? "",
+          title: d.title ?? "-",
           tripName: d.title ?? "",
           otherName: d.title ?? "",
           startDate: toInputDate(d.fromDate),
@@ -221,7 +301,8 @@ const AllExpense = () => {
           fromCity: d.fromCityId ?? null,
           toCity: d.toCityId ?? null,
           amount: d.totalAmount ?? "",
-          remarks: d.remarks ?? "",
+          remark: d.remark ?? "",
+          isPayout: d.status ?? "",
           expenseRows: (d.detailRequestDtos ?? []).map((tx) => ({
             id: tx.id ?? -1,
             expenseId: tx.expenseId ?? d.id ?? -1,
@@ -231,6 +312,7 @@ const AllExpense = () => {
             amount: tx.amount ?? "",
             remarks: tx.remarks ?? "",
             file: null,
+            km: tx.km ?? "",
             existingDocUrl: validDoc(tx.docPath),
           })),
         });
@@ -253,7 +335,7 @@ const AllExpense = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditData(null);
-    fetchExpenses(activeTab);
+    fetchExpenses(activeTab, selectedManagerId, selectedMonth);
   };
 
   // ── Drawer ─────────────────────────────────────────────────────────────────
@@ -306,6 +388,7 @@ const AllExpense = () => {
             amount: tx.amount ?? 0,
             status: tx.status ?? "Pending",
             docUrl: tx.docPath ?? null,
+            km: tx.km ?? "- ",
           })),
         });
       }
@@ -345,7 +428,6 @@ const AllExpense = () => {
       },
     });
     if (!result.isConfirmed) return;
-
     try {
       isSimple
         ? await DeleteEmployeeExpenseoffice(id)
@@ -384,10 +466,6 @@ const AllExpense = () => {
       isSimple
         ? await updatepayoutforoffice(id, payoutType, payoutAmount)
         : await updatepayoutforTrip(id, payoutType, payoutAmount);
-
-      // ✅ Update state directly — do NOT call fetchExpenses()
-      // Fetching immediately after the API call often returns the OLD
-      // status because the backend hasn't committed the change yet.
       setData((prev) =>
         prev.map((item) =>
           item.id === id
@@ -404,9 +482,6 @@ const AllExpense = () => {
             : item,
         ),
       );
-
-      // Fire-and-forget toast (no await) so table updates are visible immediately
-
       Swal.fire({
         title: "Payout Updated!",
         text: `Status set to ${payoutType} · ₹${Number(payoutAmount ?? 0).toLocaleString()}`,
@@ -415,7 +490,7 @@ const AllExpense = () => {
         showConfirmButton: false,
         customClass: { popup: "!rounded-2xl" },
       });
-      fetchExpenses(activeTab); // 👈 add this
+      fetchExpenses(activeTab, selectedManagerId, selectedMonth);
     } catch (err) {
       console.error("Payout failed:", err);
       Swal.fire({
@@ -434,15 +509,23 @@ const AllExpense = () => {
       e.remarks?.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const tableColumns = columns(
-    handleEdit,
-    handleDelete,
-    handleStatusChange,
-    handlePayout,
-    handleUserClick,
-  );
+  const tableColumns = isSimple
+    ? simpleColumns(
+        handleEdit,
+        handleDelete,
+        handleStatusChange,
+        handlePayout,
+        handleUserClick,
+      )
+    : columns(
+        handleEdit,
+        handleDelete,
+        handleStatusChange,
+        handlePayout,
+        handleUserClick,
+      );
 
-  // ─── Summary cards from live API ──────────────────────────────────────────
+  // ─── Summary cards ─────────────────────────────────────────────────────────
   const summaryCards = [
     {
       label: "Total Expenses",
@@ -467,7 +550,31 @@ const AllExpense = () => {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Summary Cards */}
+      {/* ── Month Filter Bar ─────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl px-4 py-3 shadow-sm mb-5 overflow-x-auto">
+        <div className="flex gap-1.5 min-w-max">
+          {MONTHS.map((m) => {
+            const isActive = selectedMonth === m.value;
+            return (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setSelectedMonth(m.value)}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap border-0 cursor-pointer transition-all duration-150
+                  ${
+                    isActive
+                      ? "bg-primary text-white shadow-sm"
+                      : "bg-transparent text-gray-500 hover:bg-gray-100"
+                  }`}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Summary Cards ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
         {summaryCards.map((card) => (
           <div
@@ -496,28 +603,37 @@ const AllExpense = () => {
         ))}
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-2xl px-4 py-3 shadow-sm mb-5 flex flex-wrap gap-2">
-        {expenseTabs.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 border-0 cursor-pointer
-              ${activeTab === tab.key ? "bg-blue-700 text-white shadow-sm" : "bg-transparent text-gray-500 hover:bg-gray-100"}`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* ── Expense Type Tabs ────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl px-4 py-4 shadow-sm mb-5">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {expenseTabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-150
+            ${
+              activeTab === tab.key
+                ? "bg-primary text-white shadow-sm"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-
-      {/* Table Card */}
+      {/* ── Table Card ───────────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl shadow-sm h-[700px] flex flex-col">
         <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
           <h2 className="text-base font-bold text-gray-900">
             {currentTab?.label}
           </h2>
+
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Search */}
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <IconSearch />
@@ -530,16 +646,62 @@ const AllExpense = () => {
               />
             </div>
 
+            {/* Manager dropdown — superadmin only */}
+            {isSuperAdmin && (
+              <div className="relative">
+                <select
+                  value={selectedManagerId}
+                  onChange={(e) => setSelectedManagerId(e.target.value)}
+                  disabled={managersLoading}
+                  className="appearance-none pl-3.5 pr-9 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 bg-white outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition cursor-pointer disabled:opacity-60 min-w-[160px]"
+                >
+                  <option value="all">All Members</option>
+                  {managers.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <IconChevron />
+                </span>
+                {managersLoading && (
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2">
+                    <svg
+                      className="w-3.5 h-3.5 animate-spin text-blue-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* New button */}
             <button
               type="button"
               disabled={editLoading}
               onClick={() => {
                 setEditData(null);
-                setModalKey((k) => k + 1); // 👈 force fresh key
+                setModalKey((k) => k + 1);
                 setIsModalOpen(false);
                 setTimeout(() => setIsModalOpen(true), 0);
               }}
-              className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer border-0 disabled:opacity-60"
+              className="flex items-center gap-1.5 bg-primary hover:bg-blue-800 active:bg-blue-900 text-white text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer border-0 disabled:opacity-60"
             >
               {editLoading ? (
                 <svg
@@ -567,6 +729,7 @@ const AllExpense = () => {
               New
             </button>
 
+            {/* Export PDF */}
             <button
               type="button"
               className="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-semibold px-4 py-2 rounded-xl transition cursor-pointer"
@@ -639,6 +802,7 @@ const AllExpense = () => {
           fetchExpenses={fetchExpenses}
         />
       )}
+
       <UserExpenseDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}

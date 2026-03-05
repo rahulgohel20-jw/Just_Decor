@@ -1777,9 +1777,15 @@ export const Addupdateemployeeexpense = (data) => {
   return POST(`employeeexpense/addOrUpdateTripExpense`, data);
 };
 
-export const GEtEmployeeExpensebytype = (userId, expenseType) => {
+export const GEtEmployeeExpensebytype = (userId, expenseType, startDate, endDate) => {
   return GET(
-    `employeeexpense/getTripExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`,
+    `employeeexpense/getTripExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}&startDate=${startDate}&endDate=${endDate}`,
+  );
+};
+
+export const GEtEmpofficeExpensebytype = (userId, expenseType, startDate, endDate) => {
+  return GET(
+    `employeeexpense/getOfficeExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}&startDate=${startDate}&endDate=${endDate}`,
   );
 };
 
@@ -1787,11 +1793,6 @@ export const AddOrUpdateOfficeExpense = (data) => {
   return POST(`employeeexpense/addOrUpdateOfficeExpense`, data);
 };
 
-export const GEtEmpofficeExpensebytype = (userId, expenseType) => {
-  return GET(
-    `employeeexpense/getOfficeExpenseByExpenseType?userId=${userId}&expenseType=${expenseType}`,
-  );
-};
 
 export const DeleteEmployeeExpenseoffice = (expenseId) => {
   return DELETE(`employeeexpense/deleteOfficeExpense?expenseId=${expenseId}`);
@@ -1813,15 +1814,15 @@ export const GETofficeexpenseById = (expenseId) => {
   );
 };
 
-export const updatepayoutforoffice = (expenseId, payoutType) => {
+export const updatepayoutforoffice = (expenseId, payoutType, payoutAmount) => {
   return PUT(
     `employeeexpense/payoutOfficeExpense?expenseId=${expenseId}&payoutType=${payoutType}&payoutAmount=${payoutAmount}`,
   );
 };
 
-export const updatepayoutforTrip = (expenseId, payoutType) => {
+export const updatepayoutforTrip = (expenseId, payoutType, payoutAmount) => {
   return PUT(
-    `employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}`,
+    `employeeexpense/payoutTripExpense?expenseId=${expenseId}&payoutType=${payoutType}&payoutAmount=${payoutAmount}`,
   );
 };
 export const AddStockType = (data) => {

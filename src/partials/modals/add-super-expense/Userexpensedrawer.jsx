@@ -195,6 +195,7 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
                       "Particular",
                       "Amount",
                       "Status",
+                      "km",
                       "View Document",
                     ].map((h) => (
                       <th
@@ -237,7 +238,9 @@ const UserExpenseDrawer = ({ isOpen, onClose, user }) => {
                         <td className="px-4 py-3">
                           <StatusBadge status={tx.status} />
                         </td>
-
+                        <td className="px-4 py-3 text-xs font-semibold text-gray-800 whitespace-nowrap">
+                          {tx.km}
+                        </td>
                         {/* View Document */}
                         <td className="px-4 py-3">
                           {tx.docUrl &&
